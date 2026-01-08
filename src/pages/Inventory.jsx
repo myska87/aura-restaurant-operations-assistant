@@ -739,12 +739,19 @@ export default function Inventory() {
             <div className="flex justify-end gap-3">
               <Button variant="outline" onClick={() => setShowOrderForm(false)}>Cancel</Button>
               <Button 
-                onClick={() => selectedSupplier && sendOrderEmail(selectedSupplier)}
-                disabled={!selectedSupplier || orderCart.length === 0}
+                onClick={async () => {
+                  if (selectedSupplier) {
+                    await sendOrderEmail(selectedSupplier);
+                    setShowOrderForm(false);
+                    setOrderCart([]);
+                    setSelectedSupplier(null);
+                  }
+                }}
+                disabled={!selectedSupplier || orderCart.length === 0 || orderMutation.isPending}
                 className="bg-gradient-to-r from-emerald-600 to-emerald-700"
               >
                 <Mail className="w-4 h-4 mr-2" />
-                Send Order
+                {orderMutation.isPending ? 'Sending...' : 'Send Order'}
               </Button>
             </div>
           </div>
