@@ -273,10 +273,13 @@ export default function MenuItemForm({ item, onSubmit, onCancel, aiGenerating })
       {/* Ingredients Section */}
       <Card>
         <CardHeader>
-          <CardTitle className="text-base flex items-center gap-2">
-            <Calculator className="w-4 h-4" />
-            Recipe Ingredients
-          </CardTitle>
+          <div className="flex items-center justify-between">
+            <CardTitle className="text-base flex items-center gap-2">
+              <Calculator className="w-4 h-4" />
+              Recipe Ingredients & Consumption
+            </CardTitle>
+            <Badge variant="outline" className="text-xs">Per Serving Quantities</Badge>
+          </div>
         </CardHeader>
         <CardContent className="space-y-3">
           <div className="flex gap-2">
@@ -301,59 +304,91 @@ export default function MenuItemForm({ item, onSubmit, onCancel, aiGenerating })
           
           <ScrollArea className="max-h-64">
             <div className="space-y-2">
-              {formData.ingredients?.map((ing, index) => (
-                <div key={index} className="flex items-center gap-2 p-2 bg-slate-50 rounded-lg">
-                  <div className="flex-1">
-                    <p className="text-sm font-medium">{ing.ingredient_name}</p>
+              {formData.ingredients?.map((ing, index) => {
+                const inventoryItem = ingredients.find(i => i.id === ing.ingredient_id);
+                const currentStock = inventoryItem?.current_stock || 0;
+                const servingsAvailable = ing.quantity > 0 ? Math.floor(currentStock / ing.quantity) : 0;
+                
+                return (
+                  <div key={index} className="p-3 bg-slate-50 rounded-lg border border-slate-200 space-y-2">
+                    <div className="flex items-center gap-2">
+                      <div className="flex-1">
+                        <p className="text-sm font-semibold">{ing.ingredient_name}</p>
+                        {inventoryItem && (
+                          <Badge className={
+                            servingsAvailable > 20 ? 'bg-emerald-100 text-emerald-700 text-xs mt-1' :
+                            servingsAvailable > 5 ? 'bg-amber-100 text-amber-700 text-xs mt-1' :
+                            'bg-red-100 text-red-700 text-xs mt-1'
+                          }>
+                            Stock: {currentStock.toFixed(1)} {ing.unit} • {servingsAvailable} servings
+                          </Badge>
+                        )}
+                      </div>
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="icon"
+                        className="h-8 w-8"
+                        onClick={() => removeIngredient(index)}
+                      >
+                        <Trash2 className="w-4 h-4 text-red-500" />
+                      </Button>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <Input
+                        type="number"
+                        step="0.01"
+                        placeholder="Quantity"
+                        value={ing.quantity}
+                        onChange={(e) => updateIngredient(index, 'quantity', e.target.value)}
+                        className="flex-1"
+                      />
+                      <span className="text-sm text-slate-600 min-w-12">{ing.unit}</span>
+                      <div className="min-w-20 text-right">
+                        <div className="text-sm font-bold text-slate-800">£{ing.total_cost?.toFixed(2) || '0.00'}</div>
+                        <div className="text-xs text-slate-500">per serving</div>
+                      </div>
+                    </div>
                   </div>
-                  <Input
-                    type="number"
-                    step="0.01"
-                    placeholder="Qty"
-                    value={ing.quantity}
-                    onChange={(e) => updateIngredient(index, 'quantity', e.target.value)}
-                    className="w-20"
-                  />
-                  <span className="text-xs text-slate-500">{ing.unit}</span>
-                  <span className="text-sm font-medium w-16 text-right">
-                    £{ing.total_cost?.toFixed(2) || '0.00'}
-                  </span>
-                  <Button
-                    type="button"
-                    variant="ghost"
-                    size="icon"
-                    className="h-8 w-8"
-                    onClick={() => removeIngredient(index)}
-                  >
-                    <Trash2 className="w-4 h-4 text-red-500" />
-                  </Button>
-                </div>
-              ))}
+                );
+              })}
             </div>
           </ScrollArea>
           
           {/* Cost Summary */}
           {formData.ingredients?.length > 0 && (
-            <div className="mt-4 p-4 bg-gradient-to-r from-emerald-50 to-green-50 rounded-xl border border-emerald-200">
-              <div className="grid grid-cols-3 gap-4 text-center">
-                <div>
-                  <p className="text-xs text-slate-500">Total Cost</p>
-                  <p className="text-lg font-bold text-slate-800">£{totalCost.toFixed(2)}</p>
+            <>
+              <div className="mt-4 p-4 bg-gradient-to-r from-emerald-50 to-green-50 rounded-xl border border-emerald-200">
+                <div className="grid grid-cols-3 gap-4 text-center">
+                  <div>
+                    <p className="text-xs text-slate-500">Total Cost</p>
+                    <p className="text-lg font-bold text-slate-800">£{totalCost.toFixed(2)}</p>
+                  </div>
+                  <div>
+                    <p className="text-xs text-slate-500">Profit</p>
+                    <p className={`text-lg font-bold ${profit >= 0 ? 'text-emerald-600' : 'text-red-600'}`}>
+                      £{profit.toFixed(2)}
+                    </p>
+                  </div>
+                  <div>
+                    <p className="text-xs text-slate-500">Margin</p>
+                    <p className={`text-lg font-bold ${margin >= 40 ? 'text-emerald-600' : margin >= 20 ? 'text-amber-600' : 'text-red-600'}`}>
+                      {margin.toFixed(0)}%
+                    </p>
+                  </div>
                 </div>
-                <div>
-                  <p className="text-xs text-slate-500">Profit</p>
-                  <p className={`text-lg font-bold ${profit >= 0 ? 'text-emerald-600' : 'text-red-600'}`}>
-                    £{profit.toFixed(2)}
-                  </p>
-                </div>
-                <div>
-                  <p className="text-xs text-slate-500">Margin</p>
-                  <p className={`text-lg font-bold ${margin >= 40 ? 'text-emerald-600' : margin >= 20 ? 'text-amber-600' : 'text-red-600'}`}>
-                    {margin.toFixed(0)}%
+              </div>
+              
+              <div className="mt-3 p-3 bg-blue-50 border border-blue-200 rounded-lg flex items-start gap-2 text-sm">
+                <Sparkles className="w-4 h-4 mt-0.5 text-blue-600 flex-shrink-0" />
+                <div className="text-blue-900">
+                  <p className="font-medium">Smart Ordering Ready</p>
+                  <p className="text-xs text-blue-700 mt-1">
+                    After saving, use "Order by Dish" to calculate and order exact ingredient quantities for any number of servings.
                   </p>
                 </div>
               </div>
-            </div>
+            </>
           )}
         </CardContent>
       </Card>
