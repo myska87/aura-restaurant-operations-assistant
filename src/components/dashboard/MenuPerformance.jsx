@@ -1,6 +1,6 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import { ChefHat, TrendingUp, TrendingDown, ArrowRight } from 'lucide-react';
+import { ChefHat, TrendingUp, TrendingDown, ArrowRight, AlertTriangle } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
