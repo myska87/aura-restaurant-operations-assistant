@@ -5,6 +5,9 @@ import Training from './pages/Training';
 import SOPs from './pages/SOPs';
 import Documents from './pages/Documents';
 import Inventory from './pages/Inventory';
+import Quality from './pages/Quality';
+import Meetings from './pages/Meetings';
+import Assets from './pages/Assets';
 import __Layout from './Layout.jsx';
 
 
@@ -16,6 +19,9 @@ export const PAGES = {
     "SOPs": SOPs,
     "Documents": Documents,
     "Inventory": Inventory,
+    "Quality": Quality,
+    "Meetings": Meetings,
+    "Assets": Assets,
 }
 
 export const pagesConfig = {
