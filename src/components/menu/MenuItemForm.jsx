@@ -1,0 +1,485 @@
+import React, { useState, useEffect } from 'react';
+import { base44 } from '@/api/base44Client';
+import { useQuery } from '@tanstack/react-query';
+import { Plus, Trash2, Calculator, Sparkles, Upload, FileText } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Textarea } from '@/components/ui/textarea';
+import { Switch } from '@/components/ui/switch';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import { Badge } from '@/components/ui/badge';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { ScrollArea } from '@/components/ui/scroll-area';
+
+const allergensList = [
+  'Gluten', 'Dairy', 'Eggs', 'Nuts', 'Peanuts', 'Soy', 'Fish', 'Shellfish', 
+  'Sesame', 'Mustard', 'Celery', 'Lupin', 'Sulphites', 'Molluscs'
+];
+
+export default function MenuItemForm({ item, onSubmit, onCancel, aiGenerating }) {
+  const [formData, setFormData] = useState({
+    name: '',
+    description: '',
+    category: 'mains',
+    price: '',
+    preparation_location: 'kitchen',
+    prep_time_minutes: '',
+    servings_per_batch: 1,
+    wastage_percent: 5,
+    allergens: [],
+    ingredients: [],
+    sop_id: '',
+    is_active: true,
+    is_available: true,
+    is_vegetarian: false,
+    is_vegan: false,
+    is_gluten_free: false,
+    calories: '',
+    image_url: '',
+    ...item
+  });
+
+  const [uploading, setUploading] = useState(false);
+  const [selectedAllergen, setSelectedAllergen] = useState('');
+
+  const { data: ingredients = [] } = useQuery({
+    queryKey: ['ingredients'],
+    queryFn: () => base44.entities.Ingredient.list('name'),
+  });
+
+  const { data: sops = [] } = useQuery({
+    queryKey: ['sops'],
+    queryFn: () => base44.entities.SOP.filter({ status: 'active' }),
+  });
+
+  useEffect(() => {
+    calculateCosting();
+  }, [formData.ingredients, formData.wastage_percent]);
+
+  const calculateCosting = () => {
+    if (!formData.ingredients || formData.ingredients.length === 0) return;
+    
+    const totalCost = formData.ingredients.reduce((sum, ing) => {
+      return sum + ((ing.quantity || 0) * (ing.cost_per_unit || 0));
+    }, 0);
+    
+    const wastageMultiplier = 1 + ((formData.wastage_percent || 0) / 100);
+    const finalCost = totalCost * wastageMultiplier;
+    const profit = (parseFloat(formData.price) || 0) - finalCost;
+    const margin = formData.price > 0 ? (profit / formData.price * 100) : 0;
+    
+    setFormData(prev => ({
+      ...prev,
+      cost: finalCost,
+      profit_margin: margin
+    }));
+  };
+
+  const addIngredient = (ingredientId) => {
+    const ingredient = ingredients.find(i => i.id === ingredientId);
+    if (!ingredient) return;
+    
+    const newIngredient = {
+      ingredient_id: ingredient.id,
+      ingredient_name: ingredient.name,
+      quantity: 0,
+      unit: ingredient.unit,
+      cost_per_unit: ingredient.cost_per_unit || 0,
+      total_cost: 0
+    };
+    
+    setFormData(prev => ({
+      ...prev,
+      ingredients: [...(prev.ingredients || []), newIngredient]
+    }));
+  };
+
+  const updateIngredient = (index, field, value) => {
+    const newIngredients = [...formData.ingredients];
+    newIngredients[index] = {
+      ...newIngredients[index],
+      [field]: parseFloat(value) || 0
+    };
+    
+    if (field === 'quantity' || field === 'cost_per_unit') {
+      newIngredients[index].total_cost = 
+        newIngredients[index].quantity * newIngredients[index].cost_per_unit;
+    }
+    
+    setFormData(prev => ({ ...prev, ingredients: newIngredients }));
+  };
+
+  const removeIngredient = (index) => {
+    setFormData(prev => ({
+      ...prev,
+      ingredients: prev.ingredients.filter((_, i) => i !== index)
+    }));
+  };
+
+  const addAllergen = () => {
+    if (!selectedAllergen || formData.allergens.includes(selectedAllergen)) return;
+    setFormData(prev => ({
+      ...prev,
+      allergens: [...prev.allergens, selectedAllergen]
+    }));
+    setSelectedAllergen('');
+  };
+
+  const removeAllergen = (allergen) => {
+    setFormData(prev => ({
+      ...prev,
+      allergens: prev.allergens.filter(a => a !== allergen)
+    }));
+  };
+
+  const handleImageUpload = async (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    
+    setUploading(true);
+    try {
+      const result = await base44.integrations.Core.UploadFile({ file });
+      setFormData(prev => ({ ...prev, image_url: result.file_url }));
+    } catch (error) {
+      console.error('Upload error:', error);
+    } finally {
+      setUploading(false);
+    }
+  };
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    
+    const submitData = {
+      ...formData,
+      price: parseFloat(formData.price) || 0,
+      prep_time_minutes: parseInt(formData.prep_time_minutes) || 0,
+      servings_per_batch: parseInt(formData.servings_per_batch) || 1,
+      wastage_percent: parseFloat(formData.wastage_percent) || 5,
+      calories: parseInt(formData.calories) || 0,
+      last_costed: new Date().toISOString()
+    };
+    
+    onSubmit(submitData);
+  };
+
+  const totalCost = formData.cost || 0;
+  const profit = (parseFloat(formData.price) || 0) - totalCost;
+  const margin = formData.price > 0 ? (profit / formData.price * 100) : 0;
+
+  return (
+    <form onSubmit={handleSubmit} className="space-y-6">
+      {/* Basic Info */}
+      <div className="grid md:grid-cols-2 gap-4">
+        <div className="md:col-span-2">
+          <Label>Item Name *</Label>
+          <Input
+            value={formData.name}
+            onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+            placeholder="e.g., Masala Chai, Butter Chicken"
+            required
+          />
+        </div>
+        
+        <div className="md:col-span-2">
+          <Label>Description</Label>
+          <Textarea
+            value={formData.description}
+            onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+            placeholder="Brief description of the item..."
+            rows={2}
+          />
+        </div>
+        
+        <div>
+          <Label>Category *</Label>
+          <Select value={formData.category} onValueChange={(v) => setFormData({ ...formData, category: v })}>
+            <SelectTrigger><SelectValue /></SelectTrigger>
+            <SelectContent>
+              <SelectItem value="hot_drinks">☕ Hot Drinks</SelectItem>
+              <SelectItem value="cold_drinks">🥤 Cold Drinks</SelectItem>
+              <SelectItem value="starters">🥗 Starters</SelectItem>
+              <SelectItem value="mains">🍛 Mains</SelectItem>
+              <SelectItem value="desserts">🍰 Desserts</SelectItem>
+              <SelectItem value="sides">🍟 Sides</SelectItem>
+              <SelectItem value="breakfast">🍳 Breakfast</SelectItem>
+              <SelectItem value="snacks">🥨 Snacks</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+        
+        <div>
+          <Label>Preparation Location *</Label>
+          <Select value={formData.preparation_location} onValueChange={(v) => setFormData({ ...formData, preparation_location: v })}>
+            <SelectTrigger><SelectValue /></SelectTrigger>
+            <SelectContent>
+              <SelectItem value="kitchen">Kitchen</SelectItem>
+              <SelectItem value="bar">Bar</SelectItem>
+              <SelectItem value="tandoor">Tandoor</SelectItem>
+              <SelectItem value="grill">Grill</SelectItem>
+              <SelectItem value="coffee_station">Coffee Station</SelectItem>
+              <SelectItem value="prep_area">Prep Area</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+        
+        <div>
+          <Label>Sale Price (£) *</Label>
+          <Input
+            type="number"
+            step="0.01"
+            value={formData.price}
+            onChange={(e) => setFormData({ ...formData, price: e.target.value })}
+            required
+          />
+        </div>
+        
+        <div>
+          <Label>Prep Time (minutes)</Label>
+          <Input
+            type="number"
+            value={formData.prep_time_minutes}
+            onChange={(e) => setFormData({ ...formData, prep_time_minutes: e.target.value })}
+          />
+        </div>
+        
+        <div>
+          <Label>Servings per Batch</Label>
+          <Input
+            type="number"
+            value={formData.servings_per_batch}
+            onChange={(e) => setFormData({ ...formData, servings_per_batch: e.target.value })}
+          />
+        </div>
+        
+        <div>
+          <Label>Wastage % (default 5%)</Label>
+          <Input
+            type="number"
+            step="0.1"
+            value={formData.wastage_percent}
+            onChange={(e) => setFormData({ ...formData, wastage_percent: e.target.value })}
+          />
+        </div>
+      </div>
+
+      {/* Ingredients Section */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-base flex items-center gap-2">
+            <Calculator className="w-4 h-4" />
+            Recipe Ingredients
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-3">
+          <div className="flex gap-2">
+            <Select onValueChange={addIngredient}>
+              <SelectTrigger className="flex-1">
+                <SelectValue placeholder="Add ingredient..." />
+              </SelectTrigger>
+              <SelectContent>
+                <ScrollArea className="h-64">
+                  {ingredients.map(ing => (
+                    <SelectItem key={ing.id} value={ing.id}>
+                      {ing.name} ({ing.unit}) - £{ing.cost_per_unit?.toFixed(2) || '0.00'}
+                    </SelectItem>
+                  ))}
+                </ScrollArea>
+              </SelectContent>
+            </Select>
+            <Button type="button" onClick={() => {}} disabled>
+              <Plus className="w-4 h-4" />
+            </Button>
+          </div>
+          
+          <ScrollArea className="max-h-64">
+            <div className="space-y-2">
+              {formData.ingredients?.map((ing, index) => (
+                <div key={index} className="flex items-center gap-2 p-2 bg-slate-50 rounded-lg">
+                  <div className="flex-1">
+                    <p className="text-sm font-medium">{ing.ingredient_name}</p>
+                  </div>
+                  <Input
+                    type="number"
+                    step="0.01"
+                    placeholder="Qty"
+                    value={ing.quantity}
+                    onChange={(e) => updateIngredient(index, 'quantity', e.target.value)}
+                    className="w-20"
+                  />
+                  <span className="text-xs text-slate-500">{ing.unit}</span>
+                  <span className="text-sm font-medium w-16 text-right">
+                    £{ing.total_cost?.toFixed(2) || '0.00'}
+                  </span>
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="icon"
+                    className="h-8 w-8"
+                    onClick={() => removeIngredient(index)}
+                  >
+                    <Trash2 className="w-4 h-4 text-red-500" />
+                  </Button>
+                </div>
+              ))}
+            </div>
+          </ScrollArea>
+          
+          {/* Cost Summary */}
+          {formData.ingredients?.length > 0 && (
+            <div className="mt-4 p-4 bg-gradient-to-r from-emerald-50 to-green-50 rounded-xl border border-emerald-200">
+              <div className="grid grid-cols-3 gap-4 text-center">
+                <div>
+                  <p className="text-xs text-slate-500">Total Cost</p>
+                  <p className="text-lg font-bold text-slate-800">£{totalCost.toFixed(2)}</p>
+                </div>
+                <div>
+                  <p className="text-xs text-slate-500">Profit</p>
+                  <p className={`text-lg font-bold ${profit >= 0 ? 'text-emerald-600' : 'text-red-600'}`}>
+                    £{profit.toFixed(2)}
+                  </p>
+                </div>
+                <div>
+                  <p className="text-xs text-slate-500">Margin</p>
+                  <p className={`text-lg font-bold ${margin >= 40 ? 'text-emerald-600' : margin >= 20 ? 'text-amber-600' : 'text-red-600'}`}>
+                    {margin.toFixed(0)}%
+                  </p>
+                </div>
+              </div>
+            </div>
+          )}
+        </CardContent>
+      </Card>
+
+      {/* Allergens */}
+      <div>
+        <Label>Allergens</Label>
+        <div className="flex gap-2 mb-2">
+          <Select value={selectedAllergen} onValueChange={setSelectedAllergen}>
+            <SelectTrigger className="flex-1">
+              <SelectValue placeholder="Add allergen..." />
+            </SelectTrigger>
+            <SelectContent>
+              {allergensList.map(allergen => (
+                <SelectItem key={allergen} value={allergen}>{allergen}</SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+          <Button type="button" onClick={addAllergen} disabled={!selectedAllergen}>
+            <Plus className="w-4 h-4" />
+          </Button>
+        </div>
+        <div className="flex flex-wrap gap-2">
+          {formData.allergens?.map(allergen => (
+            <Badge key={allergen} variant="outline" className="border-red-200 text-red-600">
+              {allergen}
+              <button
+                type="button"
+                onClick={() => removeAllergen(allergen)}
+                className="ml-2 hover:text-red-800"
+              >
+                ×
+              </button>
+            </Badge>
+          ))}
+        </div>
+      </div>
+
+      {/* SOP Link */}
+      <div>
+        <Label>Linked SOP (Preparation Guide)</Label>
+        <Select value={formData.sop_id || ''} onValueChange={(v) => setFormData({ ...formData, sop_id: v })}>
+          <SelectTrigger>
+            <SelectValue placeholder="Select preparation SOP..." />
+          </SelectTrigger>
+          <SelectContent>
+            <ScrollArea className="h-64">
+              {sops.map(sop => (
+                <SelectItem key={sop.id} value={sop.id}>
+                  <FileText className="w-4 h-4 mr-2 inline" />
+                  {sop.title}
+                </SelectItem>
+              ))}
+            </ScrollArea>
+          </SelectContent>
+        </Select>
+      </div>
+
+      {/* Dietary Flags */}
+      <div className="grid grid-cols-3 gap-4">
+        <div className="flex items-center gap-2">
+          <Switch
+            checked={formData.is_vegetarian}
+            onCheckedChange={(v) => setFormData({ ...formData, is_vegetarian: v })}
+            id="vegetarian"
+          />
+          <Label htmlFor="vegetarian">🌱 Vegetarian</Label>
+        </div>
+        <div className="flex items-center gap-2">
+          <Switch
+            checked={formData.is_vegan}
+            onCheckedChange={(v) => setFormData({ ...formData, is_vegan: v })}
+            id="vegan"
+          />
+          <Label htmlFor="vegan">🌿 Vegan</Label>
+        </div>
+        <div className="flex items-center gap-2">
+          <Switch
+            checked={formData.is_gluten_free}
+            onCheckedChange={(v) => setFormData({ ...formData, is_gluten_free: v })}
+            id="gluten_free"
+          />
+          <Label htmlFor="gluten_free">GF</Label>
+        </div>
+      </div>
+
+      {/* Status Toggles */}
+      <div className="grid grid-cols-2 gap-4">
+        <div className="flex items-center gap-2">
+          <Switch
+            checked={formData.is_active}
+            onCheckedChange={(v) => setFormData({ ...formData, is_active: v })}
+            id="active"
+          />
+          <Label htmlFor="active">Active on Menu</Label>
+        </div>
+        <div className="flex items-center gap-2">
+          <Switch
+            checked={formData.is_available}
+            onCheckedChange={(v) => setFormData({ ...formData, is_available: v })}
+            id="available"
+          />
+          <Label htmlFor="available">Currently Available</Label>
+        </div>
+      </div>
+
+      {/* Image Upload */}
+      <div>
+        <Label>Menu Item Image</Label>
+        <Input type="file" accept="image/*" onChange={handleImageUpload} disabled={uploading} />
+        {formData.image_url && (
+          <div className="mt-2">
+            <img src={formData.image_url} alt="Preview" className="w-32 h-32 object-cover rounded-lg" />
+          </div>
+        )}
+      </div>
+
+      {/* Submit */}
+      <div className="flex justify-end gap-3 pt-4 border-t">
+        <Button type="button" variant="outline" onClick={onCancel}>
+          Cancel
+        </Button>
+        <Button type="submit" className="bg-gradient-to-r from-emerald-600 to-emerald-700" disabled={aiGenerating}>
+          {aiGenerating ? 'Generating...' : item ? 'Update' : 'Create'} Menu Item
+        </Button>
+      </div>
+    </form>
+  );
+}
