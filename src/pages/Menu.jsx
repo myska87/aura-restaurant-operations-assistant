@@ -587,7 +587,7 @@ export default function Menu() {
 
       {/* Order by Dish Dialog */}
       <Dialog open={showOrderDialog} onOpenChange={setShowOrderDialog}>
-        <DialogContent className="max-w-4xl max-h-[90vh] p-0">
+        <DialogContent className="max-w-4xl h-[90vh] p-0 flex flex-col overflow-hidden">
           {orderingItem && (
             <OrderByDishDialog
               menuItem={orderingItem}
