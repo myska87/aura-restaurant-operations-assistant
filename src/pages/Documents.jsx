@@ -419,15 +419,15 @@ export default function Documents() {
 
       {/* View Document Dialog */}
       <Dialog open={!!viewingDoc} onOpenChange={() => setViewingDoc(null)}>
-        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+        <DialogContent className="max-w-5xl h-[90vh] flex flex-col overflow-hidden">
           {viewingDoc && (
             <>
-              <DialogHeader>
+              <DialogHeader className="flex-none">
                 <DialogTitle>{viewingDoc.title}</DialogTitle>
               </DialogHeader>
               
-              <div className="space-y-6">
-                <div className="flex flex-wrap gap-2">
+              <div className="flex-1 flex flex-col gap-4 overflow-hidden">
+                <div className="flex-none flex flex-wrap gap-2">
                   <Badge className={statusColors[viewingDoc.status]}>
                     {viewingDoc.status}
                   </Badge>
@@ -438,45 +438,67 @@ export default function Documents() {
                 </div>
                 
                 {viewingDoc.content && (
-                  <div className="bg-slate-50 rounded-xl p-4 whitespace-pre-wrap text-slate-600">
+                  <div className="flex-none bg-slate-50 rounded-xl p-4 whitespace-pre-wrap text-slate-600 max-h-48 overflow-y-auto">
                     {viewingDoc.content}
                   </div>
                 )}
                 
                 {viewingDoc.file_url && (
-                  <Button variant="outline" onClick={() => window.open(viewingDoc.file_url, '_blank')}>
-                    <Download className="w-4 h-4 mr-2" />
-                    Download Attachment
-                  </Button>
+                  <>
+                    {viewingDoc.file_url.toLowerCase().endsWith('.pdf') ? (
+                      <div className="flex-1 bg-slate-50 rounded-xl overflow-hidden">
+                        <iframe 
+                          src={viewingDoc.file_url}
+                          className="w-full h-full border-0"
+                          title={viewingDoc.title}
+                        />
+                      </div>
+                    ) : (
+                      <div className="flex-none">
+                        <Button variant="outline" onClick={() => window.open(viewingDoc.file_url, '_blank')}>
+                          <Download className="w-4 h-4 mr-2" />
+                          Download Attachment
+                        </Button>
+                      </div>
+                    )}
+                  </>
                 )}
                 
-                {viewingDoc.requires_signature && !hasUserSigned(viewingDoc.id) && (
-                  <div className="bg-amber-50 rounded-xl p-4 border border-amber-200">
-                    <p className="text-amber-800 font-medium mb-3">This document requires your signature</p>
-                    <Button 
-                      onClick={() => signMutation.mutate(viewingDoc.id)}
-                      disabled={signMutation.isPending}
-                      className="bg-amber-600 hover:bg-amber-700"
-                    >
-                      <Signature className="w-4 h-4 mr-2" />
-                      Sign Document
+                <div className="flex-none space-y-4">
+                  {viewingDoc.requires_signature && !hasUserSigned(viewingDoc.id) && (
+                    <div className="bg-amber-50 rounded-xl p-4 border border-amber-200">
+                      <p className="text-amber-800 font-medium mb-3">This document requires your signature</p>
+                      <Button 
+                        onClick={() => signMutation.mutate(viewingDoc.id)}
+                        disabled={signMutation.isPending}
+                        className="bg-amber-600 hover:bg-amber-700"
+                      >
+                        <Signature className="w-4 h-4 mr-2" />
+                        Sign Document
+                      </Button>
+                    </div>
+                  )}
+                  
+                  {viewingDoc.requires_signature && hasUserSigned(viewingDoc.id) && (
+                    <div className="bg-emerald-50 rounded-xl p-4 border border-emerald-200">
+                      <p className="text-emerald-800 flex items-center gap-2">
+                        <FileCheck className="w-4 h-4" />
+                        You have signed this document
+                      </p>
+                    </div>
+                  )}
+                  
+                  <div className="flex justify-end gap-3 pt-4 border-t">
+                    {viewingDoc.file_url && !viewingDoc.file_url.toLowerCase().endsWith('.pdf') && (
+                      <Button variant="outline" onClick={() => window.open(viewingDoc.file_url, '_blank')}>
+                        <Download className="w-4 h-4 mr-2" />
+                        Download
+                      </Button>
+                    )}
+                    <Button variant="outline" onClick={() => setViewingDoc(null)}>
+                      Close
                     </Button>
                   </div>
-                )}
-                
-                {viewingDoc.requires_signature && hasUserSigned(viewingDoc.id) && (
-                  <div className="bg-emerald-50 rounded-xl p-4 border border-emerald-200">
-                    <p className="text-emerald-800 flex items-center gap-2">
-                      <FileCheck className="w-4 h-4" />
-                      You have signed this document
-                    </p>
-                  </div>
-                )}
-                
-                <div className="flex justify-end gap-3 pt-4 border-t">
-                  <Button variant="outline" onClick={() => setViewingDoc(null)}>
-                    Close
-                  </Button>
                 </div>
               </div>
             </>
