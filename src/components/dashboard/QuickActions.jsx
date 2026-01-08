@@ -13,10 +13,10 @@ import {
 
 const actions = [
   { label: 'Clock In/Out', icon: Clock, page: 'Shifts', color: 'bg-emerald-500' },
-  { label: 'New SOP', icon: FileText, page: 'SOPs', color: 'bg-amber-500', params: '?action=new' },
-  { label: 'Start Audit', icon: ClipboardCheck, page: 'Quality', color: 'bg-blue-500', params: '?action=new' },
-  { label: 'Add Staff', icon: Users, page: 'Staff', color: 'bg-purple-500', params: '?action=new' },
-  { label: 'New Order', icon: Package, page: 'Inventory', color: 'bg-rose-500', params: '?tab=orders' },
+  { label: 'New Menu Item', icon: Plus, page: 'Menu', color: 'bg-amber-500' },
+  { label: 'Start Audit', icon: ClipboardCheck, page: 'Quality', color: 'bg-blue-500' },
+  { label: 'Add Staff', icon: Users, page: 'Staff', color: 'bg-purple-500' },
+  { label: 'New Order', icon: Package, page: 'Inventory', color: 'bg-rose-500' },
 ];
 
 export default function QuickActions() {

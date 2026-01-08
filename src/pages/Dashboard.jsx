@@ -19,6 +19,7 @@ import UpcomingShifts from '@/components/dashboard/UpcomingShifts';
 import LowStockAlert from '@/components/dashboard/LowStockAlert';
 import TrainingProgressWidget from '@/components/dashboard/TrainingProgress';
 import ActivityFeed from '@/components/dashboard/ActivityFeed';
+import MenuPerformance from '@/components/dashboard/MenuPerformance';
 import LoadingSpinner from '@/components/ui/LoadingSpinner';
 
 export default function Dashboard() {
@@ -85,6 +86,11 @@ export default function Dashboard() {
   const { data: audits = [] } = useQuery({
     queryKey: ['audits'],
     queryFn: () => base44.entities.QualityAudit.list('-audit_date', 5),
+  });
+
+  const { data: menuItems = [] } = useQuery({
+    queryKey: ['menuItems'],
+    queryFn: () => base44.entities.MenuItem.list(),
   });
 
   if (loadingStaff && loadingShifts) {
@@ -207,6 +213,9 @@ export default function Dashboard() {
 
         {/* Right Column */}
         <div className="space-y-6">
+          {/* Menu Performance */}
+          <MenuPerformance menuItems={menuItems} />
+          
           {/* Training Progress */}
           <TrainingProgressWidget 
             progress={trainingProgress} 
