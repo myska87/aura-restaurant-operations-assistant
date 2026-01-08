@@ -12,7 +12,8 @@ import {
   Clock,
   ChefHat,
   DollarSign,
-  Eye
+  Eye,
+  ShoppingCart
 } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -47,7 +48,7 @@ const categoryEmojis = {
   snacks: '🥨'
 };
 
-export default function MenuItemCard({ item, onEdit, onDuplicate, onDelete, onView }) {
+export default function MenuItemCard({ item, onEdit, onDuplicate, onDelete, onView, onOrderIngredients, ingredients = [] }) {
   const profit = item.price - (item.cost || 0);
   const margin = item.price > 0 ? ((profit / item.price) * 100) : 0;
   
@@ -58,10 +59,35 @@ export default function MenuItemCard({ item, onEdit, onDuplicate, onDelete, onVi
     return 'text-red-600 bg-red-50';
   };
 
-  const hasLowStockIngredients = item.ingredients?.some(ing => {
-    // This would need to check against actual inventory
-    return false; // Placeholder
-  });
+  // Calculate stock status
+  const getStockStatus = () => {
+    if (!item.ingredients || item.ingredients.length === 0) return { status: 'unknown', color: 'bg-slate-500' };
+    
+    let hasLowStock = false;
+    let hasOutOfStock = false;
+    
+    item.ingredients.forEach(ing => {
+      const inventoryItem = ingredients.find(inv => 
+        inv.name?.toLowerCase().includes(ing.ingredient_name?.toLowerCase()) ||
+        ing.ingredient_name?.toLowerCase().includes(inv.name?.toLowerCase())
+      );
+      
+      if (!inventoryItem) return;
+      
+      const currentStock = inventoryItem.current_stock || 0;
+      const minStock = inventoryItem.min_stock_level || 0;
+      
+      if (currentStock === 0) hasOutOfStock = true;
+      else if (currentStock <= minStock) hasLowStock = true;
+    });
+    
+    if (hasOutOfStock) return { status: 'out', color: 'bg-red-600', icon: AlertTriangle, text: 'Out of Stock' };
+    if (hasLowStock) return { status: 'low', color: 'bg-amber-600', icon: AlertTriangle, text: 'Low Stock' };
+    return { status: 'good', color: 'bg-emerald-600', icon: CheckCircle, text: 'In Stock' };
+  };
+
+  const stockStatus = getStockStatus();
+  const hasLowStockIngredients = stockStatus.status === 'low' || stockStatus.status === 'out';
 
   return (
     <motion.div
@@ -88,10 +114,10 @@ export default function MenuItemCard({ item, onEdit, onDuplicate, onDelete, onVi
           {!item.is_available && (
             <Badge className="bg-red-600 text-white text-xs">Out of Stock</Badge>
           )}
-          {hasLowStockIngredients && (
-            <Badge className="bg-amber-600 text-white text-xs">
-              <AlertTriangle className="w-3 h-3 mr-1" />
-              Low Stock
+          {stockStatus.status !== 'unknown' && stockStatus.status !== 'good' && (
+            <Badge className={`${stockStatus.color} text-white text-xs`}>
+              <stockStatus.icon className="w-3 h-3 mr-1" />
+              {stockStatus.text}
             </Badge>
           )}
         </div>
@@ -108,6 +134,11 @@ export default function MenuItemCard({ item, onEdit, onDuplicate, onDelete, onVi
               <DropdownMenuItem onClick={() => onView(item)}>
                 <Eye className="w-4 h-4 mr-2" /> View Details
               </DropdownMenuItem>
+              {onOrderIngredients && (
+                <DropdownMenuItem onClick={() => onOrderIngredients(item)} className="text-emerald-600">
+                  <ShoppingCart className="w-4 h-4 mr-2" /> Order Ingredients
+                </DropdownMenuItem>
+              )}
               <DropdownMenuItem onClick={() => onEdit(item)}>
                 <Edit className="w-4 h-4 mr-2" /> Edit
               </DropdownMenuItem>

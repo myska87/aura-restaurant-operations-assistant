@@ -18,7 +18,8 @@ import {
   Upload,
   AlertTriangle,
   Eye,
-  FileText
+  FileText,
+  ShoppingCart
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -53,6 +54,7 @@ import LoadingSpinner from '@/components/ui/LoadingSpinner';
 import MenuItemCard from '@/components/menu/MenuItemCard';
 import MenuItemForm from '@/components/menu/MenuItemForm';
 import AIMenuAssistant from '@/components/menu/AIMenuAssistant';
+import OrderByDishDialog from '@/components/menu/OrderByDishDialog';
 import { Link } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
 
@@ -62,8 +64,10 @@ export default function Menu() {
   const [showForm, setShowForm] = useState(false);
   const [showAI, setShowAI] = useState(false);
   const [showDetails, setShowDetails] = useState(false);
+  const [showOrderDialog, setShowOrderDialog] = useState(false);
   const [editingItem, setEditingItem] = useState(null);
   const [viewingItem, setViewingItem] = useState(null);
+  const [orderingItem, setOrderingItem] = useState(null);
   const [searchQuery, setSearchQuery] = useState('');
   const [filterCategory, setFilterCategory] = useState('all');
   const [filterLocation, setFilterLocation] = useState('all');
@@ -338,10 +342,12 @@ export default function Menu() {
               <MenuItemCard
                 key={item.id}
                 item={item}
+                ingredients={ingredients}
                 onEdit={canEdit ? (i) => { setEditingItem(i); setShowForm(true); } : undefined}
                 onDuplicate={canEdit ? handleDuplicate : undefined}
                 onDelete={canEdit ? (i) => deleteMutation.mutate(i.id) : undefined}
                 onView={(i) => { setViewingItem(i); setShowDetails(true); }}
+                onOrderIngredients={canEdit ? (i) => { setOrderingItem(i); setShowOrderDialog(true); } : undefined}
               />
             ))}
           </AnimatePresence>
@@ -479,21 +485,51 @@ export default function Menu() {
                 {/* Ingredients */}
                 {viewingItem.ingredients?.length > 0 && (
                   <div>
-                    <h4 className="font-semibold mb-3">Ingredients</h4>
+                    <div className="flex items-center justify-between mb-3">
+                      <h4 className="font-semibold">Ingredients (Per Serving)</h4>
+                      <Button
+                        size="sm"
+                        onClick={() => { setOrderingItem(viewingItem); setShowOrderDialog(true); setShowDetails(false); }}
+                        className="bg-emerald-600"
+                      >
+                        <ShoppingCart className="w-4 h-4 mr-2" />
+                        Order by Dish
+                      </Button>
+                    </div>
                     <div className="space-y-2">
-                      {viewingItem.ingredients.map((ing, i) => (
-                        <div key={i} className="flex items-center justify-between p-2 bg-slate-50 rounded-lg">
-                          <span className="text-sm">{ing.ingredient_name}</span>
-                          <div className="flex items-center gap-3">
-                            <span className="text-sm text-slate-500">
-                              {ing.quantity} {ing.unit}
-                            </span>
-                            <span className="text-sm font-medium">
+                      {viewingItem.ingredients.map((ing, i) => {
+                        const inventoryItem = ingredients.find(inv => 
+                          inv.name?.toLowerCase().includes(ing.ingredient_name?.toLowerCase()) ||
+                          ing.ingredient_name?.toLowerCase().includes(inv.name?.toLowerCase())
+                        );
+                        const currentStock = inventoryItem?.current_stock || 0;
+                        const availableServings = ing.quantity > 0 ? Math.floor(currentStock / ing.quantity) : 0;
+                        
+                        return (
+                          <div key={i} className="flex items-center justify-between p-3 bg-slate-50 rounded-lg">
+                            <div className="flex-1">
+                              <span className="text-sm font-medium">{ing.ingredient_name}</span>
+                              <div className="flex items-center gap-2 mt-1">
+                                <Badge variant="outline" className="text-xs">
+                                  {ing.quantity} {ing.unit} per serving
+                                </Badge>
+                                {inventoryItem && (
+                                  <Badge className={
+                                    availableServings > 10 ? 'bg-emerald-100 text-emerald-700' :
+                                    availableServings > 0 ? 'bg-amber-100 text-amber-700' :
+                                    'bg-red-100 text-red-700'
+                                  }>
+                                    {currentStock.toFixed(1)} {ing.unit} in stock (~{availableServings} servings)
+                                  </Badge>
+                                )}
+                              </div>
+                            </div>
+                            <span className="text-sm font-medium ml-3">
                               £{ing.total_cost?.toFixed(2) || '0.00'}
                             </span>
                           </div>
-                        </div>
-                      ))}
+                        );
+                      })}
                     </div>
                   </div>
                 )}
@@ -536,6 +572,18 @@ export default function Menu() {
         onGenerate={handleAIGenerate}
         ingredients={ingredients}
       />
+
+      {/* Order by Dish Dialog */}
+      <Dialog open={showOrderDialog} onOpenChange={setShowOrderDialog}>
+        <DialogContent className="max-w-4xl max-h-[90vh] p-0">
+          {orderingItem && (
+            <OrderByDishDialog
+              menuItem={orderingItem}
+              onClose={() => { setShowOrderDialog(false); setOrderingItem(null); }}
+            />
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
