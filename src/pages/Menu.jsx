@@ -486,11 +486,14 @@ export default function Menu() {
                 {viewingItem.ingredients?.length > 0 && (
                   <div>
                     <div className="flex items-center justify-between mb-3">
-                      <h4 className="font-semibold">Ingredients (Per Serving)</h4>
+                      <div>
+                        <h4 className="font-semibold">Ingredients & Consumption</h4>
+                        <p className="text-xs text-slate-500 mt-1">Quantities consumed per serving</p>
+                      </div>
                       <Button
                         size="sm"
                         onClick={() => { setOrderingItem(viewingItem); setShowOrderDialog(true); setShowDetails(false); }}
-                        className="bg-emerald-600"
+                        className="bg-gradient-to-r from-emerald-600 to-emerald-700 shadow-lg"
                       >
                         <ShoppingCart className="w-4 h-4 mr-2" />
                         Order by Dish
@@ -506,27 +509,36 @@ export default function Menu() {
                         const availableServings = ing.quantity > 0 ? Math.floor(currentStock / ing.quantity) : 0;
                         
                         return (
-                          <div key={i} className="flex items-center justify-between p-3 bg-slate-50 rounded-lg">
+                          <div key={i} className="flex items-center justify-between p-3 bg-gradient-to-r from-slate-50 to-slate-100 rounded-lg border border-slate-200">
                             <div className="flex-1">
-                              <span className="text-sm font-medium">{ing.ingredient_name}</span>
-                              <div className="flex items-center gap-2 mt-1">
-                                <Badge variant="outline" className="text-xs">
-                                  {ing.quantity} {ing.unit} per serving
+                              <div className="flex items-center gap-2 mb-2">
+                                <span className="text-sm font-semibold text-slate-800">{ing.ingredient_name}</span>
+                                <Badge variant="outline" className="text-xs font-semibold text-emerald-700 border-emerald-300">
+                                  Consumes: {ing.quantity} {ing.unit}
                                 </Badge>
-                                {inventoryItem && (
+                              </div>
+                              <div className="flex items-center gap-2">
+                                {inventoryItem ? (
                                   <Badge className={
-                                    availableServings > 10 ? 'bg-emerald-100 text-emerald-700' :
-                                    availableServings > 0 ? 'bg-amber-100 text-amber-700' :
+                                    availableServings > 20 ? 'bg-emerald-100 text-emerald-700' :
+                                    availableServings > 5 ? 'bg-amber-100 text-amber-700' :
                                     'bg-red-100 text-red-700'
                                   }>
-                                    {currentStock.toFixed(1)} {ing.unit} in stock (~{availableServings} servings)
+                                    📦 Stock: {currentStock.toFixed(1)} {ing.unit} • {availableServings} servings available
+                                  </Badge>
+                                ) : (
+                                  <Badge variant="outline" className="text-xs text-slate-500">
+                                    Not in inventory
                                   </Badge>
                                 )}
                               </div>
                             </div>
-                            <span className="text-sm font-medium ml-3">
-                              £{ing.total_cost?.toFixed(2) || '0.00'}
-                            </span>
+                            <div className="text-right ml-4">
+                              <div className="text-sm font-bold text-slate-800">
+                                £{ing.total_cost?.toFixed(2) || '0.00'}
+                              </div>
+                              <div className="text-xs text-slate-500">per serving</div>
+                            </div>
                           </div>
                         );
                       })}
