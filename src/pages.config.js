@@ -10,6 +10,8 @@ import Meetings from './pages/Meetings';
 import Assets from './pages/Assets';
 import Profile from './pages/Profile';
 import Settings from './pages/Settings';
+import Menu from './pages/Menu';
+import MenuCostingDashboard from './pages/MenuCostingDashboard';
 import __Layout from './Layout.jsx';
 
 
@@ -26,6 +28,8 @@ export const PAGES = {
     "Assets": Assets,
     "Profile": Profile,
     "Settings": Settings,
+    "Menu": Menu,
+    "MenuCostingDashboard": MenuCostingDashboard,
 }
 
 export const pagesConfig = {
