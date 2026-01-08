@@ -22,7 +22,8 @@ import {
   LogOut,
   Settings,
   User,
-  Leaf
+  Leaf,
+  ChefHat
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -38,6 +39,7 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 
 const navItems = [
   { name: 'Dashboard', icon: LayoutDashboard, page: 'Dashboard' },
+  { name: 'Menu', icon: ChefHat, page: 'Menu' },
   { name: 'Staff', icon: Users, page: 'Staff' },
   { name: 'Shifts & Rota', icon: Calendar, page: 'Shifts' },
   { name: 'Training Academy', icon: GraduationCap, page: 'Training' },
