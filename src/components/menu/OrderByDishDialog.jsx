@@ -222,8 +222,8 @@ AURA System – Chai Patta Operations`;
   };
 
   return (
-    <div className="h-full flex flex-col">
-      <div className="p-6 border-b">
+    <div className="h-full flex flex-col overflow-hidden">
+      <div className="flex-none p-6 border-b">
         <div className="flex items-center gap-3 mb-2">
           <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-emerald-500 to-emerald-600 flex items-center justify-center">
             <ShoppingCart className="w-6 h-6 text-white" />
@@ -235,7 +235,7 @@ AURA System – Chai Patta Operations`;
         </div>
       </div>
 
-      <ScrollArea className="flex-1">
+      <div className="flex-1 overflow-y-auto">
         <div className="p-6 space-y-6">
           {!orderGenerated ? (
             <>
@@ -457,10 +457,10 @@ AURA System – Chai Patta Operations`;
             </motion.div>
           )}
         </div>
-      </ScrollArea>
+      </div>
 
       {/* Footer Actions */}
-      <div className="p-6 border-t bg-slate-50">
+      <div className="flex-none p-6 border-t bg-slate-50">
         <div className="flex gap-3">
           {!orderGenerated ? (
             <>
