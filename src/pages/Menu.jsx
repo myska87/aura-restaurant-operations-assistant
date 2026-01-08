@@ -54,7 +54,7 @@ import MenuItemCard from '@/components/menu/MenuItemCard';
 import MenuItemForm from '@/components/menu/MenuItemForm';
 import AIMenuAssistant from '@/components/menu/AIMenuAssistant';
 import { Link } from 'react-router-dom';
-import { createPageUrl } from './utils';
+import { createPageUrl } from '@/utils';
 
 export default function Menu() {
   const [user, setUser] = useState(null);

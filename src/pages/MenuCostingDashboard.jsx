@@ -34,7 +34,7 @@ import {
 } from '@/components/ui/table';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Link } from 'react-router-dom';
-import { createPageUrl } from './utils';
+import { createPageUrl } from '@/utils';
 import LoadingSpinner from '@/components/ui/LoadingSpinner';
 
 export default function MenuCostingDashboard() {
