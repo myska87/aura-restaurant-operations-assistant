@@ -8,6 +8,8 @@ import Inventory from './pages/Inventory';
 import Quality from './pages/Quality';
 import Meetings from './pages/Meetings';
 import Assets from './pages/Assets';
+import Profile from './pages/Profile';
+import Settings from './pages/Settings';
 import __Layout from './Layout.jsx';
 
 
@@ -22,6 +24,8 @@ export const PAGES = {
     "Quality": Quality,
     "Meetings": Meetings,
     "Assets": Assets,
+    "Profile": Profile,
+    "Settings": Settings,
 }
 
 export const pagesConfig = {
