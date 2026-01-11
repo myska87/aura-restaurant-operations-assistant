@@ -276,9 +276,9 @@ export default function MenuItemForm({ item, onSubmit, onCancel, aiGenerating })
           <div className="flex items-center justify-between">
             <CardTitle className="text-base flex items-center gap-2">
               <Calculator className="w-4 h-4" />
-              Recipe Ingredients & Consumption
+              Recipe Ingredients & Quantities
             </CardTitle>
-            <Badge variant="outline" className="text-xs">Per Serving Quantities</Badge>
+            <Badge className="bg-emerald-100 text-emerald-700 text-xs">Quantity Used Per Serving</Badge>
           </div>
         </CardHeader>
         <CardContent className="space-y-3">
@@ -335,18 +335,21 @@ export default function MenuItemForm({ item, onSubmit, onCancel, aiGenerating })
                       </Button>
                     </div>
                     <div className="flex items-center gap-2">
-                      <Input
-                        type="number"
-                        step="0.01"
-                        placeholder="Quantity"
-                        value={ing.quantity}
-                        onChange={(e) => updateIngredient(index, 'quantity', e.target.value)}
-                        className="flex-1"
-                      />
-                      <span className="text-sm text-slate-600 min-w-12">{ing.unit}</span>
-                      <div className="min-w-20 text-right">
-                        <div className="text-sm font-bold text-slate-800">£{ing.total_cost?.toFixed(2) || '0.00'}</div>
-                        <div className="text-xs text-slate-500">per serving</div>
+                      <div className="flex-1">
+                        <Label className="text-xs text-slate-600 mb-1">Quantity per serving</Label>
+                        <Input
+                          type="number"
+                          step="0.01"
+                          placeholder="0.00"
+                          value={ing.quantity}
+                          onChange={(e) => updateIngredient(index, 'quantity', e.target.value)}
+                          className="mt-1"
+                        />
+                      </div>
+                      <span className="text-sm text-slate-600 min-w-12 mt-5">{ing.unit}</span>
+                      <div className="min-w-24 text-right mt-5">
+                        <div className="text-sm font-bold text-emerald-700">£{ing.total_cost?.toFixed(2) || '0.00'}</div>
+                        <div className="text-xs text-slate-500">cost/serving</div>
                       </div>
                     </div>
                   </div>

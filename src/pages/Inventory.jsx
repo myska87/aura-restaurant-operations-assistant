@@ -346,7 +346,12 @@ export default function Inventory() {
                     <TableHead>Ingredient</TableHead>
                     <TableHead>Category</TableHead>
                     <TableHead>Stock Level</TableHead>
-                    <TableHead>Cost/Unit</TableHead>
+                    <TableHead>
+                      <div className="flex items-center gap-1">
+                        <DollarSign className="w-3 h-3" />
+                        Price/Unit
+                      </div>
+                    </TableHead>
                     <TableHead>Supplier</TableHead>
                     <TableHead className="w-24">Actions</TableHead>
                   </TableRow>
@@ -378,7 +383,9 @@ export default function Inventory() {
                             </Badge>
                           </div>
                         </TableCell>
-                        <TableCell>£{ing.cost_per_unit?.toFixed(2) || '0.00'}</TableCell>
+                        <TableCell>
+                          <span className="font-semibold text-slate-800">£{ing.cost_per_unit?.toFixed(2) || '0.00'}</span>
+                        </TableCell>
                         <TableCell>{ing.supplier_name || '-'}</TableCell>
                         <TableCell>
                           <div className="flex items-center gap-1">
@@ -610,9 +617,21 @@ export default function Inventory() {
                 <Label>Max Stock Level</Label>
                 <Input name="max_stock_level" type="number" step="0.01" defaultValue={editingIngredient?.max_stock_level} />
               </div>
-              <div>
-                <Label>Cost per Unit (£)</Label>
-                <Input name="cost_per_unit" type="number" step="0.01" defaultValue={editingIngredient?.cost_per_unit} />
+              <div className="col-span-2 p-3 bg-amber-50 border border-amber-200 rounded-lg">
+                <Label className="text-amber-900 font-semibold flex items-center gap-2">
+                  <DollarSign className="w-4 h-4" />
+                  Cost per Unit (£) *
+                </Label>
+                <Input 
+                  name="cost_per_unit" 
+                  type="number" 
+                  step="0.01" 
+                  defaultValue={editingIngredient?.cost_per_unit} 
+                  placeholder="0.00"
+                  className="mt-1 border-amber-300 focus:border-amber-500"
+                  required
+                />
+                <p className="text-xs text-amber-700 mt-1">Price per unit used for menu costing calculations</p>
               </div>
               <div>
                 <Label>Reorder Quantity</Label>
