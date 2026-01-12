@@ -13,7 +13,8 @@ import {
   LogOut,
   Download,
   Sparkles,
-  User
+  User,
+  Printer
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -237,6 +238,31 @@ export default function Shifts() {
     missed: 'bg-red-100 text-red-700 border-red-200'
   };
 
+  // Position-based colors for planner view
+  const getPositionColor = (position) => {
+    const positionLower = position?.toLowerCase() || '';
+    if (positionLower.includes('chef') || positionLower.includes('cook')) {
+      return 'bg-gradient-to-br from-purple-100 to-purple-200 border-purple-300 text-purple-800';
+    }
+    if (positionLower.includes('manager') || positionLower.includes('supervisor')) {
+      return 'bg-gradient-to-br from-amber-100 to-amber-200 border-amber-300 text-amber-800';
+    }
+    if (positionLower.includes('barista') || positionLower.includes('coffee')) {
+      return 'bg-gradient-to-br from-orange-100 to-orange-200 border-orange-300 text-orange-800';
+    }
+    if (positionLower.includes('server') || positionLower.includes('foh') || positionLower.includes('waiter')) {
+      return 'bg-gradient-to-br from-blue-100 to-blue-200 border-blue-300 text-blue-800';
+    }
+    if (positionLower.includes('bar') || positionLower.includes('bartender')) {
+      return 'bg-gradient-to-br from-emerald-100 to-emerald-200 border-emerald-300 text-emerald-800';
+    }
+    return 'bg-gradient-to-br from-slate-100 to-slate-200 border-slate-300 text-slate-700';
+  };
+
+  const handlePrint = () => {
+    window.print();
+  };
+
   if (isLoading) return <LoadingSpinner message="Loading shifts..." />;
 
   return (
@@ -259,11 +285,39 @@ export default function Shifts() {
           <Download className="w-4 h-4 mr-2" />
           Export
         </Button>
+        <Button variant="outline" onClick={handlePrint} className="border-emerald-300 text-emerald-700 hover:bg-emerald-50">
+          <Printer className="w-4 h-4 mr-2" />
+          Print
+        </Button>
       </PageHeader>
 
+      <style>{`
+        @media print {
+          body * {
+            visibility: hidden;
+          }
+          .print-area, .print-area * {
+            visibility: visible;
+          }
+          .print-area {
+            position: absolute;
+            left: 0;
+            top: 0;
+            width: 100%;
+          }
+          .no-print {
+            display: none !important;
+          }
+          .print-area {
+            box-shadow: none !important;
+            border: 1px solid #e2e8f0 !important;
+          }
+        }
+      `}</style>
+
       {/* Week Navigation */}
-      <div className="bg-white rounded-2xl p-4 shadow-sm border border-slate-100">
-        <div className="flex items-center justify-between mb-4">
+      <div className="bg-white rounded-2xl p-4 shadow-sm border border-slate-100 print-area">
+        <div className="flex items-center justify-between mb-4 no-print">
           <div className="flex items-center gap-2">
             <Button 
               variant="outline" 
@@ -292,8 +346,38 @@ export default function Shifts() {
           </Button>
         </div>
 
+        {/* Print Header */}
+        <div className="hidden print:block mb-4 pb-4 border-b-2 border-slate-300">
+          <h1 className="text-2xl font-bold text-slate-800 mb-2">Staff Rota - Week Planner</h1>
+          <p className="text-slate-600">
+            {format(currentWeekStart, 'MMMM d')} - {format(addDays(currentWeekStart, 6), 'MMMM d, yyyy')}
+          </p>
+          <div className="flex gap-6 mt-3 text-sm">
+            <div className="flex items-center gap-2">
+              <div className="w-4 h-4 bg-purple-200 border border-purple-300 rounded"></div>
+              <span>Chef/Cook</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <div className="w-4 h-4 bg-amber-200 border border-amber-300 rounded"></div>
+              <span>Manager</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <div className="w-4 h-4 bg-orange-200 border border-orange-300 rounded"></div>
+              <span>Barista</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <div className="w-4 h-4 bg-blue-200 border border-blue-300 rounded"></div>
+              <span>Server/FOH</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <div className="w-4 h-4 bg-emerald-200 border border-emerald-300 rounded"></div>
+              <span>Bar Staff</span>
+            </div>
+          </div>
+        </div>
+
         {/* Week Grid */}
-        <div className="grid grid-cols-7 gap-2">
+        <div className="grid grid-cols-7 gap-2 print:gap-1">
           {weekDays.map((day, index) => {
             const dayShifts = getShiftsForDay(day);
             const isToday = isSameDay(day, new Date());
@@ -304,20 +388,21 @@ export default function Shifts() {
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: index * 0.05 }}
-                className={`min-h-[200px] rounded-xl border-2 p-2 ${
+                className={`min-h-[240px] rounded-xl border-2 p-3 print:min-h-[180px] print:p-2 ${
                   isToday 
-                    ? 'border-emerald-300 bg-emerald-50/50' 
-                    : 'border-slate-100 bg-slate-50/50'
+                    ? 'border-emerald-400 bg-emerald-50/70 shadow-sm' 
+                    : 'border-slate-200 bg-white'
                 }`}
               >
-                <div className={`text-center mb-2 pb-2 border-b ${isToday ? 'border-emerald-200' : 'border-slate-200'}`}>
-                  <p className="text-xs text-slate-500">{format(day, 'EEE')}</p>
-                  <p className={`text-lg font-bold ${isToday ? 'text-emerald-600' : 'text-slate-700'}`}>
+                <div className={`text-center mb-3 pb-2 border-b-2 ${isToday ? 'border-emerald-300' : 'border-slate-300'}`}>
+                  <p className="text-xs font-semibold text-slate-500 uppercase tracking-wide">{format(day, 'EEE')}</p>
+                  <p className={`text-2xl font-bold ${isToday ? 'text-emerald-600' : 'text-slate-700'}`}>
                     {format(day, 'd')}
                   </p>
+                  <p className="text-[10px] text-slate-400">{format(day, 'MMM')}</p>
                 </div>
                 
-                <div className="space-y-1.5">
+                <div className="space-y-2">
                   <AnimatePresence>
                     {dayShifts.map((shift) => (
                       <motion.div
@@ -325,22 +410,27 @@ export default function Shifts() {
                         initial={{ opacity: 0, scale: 0.9 }}
                         animate={{ opacity: 1, scale: 1 }}
                         exit={{ opacity: 0, scale: 0.9 }}
-                        className={`p-2 rounded-lg border text-xs cursor-pointer hover:shadow-sm transition-all ${statusColors[shift.status]}`}
+                        className={`p-2.5 rounded-lg border-2 text-xs cursor-pointer hover:shadow-md transition-all print:cursor-default print:hover:shadow-none ${getPositionColor(shift.position)}`}
                         onClick={() => { setEditingShift(shift); setShowForm(true); }}
                       >
-                        <p className="font-medium truncate">{shift.staff_name}</p>
-                        <p className="text-[10px] opacity-75">{shift.scheduled_start} - {shift.scheduled_end}</p>
-                        {shift.position && (
-                          <Badge variant="outline" className="text-[9px] mt-1 py-0 px-1">
-                            {shift.position}
-                          </Badge>
-                        )}
+                        <div className="flex items-center justify-between mb-1">
+                          <p className="font-bold truncate text-sm">{shift.staff_name}</p>
+                          {shift.position && (
+                            <Badge variant="outline" className="text-[9px] py-0 px-1.5 border-current opacity-70">
+                              {shift.position}
+                            </Badge>
+                          )}
+                        </div>
+                        <div className="flex items-center gap-1 text-[11px] font-semibold opacity-80">
+                          <Clock className="w-3 h-3" />
+                          {shift.scheduled_start} - {shift.scheduled_end}
+                        </div>
                         
                         {/* Clock In/Out buttons for today's shifts */}
                         {isToday && shift.status === 'scheduled' && (
                           <Button 
                             size="sm" 
-                            className="w-full mt-2 h-6 text-[10px] bg-emerald-600"
+                            className="w-full mt-2 h-7 text-[10px] bg-emerald-600 no-print"
                             onClick={(e) => { e.stopPropagation(); handleClockIn(shift); }}
                           >
                             <LogIn className="w-3 h-3 mr-1" /> Clock In
@@ -349,7 +439,7 @@ export default function Shifts() {
                         {isToday && shift.status === 'clocked_in' && (
                           <Button 
                             size="sm" 
-                            className="w-full mt-2 h-6 text-[10px] bg-blue-600"
+                            className="w-full mt-2 h-7 text-[10px] bg-blue-600 no-print"
                             onClick={(e) => { e.stopPropagation(); handleClockOut(shift); }}
                           >
                             <LogOut className="w-3 h-3 mr-1" /> Clock Out
@@ -365,7 +455,7 @@ export default function Shifts() {
         </div>
 
         {/* Week Summary */}
-        <div className="mt-4 pt-4 border-t border-slate-100 flex flex-wrap gap-4">
+        <div className="mt-4 pt-4 border-t-2 border-slate-200 flex flex-wrap gap-4 print:hidden">
           <div className="text-sm">
             <span className="text-slate-500">Total Shifts:</span>
             <span className="font-bold text-slate-700 ml-2">{shifts.length}</span>
