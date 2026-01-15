@@ -134,8 +134,22 @@ export default function Training() {
   };
 
   const handleCompleteCourse = async (course) => {
-    setCompletedCourse(course);
-    setShowReflection(true);
+    // Only show reflection for L3 (last level)
+    if (course.level === 'L3') {
+      setCompletedCourse(course);
+      setShowReflection(true);
+    } else {
+      // For other levels, complete directly without reflection
+      await updateProgressMutation.mutateAsync({
+        courseId: course.id,
+        data: {
+          status: 'completed',
+          progress_percent: 100,
+          completed_date: new Date().toISOString()
+        }
+      });
+      setSelectedCourse(null);
+    }
   };
 
   const handleReflectionSubmit = async (reflectionData) => {
@@ -178,20 +192,61 @@ export default function Training() {
     const passed = scorePercent >= (course.pass_mark_percent || 80);
 
     if (passed) {
-      // Show reflection dialog before completion
-      setCompletedCourse(course);
-      setShowReflection(true);
+      // Only show reflection for L3 (last level)
+      if (course.level === 'L3') {
+        setCompletedCourse(course);
+        setShowReflection(true);
+        
+        // Store quiz score for later
+        await updateProgressMutation.mutateAsync({
+          courseId: course.id,
+          data: {
+            status: 'in_progress',
+            progress_percent: 90,
+            quiz_score: scorePercent,
+            quiz_attempts: (getCourseProgress(course.id)?.quiz_attempts || 0) + 1
+          }
+        });
+      } else {
+        // For other levels, complete directly without reflection
+        await updateProgressMutation.mutateAsync({
+          courseId: course.id,
+          data: {
+            status: 'completed',
+            progress_percent: 100,
+            quiz_score: scorePercent,
+            quiz_attempts: (getCourseProgress(course.id)?.quiz_attempts || 0) + 1,
+            completed_date: new Date().toISOString()
+          }
+        });
 
-      // Store quiz score for later
-      await updateProgressMutation.mutateAsync({
-        courseId: course.id,
-        data: {
-          status: 'in_progress',
-          progress_percent: 90,
-          quiz_score: scorePercent,
-          quiz_attempts: (getCourseProgress(course.id)?.quiz_attempts || 0) + 1
+        // Check if level is complete and issue certificate
+        const levelCourses = getLevelCourses(course.level);
+        const allCompleted = levelCourses.every(c => {
+          if (c.id === course.id) return true;
+          return getCourseProgress(c.id)?.status === 'completed';
+        });
+        
+        if (allCompleted && !certificates.find(cert => cert.level === course.level)) {
+          const certNumber = `CHAIPATTA-${course.level}-${Date.now().toString(36).toUpperCase()}`;
+          const levelInfo = levels.find(l => l.id === course.level);
+          const issuedDate = format(new Date(), 'yyyy-MM-dd');
+          const expiryDate = format(addMonths(new Date(), 12), 'yyyy-MM-dd');
+          
+          await createCertificateMutation.mutateAsync({
+            staff_id: user.id || '',
+            staff_name: user.full_name || user.email,
+            staff_email: user.email,
+            level: course.level,
+            level_name: levelInfo?.fullName || course.level,
+            issued_date: issuedDate,
+            expiry_date: expiryDate,
+            certificate_number: certNumber,
+            qr_code_data: certNumber,
+            quiz_score: scorePercent
+          });
         }
-      });
+      }
     } else {
       await updateProgressMutation.mutateAsync({
         courseId: course.id,
