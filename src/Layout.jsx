@@ -23,7 +23,8 @@ import {
   Settings,
   User,
   Leaf,
-  ChefHat
+  ChefHat,
+  TrendingUp
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -38,19 +39,24 @@ import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
 import { ScrollArea } from '@/components/ui/scroll-area';
 
 const navItems = [
-  { name: 'Dashboard', icon: LayoutDashboard, page: 'Dashboard' },
-  { name: 'POS System', icon: Package, page: 'POSSystem' },
-  { name: 'Stock Dashboard', icon: ClipboardCheck, page: 'StockDashboard' },
-  { name: 'Menu', icon: ChefHat, page: 'Menu' },
-  { name: 'Staff', icon: Users, page: 'Staff' },
-  { name: 'Shifts & Rota', icon: Calendar, page: 'Shifts' },
-  { name: 'Training Academy', icon: GraduationCap, page: 'Training' },
-  { name: 'SOPs', icon: FileText, page: 'SOPs' },
-  { name: 'Documents', icon: FolderOpen, page: 'Documents' },
-  { name: 'Inventory', icon: Package, page: 'Inventory' },
-  { name: 'Quality & Audits', icon: ClipboardCheck, page: 'Quality' },
-  { name: 'Meetings', icon: MessageSquare, page: 'Meetings' },
-  { name: 'Assets', icon: Wrench, page: 'Assets' },
+  { name: 'Dashboard', icon: LayoutDashboard, page: 'Dashboard', roles: ['all'] },
+  { name: 'POS System', icon: Package, page: 'POSSystem', roles: ['manager', 'owner', 'admin', 'staff'] },
+  { name: 'Stock Dashboard', icon: ClipboardCheck, page: 'StockDashboard', roles: ['manager', 'owner', 'admin'] },
+  { name: 'Menu', icon: ChefHat, page: 'Menu', roles: ['all'] },
+  { name: 'Staff', icon: Users, page: 'Staff', roles: ['manager', 'owner', 'admin'] },
+  { name: 'Shifts & Rota', icon: Calendar, page: 'Shifts', roles: ['all'] },
+  { name: 'Training Academy', icon: GraduationCap, page: 'Training', roles: ['all'] },
+  { name: 'SOPs', icon: FileText, page: 'SOPs', roles: ['all'] },
+  { name: 'Documents', icon: FolderOpen, page: 'Documents', roles: ['all'] },
+  { name: 'Inventory', icon: Package, page: 'Inventory', roles: ['manager', 'owner', 'admin'] },
+  { name: 'Quality & Audits', icon: ClipboardCheck, page: 'Quality', roles: ['manager', 'owner', 'admin'] },
+  { name: 'Meetings', icon: MessageSquare, page: 'Meetings', roles: ['manager', 'owner', 'admin'] },
+  { name: 'Assets', icon: Wrench, page: 'Assets', roles: ['manager', 'owner', 'admin'] },
+  { name: 'Prep Planner', icon: ClipboardCheck, page: 'PrepPlanner', roles: ['all'] },
+  { name: 'Shift Handovers', icon: MessageSquare, page: 'ShiftHandovers', roles: ['manager', 'owner', 'admin', 'staff'] },
+  { name: 'Quality Control', icon: ClipboardCheck, page: 'QualityControl', roles: ['manager', 'owner', 'admin'] },
+  { name: 'Announcements', icon: Bell, page: 'Announcements', roles: ['all'] },
+  { name: 'Performance', icon: TrendingUp, page: 'Performance', roles: ['manager', 'owner', 'admin'] },
 ];
 
 export default function Layout({ children, currentPageName }) {
@@ -104,32 +110,34 @@ export default function Layout({ children, currentPageName }) {
       {/* Navigation */}
       <ScrollArea className="flex-1 py-4">
         <nav className="px-3 space-y-1">
-          {navItems.map((item) => {
-            const isActive = currentPageName === item.page;
-            return (
-              <Link
-                key={item.page}
-                to={createPageUrl(item.page)}
-                onClick={() => setSidebarOpen(false)}
-                className={`
-                  flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200
-                  ${isActive 
-                    ? 'bg-gradient-to-r from-amber-500/20 to-amber-600/10 text-amber-400 shadow-lg shadow-amber-500/10' 
-                    : 'text-emerald-100/70 hover:text-white hover:bg-white/5'
-                  }
-                `}
-              >
-                <item.icon className={`w-5 h-5 ${isActive ? 'text-amber-400' : ''}`} />
-                <span className="font-medium">{item.name}</span>
-                {isActive && (
-                  <motion.div
-                    layoutId="activeIndicator"
-                    className="ml-auto w-1.5 h-1.5 rounded-full bg-amber-400"
-                  />
-                )}
-              </Link>
-            );
-          })}
+          {navItems
+            .filter(item => item.roles.includes('all') || item.roles.includes(user?.role))
+            .map((item) => {
+              const isActive = currentPageName === item.page;
+              return (
+                <Link
+                  key={item.page}
+                  to={createPageUrl(item.page)}
+                  onClick={() => setSidebarOpen(false)}
+                  className={`
+                    flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200
+                    ${isActive 
+                      ? 'bg-gradient-to-r from-amber-500/20 to-amber-600/10 text-amber-400 shadow-lg shadow-amber-500/10' 
+                      : 'text-emerald-100/70 hover:text-white hover:bg-white/5'
+                    }
+                  `}
+                >
+                  <item.icon className={`w-5 h-5 ${isActive ? 'text-amber-400' : ''}`} />
+                  <span className="font-medium">{item.name}</span>
+                  {isActive && (
+                    <motion.div
+                      layoutId="activeIndicator"
+                      className="ml-auto w-1.5 h-1.5 rounded-full bg-amber-400"
+                    />
+                  )}
+                </Link>
+              );
+            })}
         </nav>
       </ScrollArea>
 
