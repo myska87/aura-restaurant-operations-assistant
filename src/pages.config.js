@@ -17,6 +17,8 @@ import StockDashboard from './pages/StockDashboard';
 import PrepPlanner from './pages/PrepPlanner';
 import ShiftHandovers from './pages/ShiftHandovers';
 import QualityControl from './pages/QualityControl';
+import Announcements from './pages/Announcements';
+import Performance from './pages/Performance';
 import __Layout from './Layout.jsx';
 
 
@@ -40,6 +42,8 @@ export const PAGES = {
     "PrepPlanner": PrepPlanner,
     "ShiftHandovers": ShiftHandovers,
     "QualityControl": QualityControl,
+    "Announcements": Announcements,
+    "Performance": Performance,
 }
 
 export const pagesConfig = {
