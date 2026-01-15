@@ -21,6 +21,7 @@ import Staff from './pages/Staff';
 import StockDashboard from './pages/StockDashboard';
 import Training from './pages/Training';
 import TrainingInsights from './pages/TrainingInsights';
+import DailyCheckIn from './pages/DailyCheckIn';
 import __Layout from './Layout.jsx';
 
 
@@ -48,6 +49,7 @@ export const PAGES = {
     "StockDashboard": StockDashboard,
     "Training": Training,
     "TrainingInsights": TrainingInsights,
+    "DailyCheckIn": DailyCheckIn,
 }
 
 export const pagesConfig = {

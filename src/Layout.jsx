@@ -40,6 +40,7 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 
 const navItems = [
   { name: 'Dashboard', icon: LayoutDashboard, page: 'Dashboard', roles: ['all'] },
+  { name: 'Daily Check-In', icon: ClipboardCheck, page: 'DailyCheckIn', roles: ['all'] },
   { name: 'POS System', icon: Package, page: 'POSSystem', roles: ['manager', 'owner', 'admin', 'staff'] },
   { name: 'Stock Dashboard', icon: ClipboardCheck, page: 'StockDashboard', roles: ['manager', 'owner', 'admin'] },
   { name: 'Menu', icon: ChefHat, page: 'Menu', roles: ['all'] },
