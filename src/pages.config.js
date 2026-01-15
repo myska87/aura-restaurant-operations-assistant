@@ -12,6 +12,8 @@ import Settings from './pages/Settings';
 import Shifts from './pages/Shifts';
 import Staff from './pages/Staff';
 import Training from './pages/Training';
+import POSSystem from './pages/POSSystem';
+import StockDashboard from './pages/StockDashboard';
 import __Layout from './Layout.jsx';
 
 
@@ -30,6 +32,8 @@ export const PAGES = {
     "Shifts": Shifts,
     "Staff": Staff,
     "Training": Training,
+    "POSSystem": POSSystem,
+    "StockDashboard": StockDashboard,
 }
 
 export const pagesConfig = {
