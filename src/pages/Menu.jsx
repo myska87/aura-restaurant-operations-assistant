@@ -19,7 +19,9 @@ import {
   AlertTriangle,
   Eye,
   FileText,
-  ShoppingCart
+  ShoppingCart,
+  Clock,
+  CheckCircle
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -98,6 +100,11 @@ export default function Menu() {
   const { data: sops = [] } = useQuery({
     queryKey: ['sops'],
     queryFn: () => base44.entities.SOP.filter({ status: 'active' }),
+  });
+
+  const { data: recipes = [] } = useQuery({
+    queryKey: ['recipes'],
+    queryFn: () => base44.entities.Recipe.list(),
   });
 
   const createMutation = useMutation({
@@ -436,11 +443,15 @@ export default function Menu() {
 
       {/* View Details Dialog */}
       <Dialog open={showDetails} onOpenChange={setShowDetails}>
-        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
-          {viewingItem && (
+        <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+          {viewingItem && (() => {
+            const itemSOP = sops.find(s => s.id === viewingItem.sop_id);
+            const itemRecipe = recipes.find(r => r.menu_item_id === viewingItem.id);
+            
+            return (
             <>
               <DialogHeader>
-                <DialogTitle>{viewingItem.name}</DialogTitle>
+                <DialogTitle className="text-2xl">{viewingItem.name}</DialogTitle>
               </DialogHeader>
               
               <div className="space-y-6">
@@ -457,30 +468,83 @@ export default function Menu() {
                 </div>
                 
                 {/* Info Grid */}
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <p className="text-xs text-slate-500">Price</p>
-                    <p className="text-xl font-bold">£{viewingItem.price?.toFixed(2)}</p>
-                  </div>
-                  <div>
-                    <p className="text-xs text-slate-500">Cost</p>
-                    <p className="text-xl font-bold">£{viewingItem.cost?.toFixed(2) || '0.00'}</p>
-                  </div>
-                  <div>
-                    <p className="text-xs text-slate-500">Profit Margin</p>
-                    <p className={`text-xl font-bold ${
-                      viewingItem.profit_margin >= 50 ? 'text-emerald-600' :
-                      viewingItem.profit_margin >= 30 ? 'text-blue-600' :
-                      'text-amber-600'
-                    }`}>
-                      {viewingItem.profit_margin?.toFixed(0) || '0'}%
-                    </p>
-                  </div>
-                  <div>
-                    <p className="text-xs text-slate-500">Prep Time</p>
-                    <p className="text-xl font-bold">{viewingItem.prep_time_minutes || 0} min</p>
-                  </div>
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                  <Card>
+                    <CardContent className="pt-4">
+                      <p className="text-xs text-slate-500 mb-1">Price</p>
+                      <p className="text-2xl font-bold text-emerald-600">£{viewingItem.price?.toFixed(2)}</p>
+                    </CardContent>
+                  </Card>
+                  <Card>
+                    <CardContent className="pt-4">
+                      <p className="text-xs text-slate-500 mb-1">Cost</p>
+                      <p className="text-2xl font-bold text-slate-700">£{viewingItem.cost?.toFixed(2) || '0.00'}</p>
+                    </CardContent>
+                  </Card>
+                  <Card>
+                    <CardContent className="pt-4">
+                      <p className="text-xs text-slate-500 mb-1">Profit Margin</p>
+                      <p className={`text-2xl font-bold ${
+                        viewingItem.profit_margin >= 50 ? 'text-emerald-600' :
+                        viewingItem.profit_margin >= 30 ? 'text-blue-600' :
+                        'text-amber-600'
+                      }`}>
+                        {viewingItem.profit_margin?.toFixed(0) || '0'}%
+                      </p>
+                    </CardContent>
+                  </Card>
+                  <Card>
+                    <CardContent className="pt-4">
+                      <p className="text-xs text-slate-500 mb-1">Prep Time</p>
+                      <p className="text-2xl font-bold text-purple-600">{viewingItem.prep_time_minutes || 0} min</p>
+                    </CardContent>
+                  </Card>
                 </div>
+
+                {/* Category & Location */}
+                <div className="flex flex-wrap gap-2">
+                  <Badge variant="outline" className="text-sm">
+                    Category: {viewingItem.category?.replace(/_/g, ' ')}
+                  </Badge>
+                  <Badge variant="outline" className="text-sm">
+                    Prep Area: {viewingItem.preparation_location?.replace(/_/g, ' ')}
+                  </Badge>
+                  {viewingItem.dietary_tag && (
+                    <Badge className="bg-green-100 text-green-700 text-sm">
+                      {viewingItem.dietary_tag}
+                    </Badge>
+                  )}
+                </div>
+
+                {/* Recipe Information */}
+                {itemRecipe && (
+                  <Card className="bg-blue-50 border-blue-200">
+                    <CardContent className="pt-4">
+                      <h4 className="font-semibold text-blue-900 mb-3 flex items-center gap-2">
+                        <FileText className="w-5 h-5" />
+                        Recipe Details
+                      </h4>
+                      <div className="grid grid-cols-2 gap-3 text-sm">
+                        <div>
+                          <span className="text-blue-700">Portion Yield:</span>
+                          <span className="font-semibold ml-2">{itemRecipe.portion_yield} {itemRecipe.portion_type}</span>
+                        </div>
+                        <div>
+                          <span className="text-blue-700">Prep Area:</span>
+                          <span className="font-semibold ml-2">{itemRecipe.prep_area?.replace(/_/g, ' ')}</span>
+                        </div>
+                        <div>
+                          <span className="text-blue-700">Dietary:</span>
+                          <span className="font-semibold ml-2">{itemRecipe.dietary_tag || 'N/A'}</span>
+                        </div>
+                        <div>
+                          <span className="text-blue-700">Prep Time:</span>
+                          <span className="font-semibold ml-2">{itemRecipe.prep_time_minutes || 0} min</span>
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+                )}
                 
                 {/* Ingredients */}
                 {viewingItem.ingredients?.length > 0 && (
@@ -560,8 +624,85 @@ export default function Menu() {
                   </div>
                 )}
                 
-                {/* SOP Link */}
-                {viewingItem.sop_id && (
+                {/* SOP Details */}
+                {itemSOP && (
+                  <Card className="bg-gradient-to-br from-emerald-50 to-teal-50 border-emerald-200">
+                    <CardContent className="pt-4">
+                      <h4 className="font-bold text-emerald-900 mb-4 flex items-center gap-2 text-lg">
+                        <FileText className="w-6 h-6" />
+                        Standard Operating Procedure
+                      </h4>
+                      
+                      <div className="space-y-4">
+                        {/* Pre-Service Prep */}
+                        {itemSOP.pre_service_prep && (
+                          <div className="bg-white/80 rounded-lg p-4 border border-emerald-200">
+                            <h5 className="font-semibold text-emerald-800 mb-2 flex items-center gap-2">
+                              <Clock className="w-4 h-4" />
+                              Pre-Service Preparation
+                            </h5>
+                            <p className="text-sm text-slate-700 whitespace-pre-wrap">{itemSOP.pre_service_prep}</p>
+                          </div>
+                        )}
+                        
+                        {/* Live Order Execution */}
+                        {itemSOP.live_order_execution && (
+                          <div className="bg-white/80 rounded-lg p-4 border border-emerald-200">
+                            <h5 className="font-semibold text-emerald-800 mb-2 flex items-center gap-2">
+                              <ChefHat className="w-4 h-4" />
+                              Live Order Execution
+                            </h5>
+                            <p className="text-sm text-slate-700 whitespace-pre-wrap">{itemSOP.live_order_execution}</p>
+                          </div>
+                        )}
+                        
+                        {/* Assembly & Plating */}
+                        {itemSOP.assembly_plating && (
+                          <div className="bg-white/80 rounded-lg p-4 border border-emerald-200">
+                            <h5 className="font-semibold text-emerald-800 mb-2 flex items-center gap-2">
+                              <Eye className="w-4 h-4" />
+                              Assembly & Plating
+                            </h5>
+                            <p className="text-sm text-slate-700 whitespace-pre-wrap">{itemSOP.assembly_plating}</p>
+                          </div>
+                        )}
+                        
+                        {/* Quality Check */}
+                        {itemSOP.quality_check && (
+                          <div className="bg-white/80 rounded-lg p-4 border border-amber-200">
+                            <h5 className="font-semibold text-amber-800 mb-2 flex items-center gap-2">
+                              <CheckCircle className="w-4 h-4" />
+                              Quality Standards
+                            </h5>
+                            <p className="text-sm text-slate-700 whitespace-pre-wrap">{itemSOP.quality_check}</p>
+                          </div>
+                        )}
+                        
+                        {/* Hygiene & Safety */}
+                        {itemSOP.hygiene_safety && (
+                          <div className="bg-white/80 rounded-lg p-4 border border-red-200">
+                            <h5 className="font-semibold text-red-800 mb-2 flex items-center gap-2">
+                              <AlertTriangle className="w-4 h-4" />
+                              Hygiene & Safety
+                            </h5>
+                            <p className="text-sm text-slate-700 whitespace-pre-wrap">{itemSOP.hygiene_safety}</p>
+                          </div>
+                        )}
+
+                        <Button
+                          variant="outline"
+                          onClick={() => handleViewSOP(viewingItem.sop_id)}
+                          className="w-full border-emerald-300 text-emerald-700 hover:bg-emerald-50"
+                        >
+                          <FileText className="w-4 h-4 mr-2" />
+                          View Full SOP Page
+                        </Button>
+                      </div>
+                    </CardContent>
+                  </Card>
+                )}
+                
+                {!itemSOP && viewingItem.sop_id && (
                   <Button
                     variant="outline"
                     onClick={() => handleViewSOP(viewingItem.sop_id)}
@@ -573,7 +714,8 @@ export default function Menu() {
                 )}
               </div>
             </>
-          )}
+            );
+          })()}
         </DialogContent>
       </Dialog>
 
