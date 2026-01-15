@@ -45,6 +45,7 @@ const navItems = [
   { name: 'Menu', icon: ChefHat, page: 'Menu', roles: ['all'] },
   { name: 'Staff', icon: Users, page: 'Staff', roles: ['manager', 'owner', 'admin'] },
   { name: 'Shifts & Rota', icon: Calendar, page: 'Shifts', roles: ['all'] },
+  { name: 'Culture & Values', icon: Leaf, page: 'Culture', roles: ['all'] },
   { name: 'Training Academy', icon: GraduationCap, page: 'Training', roles: ['all'] },
   { name: 'SOPs', icon: FileText, page: 'SOPs', roles: ['all'] },
   { name: 'Documents', icon: FolderOpen, page: 'Documents', roles: ['all'] },

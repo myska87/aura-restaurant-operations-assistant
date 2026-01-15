@@ -32,14 +32,15 @@ import confetti from 'canvas-confetti';
 import jsPDF from 'jspdf';
 
 const levels = [
-  { id: 'L1', name: 'Level 1: Basic Hygiene', fullName: 'Basic Food Hygiene', color: 'from-blue-500 to-blue-600', icon: '🧼', description: 'Entry level - New starters, FOH, Trainees', passmark: 80 },
+  { id: 'Foundation', name: 'Foundation: Culture & Values', fullName: 'Chai Patta Culture & Values', color: 'from-purple-500 to-pink-600', icon: '❤️', description: 'Start here - Required for all staff', passmark: 80 },
+  { id: 'L1', name: 'Level 1: Basic Hygiene', fullName: 'Basic Food Hygiene Certificate', color: 'from-blue-500 to-blue-600', icon: '🧼', description: 'Entry level - New starters, FOH, Trainees', passmark: 80 },
   { id: 'L2', name: 'Level 2: Intermediate', fullName: 'Intermediate Food Hygiene', color: 'from-emerald-500 to-emerald-600', icon: '🔬', description: 'Kitchen staff, Shift leaders', passmark: 85 },
   { id: 'L3', name: 'Level 3: Advanced', fullName: 'Advanced Food Safety & Compliance', color: 'from-amber-500 to-amber-600', icon: '⚖️', description: 'Management, Franchise operators', passmark: 90 }
 ];
 
 export default function Training() {
   const [user, setUser] = useState(null);
-  const [activeLevel, setActiveLevel] = useState('L1');
+  const [activeLevel, setActiveLevel] = useState('Foundation');
   const [selectedCourse, setSelectedCourse] = useState(null);
   const [showCertificate, setShowCertificate] = useState(null);
   const [quizAnswers, setQuizAnswers] = useState({});
@@ -312,7 +313,7 @@ export default function Training() {
       )}
 
       {/* Level Progress Cards */}
-      <div className="grid lg:grid-cols-3 gap-4">
+      <div className="grid lg:grid-cols-4 gap-4">
         {levels.map((level, index) => {
           const isUnlocked = isLevelUnlocked(level.id);
           const progressPercent = getLevelProgress(level.id);

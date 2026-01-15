@@ -19,6 +19,7 @@ import ShiftHandovers from './pages/ShiftHandovers';
 import QualityControl from './pages/QualityControl';
 import Announcements from './pages/Announcements';
 import Performance from './pages/Performance';
+import Culture from './pages/Culture';
 import __Layout from './Layout.jsx';
 
 
@@ -44,6 +45,7 @@ export const PAGES = {
     "QualityControl": QualityControl,
     "Announcements": Announcements,
     "Performance": Performance,
+    "Culture": Culture,
 }
 
 export const pagesConfig = {
