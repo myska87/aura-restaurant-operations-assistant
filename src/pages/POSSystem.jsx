@@ -9,10 +9,11 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Plus, Minus, ShoppingCart, Trash2, Check, AlertTriangle } from 'lucide-react';
+import { Plus, Minus, ShoppingCart, Trash2, Check, AlertTriangle, Shield } from 'lucide-react';
 import LoadingSpinner from '@/components/ui/LoadingSpinner';
 import PageHeader from '@/components/ui/PageHeader';
 import { toast } from 'sonner';
+import AllergenConfirmation from '@/components/pos/AllergenConfirmation';
 
 export default function POSSystem() {
   const [cart, setCart] = useState([]);
@@ -20,7 +21,9 @@ export default function POSSystem() {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('all');
   const [showConfirmDialog, setShowConfirmDialog] = useState(false);
+  const [showAllergenCheck, setShowAllergenCheck] = useState(false);
   const [user, setUser] = useState(null);
+  const [allergenData, setAllergenData] = useState(null);
 
   const queryClient = useQueryClient();
 
@@ -50,6 +53,19 @@ export default function POSSystem() {
     queryKey: ['ingredients'],
     queryFn: () => base44.entities.Ingredient.list(),
   });
+
+  const { data: certificates = [] } = useQuery({
+    queryKey: ['certificates', user?.email],
+    queryFn: async () => {
+      if (!user?.email) return [];
+      return base44.entities.Certificate.filter({ staff_email: user.email });
+    },
+    enabled: !!user?.email
+  });
+
+  const isCertified = certificates.some(cert => 
+    cert.level === 'L1' && new Date(cert.expiry_date) > new Date()
+  );
 
   const processSaleMutation = useMutation({
     mutationFn: async (saleData) => {
@@ -182,6 +198,41 @@ export default function POSSystem() {
   };
 
   const handleCheckout = () => {
+    setShowAllergenCheck(true);
+  };
+
+  const handleAllergenConfirm = async (data) => {
+    setAllergenData(data);
+    setShowAllergenCheck(false);
+    
+    // If allergen declared, log it
+    if (data.hasAllergy) {
+      const saleNumber = `SALE-${Date.now()}`;
+      const affectedItems = cart.map(cartItem => {
+        const menuItem = menuItems.find(m => m.id === cartItem.menu_item_id);
+        const itemAllergens = menuItem?.allergens || [];
+        const hasConflict = data.allergens.some(a => itemAllergens.includes(a));
+        return {
+          item_name: menuItem?.name,
+          contains_allergen: hasConflict,
+          allergens_present: itemAllergens.filter(a => data.allergens.includes(a))
+        };
+      });
+
+      await base44.entities.AllergenOrder.create({
+        order_number: saleNumber,
+        order_date: new Date().toISOString(),
+        customer_allergens: data.allergens,
+        affected_items: affectedItems,
+        staff_email: user?.email || '',
+        staff_name: user?.full_name || user?.email || '',
+        staff_certified: isCertified,
+        sop_acknowledged: data.sopAcknowledged,
+        special_instructions: data.specialInstructions,
+        confirmation_statement: 'I understand and will follow allergen SOP'
+      });
+    }
+    
     setShowConfirmDialog(true);
   };
 
@@ -404,6 +455,17 @@ export default function POSSystem() {
         </div>
       </div>
 
+      {/* Allergen Check */}
+      <AllergenConfirmation
+        open={showAllergenCheck}
+        onClose={() => setShowAllergenCheck(false)}
+        onConfirm={handleAllergenConfirm}
+        cartItems={cart}
+        menuItems={menuItems}
+        user={user}
+        isCertified={isCertified}
+      />
+
       {/* Confirm Dialog */}
       <Dialog open={showConfirmDialog} onOpenChange={setShowConfirmDialog}>
         <DialogContent>
@@ -411,6 +473,23 @@ export default function POSSystem() {
             <DialogTitle>Confirm Sale</DialogTitle>
           </DialogHeader>
           <div className="space-y-4">
+            {allergenData?.hasAllergy && (
+              <Card className="bg-red-50 border-red-400 border-2">
+                <CardContent className="pt-4">
+                  <div className="flex items-start gap-2">
+                    <Shield className="w-5 h-5 text-red-600 mt-0.5" />
+                    <div className="text-sm text-red-900">
+                      <p className="font-bold mb-1">🚨 ALLERGEN ORDER - HANDLE WITH CARE</p>
+                      <p className="mb-2">Declared allergens: {allergenData.allergens.join(', ')}</p>
+                      {allergenData.specialInstructions && (
+                        <p className="text-xs italic">Note: {allergenData.specialInstructions}</p>
+                      )}
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            )}
+
             <div className="p-4 bg-amber-50 border border-amber-200 rounded-lg">
               <div className="flex items-start gap-2">
                 <AlertTriangle className="w-5 h-5 text-amber-600 mt-0.5" />
