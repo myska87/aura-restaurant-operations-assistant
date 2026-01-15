@@ -22,6 +22,7 @@ import StockDashboard from './pages/StockDashboard';
 import Training from './pages/Training';
 import TrainingInsights from './pages/TrainingInsights';
 import DailyCheckIn from './pages/DailyCheckIn';
+import AllergenDashboard from './pages/AllergenDashboard';
 import __Layout from './Layout.jsx';
 
 
@@ -50,6 +51,7 @@ export const PAGES = {
     "Training": Training,
     "TrainingInsights": TrainingInsights,
     "DailyCheckIn": DailyCheckIn,
+    "AllergenDashboard": AllergenDashboard,
 }
 
 export const pagesConfig = {
