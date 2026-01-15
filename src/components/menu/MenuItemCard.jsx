@@ -49,6 +49,7 @@ const categoryEmojis = {
 };
 
 export default function MenuItemCard({ item, onEdit, onDuplicate, onDelete, onView, onOrderIngredients, ingredients = [] }) {
+  const [isHovered, setIsHovered] = React.useState(false);
   const profit = item.price - (item.cost || 0);
   const margin = item.price > 0 ? ((profit / item.price) * 100) : 0;
   
@@ -94,17 +95,28 @@ export default function MenuItemCard({ item, onEdit, onDuplicate, onDelete, onVi
       initial={{ opacity: 0, scale: 0.95 }}
       animate={{ opacity: 1, scale: 1 }}
       whileHover={{ y: -4 }}
-      className="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden hover:shadow-lg transition-all"
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => setIsHovered(false)}
+      onClick={() => onView?.(item)}
+      className="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden hover:shadow-lg hover:border-emerald-400 transition-all cursor-pointer"
     >
       {/* Image */}
-      <div className="relative h-40 bg-gradient-to-br from-slate-100 to-slate-200 overflow-hidden">
+      <div className="relative h-40 bg-gradient-to-br from-slate-100 to-slate-200 overflow-hidden group">
         {item.image_url ? (
-          <img src={item.image_url} alt={item.name} className="w-full h-full object-cover" />
+          <img src={item.image_url} alt={item.name} className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-110" />
         ) : (
-          <div className="w-full h-full flex items-center justify-center text-6xl">
+          <div className="w-full h-full flex items-center justify-center text-6xl transition-transform duration-300 group-hover:scale-110">
             {categoryEmojis[item.category] || '🍽️'}
           </div>
         )}
+        
+        {/* Hover Overlay */}
+        <div className={`absolute inset-0 bg-gradient-to-t from-emerald-900/80 via-emerald-900/40 to-transparent transition-opacity duration-300 ${isHovered ? 'opacity-100' : 'opacity-0'} flex items-center justify-center`}>
+          <div className="text-center text-white p-4">
+            <Eye className="w-8 h-8 mx-auto mb-2" />
+            <p className="text-sm font-semibold">View Recipe & Details</p>
+          </div>
+        </div>
         
         {/* Status badges */}
         <div className="absolute top-2 left-2 flex flex-wrap gap-1">
@@ -125,27 +137,27 @@ export default function MenuItemCard({ item, onEdit, onDuplicate, onDelete, onVi
         {/* Actions */}
         <div className="absolute top-2 right-2">
           <DropdownMenu>
-            <DropdownMenuTrigger asChild>
+            <DropdownMenuTrigger asChild onClick={(e) => e.stopPropagation()}>
               <Button variant="secondary" size="icon" className="h-8 w-8 bg-white/90 backdrop-blur">
                 <MoreVertical className="w-4 h-4" />
               </Button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
-              <DropdownMenuItem onClick={() => onView(item)}>
-                <Eye className="w-4 h-4 mr-2" /> View Details
+            <DropdownMenuContent align="end" onClick={(e) => e.stopPropagation()}>
+              <DropdownMenuItem onClick={(e) => { e.stopPropagation(); onView(item); }}>
+                <Eye className="w-4 h-4 mr-2" /> View Recipe Details
               </DropdownMenuItem>
               {onOrderIngredients && (
-                <DropdownMenuItem onClick={() => onOrderIngredients(item)} className="text-emerald-600">
+                <DropdownMenuItem onClick={(e) => { e.stopPropagation(); onOrderIngredients(item); }} className="text-emerald-600">
                   <ShoppingCart className="w-4 h-4 mr-2" /> Order Ingredients
                 </DropdownMenuItem>
               )}
-              <DropdownMenuItem onClick={() => onEdit(item)}>
+              <DropdownMenuItem onClick={(e) => { e.stopPropagation(); onEdit(item); }}>
                 <Edit className="w-4 h-4 mr-2" /> Edit
               </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => onDuplicate(item)}>
+              <DropdownMenuItem onClick={(e) => { e.stopPropagation(); onDuplicate(item); }}>
                 <Copy className="w-4 h-4 mr-2" /> Duplicate
               </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => onDelete(item)} className="text-red-600">
+              <DropdownMenuItem onClick={(e) => { e.stopPropagation(); onDelete(item); }} className="text-red-600">
                 <Trash2 className="w-4 h-4 mr-2" /> Delete
               </DropdownMenuItem>
             </DropdownMenuContent>
