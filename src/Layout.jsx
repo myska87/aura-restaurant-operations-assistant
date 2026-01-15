@@ -39,6 +39,8 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 
 const navItems = [
   { name: 'Dashboard', icon: LayoutDashboard, page: 'Dashboard' },
+  { name: 'POS System', icon: Package, page: 'POSSystem' },
+  { name: 'Stock Dashboard', icon: ClipboardCheck, page: 'StockDashboard' },
   { name: 'Menu', icon: ChefHat, page: 'Menu' },
   { name: 'Staff', icon: Users, page: 'Staff' },
   { name: 'Shifts & Rota', icon: Calendar, page: 'Shifts' },
