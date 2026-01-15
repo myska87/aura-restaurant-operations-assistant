@@ -14,6 +14,9 @@ import Staff from './pages/Staff';
 import Training from './pages/Training';
 import POSSystem from './pages/POSSystem';
 import StockDashboard from './pages/StockDashboard';
+import PrepPlanner from './pages/PrepPlanner';
+import ShiftHandovers from './pages/ShiftHandovers';
+import QualityControl from './pages/QualityControl';
 import __Layout from './Layout.jsx';
 
 
@@ -34,6 +37,9 @@ export const PAGES = {
     "Training": Training,
     "POSSystem": POSSystem,
     "StockDashboard": StockDashboard,
+    "PrepPlanner": PrepPlanner,
+    "ShiftHandovers": ShiftHandovers,
+    "QualityControl": QualityControl,
 }
 
 export const pagesConfig = {
