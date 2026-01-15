@@ -13,6 +13,45 @@ import PageHeader from '@/components/ui/PageHeader';
 import { format } from 'date-fns';
 import confetti from 'canvas-confetti';
 
+const hospitalityQuotes = [
+  { quote: "Hospitality is making your guests feel at home, even when you wish they were.", author: "Unknown" },
+  { quote: "People will forget what you said, people will forget what you did, but people will never forget how you made them feel.", author: "Maya Angelou" },
+  { quote: "Excellence is not a skill, it's an attitude.", author: "Ralph Marston" },
+  { quote: "Hospitality exists when you believe the other person is on your side.", author: "Danny Meyer" },
+  { quote: "The heart of hospitality is about creating space for someone to feel seen and heard and loved.", author: "Unknown" },
+  { quote: "Great service is not just what we do, it's who we are.", author: "Unknown" },
+  { quote: "In the end, people won't remember the meal, they'll remember how you made them feel.", author: "Unknown" },
+  { quote: "A guest never forgets the host who had treated him kindly.", author: "Homer" },
+  { quote: "Hospitality is simply love on the loose.", author: "Unknown" },
+  { quote: "Service is the rent we pay for being. It is the very purpose of life, and not something you do in your spare time.", author: "Marian Wright Edelman" },
+  { quote: "The way we treat our guests is a direct reflection of how we value ourselves.", author: "Unknown" },
+  { quote: "Hospitality is the art of making people feel welcome, valued, and cared for.", author: "Unknown" },
+  { quote: "You can have everything in life you want if you will just help enough other people get what they want.", author: "Zig Ziglar" },
+  { quote: "The customer's perception is your reality.", author: "Kate Zabriskie" },
+  { quote: "It's not what you do for your guests, but how you make them feel that truly matters.", author: "Unknown" },
+  { quote: "Hospitality means we take people into the space that is our lives and our minds and our hearts and our work and our efforts.", author: "Taiye Selasi" },
+  { quote: "To give real service you must add something which cannot be bought or measured with money, and that is sincerity and integrity.", author: "Douglas Adams" },
+  { quote: "Quality in a service or product is not what you put into it. It is what the client or customer gets out of it.", author: "Peter Drucker" },
+  { quote: "The single most important thing is to make people happy. If you are making people happy, as a side effect, they will be happy to open up their wallets.", author: "Derek Sivers" },
+  { quote: "Every great business is built on friendship.", author: "JC Penney" },
+  { quote: "If you work just for money, you'll never make it. But if you love what you do, success will be yours.", author: "Ray Kroc" },
+  { quote: "The secret of change is to focus all of your energy not on fighting the old, but on building the new.", author: "Socrates" },
+  { quote: "There are no traffic jams along the extra mile.", author: "Roger Staubach" },
+  { quote: "Success is not the key to happiness. Happiness is the key to success.", author: "Albert Schweitzer" },
+  { quote: "Your most unhappy customers are your greatest source of learning.", author: "Bill Gates" },
+  { quote: "Make a customer, not a sale.", author: "Katherine Barchetti" },
+  { quote: "The goal as a company is to have customer service that is not just the best, but legendary.", author: "Sam Walton" },
+  { quote: "Good food is the foundation of genuine happiness.", author: "Auguste Escoffier" },
+  { quote: "Cooking is about passion, so it may look slightly temperamental in a way that it's too assertive to the naked eye.", author: "Gordon Ramsay" },
+  { quote: "One cannot think well, love well, sleep well, if one has not dined well.", author: "Virginia Woolf" }
+];
+
+const getDailyQuote = () => {
+  const today = new Date();
+  const dayOfYear = Math.floor((today - new Date(today.getFullYear(), 0, 0)) / 86400000);
+  return hospitalityQuotes[dayOfYear % hospitalityQuotes.length];
+};
+
 const coreValues = [
   {
     id: 'respect',
@@ -175,9 +214,25 @@ export default function Culture() {
                      acknowledged;
 
   const alreadyCompleted = !!acknowledgment;
+  const dailyQuote = getDailyQuote();
 
   return (
     <div className="space-y-8">
+      {/* Daily Quote */}
+      <motion.div
+        initial={{ opacity: 0, y: -10 }}
+        animate={{ opacity: 1, y: 0 }}
+        className="bg-gradient-to-r from-slate-50 to-blue-50 rounded-2xl p-6 border-l-4 border-blue-500"
+      >
+        <p className="text-xs uppercase tracking-wider text-blue-600 font-semibold mb-2">
+          Daily Inspiration
+        </p>
+        <p className="text-lg md:text-xl text-slate-800 italic mb-3">
+          "{dailyQuote.quote}"
+        </p>
+        <p className="text-sm text-slate-600">— {dailyQuote.author}</p>
+      </motion.div>
+
       {/* Hero */}
       <motion.div
         initial={{ opacity: 0, y: -20 }}
