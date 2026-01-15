@@ -47,6 +47,7 @@ const navItems = [
   { name: 'Shifts & Rota', icon: Calendar, page: 'Shifts', roles: ['all'] },
   { name: 'Culture & Values', icon: Leaf, page: 'Culture', roles: ['all'] },
   { name: 'Training Academy', icon: GraduationCap, page: 'Training', roles: ['all'] },
+  { name: 'Training Insights', icon: TrendingUp, page: 'TrainingInsights', roles: ['manager', 'owner', 'admin'] },
   { name: 'SOPs', icon: FileText, page: 'SOPs', roles: ['all'] },
   { name: 'Documents', icon: FolderOpen, page: 'Documents', roles: ['all'] },
   { name: 'Inventory', icon: Package, page: 'Inventory', roles: ['manager', 'owner', 'admin'] },

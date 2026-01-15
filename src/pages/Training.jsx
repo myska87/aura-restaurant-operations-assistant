@@ -14,7 +14,9 @@ import {
   ClipboardList,
   Download,
   Shield,
-  FileText
+  FileText,
+  Heart,
+  Sparkles
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -30,6 +32,8 @@ import PageHeader from '@/components/ui/PageHeader';
 import LoadingSpinner from '@/components/ui/LoadingSpinner';
 import confetti from 'canvas-confetti';
 import jsPDF from 'jspdf';
+import ValuesSection from '../components/training/ValuesSection';
+import ReflectionDialog from '../components/training/ReflectionDialog';
 
 const levels = [
   { id: 'Foundation', name: 'Foundation: Culture & Values', fullName: 'Chai Patta Culture & Values', color: 'from-purple-500 to-pink-600', icon: '❤️', description: 'Start here - Required for all staff', passmark: 80 },
@@ -46,6 +50,8 @@ export default function Training() {
   const [quizAnswers, setQuizAnswers] = useState({});
   const [quizSubmitted, setQuizSubmitted] = useState(false);
   const [quizScore, setQuizScore] = useState(0);
+  const [showReflection, setShowReflection] = useState(false);
+  const [completedCourse, setCompletedCourse] = useState(null);
 
   const queryClient = useQueryClient();
 
@@ -128,14 +134,33 @@ export default function Training() {
   };
 
   const handleCompleteCourse = async (course) => {
+    setCompletedCourse(course);
+    setShowReflection(true);
+  };
+
+  const handleReflectionSubmit = async (reflectionData) => {
+    await base44.entities.TrainingReflection.create({
+      staff_id: user.id || '',
+      staff_email: user.email,
+      staff_name: user.full_name || user.email,
+      course_id: completedCourse.id,
+      course_title: completedCourse.title,
+      course_level: completedCourse.level,
+      reflection_date: new Date().toISOString(),
+      ...reflectionData
+    });
+
     await updateProgressMutation.mutateAsync({
-      courseId: course.id,
+      courseId: completedCourse.id,
       data: {
         status: 'completed',
         progress_percent: 100,
         completed_date: new Date().toISOString()
       }
     });
+
+    setShowReflection(false);
+    setCompletedCourse(null);
     setSelectedCourse(null);
   };
 
@@ -152,44 +177,70 @@ export default function Training() {
 
     const passed = scorePercent >= (course.pass_mark_percent || 80);
 
+    if (passed) {
+      // Show reflection dialog before completion
+      setCompletedCourse(course);
+      setShowReflection(true);
+
+      // Store quiz score for later
+      await updateProgressMutation.mutateAsync({
+        courseId: course.id,
+        data: {
+          status: 'in_progress',
+          progress_percent: 90,
+          quiz_score: scorePercent,
+          quiz_attempts: (getCourseProgress(course.id)?.quiz_attempts || 0) + 1
+        }
+      });
+    } else {
+      await updateProgressMutation.mutateAsync({
+        courseId: course.id,
+        data: {
+          status: 'in_progress',
+          progress_percent: 50,
+          quiz_score: scorePercent,
+          quiz_attempts: (getCourseProgress(course.id)?.quiz_attempts || 0) + 1
+        }
+      });
+    }
+  };
+
+  const finalizeQuizCompletion = async (course, scorePercent) => {
     await updateProgressMutation.mutateAsync({
       courseId: course.id,
       data: {
-        status: passed ? 'completed' : 'in_progress',
-        progress_percent: passed ? 100 : 50,
+        status: 'completed',
+        progress_percent: 100,
         quiz_score: scorePercent,
-        quiz_attempts: (getCourseProgress(course.id)?.quiz_attempts || 0) + 1,
-        completed_date: passed ? new Date().toISOString() : null
+        completed_date: new Date().toISOString()
       }
     });
 
-    if (passed) {
-      // Check if level is complete
-      const levelCourses = getLevelCourses(course.level);
-      const allCompleted = levelCourses.every(c => {
-        if (c.id === course.id) return true;
-        return getCourseProgress(c.id)?.status === 'completed';
-      });
+    // Check if level is complete
+    const levelCourses = getLevelCourses(course.level);
+    const allCompleted = levelCourses.every(c => {
+      if (c.id === course.id) return true;
+      return getCourseProgress(c.id)?.status === 'completed';
+    });
+    
+    if (allCompleted && !certificates.find(cert => cert.level === course.level)) {
+      const certNumber = `CHAIPATTA-${course.level}-${Date.now().toString(36).toUpperCase()}`;
+      const levelInfo = levels.find(l => l.id === course.level);
+      const issuedDate = format(new Date(), 'yyyy-MM-dd');
+      const expiryDate = format(addMonths(new Date(), 12), 'yyyy-MM-dd');
       
-      if (allCompleted && !certificates.find(cert => cert.level === course.level)) {
-        const certNumber = `CHAIPATTA-${course.level}-${Date.now().toString(36).toUpperCase()}`;
-        const levelInfo = levels.find(l => l.id === course.level);
-        const issuedDate = format(new Date(), 'yyyy-MM-dd');
-        const expiryDate = format(addMonths(new Date(), 12), 'yyyy-MM-dd');
-        
-        await createCertificateMutation.mutateAsync({
-          staff_id: user.id || '',
-          staff_name: user.full_name || user.email,
-          staff_email: user.email,
-          level: course.level,
-          level_name: levelInfo?.fullName || course.level,
-          issued_date: issuedDate,
-          expiry_date: expiryDate,
-          certificate_number: certNumber,
-          qr_code_data: certNumber,
-          quiz_score: scorePercent
-        });
-      }
+      await createCertificateMutation.mutateAsync({
+        staff_id: user.id || '',
+        staff_name: user.full_name || user.email,
+        staff_email: user.email,
+        level: course.level,
+        level_name: levelInfo?.fullName || course.level,
+        issued_date: issuedDate,
+        expiry_date: expiryDate,
+        certificate_number: certNumber,
+        qr_code_data: certNumber,
+        quiz_score: scorePercent
+      });
     }
   };
 
@@ -232,8 +283,14 @@ export default function Training() {
     doc.text(`Valid Until: ${format(new Date(certificate.expiry_date), 'MMMM d, yyyy')}`, 105, 170, { align: 'center' });
     doc.text(`Certificate ID: ${certificate.certificate_number}`, 105, 185, { align: 'center' });
     
+    // Values Badge
+    doc.setFontSize(10);
+    doc.setFont('helvetica', 'bold');
+    doc.text('✓ Values-Aligned Training Completed', 105, 200, { align: 'center' });
+    
     // Footer
     doc.setFontSize(10);
+    doc.setFont('helvetica', 'normal');
     doc.text('UK Food Safety Standards Compliant', 105, 250, { align: 'center' });
     doc.text('This certificate demonstrates competency in food hygiene', 105, 260, { align: 'center' });
     
@@ -261,21 +318,40 @@ export default function Training() {
       <motion.div
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
-        className="bg-gradient-to-r from-blue-600 via-emerald-600 to-amber-600 rounded-3xl p-8 text-white relative overflow-hidden"
+        className="bg-gradient-to-br from-purple-600 via-pink-600 to-rose-600 rounded-3xl p-8 md:p-12 text-white relative overflow-hidden"
       >
         <div className="absolute top-0 right-0 w-96 h-96 bg-white/10 rounded-full -translate-y-1/2 translate-x-1/2" />
+        <div className="absolute bottom-0 left-0 w-64 h-64 bg-amber-400/20 rounded-full translate-y-1/2 -translate-x-1/2" />
         
-        <div className="relative">
-          <div className="flex items-center gap-3 mb-4">
-            <Shield className="w-10 h-10" />
-            <h1 className="text-3xl font-bold">UK Food Safety Training Academy</h1>
+        <div className="relative max-w-4xl">
+          <div className="flex items-center gap-4 mb-6">
+            <div className="w-16 h-16 rounded-2xl bg-white/20 backdrop-blur flex items-center justify-center">
+              <Heart className="w-10 h-10" />
+            </div>
+            <div>
+              <h1 className="text-4xl md:text-5xl font-bold">The Chai Patta Academy</h1>
+              <p className="text-white/90 text-lg mt-1">More than skills. Values. Standards. Belonging. Growth.</p>
+            </div>
           </div>
-          <p className="text-white/90 text-lg max-w-2xl mb-2">
-            Professional hygiene certification to UK food safety standards
+          <p className="text-white/80 text-base max-w-3xl leading-relaxed">
+            Welcome to a learning experience that goes beyond compliance. Here, we build culture, embed values, 
+            and grow together as a family. Every course, every reflection, every conversation shapes who we are 
+            and how we create Craving Fans.
           </p>
-          <p className="text-white/70 text-sm">
-            Training is mandatory before live work • Certificates valid for 12 months
-          </p>
+          <div className="flex items-center gap-6 mt-6 text-sm">
+            <div className="flex items-center gap-2">
+              <Sparkles className="w-5 h-5" />
+              <span>Values-First Training</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <Shield className="w-5 h-5" />
+              <span>UK Food Safety Standards</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <Award className="w-5 h-5" />
+              <span>Professional Certification</span>
+            </div>
+          </div>
         </div>
       </motion.div>
 
@@ -373,6 +449,21 @@ export default function Training() {
           );
         })}
       </div>
+
+      {/* Values Section */}
+      {(activeLevel === 'Foundation' || activeLevel === 'L1') && (
+        <Card className="bg-gradient-to-br from-purple-50 to-pink-50 border-purple-200">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Heart className="w-5 h-5 text-purple-600" />
+              Our Core Values
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <ValuesSection compact />
+          </CardContent>
+        </Card>
+      )}
 
       {/* Course List */}
       <Card>
@@ -546,6 +637,13 @@ export default function Training() {
                 ) : (
                   <>
                     <div className="prose prose-sm max-w-none">
+                      {selectedCourse.image_url && (
+                        <img 
+                          src={selectedCourse.image_url} 
+                          alt={selectedCourse.title}
+                          className="w-full h-48 object-cover rounded-xl mb-4"
+                        />
+                      )}
                       <div dangerouslySetInnerHTML={{ __html: selectedCourse.content?.replace(/\n/g, '<br/>') }} />
                     </div>
                     
@@ -555,10 +653,10 @@ export default function Training() {
                       </Button>
                       <Button 
                         onClick={() => handleCompleteCourse(selectedCourse)}
-                        className="bg-gradient-to-r from-emerald-600 to-emerald-700"
+                        className="bg-gradient-to-r from-purple-600 to-pink-600"
                       >
-                        <CheckCircle className="w-4 h-4 mr-2" />
-                        Mark Complete
+                        <Heart className="w-4 h-4 mr-2" />
+                        Complete & Reflect
                       </Button>
                     </div>
                   </>
@@ -568,6 +666,26 @@ export default function Training() {
           )}
         </DialogContent>
       </Dialog>
+
+      {/* Reflection Dialog */}
+      <ReflectionDialog
+        course={completedCourse}
+        user={user}
+        open={showReflection}
+        onClose={() => {
+          setShowReflection(false);
+          setCompletedCourse(null);
+          if (quizSubmitted && quizScore >= (completedCourse?.pass_mark_percent || 80)) {
+            finalizeQuizCompletion(completedCourse, quizScore);
+          }
+        }}
+        onSubmit={async (reflectionData) => {
+          await handleReflectionSubmit(reflectionData);
+          if (quizSubmitted && quizScore >= (completedCourse?.pass_mark_percent || 80)) {
+            await finalizeQuizCompletion(completedCourse, quizScore);
+          }
+        }}
+      />
 
       {/* Certificate Dialog */}
       <Dialog open={!!showCertificate} onOpenChange={() => setShowCertificate(null)}>
