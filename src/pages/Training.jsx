@@ -133,6 +133,48 @@ export default function Training() {
     return getLevelProgress(previousLevel.id) === 100;
   };
 
+  const manuallyIssueCertificate = async (levelId) => {
+    if (!user) return;
+    
+    // Check if already has certificate
+    if (certificates.find(cert => cert.level === levelId)) {
+      alert('Certificate already issued for this level');
+      return;
+    }
+
+    // Check if level is complete
+    const levelProgress = getLevelProgress(levelId);
+    if (levelProgress < 100) {
+      alert(`Level not complete. Current progress: ${levelProgress}%`);
+      return;
+    }
+
+    const levelInfo = levels.find(l => l.id === levelId);
+    const certNumber = `CHAIPATTA-${levelId}-${Date.now().toString(36).toUpperCase()}`;
+    const issuedDate = format(new Date(), 'yyyy-MM-dd');
+    const expiryDate = format(addMonths(new Date(), 12), 'yyyy-MM-dd');
+    
+    // Get the highest quiz score from this level
+    const levelCourses = getLevelCourses(levelId);
+    const scores = levelCourses
+      .map(c => getCourseProgress(c.id)?.quiz_score || 0)
+      .filter(s => s > 0);
+    const avgScore = scores.length > 0 ? Math.round(scores.reduce((a, b) => a + b, 0) / scores.length) : 85;
+    
+    await createCertificateMutation.mutateAsync({
+      staff_id: user.id || '',
+      staff_name: user.full_name || user.email,
+      staff_email: user.email,
+      level: levelId,
+      level_name: levelInfo?.fullName || levelId,
+      issued_date: issuedDate,
+      expiry_date: expiryDate,
+      certificate_number: certNumber,
+      qr_code_data: certNumber,
+      quiz_score: avgScore
+    });
+  };
+
   const handleCompleteCourse = async (course) => {
     // Only show reflection for L3 (last level)
     if (course.level === 'L3') {
@@ -299,58 +341,80 @@ export default function Training() {
     }
   };
 
-  const generateCertificatePDF = (certificate) => {
+  const generateCertificatePDF = async (certificate) => {
     const doc = new jsPDF();
+    
+    // Add logo
+    const logoUrl = 'https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/696025c87b94be1e0aec1146/e192f931f_Chaipattalogo_21.png';
+    const img = new Image();
+    img.crossOrigin = 'anonymous';
+    
+    await new Promise((resolve) => {
+      img.onload = () => {
+        // Add logo at top
+        doc.addImage(img, 'PNG', 85, 15, 40, 40);
+        resolve();
+      };
+      img.onerror = () => resolve(); // Continue even if logo fails
+      img.src = logoUrl;
+    });
     
     // Border
     doc.setLineWidth(2);
+    doc.setDrawColor(255, 107, 0); // Chai Patta orange
     doc.rect(10, 10, 190, 277);
     
     // Title
     doc.setFontSize(28);
     doc.setFont('helvetica', 'bold');
-    doc.text('Chai Patta Training Academy', 105, 40, { align: 'center' });
+    doc.setTextColor(255, 107, 0);
+    doc.text('Chai Patta Training Academy', 105, 65, { align: 'center' });
     
     doc.setFontSize(22);
-    doc.text('Certificate of Completion', 105, 55, { align: 'center' });
+    doc.setTextColor(0, 0, 0);
+    doc.text('Certificate of Completion', 105, 80, { align: 'center' });
     
     // Certificate content
     doc.setFontSize(14);
     doc.setFont('helvetica', 'normal');
-    doc.text('This is to certify that', 105, 80, { align: 'center' });
+    doc.text('This is to certify that', 105, 100, { align: 'center' });
     
     doc.setFontSize(20);
     doc.setFont('helvetica', 'bold');
-    doc.text(certificate.staff_name, 105, 95, { align: 'center' });
+    doc.setTextColor(255, 107, 0);
+    doc.text(certificate.staff_name, 105, 115, { align: 'center' });
     
     doc.setFontSize(14);
     doc.setFont('helvetica', 'normal');
-    doc.text('has successfully completed', 105, 110, { align: 'center' });
+    doc.setTextColor(0, 0, 0);
+    doc.text('has successfully completed', 105, 130, { align: 'center' });
     
     doc.setFontSize(18);
     doc.setFont('helvetica', 'bold');
-    doc.text(certificate.level_name || certificate.level, 105, 125, { align: 'center' });
+    doc.text(certificate.level_name || certificate.level, 105, 145, { align: 'center' });
     
     doc.setFontSize(12);
     doc.setFont('helvetica', 'normal');
-    doc.text(`Assessment Score: ${certificate.quiz_score || 'N/A'}%`, 105, 145, { align: 'center' });
-    doc.text(`Issued: ${format(new Date(certificate.issued_date), 'MMMM d, yyyy')}`, 105, 160, { align: 'center' });
-    doc.text(`Valid Until: ${format(new Date(certificate.expiry_date), 'MMMM d, yyyy')}`, 105, 170, { align: 'center' });
-    doc.text(`Certificate ID: ${certificate.certificate_number}`, 105, 185, { align: 'center' });
+    doc.text(`Assessment Score: ${certificate.quiz_score || 'N/A'}%`, 105, 165, { align: 'center' });
+    doc.text(`Issued: ${format(new Date(certificate.issued_date), 'MMMM d, yyyy')}`, 105, 180, { align: 'center' });
+    doc.text(`Valid Until: ${format(new Date(certificate.expiry_date), 'MMMM d, yyyy')}`, 105, 190, { align: 'center' });
+    doc.text(`Certificate ID: ${certificate.certificate_number}`, 105, 205, { align: 'center' });
     
     // Values Badge
     doc.setFontSize(10);
     doc.setFont('helvetica', 'bold');
-    doc.text('✓ Values-Aligned Training Completed', 105, 200, { align: 'center' });
+    doc.setTextColor(255, 107, 0);
+    doc.text('✓ Values-Aligned Training Completed', 105, 220, { align: 'center' });
     
     // Footer
     doc.setFontSize(10);
     doc.setFont('helvetica', 'normal');
+    doc.setTextColor(0, 0, 0);
     doc.text('UK Food Safety Standards Compliant', 105, 250, { align: 'center' });
     doc.text('This certificate demonstrates competency in food hygiene', 105, 260, { align: 'center' });
     
     // Save
-    doc.save(`Certificate-${certificate.certificate_number}.pdf`);
+    doc.save(`ChaiPatta-Certificate-${certificate.certificate_number}.pdf`);
   };
 
   const getLevelCertificate = (levelId) => certificates.find(c => c.level === levelId);
@@ -582,16 +646,27 @@ export default function Training() {
         <CardHeader>
           <CardTitle className="flex items-center justify-between">
             <span>{levels.find(l => l.id === activeLevel)?.name} Courses</span>
-            {isLevelCertified(activeLevel) && (
-              <Button
-                size="sm"
-                onClick={() => setShowCertificate(getLevelCertificate(activeLevel))}
-                variant="outline"
-              >
-                <Award className="w-4 h-4 mr-2" />
-                View Certificate
-              </Button>
-            )}
+            <div className="flex gap-2">
+              {isLevelCertified(activeLevel) ? (
+                <Button
+                  size="sm"
+                  onClick={() => setShowCertificate(getLevelCertificate(activeLevel))}
+                  variant="outline"
+                >
+                  <Award className="w-4 h-4 mr-2" />
+                  View Certificate
+                </Button>
+              ) : getLevelProgress(activeLevel) === 100 && (
+                <Button
+                  size="sm"
+                  onClick={() => manuallyIssueCertificate(activeLevel)}
+                  className="bg-emerald-600 hover:bg-emerald-700"
+                >
+                  <Award className="w-4 h-4 mr-2" />
+                  Issue Certificate
+                </Button>
+              )}
+            </div>
           </CardTitle>
         </CardHeader>
         
@@ -837,7 +912,7 @@ export default function Training() {
               </Card>
 
               <Button 
-                onClick={() => generateCertificatePDF(showCertificate)}
+                onClick={async () => await generateCertificatePDF(showCertificate)}
                 className="w-full bg-gradient-to-r from-amber-500 to-amber-600"
               >
                 <Download className="w-4 h-4 mr-2" />
