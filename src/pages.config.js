@@ -37,6 +37,9 @@ import StockDashboard from './pages/StockDashboard';
 import Training from './pages/Training';
 import TrainingAcademy from './pages/TrainingAcademy';
 import TrainingInsights from './pages/TrainingInsights';
+import SOPLibrary from './pages/SOPLibrary';
+import SOPView from './pages/SOPView';
+import SOPPrint from './pages/SOPPrint';
 import __Layout from './Layout.jsx';
 
 
@@ -80,6 +83,9 @@ export const PAGES = {
     "Training": Training,
     "TrainingAcademy": TrainingAcademy,
     "TrainingInsights": TrainingInsights,
+    "SOPLibrary": SOPLibrary,
+    "SOPView": SOPView,
+    "SOPPrint": SOPPrint,
 }
 
 export const pagesConfig = {
