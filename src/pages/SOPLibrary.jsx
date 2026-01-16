@@ -79,9 +79,21 @@ export default function SOPLibrary() {
     return matchesSearch && matchesCategory && matchesStatus;
   });
 
+  // Group SOPs by category - if a specific category is selected, only show that one
   const groupedSOPs = menuCategories.reduce((acc, cat) => {
     if (cat.value === 'all') return acc;
-    const categorySOPs = filteredSOPs.filter(sop => sop.menu_category === cat.value);
+    
+    // If a specific category is selected, only include that category
+    if (filterCategory !== 'all' && cat.value !== filterCategory) return acc;
+    
+    // Filter SOPs for this category (from all SOPs, not pre-filtered)
+    const categorySOPs = sops.filter(sop => {
+      const matchesThisCategory = sop.menu_category === cat.value;
+      const matchesSearch = sop.title?.toLowerCase().includes(searchQuery.toLowerCase());
+      const matchesStatus = filterStatus === 'all' || sop.status === filterStatus;
+      return matchesThisCategory && matchesSearch && matchesStatus;
+    });
+    
     if (categorySOPs.length > 0) {
       acc[cat.value] = { ...cat, sops: categorySOPs };
     }
