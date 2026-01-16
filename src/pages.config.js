@@ -41,6 +41,7 @@ import SOPLibrary from './pages/SOPLibrary';
 import SOPView from './pages/SOPView';
 import SOPPrint from './pages/SOPPrint';
 import ChemicalStockList from './pages/ChemicalStockList';
+import FoodSafetyChecklist from './pages/FoodSafetyChecklist';
 import __Layout from './Layout.jsx';
 
 
@@ -88,6 +89,7 @@ export const PAGES = {
     "SOPView": SOPView,
     "SOPPrint": SOPPrint,
     "ChemicalStockList": ChemicalStockList,
+    "FoodSafetyChecklist": FoodSafetyChecklist,
 }
 
 export const pagesConfig = {
