@@ -25,7 +25,8 @@ import {
   Leaf,
   ChefHat,
   TrendingUp,
-  Shield
+  Shield,
+  Heart
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -50,6 +51,7 @@ const navItems = [
   { name: 'Culture & Values', icon: Leaf, page: 'Culture', roles: ['all'] },
   { name: 'Training Academy', icon: GraduationCap, page: 'Training', roles: ['all'] },
   { name: 'Training Insights', icon: TrendingUp, page: 'TrainingInsights', roles: ['manager', 'owner', 'admin'] },
+  { name: 'Service Recovery', icon: Heart, page: 'ServiceRecovery', roles: ['all'] },
   { name: 'SOPs', icon: FileText, page: 'SOPs', roles: ['all'] },
   { name: 'Documents', icon: FolderOpen, page: 'Documents', roles: ['all'] },
   { name: 'Inventory', icon: Package, page: 'Inventory', roles: ['manager', 'owner', 'admin'] },

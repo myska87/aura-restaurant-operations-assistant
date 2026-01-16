@@ -1,8 +1,11 @@
+import AllergenDashboard from './pages/AllergenDashboard';
 import Announcements from './pages/Announcements';
 import Assets from './pages/Assets';
 import Culture from './pages/Culture';
+import DailyCheckIn from './pages/DailyCheckIn';
 import Dashboard from './pages/Dashboard';
 import Documents from './pages/Documents';
+import EquipmentHealth from './pages/EquipmentHealth';
 import Inventory from './pages/Inventory';
 import Meetings from './pages/Meetings';
 import Menu from './pages/Menu';
@@ -21,18 +24,19 @@ import Staff from './pages/Staff';
 import StockDashboard from './pages/StockDashboard';
 import Training from './pages/Training';
 import TrainingInsights from './pages/TrainingInsights';
-import DailyCheckIn from './pages/DailyCheckIn';
-import AllergenDashboard from './pages/AllergenDashboard';
-import EquipmentHealth from './pages/EquipmentHealth';
+import ServiceRecovery from './pages/ServiceRecovery';
 import __Layout from './Layout.jsx';
 
 
 export const PAGES = {
+    "AllergenDashboard": AllergenDashboard,
     "Announcements": Announcements,
     "Assets": Assets,
     "Culture": Culture,
+    "DailyCheckIn": DailyCheckIn,
     "Dashboard": Dashboard,
     "Documents": Documents,
+    "EquipmentHealth": EquipmentHealth,
     "Inventory": Inventory,
     "Meetings": Meetings,
     "Menu": Menu,
@@ -51,9 +55,7 @@ export const PAGES = {
     "StockDashboard": StockDashboard,
     "Training": Training,
     "TrainingInsights": TrainingInsights,
-    "DailyCheckIn": DailyCheckIn,
-    "AllergenDashboard": AllergenDashboard,
-    "EquipmentHealth": EquipmentHealth,
+    "ServiceRecovery": ServiceRecovery,
 }
 
 export const pagesConfig = {
