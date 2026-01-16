@@ -9,7 +9,9 @@ import {
   TrendingUp,
   Download,
   Eye,
-  Calendar
+  Calendar,
+  Printer,
+  FileText
 } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -100,15 +102,74 @@ export default function AllergenDashboard() {
     a.click();
   };
 
+  const handlePrint = () => {
+    window.print();
+  };
+
+  const exportToPDF = async () => {
+    const element = document.getElementById('allergen-report');
+    if (!element) return;
+    
+    const { default: html2canvas } = await import('html2canvas');
+    const { default: jsPDF } = await import('jspdf');
+    
+    const canvas = await html2canvas(element, {
+      scale: 2,
+      logging: false
+    });
+    
+    const imgData = canvas.toDataURL('image/png');
+    const pdf = new jsPDF('p', 'mm', 'a4');
+    const imgWidth = 210;
+    const imgHeight = (canvas.height * imgWidth) / canvas.width;
+    
+    pdf.addImage(imgData, 'PNG', 0, 0, imgWidth, imgHeight);
+    pdf.save(`allergen-report-${format(new Date(), 'yyyy-MM-dd')}.pdf`);
+  };
+
   return (
     <div className="space-y-6">
+      <style>{`
+        @media print {
+          body * {
+            visibility: hidden;
+          }
+          #allergen-report, #allergen-report * {
+            visibility: visible;
+          }
+          #allergen-report {
+            position: absolute;
+            left: 0;
+            top: 0;
+            width: 100%;
+          }
+          .no-print {
+            display: none !important;
+          }
+        }
+      `}</style>
+
       <PageHeader
         title="Allergen Safety Dashboard"
         description="Monitor allergen orders, compliance, and audit trail"
-        action={exportToCSV}
-        actionLabel="Export CSV"
-        actionIcon={Download}
       />
+
+      <div className="flex gap-2 no-print">
+        <Button onClick={handlePrint} variant="outline">
+          <Printer className="w-4 h-4 mr-2" />
+          Print Report
+        </Button>
+        <Button onClick={exportToPDF} variant="outline">
+          <FileText className="w-4 h-4 mr-2" />
+          Export PDF
+        </Button>
+        <Button onClick={exportToCSV}>
+          <Download className="w-4 h-4 mr-2" />
+          Export CSV
+        </Button>
+      </div>
+
+      <div id="allergen-report">
 
       {/* Stats */}
       <div className="grid md:grid-cols-4 gap-4">
@@ -245,12 +306,13 @@ export default function AllergenDashboard() {
                         </div>
                       </div>
                       <Button
-                        size="sm"
-                        variant="outline"
-                        onClick={() => setSelectedLog(order)}
+                       size="sm"
+                       variant="outline"
+                       onClick={() => setSelectedLog(order)}
+                       className="no-print"
                       >
-                        <Eye className="w-4 h-4 mr-1" />
-                        View
+                       <Eye className="w-4 h-4 mr-1" />
+                       View
                       </Button>
                     </div>
                   </CardContent>
@@ -260,6 +322,8 @@ export default function AllergenDashboard() {
           </div>
         </CardContent>
       </Card>
+
+      </div>
 
       {/* Detail Dialog */}
       <Dialog open={!!selectedLog} onOpenChange={() => setSelectedLog(null)}>
