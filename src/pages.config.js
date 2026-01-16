@@ -1,6 +1,8 @@
 import AllergenDashboard from './pages/AllergenDashboard';
 import Announcements from './pages/Announcements';
 import Assets from './pages/Assets';
+import ChemicalDashboard from './pages/ChemicalDashboard';
+import ChemicalRegister from './pages/ChemicalRegister';
 import Culture from './pages/Culture';
 import DailyCheckIn from './pages/DailyCheckIn';
 import Dashboard from './pages/Dashboard';
@@ -8,6 +10,7 @@ import Documents from './pages/Documents';
 import EquipmentHealth from './pages/EquipmentHealth';
 import Forms from './pages/Forms';
 import Inventory from './pages/Inventory';
+import Invitations from './pages/Invitations';
 import LeadershipPathway from './pages/LeadershipPathway';
 import Meetings from './pages/Meetings';
 import Menu from './pages/Menu';
@@ -28,9 +31,11 @@ import Staff from './pages/Staff';
 import StockDashboard from './pages/StockDashboard';
 import Training from './pages/Training';
 import TrainingInsights from './pages/TrainingInsights';
-import Invitations from './pages/Invitations';
-import ChemicalRegister from './pages/ChemicalRegister';
-import ChemicalDashboard from './pages/ChemicalDashboard';
+import Operations from './pages/Operations';
+import TrainingAcademy from './pages/TrainingAcademy';
+import People from './pages/People';
+import QualitySafety from './pages/QualitySafety';
+import Reports from './pages/Reports';
 import __Layout from './Layout.jsx';
 
 
@@ -38,6 +43,8 @@ export const PAGES = {
     "AllergenDashboard": AllergenDashboard,
     "Announcements": Announcements,
     "Assets": Assets,
+    "ChemicalDashboard": ChemicalDashboard,
+    "ChemicalRegister": ChemicalRegister,
     "Culture": Culture,
     "DailyCheckIn": DailyCheckIn,
     "Dashboard": Dashboard,
@@ -45,6 +52,7 @@ export const PAGES = {
     "EquipmentHealth": EquipmentHealth,
     "Forms": Forms,
     "Inventory": Inventory,
+    "Invitations": Invitations,
     "LeadershipPathway": LeadershipPathway,
     "Meetings": Meetings,
     "Menu": Menu,
@@ -65,9 +73,11 @@ export const PAGES = {
     "StockDashboard": StockDashboard,
     "Training": Training,
     "TrainingInsights": TrainingInsights,
-    "Invitations": Invitations,
-    "ChemicalRegister": ChemicalRegister,
-    "ChemicalDashboard": ChemicalDashboard,
+    "Operations": Operations,
+    "TrainingAcademy": TrainingAcademy,
+    "People": People,
+    "QualitySafety": QualitySafety,
+    "Reports": Reports,
 }
 
 export const pagesConfig = {
