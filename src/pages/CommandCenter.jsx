@@ -440,7 +440,7 @@ export default function CommandCenter() {
           <DialogHeader>
             <DialogTitle>Temperature Logs</DialogTitle>
           </DialogHeader>
-          <TemperatureLog />
+          <TemperatureLog user={user} />
         </DialogContent>
       </Dialog>
 

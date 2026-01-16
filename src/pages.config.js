@@ -3,6 +3,7 @@ import Announcements from './pages/Announcements';
 import Assets from './pages/Assets';
 import ChemicalDashboard from './pages/ChemicalDashboard';
 import ChemicalRegister from './pages/ChemicalRegister';
+import CommandCenter from './pages/CommandCenter';
 import Culture from './pages/Culture';
 import DailyCheckIn from './pages/DailyCheckIn';
 import Dashboard from './pages/Dashboard';
@@ -15,13 +16,17 @@ import LeadershipPathway from './pages/LeadershipPathway';
 import Meetings from './pages/Meetings';
 import Menu from './pages/Menu';
 import MenuCostingDashboard from './pages/MenuCostingDashboard';
+import Operations from './pages/Operations';
 import OperationsHistory from './pages/OperationsHistory';
 import POSSystem from './pages/POSSystem';
+import People from './pages/People';
 import Performance from './pages/Performance';
 import PrepPlanner from './pages/PrepPlanner';
 import Profile from './pages/Profile';
 import Quality from './pages/Quality';
 import QualityControl from './pages/QualityControl';
+import QualitySafety from './pages/QualitySafety';
+import Reports from './pages/Reports';
 import SOPs from './pages/SOPs';
 import ServiceRecovery from './pages/ServiceRecovery';
 import Settings from './pages/Settings';
@@ -30,13 +35,8 @@ import Shifts from './pages/Shifts';
 import Staff from './pages/Staff';
 import StockDashboard from './pages/StockDashboard';
 import Training from './pages/Training';
-import TrainingInsights from './pages/TrainingInsights';
-import Operations from './pages/Operations';
 import TrainingAcademy from './pages/TrainingAcademy';
-import People from './pages/People';
-import QualitySafety from './pages/QualitySafety';
-import Reports from './pages/Reports';
-import CommandCenter from './pages/CommandCenter';
+import TrainingInsights from './pages/TrainingInsights';
 import __Layout from './Layout.jsx';
 
 
@@ -46,6 +46,7 @@ export const PAGES = {
     "Assets": Assets,
     "ChemicalDashboard": ChemicalDashboard,
     "ChemicalRegister": ChemicalRegister,
+    "CommandCenter": CommandCenter,
     "Culture": Culture,
     "DailyCheckIn": DailyCheckIn,
     "Dashboard": Dashboard,
@@ -58,13 +59,17 @@ export const PAGES = {
     "Meetings": Meetings,
     "Menu": Menu,
     "MenuCostingDashboard": MenuCostingDashboard,
+    "Operations": Operations,
     "OperationsHistory": OperationsHistory,
     "POSSystem": POSSystem,
+    "People": People,
     "Performance": Performance,
     "PrepPlanner": PrepPlanner,
     "Profile": Profile,
     "Quality": Quality,
     "QualityControl": QualityControl,
+    "QualitySafety": QualitySafety,
+    "Reports": Reports,
     "SOPs": SOPs,
     "ServiceRecovery": ServiceRecovery,
     "Settings": Settings,
@@ -73,13 +78,8 @@ export const PAGES = {
     "Staff": Staff,
     "StockDashboard": StockDashboard,
     "Training": Training,
-    "TrainingInsights": TrainingInsights,
-    "Operations": Operations,
     "TrainingAcademy": TrainingAcademy,
-    "People": People,
-    "QualitySafety": QualitySafety,
-    "Reports": Reports,
-    "CommandCenter": CommandCenter,
+    "TrainingInsights": TrainingInsights,
 }
 
 export const pagesConfig = {
