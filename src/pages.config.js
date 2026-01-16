@@ -26,6 +26,7 @@ import Training from './pages/Training';
 import TrainingInsights from './pages/TrainingInsights';
 import ServiceRecovery from './pages/ServiceRecovery';
 import LeadershipPathway from './pages/LeadershipPathway';
+import OperationsHistory from './pages/OperationsHistory';
 import __Layout from './Layout.jsx';
 
 
@@ -58,6 +59,7 @@ export const PAGES = {
     "TrainingInsights": TrainingInsights,
     "ServiceRecovery": ServiceRecovery,
     "LeadershipPathway": LeadershipPathway,
+    "OperationsHistory": OperationsHistory,
 }
 
 export const pagesConfig = {
