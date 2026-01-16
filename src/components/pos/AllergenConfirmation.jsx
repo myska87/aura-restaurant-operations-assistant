@@ -7,20 +7,22 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
 
+// UK Food Standards Agency - 14 Major Allergens
 const allergenList = [
-  { id: 'milk', label: 'Milk', icon: '🥛', color: 'bg-blue-100 text-blue-800 border-blue-300' },
-  { id: 'eggs', label: 'Eggs', icon: '🥚', color: 'bg-yellow-100 text-yellow-800 border-yellow-300' },
-  { id: 'gluten', label: 'Gluten (Wheat)', icon: '🌾', color: 'bg-amber-100 text-amber-800 border-amber-300' },
-  { id: 'nuts', label: 'Tree Nuts', icon: '🌰', color: 'bg-orange-100 text-orange-800 border-orange-300' },
-  { id: 'peanuts', label: 'Peanuts', icon: '🥜', color: 'bg-red-100 text-red-800 border-red-300' },
-  { id: 'soy', label: 'Soy', icon: '🫘', color: 'bg-green-100 text-green-800 border-green-300' },
-  { id: 'sesame', label: 'Sesame', icon: '🫓', color: 'bg-purple-100 text-purple-800 border-purple-300' },
-  { id: 'mustard', label: 'Mustard', icon: '🌭', color: 'bg-yellow-100 text-yellow-800 border-yellow-300' },
-  { id: 'sulphites', label: 'Sulphites', icon: '🍷', color: 'bg-pink-100 text-pink-800 border-pink-300' },
-  { id: 'celery', label: 'Celery', icon: '🥬', color: 'bg-green-100 text-green-800 border-green-300' },
-  { id: 'fish', label: 'Fish', icon: '🐟', color: 'bg-cyan-100 text-cyan-800 border-cyan-300' },
-  { id: 'shellfish', label: 'Shellfish', icon: '🦐', color: 'bg-teal-100 text-teal-800 border-teal-300' },
-  { id: 'lupin', label: 'Lupin', icon: '🌸', color: 'bg-indigo-100 text-indigo-800 border-indigo-300' }
+  { id: 'milk', label: 'Milk', icon: '🥛', color: 'bg-blue-100 text-blue-800 border-blue-300', warning: 'Contains dairy products' },
+  { id: 'eggs', label: 'Eggs', icon: '🥚', color: 'bg-yellow-100 text-yellow-800 border-yellow-300', warning: 'Contains eggs or egg products' },
+  { id: 'gluten', label: 'Gluten (Wheat)', icon: '🌾', color: 'bg-amber-100 text-amber-800 border-amber-300', warning: 'Contains gluten from wheat, barley, rye or oats' },
+  { id: 'peanuts', label: 'Peanuts', icon: '🥜', color: 'bg-red-100 text-red-800 border-red-300', warning: 'Contains peanuts or peanut products' },
+  { id: 'nuts', label: 'Tree Nuts', icon: '🌰', color: 'bg-orange-100 text-orange-800 border-orange-300', warning: 'Contains tree nuts (almonds, hazelnuts, walnuts, etc.)' },
+  { id: 'soy', label: 'Soy', icon: '🫘', color: 'bg-green-100 text-green-800 border-green-300', warning: 'Contains soya/soy products' },
+  { id: 'sesame', label: 'Sesame', icon: '🫓', color: 'bg-purple-100 text-purple-800 border-purple-300', warning: 'Contains sesame seeds or sesame products' },
+  { id: 'mustard', label: 'Mustard', icon: '🌭', color: 'bg-yellow-100 text-yellow-800 border-yellow-300', warning: 'Contains mustard or mustard products' },
+  { id: 'celery', label: 'Celery', icon: '🥬', color: 'bg-green-100 text-green-800 border-green-300', warning: 'Contains celery or celeriac' },
+  { id: 'fish', label: 'Fish', icon: '🐟', color: 'bg-cyan-100 text-cyan-800 border-cyan-300', warning: 'Contains fish or fish products' },
+  { id: 'crustaceans', label: 'Crustaceans', icon: '🦐', color: 'bg-teal-100 text-teal-800 border-teal-300', warning: 'Contains crustaceans (prawns, crab, lobster, etc.)' },
+  { id: 'molluscs', label: 'Molluscs', icon: '🦪', color: 'bg-slate-100 text-slate-800 border-slate-300', warning: 'Contains molluscs (mussels, oysters, squid, etc.)' },
+  { id: 'lupin', label: 'Lupin', icon: '🌸', color: 'bg-indigo-100 text-indigo-800 border-indigo-300', warning: 'Contains lupin flour or seeds' },
+  { id: 'sulphites', label: 'Sulphites', icon: '🍷', color: 'bg-pink-100 text-pink-800 border-pink-300', warning: 'Contains sulphur dioxide/sulphites at >10mg/kg' }
 ];
 
 export default function AllergenConfirmation({ 
