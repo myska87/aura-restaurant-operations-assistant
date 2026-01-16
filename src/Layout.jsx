@@ -49,6 +49,7 @@ const navItems = [
   { name: 'Stock Dashboard', icon: ClipboardCheck, page: 'StockDashboard', roles: ['manager', 'owner', 'admin'] },
   { name: 'Menu', icon: ChefHat, page: 'Menu', roles: ['all'] },
   { name: 'Staff', icon: Users, page: 'Staff', roles: ['manager', 'owner', 'admin'] },
+  { name: 'Invitations', icon: MessageSquare, page: 'Invitations', roles: ['manager', 'owner', 'admin'] },
   { name: 'Shifts & Rota', icon: Calendar, page: 'Shifts', roles: ['all'] },
   { name: 'Culture & Values', icon: Leaf, page: 'Culture', roles: ['all'] },
   { name: 'Training Academy', icon: GraduationCap, page: 'Training', roles: ['all'] },
