@@ -42,7 +42,7 @@ import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
 import { ScrollArea } from '@/components/ui/scroll-area';
 
 const navItems = [
-  { name: 'Dashboard', icon: LayoutDashboard, page: 'Dashboard', roles: ['all'] },
+  { name: 'Command Center', icon: LayoutDashboard, page: 'CommandCenter', roles: ['all'] },
   { name: 'Operations', icon: ClipboardCheck, page: 'Operations', roles: ['all'] },
   { name: 'Training Academy', icon: GraduationCap, page: 'TrainingAcademy', roles: ['all'] },
   { name: 'People', icon: Users, page: 'People', roles: ['all'] },

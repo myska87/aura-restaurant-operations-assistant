@@ -36,6 +36,7 @@ import TrainingAcademy from './pages/TrainingAcademy';
 import People from './pages/People';
 import QualitySafety from './pages/QualitySafety';
 import Reports from './pages/Reports';
+import CommandCenter from './pages/CommandCenter';
 import __Layout from './Layout.jsx';
 
 
@@ -78,6 +79,7 @@ export const PAGES = {
     "People": People,
     "QualitySafety": QualitySafety,
     "Reports": Reports,
+    "CommandCenter": CommandCenter,
 }
 
 export const pagesConfig = {
