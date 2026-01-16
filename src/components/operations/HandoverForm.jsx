@@ -37,11 +37,11 @@ export default function HandoverForm({ checkIn, user, onComplete }) {
     });
   };
 
-  const isComplete = formData.stock_issues.trim() || 
+  const isComplete = !!(formData.stock_issues.trim() || 
                      formData.equipment_issues.trim() || 
                      formData.prep_status.trim() || 
                      formData.cleaning_status.trim() || 
-                     formData.general_notes.trim();
+                     formData.general_notes.trim());
 
   return (
     <Card>

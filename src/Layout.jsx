@@ -57,6 +57,7 @@ const navItems = [
   { name: 'Service Recovery', icon: Heart, page: 'ServiceRecovery', roles: ['all'] },
   { name: 'SOPs', icon: FileText, page: 'SOPs', roles: ['all'] },
   { name: 'Documents', icon: FolderOpen, page: 'Documents', roles: ['all'] },
+  { name: 'Forms', icon: FileText, page: 'Forms', roles: ['all'] },
   { name: 'Inventory', icon: Package, page: 'Inventory', roles: ['manager', 'owner', 'admin'] },
   { name: 'Allergen Safety', icon: Shield, page: 'AllergenDashboard', roles: ['manager', 'owner', 'admin'] },
   { name: 'Equipment Health', icon: Wrench, page: 'EquipmentHealth', roles: ['manager', 'owner', 'admin'] },
