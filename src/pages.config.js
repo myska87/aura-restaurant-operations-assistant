@@ -25,6 +25,7 @@ import StockDashboard from './pages/StockDashboard';
 import Training from './pages/Training';
 import TrainingInsights from './pages/TrainingInsights';
 import ServiceRecovery from './pages/ServiceRecovery';
+import LeadershipPathway from './pages/LeadershipPathway';
 import __Layout from './Layout.jsx';
 
 
@@ -56,6 +57,7 @@ export const PAGES = {
     "Training": Training,
     "TrainingInsights": TrainingInsights,
     "ServiceRecovery": ServiceRecovery,
+    "LeadershipPathway": LeadershipPathway,
 }
 
 export const pagesConfig = {

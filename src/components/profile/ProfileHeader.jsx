@@ -36,6 +36,15 @@ export default function ProfileHeader({ user, staffProfile }) {
     enabled: !!user?.email,
   });
 
+  const { data: leadershipLevel } = useQuery({
+    queryKey: ['myLeadership', user?.email],
+    queryFn: async () => {
+      const levels = await base44.entities.LeadershipLevel.filter({ staff_email: user.email });
+      return levels[0] || null;
+    },
+    enabled: !!user?.email
+  });
+
   const totalHours = shifts.reduce((sum, s) => {
     if (s.actual_clock_in && s.actual_clock_out) {
       const hours = (new Date(s.actual_clock_out) - new Date(s.actual_clock_in)) / (1000 * 60 * 60);
@@ -115,6 +124,11 @@ export default function ProfileHeader({ user, staffProfile }) {
               <Badge variant="outline" className="border-white/30 bg-white/10 text-white text-sm">
                 🟢 {staffProfile?.status?.toUpperCase() || 'ACTIVE'}
               </Badge>
+              {leadershipLevel && (
+                <Badge className="bg-amber-500 text-white text-sm">
+                  ⭐ {leadershipLevel.level_name}
+                </Badge>
+              )}
             </div>
           </div>
           

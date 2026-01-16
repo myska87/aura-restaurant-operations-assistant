@@ -26,7 +26,8 @@ import {
   ChefHat,
   TrendingUp,
   Shield,
-  Heart
+  Heart,
+  Trophy
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -50,6 +51,7 @@ const navItems = [
   { name: 'Shifts & Rota', icon: Calendar, page: 'Shifts', roles: ['all'] },
   { name: 'Culture & Values', icon: Leaf, page: 'Culture', roles: ['all'] },
   { name: 'Training Academy', icon: GraduationCap, page: 'Training', roles: ['all'] },
+  { name: 'Leadership Pathway', icon: Trophy, page: 'LeadershipPathway', roles: ['all'] },
   { name: 'Training Insights', icon: TrendingUp, page: 'TrainingInsights', roles: ['manager', 'owner', 'admin'] },
   { name: 'Service Recovery', icon: Heart, page: 'ServiceRecovery', roles: ['all'] },
   { name: 'SOPs', icon: FileText, page: 'SOPs', roles: ['all'] },
