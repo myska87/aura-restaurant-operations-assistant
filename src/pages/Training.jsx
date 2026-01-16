@@ -520,6 +520,63 @@ export default function Training() {
         </Card>
       )}
 
+      {/* My Certificates Section */}
+      {certificates.length > 0 && (
+        <Card className="bg-gradient-to-br from-amber-50 to-yellow-50 border-amber-200">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Award className="w-5 h-5 text-amber-600" />
+              My Certificates
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="grid md:grid-cols-2 gap-3">
+              {certificates.map(cert => {
+                const isExpired = new Date(cert.expiry_date) < new Date();
+                return (
+                  <Card key={cert.id} className={isExpired ? 'border-red-300 bg-red-50' : 'border-emerald-300 bg-white'}>
+                    <CardContent className="pt-4">
+                      <div className="flex items-start justify-between gap-3">
+                        <div className="flex-1">
+                          <div className="flex items-center gap-2 mb-2">
+                            <div className={`w-10 h-10 rounded-lg flex items-center justify-center ${
+                              isExpired ? 'bg-red-100' : 'bg-amber-100'
+                            }`}>
+                              <Award className={`w-5 h-5 ${isExpired ? 'text-red-600' : 'text-amber-600'}`} />
+                            </div>
+                            <div>
+                              <p className="font-semibold text-sm">{cert.level_name}</p>
+                              <p className="text-xs text-slate-500">{cert.certificate_number}</p>
+                            </div>
+                          </div>
+                          <div className="text-xs space-y-1">
+                            <p className="text-slate-600">
+                              Issued: {format(new Date(cert.issued_date), 'MMM d, yyyy')}
+                            </p>
+                            <p className={isExpired ? 'text-red-600 font-semibold' : 'text-slate-600'}>
+                              {isExpired ? '❌ Expired' : 'Valid until'}: {format(new Date(cert.expiry_date), 'MMM d, yyyy')}
+                            </p>
+                            <p className="text-slate-600">Score: {cert.quiz_score}%</p>
+                          </div>
+                        </div>
+                        <Button
+                          size="sm"
+                          onClick={() => setShowCertificate(cert)}
+                          className="bg-amber-600 hover:bg-amber-700"
+                        >
+                          <Download className="w-4 h-4 mr-1" />
+                          View
+                        </Button>
+                      </div>
+                    </CardContent>
+                  </Card>
+                );
+              })}
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
       {/* Course List */}
       <Card>
         <CardHeader>
