@@ -62,6 +62,8 @@ const navItems = [
   { name: 'Inventory', icon: Package, page: 'Inventory', roles: ['manager', 'owner', 'admin'] },
   { name: 'Allergen Safety', icon: Shield, page: 'AllergenDashboard', roles: ['manager', 'owner', 'admin'] },
   { name: 'Equipment Health', icon: Wrench, page: 'EquipmentHealth', roles: ['manager', 'owner', 'admin'] },
+  { name: 'Chemical Register', icon: Shield, page: 'ChemicalRegister', roles: ['all'] },
+  { name: 'Chemical Safety', icon: Shield, page: 'ChemicalDashboard', roles: ['manager', 'owner', 'admin'] },
   { name: 'Quality & Audits', icon: ClipboardCheck, page: 'Quality', roles: ['manager', 'owner', 'admin'] },
   { name: 'Meetings', icon: MessageSquare, page: 'Meetings', roles: ['manager', 'owner', 'admin'] },
   { name: 'Assets', icon: Wrench, page: 'Assets', roles: ['manager', 'owner', 'admin'] },

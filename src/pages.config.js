@@ -29,6 +29,8 @@ import StockDashboard from './pages/StockDashboard';
 import Training from './pages/Training';
 import TrainingInsights from './pages/TrainingInsights';
 import Invitations from './pages/Invitations';
+import ChemicalRegister from './pages/ChemicalRegister';
+import ChemicalDashboard from './pages/ChemicalDashboard';
 import __Layout from './Layout.jsx';
 
 
@@ -64,6 +66,8 @@ export const PAGES = {
     "Training": Training,
     "TrainingInsights": TrainingInsights,
     "Invitations": Invitations,
+    "ChemicalRegister": ChemicalRegister,
+    "ChemicalDashboard": ChemicalDashboard,
 }
 
 export const pagesConfig = {
