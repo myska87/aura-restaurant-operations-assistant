@@ -474,9 +474,54 @@ export default function CommandCenter() {
       <Dialog open={activeDialog === 'checklist'} onOpenChange={() => setActiveDialog(null)}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Coming Soon</DialogTitle>
+            <DialogTitle>Hygiene Checklist</DialogTitle>
           </DialogHeader>
-          <p className="text-slate-600">This feature is being built.</p>
+          <p className="text-slate-600">Daily hygiene checks will appear here.</p>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={activeDialog === 'equipment'} onOpenChange={() => setActiveDialog(null)}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Equipment Status</DialogTitle>
+          </DialogHeader>
+          <p className="text-slate-600">Equipment health monitoring will appear here.</p>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={activeDialog === 'incident'} onOpenChange={() => setActiveDialog(null)}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Report Incident</DialogTitle>
+          </DialogHeader>
+          <p className="text-slate-600">Incident reporting form will appear here.</p>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={activeDialog === 'allergen'} onOpenChange={() => setActiveDialog(null)}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Allergen Alert</DialogTitle>
+          </DialogHeader>
+          <p className="text-slate-600">Allergen management will appear here.</p>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={activeDialog === 'prep'} onOpenChange={() => setActiveDialog(null)}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Prep Checklist</DialogTitle>
+          </DialogHeader>
+          <p className="text-slate-600">Prep task checklist will appear here.</p>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={activeDialog === 'waste'} onOpenChange={() => setActiveDialog(null)}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Log Waste</DialogTitle>
+          </DialogHeader>
+          <p className="text-slate-600">Waste logging form will appear here.</p>
         </DialogContent>
       </Dialog>
     </div>
