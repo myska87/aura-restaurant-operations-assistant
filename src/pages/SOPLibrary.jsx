@@ -101,7 +101,14 @@ export default function SOPLibrary() {
       <PageHeader
         title="Chai Patta Recipe & SOP Library"
         description={`${sops.length} recipes documented`}
-      />
+      >
+        <Link to={createPageUrl('ChemicalStockList')}>
+          <Button variant="outline">
+            <Coffee className="w-4 h-4 mr-2" />
+            Chemical Stock
+          </Button>
+        </Link>
+      </PageHeader>
 
       {/* Search & Filter */}
       <div className="flex flex-col sm:flex-row gap-4">

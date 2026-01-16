@@ -40,6 +40,7 @@ import TrainingInsights from './pages/TrainingInsights';
 import SOPLibrary from './pages/SOPLibrary';
 import SOPView from './pages/SOPView';
 import SOPPrint from './pages/SOPPrint';
+import ChemicalStockList from './pages/ChemicalStockList';
 import __Layout from './Layout.jsx';
 
 
@@ -86,6 +87,7 @@ export const PAGES = {
     "SOPLibrary": SOPLibrary,
     "SOPView": SOPView,
     "SOPPrint": SOPPrint,
+    "ChemicalStockList": ChemicalStockList,
 }
 
 export const pagesConfig = {
