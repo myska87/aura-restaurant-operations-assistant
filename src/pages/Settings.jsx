@@ -32,6 +32,7 @@ import IngredientMasterLock from '@/components/system/IngredientMasterLock';
 import MenuModuleLock from '@/components/system/MenuModuleLock';
 import InventoryEngineLock from '@/components/system/InventoryEngineLock';
 import SOPLibraryLock from '@/components/system/SOPLibraryLock';
+import ChangeRequestLock from '@/components/system/ChangeRequestLock';
 
 export default function Settings() {
   const [user, setUser] = useState(null);
@@ -243,6 +244,7 @@ export default function Settings() {
         </TabsContent>
 
         <TabsContent value="system" className="mt-4 space-y-4">
+          <ChangeRequestLock />
           <CoreOperationsLock />
           <MenuDataLock />
           <MenuModuleLock />
