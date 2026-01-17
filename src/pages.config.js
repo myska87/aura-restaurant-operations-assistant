@@ -3,12 +3,14 @@ import Announcements from './pages/Announcements';
 import Assets from './pages/Assets';
 import ChemicalDashboard from './pages/ChemicalDashboard';
 import ChemicalRegister from './pages/ChemicalRegister';
+import ChemicalStockList from './pages/ChemicalStockList';
 import CommandCenter from './pages/CommandCenter';
 import Culture from './pages/Culture';
 import DailyCheckIn from './pages/DailyCheckIn';
 import Dashboard from './pages/Dashboard';
 import Documents from './pages/Documents';
 import EquipmentHealth from './pages/EquipmentHealth';
+import FoodSafetyChecklist from './pages/FoodSafetyChecklist';
 import Forms from './pages/Forms';
 import Inventory from './pages/Inventory';
 import Invitations from './pages/Invitations';
@@ -27,6 +29,9 @@ import Quality from './pages/Quality';
 import QualityControl from './pages/QualityControl';
 import QualitySafety from './pages/QualitySafety';
 import Reports from './pages/Reports';
+import SOPLibrary from './pages/SOPLibrary';
+import SOPPrint from './pages/SOPPrint';
+import SOPView from './pages/SOPView';
 import SOPs from './pages/SOPs';
 import ServiceRecovery from './pages/ServiceRecovery';
 import Settings from './pages/Settings';
@@ -37,11 +42,6 @@ import StockDashboard from './pages/StockDashboard';
 import Training from './pages/Training';
 import TrainingAcademy from './pages/TrainingAcademy';
 import TrainingInsights from './pages/TrainingInsights';
-import SOPLibrary from './pages/SOPLibrary';
-import SOPView from './pages/SOPView';
-import SOPPrint from './pages/SOPPrint';
-import ChemicalStockList from './pages/ChemicalStockList';
-import FoodSafetyChecklist from './pages/FoodSafetyChecklist';
 import __Layout from './Layout.jsx';
 
 
@@ -51,12 +51,14 @@ export const PAGES = {
     "Assets": Assets,
     "ChemicalDashboard": ChemicalDashboard,
     "ChemicalRegister": ChemicalRegister,
+    "ChemicalStockList": ChemicalStockList,
     "CommandCenter": CommandCenter,
     "Culture": Culture,
     "DailyCheckIn": DailyCheckIn,
     "Dashboard": Dashboard,
     "Documents": Documents,
     "EquipmentHealth": EquipmentHealth,
+    "FoodSafetyChecklist": FoodSafetyChecklist,
     "Forms": Forms,
     "Inventory": Inventory,
     "Invitations": Invitations,
@@ -75,6 +77,9 @@ export const PAGES = {
     "QualityControl": QualityControl,
     "QualitySafety": QualitySafety,
     "Reports": Reports,
+    "SOPLibrary": SOPLibrary,
+    "SOPPrint": SOPPrint,
+    "SOPView": SOPView,
     "SOPs": SOPs,
     "ServiceRecovery": ServiceRecovery,
     "Settings": Settings,
@@ -85,11 +90,6 @@ export const PAGES = {
     "Training": Training,
     "TrainingAcademy": TrainingAcademy,
     "TrainingInsights": TrainingInsights,
-    "SOPLibrary": SOPLibrary,
-    "SOPView": SOPView,
-    "SOPPrint": SOPPrint,
-    "ChemicalStockList": ChemicalStockList,
-    "FoodSafetyChecklist": FoodSafetyChecklist,
 }
 
 export const pagesConfig = {

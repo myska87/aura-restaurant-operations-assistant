@@ -172,8 +172,7 @@ export default function Menu() {
   };
 
   const handleViewSOP = (sopId) => {
-    // Would navigate to SOP page or open in modal
-    window.location.href = createPageUrl('SOPs') + '?id=' + sopId;
+    window.location.href = createPageUrl('SOPView') + '?id=' + sopId;
   };
 
   // Calculate stats
