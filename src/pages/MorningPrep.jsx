@@ -68,6 +68,7 @@ export default function MorningPrep() {
     };
 
     preps.forEach((prep) => {
+      if (!prep || !prep.data) return;
       const station = prep.data.station || 'cold_prep';
       if (stations[station]) {
         stations[station].push(prep);
