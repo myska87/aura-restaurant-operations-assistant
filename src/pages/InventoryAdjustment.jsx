@@ -55,16 +55,19 @@ export default function InventoryAdjustment() {
 
   const updateStockMutation = useMutation({
     mutationFn: async ({ ingredient, newStockValue, reason, notes }) => {
-      const stockChange = newStockValue - ingredient.data.current_stock;
+      if (!ingredient?.data) return;
+      
+      const previousStock = ingredient.data.current_stock || 0;
+      const stockChange = newStockValue - previousStock;
 
       // Create audit log entry
       await base44.entities.Inventory_Audit_Log_v1.create({
         ingredient_id: ingredient.id,
-        ingredient_name: ingredient.data.name,
-        previous_stock: ingredient.data.current_stock,
+        ingredient_name: ingredient.data.name || 'Unknown',
+        previous_stock: previousStock,
         new_stock: newStockValue,
         stock_change: stockChange,
-        unit: ingredient.data.unit,
+        unit: ingredient.data.unit || 'units',
         change_reason: reason,
         reason_notes: notes,
         updated_by_id: user.id,
@@ -120,6 +123,8 @@ export default function InventoryAdjustment() {
   };
 
   const getStockStatus = (ingredient) => {
+    if (!ingredient?.data) return { label: 'Unknown', color: 'bg-gray-500 text-white' };
+    
     const stock = ingredient.data.current_stock || 0;
     const min = ingredient.data.min_stock_level || 0;
 
@@ -160,6 +165,7 @@ export default function InventoryAdjustment() {
               <TableBody>
                 <AnimatePresence>
                   {ingredients.map((ingredient) => {
+                    if (!ingredient?.data) return null;
                     const status = getStockStatus(ingredient);
                     return (
                       <motion.tr
@@ -169,14 +175,14 @@ export default function InventoryAdjustment() {
                         exit={{ opacity: 0 }}
                         className="border-b"
                       >
-                        <TableCell className="font-medium">{ingredient.data.name}</TableCell>
-                        <TableCell className="capitalize">{ingredient.data.category}</TableCell>
+                        <TableCell className="font-medium">{ingredient.data.name || 'Unknown'}</TableCell>
+                        <TableCell className="capitalize">{ingredient.data.category || 'N/A'}</TableCell>
                         <TableCell>
                           <span className="text-lg font-semibold">
                             {ingredient.data.current_stock || 0}
                           </span>
                         </TableCell>
-                        <TableCell>{ingredient.data.unit}</TableCell>
+                        <TableCell>{ingredient.data.unit || 'units'}</TableCell>
                         <TableCell>
                           <Badge className={status.color}>{status.label}</Badge>
                         </TableCell>
