@@ -57,6 +57,7 @@ import MenuItemCard from '@/components/menu/MenuItemCard';
 import MenuItemForm from '@/components/menu/MenuItemForm';
 import AIMenuAssistant from '@/components/menu/AIMenuAssistant';
 import OrderByDishDialog from '@/components/menu/OrderByDishDialog';
+import PortionOrderingDialog from '@/components/menu/PortionOrderingDialog';
 import { Link } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
 
@@ -67,6 +68,7 @@ export default function Menu() {
   const [showAI, setShowAI] = useState(false);
   const [showDetails, setShowDetails] = useState(false);
   const [showOrderDialog, setShowOrderDialog] = useState(false);
+  const [showPortionDialog, setShowPortionDialog] = useState(false);
   const [editingItem, setEditingItem] = useState(null);
   const [viewingItem, setViewingItem] = useState(null);
   const [orderingItem, setOrderingItem] = useState(null);
@@ -381,7 +383,7 @@ export default function Menu() {
                 onDuplicate={canEdit ? handleDuplicate : undefined}
                 onDelete={canEdit ? (i) => deleteMutation.mutate(i.id) : undefined}
                 onView={(i) => { setViewingItem(i); setShowDetails(true); }}
-                onOrderIngredients={canEdit ? (i) => { setOrderingItem(i); setShowOrderDialog(true); } : undefined}
+                onOrderIngredients={canEdit ? (i) => { setOrderingItem(i); setShowPortionDialog(true); } : undefined}
               />
             ))}
           </AnimatePresence>
@@ -761,6 +763,18 @@ export default function Menu() {
             <OrderByDishDialog
               menuItem={orderingItem}
               onClose={() => { setShowOrderDialog(false); setOrderingItem(null); }}
+            />
+          )}
+        </DialogContent>
+      </Dialog>
+
+      {/* Portion-Based Ordering Dialog */}
+      <Dialog open={showPortionDialog} onOpenChange={setShowPortionDialog}>
+        <DialogContent className="max-w-5xl h-[90vh] p-0 flex flex-col overflow-hidden">
+          {orderingItem && (
+            <PortionOrderingDialog
+              menuItem={orderingItem}
+              onClose={() => { setShowPortionDialog(false); setOrderingItem(null); }}
             />
           )}
         </DialogContent>

@@ -148,7 +148,7 @@ export default function MenuItemCard({ item, onEdit, onDuplicate, onDelete, onVi
               </DropdownMenuItem>
               {onOrderIngredients && (
                 <DropdownMenuItem onClick={(e) => { e.stopPropagation(); onOrderIngredients(item); }} className="text-emerald-600">
-                  <ShoppingCart className="w-4 h-4 mr-2" /> Order Ingredients
+                  <ShoppingCart className="w-4 h-4 mr-2" /> Order Ingredients by Portions
                 </DropdownMenuItem>
               )}
               <DropdownMenuItem onClick={(e) => { e.stopPropagation(); onEdit(item); }}>
