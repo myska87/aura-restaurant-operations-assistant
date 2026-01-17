@@ -29,6 +29,7 @@ import DataConsistencyCheck from '@/components/system/DataConsistencyCheck';
 import CoreOperationsLock from '@/components/system/CoreOperationsLock';
 import MenuDataLock from '@/components/system/MenuDataLock';
 import IngredientMasterLock from '@/components/system/IngredientMasterLock';
+import MenuModuleLock from '@/components/system/MenuModuleLock';
 
 export default function Settings() {
   const [user, setUser] = useState(null);
@@ -242,6 +243,7 @@ export default function Settings() {
         <TabsContent value="system" className="mt-4 space-y-4">
           <CoreOperationsLock />
           <MenuDataLock />
+          <MenuModuleLock />
           <IngredientMasterLock />
           <DataConsistencyCheck />
         </TabsContent>
