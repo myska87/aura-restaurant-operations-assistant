@@ -44,16 +44,12 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 
 const navItems = [
   { name: 'Command Center', icon: LayoutDashboard, page: 'CommandCenter', roles: ['all'] },
-  { name: 'Menu', icon: ChefHat, page: 'Menu', roles: ['all'] },
-  { name: 'Menu Analytics', icon: TrendingUp, page: 'MenuAnalyticsDashboard', roles: ['all'] },
-  { name: 'Inventory', icon: Package, page: 'Inventory', roles: ['all'] },
+  { name: 'Menu Manager', icon: ChefHat, page: 'MenuManager', roles: ['all'] },
   { name: 'SOPs', icon: FileText, page: 'SOPLibrary', roles: ['all'] },
   { name: 'Operations', icon: ClipboardCheck, page: 'Operations', roles: ['all'] },
-  { name: 'Prep Planner', icon: Calendar, page: 'PrepPlanner', roles: ['all'] },
   { name: 'POS System', icon: Shield, page: 'POSSystem', roles: ['all'] },
   { name: 'Change Requests', icon: MessageSquare, page: 'ChangeRequests', roles: ['all'] },
   { name: 'Quality & Safety', icon: Shield, page: 'QualitySafety', roles: ['all'] },
-  { name: 'Allergen Dashboard', icon: AlertCircle, page: 'AllergenDashboard', roles: ['all'] },
   { name: 'Chemical Safety', icon: Wrench, page: 'ChemicalDashboard', roles: ['all'] },
   { name: 'Equipment Health', icon: Wrench, page: 'EquipmentHealth', roles: ['all'] },
   { name: 'Training Academy', icon: GraduationCap, page: 'TrainingAcademy', roles: ['all'] },
