@@ -47,6 +47,8 @@ import Training from './pages/Training';
 import TrainingAcademy from './pages/TrainingAcademy';
 import TrainingInsights from './pages/TrainingInsights';
 import InventoryAdjustment from './pages/InventoryAdjustment';
+import MorningPrep from './pages/MorningPrep';
+import PrepComponentsManager from './pages/PrepComponentsManager';
 import __Layout from './Layout.jsx';
 
 
@@ -100,6 +102,8 @@ export const PAGES = {
     "TrainingAcademy": TrainingAcademy,
     "TrainingInsights": TrainingInsights,
     "InventoryAdjustment": InventoryAdjustment,
+    "MorningPrep": MorningPrep,
+    "PrepComponentsManager": PrepComponentsManager,
 }
 
 export const pagesConfig = {
