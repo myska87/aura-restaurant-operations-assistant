@@ -1,6 +1,7 @@
 import AllergenDashboard from './pages/AllergenDashboard';
 import Announcements from './pages/Announcements';
 import Assets from './pages/Assets';
+import ChangeRequests from './pages/ChangeRequests';
 import ChemicalDashboard from './pages/ChemicalDashboard';
 import ChemicalRegister from './pages/ChemicalRegister';
 import ChemicalStockList from './pages/ChemicalStockList';
@@ -42,7 +43,7 @@ import StockDashboard from './pages/StockDashboard';
 import Training from './pages/Training';
 import TrainingAcademy from './pages/TrainingAcademy';
 import TrainingInsights from './pages/TrainingInsights';
-import ChangeRequests from './pages/ChangeRequests';
+import menuV3Hub from './pages/Menu_v3_HUB';
 import __Layout from './Layout.jsx';
 
 
@@ -50,6 +51,7 @@ export const PAGES = {
     "AllergenDashboard": AllergenDashboard,
     "Announcements": Announcements,
     "Assets": Assets,
+    "ChangeRequests": ChangeRequests,
     "ChemicalDashboard": ChemicalDashboard,
     "ChemicalRegister": ChemicalRegister,
     "ChemicalStockList": ChemicalStockList,
@@ -91,7 +93,7 @@ export const PAGES = {
     "Training": Training,
     "TrainingAcademy": TrainingAcademy,
     "TrainingInsights": TrainingInsights,
-    "ChangeRequests": ChangeRequests,
+    "Menu_v3_HUB": menuV3Hub,
 }
 
 export const pagesConfig = {
