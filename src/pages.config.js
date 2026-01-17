@@ -44,6 +44,7 @@ import Training from './pages/Training';
 import TrainingAcademy from './pages/TrainingAcademy';
 import TrainingInsights from './pages/TrainingInsights';
 import menuV3Hub from './pages/Menu_v3_HUB';
+import MenuAnalyticsDashboard from './pages/MenuAnalyticsDashboard';
 import __Layout from './Layout.jsx';
 
 
@@ -94,6 +95,7 @@ export const PAGES = {
     "TrainingAcademy": TrainingAcademy,
     "TrainingInsights": TrainingInsights,
     "Menu_v3_HUB": menuV3Hub,
+    "MenuAnalyticsDashboard": MenuAnalyticsDashboard,
 }
 
 export const pagesConfig = {
