@@ -25,6 +25,8 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import LoadingSpinner from '@/components/ui/LoadingSpinner';
+import DataConsistencyCheck from '@/components/system/DataConsistencyCheck';
+import CoreOperationsLock from '@/components/system/CoreOperationsLock';
 
 export default function Settings() {
   const [user, setUser] = useState(null);
@@ -90,6 +92,10 @@ export default function Settings() {
           <TabsTrigger value="preferences">
             <Palette className="w-4 h-4 mr-2" />
             Preferences
+          </TabsTrigger>
+          <TabsTrigger value="system">
+            <Shield className="w-4 h-4 mr-2" />
+            System
           </TabsTrigger>
         </TabsList>
 
@@ -229,6 +235,11 @@ export default function Settings() {
               </div>
             </CardContent>
           </Card>
+        </TabsContent>
+
+        <TabsContent value="system" className="mt-4 space-y-4">
+          <CoreOperationsLock />
+          <DataConsistencyCheck />
         </TabsContent>
       </Tabs>
 
