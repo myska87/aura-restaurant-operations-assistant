@@ -130,6 +130,7 @@ export default function MorningPrep() {
                 ) : (
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                     {groupedPreps[station].map((prep) => {
+                      if (!prep?.data) return null;
                       const statusBadge = getStatusBadge(prep.data.status);
                       return (
                         <motion.div
@@ -164,7 +165,7 @@ export default function MorningPrep() {
                                 <div className="flex justify-between">
                                   <span>Storage:</span>
                                   <span className="font-medium capitalize">
-                                    {prep.data.storage_location.replace('_', ' ')}
+                                    {prep.data.storage_location?.replace('_', ' ')}
                                   </span>
                                 </div>
                               </div>
