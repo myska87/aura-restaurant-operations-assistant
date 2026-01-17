@@ -18,7 +18,10 @@ import Invitations from './pages/Invitations';
 import LeadershipPathway from './pages/LeadershipPathway';
 import Meetings from './pages/Meetings';
 import Menu from './pages/Menu';
+import MenuAnalyticsDashboard from './pages/MenuAnalyticsDashboard';
 import MenuCostingDashboard from './pages/MenuCostingDashboard';
+import MenuManager from './pages/MenuManager';
+import menuV3Hub from './pages/Menu_v3_HUB';
 import Operations from './pages/Operations';
 import OperationsHistory from './pages/OperationsHistory';
 import POSSystem from './pages/POSSystem';
@@ -43,9 +46,7 @@ import StockDashboard from './pages/StockDashboard';
 import Training from './pages/Training';
 import TrainingAcademy from './pages/TrainingAcademy';
 import TrainingInsights from './pages/TrainingInsights';
-import menuV3Hub from './pages/Menu_v3_HUB';
-import MenuAnalyticsDashboard from './pages/MenuAnalyticsDashboard';
-import MenuManager from './pages/MenuManager';
+import InventoryAdjustment from './pages/InventoryAdjustment';
 import __Layout from './Layout.jsx';
 
 
@@ -70,7 +71,10 @@ export const PAGES = {
     "LeadershipPathway": LeadershipPathway,
     "Meetings": Meetings,
     "Menu": Menu,
+    "MenuAnalyticsDashboard": MenuAnalyticsDashboard,
     "MenuCostingDashboard": MenuCostingDashboard,
+    "MenuManager": MenuManager,
+    "Menu_v3_HUB": menuV3Hub,
     "Operations": Operations,
     "OperationsHistory": OperationsHistory,
     "POSSystem": POSSystem,
@@ -95,9 +99,7 @@ export const PAGES = {
     "Training": Training,
     "TrainingAcademy": TrainingAcademy,
     "TrainingInsights": TrainingInsights,
-    "Menu_v3_HUB": menuV3Hub,
-    "MenuAnalyticsDashboard": MenuAnalyticsDashboard,
-    "MenuManager": MenuManager,
+    "InventoryAdjustment": InventoryAdjustment,
 }
 
 export const pagesConfig = {
