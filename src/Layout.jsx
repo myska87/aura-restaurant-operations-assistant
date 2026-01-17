@@ -27,7 +27,8 @@ import {
   TrendingUp,
   Shield,
   Heart,
-  Trophy
+  Trophy,
+  AlertCircle
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -47,10 +48,22 @@ const navItems = [
   { name: 'Inventory', icon: Package, page: 'Inventory', roles: ['all'] },
   { name: 'SOPs', icon: FileText, page: 'SOPLibrary', roles: ['all'] },
   { name: 'Operations', icon: ClipboardCheck, page: 'Operations', roles: ['all'] },
+  { name: 'Prep Planner', icon: Calendar, page: 'PrepPlanner', roles: ['all'] },
+  { name: 'POS System', icon: Shield, page: 'POSSystem', roles: ['all'] },
   { name: 'Change Requests', icon: MessageSquare, page: 'ChangeRequests', roles: ['all'] },
-  { name: 'Training Academy', icon: GraduationCap, page: 'TrainingAcademy', roles: ['all'] },
-  { name: 'People', icon: Users, page: 'People', roles: ['all'] },
   { name: 'Quality & Safety', icon: Shield, page: 'QualitySafety', roles: ['all'] },
+  { name: 'Allergen Dashboard', icon: AlertCircle, page: 'AllergenDashboard', roles: ['all'] },
+  { name: 'Chemical Safety', icon: Wrench, page: 'ChemicalDashboard', roles: ['all'] },
+  { name: 'Equipment Health', icon: Wrench, page: 'EquipmentHealth', roles: ['all'] },
+  { name: 'Training Academy', icon: GraduationCap, page: 'TrainingAcademy', roles: ['all'] },
+  { name: 'Leadership Path', icon: Trophy, page: 'LeadershipPathway', roles: ['all'] },
+  { name: 'Culture', icon: Heart, page: 'Culture', roles: ['all'] },
+  { name: 'People', icon: Users, page: 'People', roles: ['all'] },
+  { name: 'Shifts', icon: Calendar, page: 'Shifts', roles: ['all'] },
+  { name: 'Performance', icon: TrendingUp, page: 'Performance', roles: ['manager', 'owner', 'admin'] },
+  { name: 'Documents', icon: FolderOpen, page: 'Documents', roles: ['all'] },
+  { name: 'Announcements', icon: Bell, page: 'Announcements', roles: ['all'] },
+  { name: 'Meetings', icon: Calendar, page: 'Meetings', roles: ['all'] },
   { name: 'Reports', icon: TrendingUp, page: 'Reports', roles: ['manager', 'owner', 'admin'] },
 ];
 
