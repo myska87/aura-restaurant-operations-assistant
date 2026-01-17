@@ -292,19 +292,29 @@ export default function Menu() {
         </div>
         
         <Select value={filterCategory} onValueChange={setFilterCategory}>
-          <SelectTrigger className="w-40">
+          <SelectTrigger className="w-48">
             <SelectValue placeholder="Category" />
           </SelectTrigger>
           <SelectContent>
             <SelectItem value="all">All Categories</SelectItem>
-            <SelectItem value="hot_drinks">☕ Hot Drinks</SelectItem>
-            <SelectItem value="cold_drinks">🥤 Cold Drinks</SelectItem>
-            <SelectItem value="starters">🥗 Starters</SelectItem>
-            <SelectItem value="mains">🍛 Mains</SelectItem>
-            <SelectItem value="desserts">🍰 Desserts</SelectItem>
-            <SelectItem value="sides">🍟 Sides</SelectItem>
-            <SelectItem value="breakfast">🍳 Breakfast</SelectItem>
-            <SelectItem value="snacks">🥨 Snacks</SelectItem>
+            <SelectItem value="desi_breakfast">🍳 Desi Breakfast</SelectItem>
+            <SelectItem value="desi_crepes">🥞 Desi Crepes</SelectItem>
+            <SelectItem value="parotta_rolls">🌯 Parotta Rolls</SelectItem>
+            <SelectItem value="parotta_kebabs">🍢 Parotta Kebabs</SelectItem>
+            <SelectItem value="patta_bakes">🥖 Patta Bakes</SelectItem>
+            <SelectItem value="fryer_heroes">🍟 Fryer Heroes</SelectItem>
+            <SelectItem value="chaat">🥗 Chaat</SelectItem>
+            <SelectItem value="chaipatta_bowls">🍜 Chai Patta Bowls</SelectItem>
+            <SelectItem value="chai_street_presses">🥪 Chai Street Presses</SelectItem>
+            <SelectItem value="vegetarian_street_food">🌱 Vegetarian Street Food</SelectItem>
+            <SelectItem value="little_pattas">👶 Little Pattas</SelectItem>
+            <SelectItem value="signature_karak_chai">☕ Signature Karak Chai</SelectItem>
+            <SelectItem value="iced_karak">🧊 Iced Karak</SelectItem>
+            <SelectItem value="coffee">☕ Coffee</SelectItem>
+            <SelectItem value="speciality_drinks">🍹 Speciality Drinks</SelectItem>
+            <SelectItem value="coolers_lassi">🥤 Coolers & Lassi</SelectItem>
+            <SelectItem value="sweets_desserts">🍰 Sweets & Desserts</SelectItem>
+            <SelectItem value="kids_drinks">🧃 Kids Drinks</SelectItem>
           </SelectContent>
         </Select>
         
