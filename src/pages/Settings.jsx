@@ -30,6 +30,7 @@ import CoreOperationsLock from '@/components/system/CoreOperationsLock';
 import MenuDataLock from '@/components/system/MenuDataLock';
 import IngredientMasterLock from '@/components/system/IngredientMasterLock';
 import MenuModuleLock from '@/components/system/MenuModuleLock';
+import InventoryEngineLock from '@/components/system/InventoryEngineLock';
 
 export default function Settings() {
   const [user, setUser] = useState(null);
@@ -245,6 +246,7 @@ export default function Settings() {
           <MenuDataLock />
           <MenuModuleLock />
           <IngredientMasterLock />
+          <InventoryEngineLock />
           <DataConsistencyCheck />
         </TabsContent>
       </Tabs>
