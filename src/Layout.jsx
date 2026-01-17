@@ -16,7 +16,7 @@ import {
   MessageSquare,
   Wrench,
   Bell,
-  Menu,
+  Menu as MenuIcon,
   X,
   ChevronDown,
   LogOut,
@@ -43,8 +43,10 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 
 const navItems = [
   { name: 'Command Center', icon: LayoutDashboard, page: 'CommandCenter', roles: ['all'] },
+  { name: 'Menu', icon: ChefHat, page: 'Menu', roles: ['all'] },
+  { name: 'Inventory', icon: Package, page: 'Inventory', roles: ['all'] },
+  { name: 'SOPs', icon: FileText, page: 'SOPLibrary', roles: ['all'] },
   { name: 'Operations', icon: ClipboardCheck, page: 'Operations', roles: ['all'] },
-  { name: 'Menu & SOPs', icon: ChefHat, page: 'SOPLibrary', roles: ['all'] },
   { name: 'Change Requests', icon: MessageSquare, page: 'ChangeRequests', roles: ['all'] },
   { name: 'Training Academy', icon: GraduationCap, page: 'TrainingAcademy', roles: ['all'] },
   { name: 'People', icon: Users, page: 'People', roles: ['all'] },
@@ -194,7 +196,7 @@ export default function Layout({ children, currentPageName }) {
           <Sheet open={sidebarOpen} onOpenChange={setSidebarOpen}>
             <SheetTrigger asChild>
               <Button variant="ghost" size="icon" className="lg:hidden">
-                <Menu className="w-6 h-6" />
+                <MenuIcon className="w-6 h-6" />
               </Button>
             </SheetTrigger>
             <SheetContent side="left" className="w-72 p-0 bg-gradient-to-b from-emerald-900 via-emerald-800 to-emerald-900">
