@@ -158,36 +158,39 @@ export default function PrepComponentsManager() {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {prepComponents.map((prep) => (
-                  <TableRow key={prep.id}>
-                    <TableCell className="font-medium">{prep.data.prep_name}</TableCell>
-                    <TableCell className="capitalize">{prep.data.category}</TableCell>
-                    <TableCell className="capitalize">{prep.data.station?.replace('_', ' ')}</TableCell>
-                    <TableCell>
-                      {prep.data.batch_size} {prep.data.batch_unit}
-                    </TableCell>
-                    <TableCell>{prep.data.yield_portions} portions</TableCell>
-                    <TableCell>{prep.data.shelf_life_hours}h</TableCell>
-                    <TableCell>
-                      <div className="flex gap-2">
-                        <Button size="sm" variant="outline" onClick={() => handleEdit(prep)}>
-                          <Edit className="w-4 h-4" />
-                        </Button>
-                        <Button
-                          size="sm"
-                          variant="destructive"
-                          onClick={() => {
-                            if (confirm('Delete this prep component?')) {
-                              deleteMutation.mutate(prep.id);
-                            }
-                          }}
-                        >
-                          <Trash2 className="w-4 h-4" />
-                        </Button>
-                      </div>
-                    </TableCell>
-                  </TableRow>
-                ))}
+                {prepComponents.map((prep) => {
+                  if (!prep?.data) return null;
+                  return (
+                    <TableRow key={prep.id}>
+                      <TableCell className="font-medium">{prep.data.prep_name}</TableCell>
+                      <TableCell className="capitalize">{prep.data.category}</TableCell>
+                      <TableCell className="capitalize">{prep.data.station?.replace('_', ' ')}</TableCell>
+                      <TableCell>
+                        {prep.data.batch_size} {prep.data.batch_unit}
+                      </TableCell>
+                      <TableCell>{prep.data.yield_portions} portions</TableCell>
+                      <TableCell>{prep.data.shelf_life_hours}h</TableCell>
+                      <TableCell>
+                        <div className="flex gap-2">
+                          <Button size="sm" variant="outline" onClick={() => handleEdit(prep)}>
+                            <Edit className="w-4 h-4" />
+                          </Button>
+                          <Button
+                            size="sm"
+                            variant="destructive"
+                            onClick={() => {
+                              if (confirm('Delete this prep component?')) {
+                                deleteMutation.mutate(prep.id);
+                              }
+                            }}
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </Button>
+                        </div>
+                      </TableCell>
+                    </TableRow>
+                  );
+                })}
               </TableBody>
             </Table>
           </div>
