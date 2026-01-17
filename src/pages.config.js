@@ -42,6 +42,7 @@ import StockDashboard from './pages/StockDashboard';
 import Training from './pages/Training';
 import TrainingAcademy from './pages/TrainingAcademy';
 import TrainingInsights from './pages/TrainingInsights';
+import ChangeRequests from './pages/ChangeRequests';
 import __Layout from './Layout.jsx';
 
 
@@ -90,6 +91,7 @@ export const PAGES = {
     "Training": Training,
     "TrainingAcademy": TrainingAcademy,
     "TrainingInsights": TrainingInsights,
+    "ChangeRequests": ChangeRequests,
 }
 
 export const pagesConfig = {

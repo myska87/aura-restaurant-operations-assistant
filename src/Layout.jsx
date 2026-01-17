@@ -45,6 +45,7 @@ const navItems = [
   { name: 'Command Center', icon: LayoutDashboard, page: 'CommandCenter', roles: ['all'] },
   { name: 'Operations', icon: ClipboardCheck, page: 'Operations', roles: ['all'] },
   { name: 'Menu & SOPs', icon: ChefHat, page: 'SOPLibrary', roles: ['all'] },
+  { name: 'Change Requests', icon: MessageSquare, page: 'ChangeRequests', roles: ['all'] },
   { name: 'Training Academy', icon: GraduationCap, page: 'TrainingAcademy', roles: ['all'] },
   { name: 'People', icon: Users, page: 'People', roles: ['all'] },
   { name: 'Quality & Safety', icon: Shield, page: 'QualitySafety', roles: ['all'] },
