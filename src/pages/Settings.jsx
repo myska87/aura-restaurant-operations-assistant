@@ -28,6 +28,7 @@ import LoadingSpinner from '@/components/ui/LoadingSpinner';
 import DataConsistencyCheck from '@/components/system/DataConsistencyCheck';
 import CoreOperationsLock from '@/components/system/CoreOperationsLock';
 import MenuDataLock from '@/components/system/MenuDataLock';
+import IngredientMasterLock from '@/components/system/IngredientMasterLock';
 
 export default function Settings() {
   const [user, setUser] = useState(null);
@@ -241,6 +242,7 @@ export default function Settings() {
         <TabsContent value="system" className="mt-4 space-y-4">
           <CoreOperationsLock />
           <MenuDataLock />
+          <IngredientMasterLock />
           <DataConsistencyCheck />
         </TabsContent>
       </Tabs>
