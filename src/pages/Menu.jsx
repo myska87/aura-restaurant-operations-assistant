@@ -108,20 +108,38 @@ export default function Menu() {
   });
 
   const createMutation = useMutation({
-    mutationFn: (data) => base44.entities.MenuItem.create(data),
-    onSuccess: () => {
+    mutationFn: async (data) => {
+      console.log('Creating menu item:', data);
+      return await base44.entities.MenuItem.create(data);
+    },
+    onSuccess: (result) => {
+      console.log('Menu item created successfully:', result);
       queryClient.invalidateQueries(['menuItems']);
       setShowForm(false);
       setEditingItem(null);
+      alert('✅ Menu item created successfully!');
+    },
+    onError: (error) => {
+      console.error('Error creating menu item:', error);
+      alert('❌ Failed to create menu item: ' + (error.message || 'Unknown error'));
     }
   });
 
   const updateMutation = useMutation({
-    mutationFn: ({ id, data }) => base44.entities.MenuItem.update(id, data),
-    onSuccess: () => {
+    mutationFn: async ({ id, data }) => {
+      console.log('Updating menu item:', id, data);
+      return await base44.entities.MenuItem.update(id, data);
+    },
+    onSuccess: (result) => {
+      console.log('Menu item updated successfully:', result);
       queryClient.invalidateQueries(['menuItems']);
       setShowForm(false);
       setEditingItem(null);
+      alert('✅ Menu item updated successfully!');
+    },
+    onError: (error) => {
+      console.error('Error updating menu item:', error);
+      alert('❌ Failed to update menu item: ' + (error.message || 'Unknown error'));
     }
   });
 
