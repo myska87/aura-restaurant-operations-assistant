@@ -161,6 +161,15 @@ export default function TemperatureReport() {
       <div ref={printRef} className="bg-white p-8">
         {/* Header */}
         <div className="header">
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '20px' }}>
+            <div style={{ width: '120px', height: '120px', background: 'linear-gradient(135deg, #059669 0%, #D4AF37 100%)', borderRadius: '16px', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 4px 6px rgba(0,0,0,0.1)' }}>
+              <span style={{ fontSize: '48px', fontWeight: 'bold', color: 'white' }}>AURA</span>
+            </div>
+            <div style={{ textAlign: 'right' }}>
+              <p style={{ fontSize: '12px', color: '#64748b', margin: '0' }}>Food Safety & Compliance</p>
+              <p style={{ fontSize: '12px', color: '#64748b', margin: '0' }}>Temperature Monitoring System</p>
+            </div>
+          </div>
           <h1>Temperature Monitoring Report</h1>
           <p>Period: {format(new Date(dateRange.start), 'MMMM d, yyyy')} - {format(new Date(dateRange.end), 'MMMM d, yyyy')}</p>
           <p>Generated: {format(new Date(), 'MMMM d, yyyy • h:mm a')}</p>
