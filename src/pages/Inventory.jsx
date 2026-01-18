@@ -74,8 +74,23 @@ export default function Inventory() {
   const [filterCategory, setFilterCategory] = useState('all');
   const [orderCart, setOrderCart] = useState([]);
   const [selectedSupplier, setSelectedSupplier] = useState(null);
+  const [editingStockId, setEditingStockId] = useState(null);
+  const [tempStockValue, setTempStockValue] = useState('');
+  const [user, setUser] = useState(null);
 
   const queryClient = useQueryClient();
+
+  React.useEffect(() => {
+    const loadUser = async () => {
+      try {
+        const userData = await base44.auth.me();
+        setUser(userData);
+      } catch (e) {
+        console.log('User not authenticated');
+      }
+    };
+    loadUser();
+  }, []);
 
   const { data: ingredients = [], isLoading: loadingIngredients } = useQuery({
     queryKey: ['ingredients'],
@@ -105,6 +120,37 @@ export default function Inventory() {
       queryClient.invalidateQueries(['ingredients']);
       setShowIngredientForm(false);
       setEditingIngredient(null);
+    }
+  });
+
+  const updateStockMutation = useMutation({
+    mutationFn: async ({ ingredientId, newStock, previousStock, ingredientName, unit }) => {
+      // Update ingredient stock
+      await base44.entities.Ingredient.update(ingredientId, {
+        current_stock: newStock
+      });
+
+      // Create audit log if entity exists
+      try {
+        await base44.entities.InventoryTransaction.create({
+          transaction_type: 'adjustment',
+          ingredient_id: ingredientId,
+          ingredient_name: ingredientName,
+          quantity_change: newStock - previousStock,
+          unit: unit,
+          stock_before: previousStock,
+          stock_after: newStock,
+          executed_by: user?.email || 'Unknown',
+          notes: `Manual stock update from ${previousStock} to ${newStock}`,
+        });
+      } catch (e) {
+        console.log('Audit log not created - entity may not exist');
+      }
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries(['ingredients']);
+      setEditingStockId(null);
+      setTempStockValue('');
     }
   });
 
@@ -346,6 +392,7 @@ export default function Inventory() {
                     <TableHead>Ingredient</TableHead>
                     <TableHead>Category</TableHead>
                     <TableHead>Stock Level</TableHead>
+                    <TableHead>Quick Update</TableHead>
                     <TableHead>
                       <div className="flex items-center gap-1">
                         <DollarSign className="w-3 h-3" />
@@ -382,6 +429,63 @@ export default function Inventory() {
                               {stockStatus.label}
                             </Badge>
                           </div>
+                        </TableCell>
+                        <TableCell>
+                          {editingStockId === ing.id ? (
+                            <div className="flex items-center gap-2">
+                              <Input
+                                type="number"
+                                step="0.01"
+                                value={tempStockValue}
+                                onChange={(e) => setTempStockValue(e.target.value)}
+                                className="w-20 h-8"
+                                autoFocus
+                              />
+                              <Button
+                                size="sm"
+                                className="h-8 bg-emerald-600 hover:bg-emerald-700"
+                                onClick={() => {
+                                  const newStock = parseFloat(tempStockValue);
+                                  if (!isNaN(newStock) && newStock >= 0) {
+                                    updateStockMutation.mutate({
+                                      ingredientId: ing.id,
+                                      newStock,
+                                      previousStock: ing.current_stock || 0,
+                                      ingredientName: ing.name,
+                                      unit: ing.unit
+                                    });
+                                  }
+                                }}
+                                disabled={updateStockMutation.isPending}
+                              >
+                                ✓
+                              </Button>
+                              <Button
+                                size="sm"
+                                variant="ghost"
+                                className="h-8"
+                                onClick={() => {
+                                  setEditingStockId(null);
+                                  setTempStockValue('');
+                                }}
+                              >
+                                ✕
+                              </Button>
+                            </div>
+                          ) : (
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              className="h-8"
+                              onClick={() => {
+                                setEditingStockId(ing.id);
+                                setTempStockValue(ing.current_stock?.toString() || '0');
+                              }}
+                            >
+                              <Edit className="w-3 h-3 mr-1" />
+                              Update
+                            </Button>
+                          )}
                         </TableCell>
                         <TableCell>
                           <span className="font-semibold text-slate-800">£{ing.cost_per_unit?.toFixed(2) || '0.00'}</span>
