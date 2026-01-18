@@ -213,14 +213,15 @@ export default function Menu() {
         title="Menu Management"
         description={`${menuItems.length} items • ${activeItems} active`}
       >
-        <Button
-          variant="outline"
-          onClick={() => window.open(createPageUrl('MenuCostingDashboard'))}
-          className="border-amber-300 text-amber-700 hover:bg-amber-50"
-        >
-          <BarChart3 className="w-4 h-4 mr-2" />
-          Costing Dashboard
-        </Button>
+        <Link to={createPageUrl('MenuCostingDashboard')}>
+          <Button
+            variant="outline"
+            className="border-amber-300 text-amber-700 hover:bg-amber-50"
+          >
+            <BarChart3 className="w-4 h-4 mr-2" />
+            Costing Dashboard
+          </Button>
+        </Link>
         <Button
           variant="outline"
           onClick={() => setShowAI(true)}
