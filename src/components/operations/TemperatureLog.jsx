@@ -14,16 +14,11 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '
 import { Label } from '@/components/ui/label';
 
 export default function TemperatureLog({ user }) {
-  const [showForm, setShowForm] = useState(false);
+  const [showBulkForm, setShowBulkForm] = useState(false);
   const [showEquipmentManager, setShowEquipmentManager] = useState(false);
   const [showEquipmentForm, setShowEquipmentForm] = useState(false);
   const [editingEquipment, setEditingEquipment] = useState(null);
-  const [formData, setFormData] = useState({
-    equipment_name: '',
-    temperature: '',
-    check_time: '',
-    notes: ''
-  });
+  const [bulkTemperatures, setBulkTemperatures] = useState({});
   const [equipmentFormData, setEquipmentFormData] = useState({
     name: '',
     location: '',
@@ -33,6 +28,16 @@ export default function TemperatureLog({ user }) {
 
   const queryClient = useQueryClient();
   const today = format(new Date(), 'yyyy-MM-dd');
+  
+  // Auto-detect shift stage based on current time
+  const getCurrentShift = () => {
+    const hour = new Date().getHours();
+    if (hour >= 6 && hour < 12) return 'opening';
+    if (hour >= 12 && hour < 18) return 'mid_shift';
+    return 'closing';
+  };
+  
+  const currentShift = getCurrentShift();
 
   const { data: todayLogs = [] } = useQuery({
     queryKey: ['temperatureLogs', today],
@@ -44,12 +49,17 @@ export default function TemperatureLog({ user }) {
     queryFn: () => base44.entities.Asset.filter({ category: 'refrigeration' }, 'name', 100)
   });
 
-  const createLogMutation = useMutation({
-    mutationFn: (data) => base44.entities.TemperatureLog.create(data),
+  const bulkCreateLogMutation = useMutation({
+    mutationFn: async (logsData) => {
+      // Create all logs in parallel
+      await Promise.all(
+        logsData.map(log => base44.entities.TemperatureLog.create(log))
+      );
+    },
     onSuccess: () => {
       queryClient.invalidateQueries(['temperatureLogs']);
-      setShowForm(false);
-      setFormData({ equipment_name: '', temperature: '', check_time: '', notes: '' });
+      setShowBulkForm(false);
+      setBulkTemperatures({});
     }
   });
 
@@ -70,25 +80,37 @@ export default function TemperatureLog({ user }) {
     onSuccess: () => queryClient.invalidateQueries(['temperature-equipment'])
   });
 
-  const handleSubmit = () => {
-    const selectedEquip = equipmentList.find(e => e.name === formData.equipment_name);
-    const temp = parseFloat(formData.temperature);
-    const minTemp = selectedEquip?.min_temp ?? 0;
-    const maxTemp = selectedEquip?.max_temp ?? 5;
-    const isInRange = temp >= minTemp && temp <= maxTemp;
+  const handleBulkSubmit = () => {
+    // Validate all equipment has temperature
+    const missingTemps = equipmentList.filter(e => !bulkTemperatures[e.id]);
+    if (missingTemps.length > 0) {
+      alert(`Please enter temperatures for all equipment. Missing: ${missingTemps.map(e => e.name).join(', ')}`);
+      return;
+    }
 
-    createLogMutation.mutate({
-      ...formData,
-      temperature: temp,
-      location: selectedEquip?.location || '',
-      min_temp: minTemp,
-      max_temp: maxTemp,
-      is_in_range: isInRange,
-      logged_by: user.email,
-      logged_by_name: user.full_name || user.email,
-      log_date: today,
-      manager_notified: !isInRange
+    // Build all log entries
+    const logsData = equipmentList.map(equip => {
+      const temp = parseFloat(bulkTemperatures[equip.id]);
+      const minTemp = equip.min_temp ?? 0;
+      const maxTemp = equip.max_temp ?? 5;
+      const isInRange = temp >= minTemp && temp <= maxTemp;
+
+      return {
+        equipment_name: equip.name,
+        temperature: temp,
+        check_time: currentShift,
+        location: equip.location || '',
+        min_temp: minTemp,
+        max_temp: maxTemp,
+        is_in_range: isInRange,
+        logged_by: user.email,
+        logged_by_name: user.full_name || user.email,
+        log_date: today,
+        manager_notified: !isInRange
+      };
     });
+
+    bulkCreateLogMutation.mutate(logsData);
   };
 
   const handleEquipmentSubmit = () => {
@@ -108,8 +130,23 @@ export default function TemperatureLog({ user }) {
   };
 
   const getCheckTimeStatus = (checkTime) => {
-    const hasLog = todayLogs.find(log => log.check_time === checkTime);
-    return hasLog ? 'complete' : 'pending';
+    const logsForShift = todayLogs.filter(log => log.check_time === checkTime);
+    return logsForShift.length >= equipmentList.length ? 'complete' : 'pending';
+  };
+  
+  const getTempStatus = (temp, minTemp, maxTemp) => {
+    if (temp < minTemp || temp > maxTemp) {
+      return { color: 'bg-red-100 border-red-400 text-red-800', label: 'Critical' };
+    }
+    return { color: 'bg-emerald-100 border-emerald-400 text-emerald-800', label: 'OK' };
+  };
+  
+  const groupLogsByShift = () => {
+    return {
+      opening: todayLogs.filter(log => log.check_time === 'opening'),
+      mid_shift: todayLogs.filter(log => log.check_time === 'mid_shift'),
+      closing: todayLogs.filter(log => log.check_time === 'closing')
+    };
   };
 
   return (
@@ -123,7 +160,7 @@ export default function TemperatureLog({ user }) {
                 <Settings className="w-4 h-4 mr-2" />
                 Manage Equipment
               </Button>
-              <Button onClick={() => setShowForm(!showForm)} size="sm">
+              <Button onClick={() => setShowBulkForm(true)} size="sm" className="bg-emerald-600 hover:bg-emerald-700">
                 <Plus className="w-4 h-4 mr-2" />
                 Log Temperature
               </Button>
@@ -154,106 +191,177 @@ export default function TemperatureLog({ user }) {
             ))}
           </div>
 
-          {/* Log Form */}
-          {showForm && (
+          {/* Bulk Temperature Entry Table */}
+          {showBulkForm && (
             <motion.div
-              initial={{ opacity: 0, height: 0 }}
-              animate={{ opacity: 1, height: 'auto' }}
-              className="space-y-3 p-4 bg-slate-50 rounded-xl"
+              initial={{ opacity: 0, y: -10 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="space-y-4 p-4 bg-slate-50 rounded-xl"
             >
-              <Select value={formData.equipment_name} onValueChange={(v) => setFormData({...formData, equipment_name: v})}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Select equipment..." />
-                </SelectTrigger>
-                <SelectContent>
-                  {equipmentList.map(e => (
-                    <SelectItem key={e.id} value={e.name}>
-                      {e.name} - {e.location}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+              <div className="flex items-center justify-between">
+                <div>
+                  <h3 className="font-bold text-lg text-slate-900">
+                    {currentShift === 'opening' ? '🌅 Opening Check' : 
+                     currentShift === 'mid_shift' ? '☀️ Mid-Shift Check' : 
+                     '🌙 Closing Check'}
+                  </h3>
+                  <p className="text-sm text-slate-600">
+                    {format(new Date(), 'EEEE, MMMM d, yyyy • h:mm a')}
+                  </p>
+                </div>
+                <Badge className="bg-blue-100 text-blue-700">
+                  Logged by: {user?.full_name || user?.email}
+                </Badge>
+              </div>
 
-              {formData.equipment_name && (
-                <>
-                  <div className="p-3 bg-blue-50 rounded-lg text-sm">
-                    <p className="text-blue-900">
-                      <strong>Range:</strong> {equipmentList.find(e => e.name === formData.equipment_name)?.min_temp}°C to{' '}
-                      {equipmentList.find(e => e.name === formData.equipment_name)?.max_temp}°C
-                    </p>
-                  </div>
+              <div className="overflow-x-auto border rounded-lg bg-white">
+                <table className="w-full">
+                  <thead className="bg-slate-100 border-b">
+                    <tr>
+                      <th className="text-left p-3 font-semibold text-slate-700">Equipment</th>
+                      <th className="text-left p-3 font-semibold text-slate-700">Location</th>
+                      <th className="text-center p-3 font-semibold text-slate-700">Min Temp</th>
+                      <th className="text-center p-3 font-semibold text-slate-700">Max Temp</th>
+                      <th className="text-center p-3 font-semibold text-slate-700">Current Temp (°C)</th>
+                      <th className="text-center p-3 font-semibold text-slate-700">Status</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {equipmentList.map((equip, idx) => {
+                      const currentTemp = bulkTemperatures[equip.id];
+                      const status = currentTemp ? getTempStatus(
+                        parseFloat(currentTemp), 
+                        equip.min_temp ?? 0, 
+                        equip.max_temp ?? 5
+                      ) : null;
 
-                  <Input
-                    type="number"
-                    step="0.1"
-                    placeholder="Temperature (°C)"
-                    value={formData.temperature}
-                    onChange={(e) => setFormData({...formData, temperature: e.target.value})}
-                  />
+                      return (
+                        <tr key={equip.id} className="border-b hover:bg-slate-50">
+                          <td className="p-3 font-medium">{equip.name}</td>
+                          <td className="p-3 text-slate-600">{equip.location}</td>
+                          <td className="p-3 text-center text-slate-600">{equip.min_temp ?? 0}°C</td>
+                          <td className="p-3 text-center text-slate-600">{equip.max_temp ?? 5}°C</td>
+                          <td className="p-3">
+                            <Input
+                              type="number"
+                              step="0.1"
+                              placeholder="Enter temp"
+                              value={bulkTemperatures[equip.id] || ''}
+                              onChange={(e) => setBulkTemperatures({
+                                ...bulkTemperatures,
+                                [equip.id]: e.target.value
+                              })}
+                              className="text-center font-semibold"
+                              autoFocus={idx === 0}
+                            />
+                          </td>
+                          <td className="p-3">
+                            {status && (
+                              <Badge className={status.color}>
+                                {status.label}
+                              </Badge>
+                            )}
+                          </td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
+              </div>
 
-                  <Select value={formData.check_time} onValueChange={(v) => setFormData({...formData, check_time: v})}>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Check time..." />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="opening">Opening</SelectItem>
-                      <SelectItem value="mid_shift">Mid Shift</SelectItem>
-                      <SelectItem value="closing">Closing</SelectItem>
-                    </SelectContent>
-                  </Select>
-
-                  <Textarea
-                    placeholder="Notes (optional)"
-                    value={formData.notes}
-                    onChange={(e) => setFormData({...formData, notes: e.target.value})}
-                    rows={2}
-                  />
-
-                  <Button
-                    onClick={handleSubmit}
-                    disabled={!formData.equipment_name || !formData.temperature || !formData.check_time}
-                    className="w-full"
+              <div className="flex items-center justify-between pt-4 border-t">
+                <p className="text-sm text-slate-600">
+                  {Object.keys(bulkTemperatures).length} of {equipmentList.length} equipment logged
+                </p>
+                <div className="flex gap-3">
+                  <Button 
+                    variant="outline" 
+                    onClick={() => {
+                      setShowBulkForm(false);
+                      setBulkTemperatures({});
+                    }}
                   >
-                    Save Temperature Log
+                    Cancel
                   </Button>
-                </>
-              )}
+                  <Button
+                    onClick={handleBulkSubmit}
+                    disabled={bulkCreateLogMutation.isPending}
+                    className="bg-emerald-600 hover:bg-emerald-700"
+                  >
+                    {bulkCreateLogMutation.isPending ? 'Saving...' : '💾 Save All Temperatures'}
+                  </Button>
+                </div>
+              </div>
             </motion.div>
           )}
 
-          {/* Today's Logs */}
-          <div>
-            <h4 className="font-semibold text-slate-800 mb-3">Today's Logs</h4>
-            <div className="space-y-2">
-              {todayLogs.map(log => (
-                <Card key={log.id} className={!log.is_in_range ? 'border-red-300 bg-red-50' : ''}>
-                  <CardContent className="pt-3">
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <p className="font-semibold text-sm">{log.equipment_name}</p>
-                        <p className="text-xs text-slate-600 capitalize">{log.check_time.replace('_', ' ')}</p>
-                      </div>
-                      <div className="text-right">
-                        <p className={`text-2xl font-bold ${
-                          log.is_in_range ? 'text-emerald-600' : 'text-red-600'
-                        }`}>
-                          {log.temperature}°C
-                        </p>
-                        {!log.is_in_range && (
-                          <Badge className="bg-red-600 mt-1">Out of Range</Badge>
-                        )}
-                      </div>
+          {/* Today's Logs - Grouped by Shift */}
+          <div className="space-y-6">
+            <h4 className="font-semibold text-slate-800">Today's Logs</h4>
+            
+            {['opening', 'mid_shift', 'closing'].map(shift => {
+              const shiftLogs = groupLogsByShift()[shift];
+              const shiftLabel = shift === 'opening' ? '🌅 Opening' : 
+                               shift === 'mid_shift' ? '☀️ Mid-Shift' : 
+                               '🌙 Closing';
+              
+              return (
+                <div key={shift} className="space-y-2">
+                  <div className="flex items-center justify-between">
+                    <h5 className="font-semibold text-slate-700">{shiftLabel}</h5>
+                    <Badge variant={shiftLogs.length > 0 ? 'default' : 'outline'}>
+                      {shiftLogs.length} entries
+                    </Badge>
+                  </div>
+                  
+                  {shiftLogs.length > 0 ? (
+                    <div className="overflow-x-auto border rounded-lg bg-white">
+                      <table className="w-full text-sm">
+                        <thead className="bg-slate-50 border-b">
+                          <tr>
+                            <th className="text-left p-2 font-medium">Equipment</th>
+                            <th className="text-center p-2 font-medium">Temp</th>
+                            <th className="text-center p-2 font-medium">Status</th>
+                            <th className="text-left p-2 font-medium">User</th>
+                            <th className="text-left p-2 font-medium">Time</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {shiftLogs.map(log => (
+                            <tr key={log.id} className="border-b last:border-0">
+                              <td className="p-2 font-medium">{log.equipment_name}</td>
+                              <td className="p-2 text-center">
+                                <span className={`font-bold ${
+                                  log.is_in_range ? 'text-emerald-600' : 'text-red-600'
+                                }`}>
+                                  {log.temperature}°C
+                                </span>
+                              </td>
+                              <td className="p-2 text-center">
+                                <Badge className={log.is_in_range 
+                                  ? 'bg-emerald-100 text-emerald-700' 
+                                  : 'bg-red-100 text-red-700'
+                                }>
+                                  {log.is_in_range ? 'OK' : 'Critical'}
+                                </Badge>
+                              </td>
+                              <td className="p-2 text-slate-600">{log.logged_by_name}</td>
+                              <td className="p-2 text-slate-600">
+                                {format(new Date(log.created_date), 'h:mm a')}
+                              </td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
                     </div>
-                    {log.notes && (
-                      <p className="text-xs text-slate-600 mt-2">{log.notes}</p>
-                    )}
-                  </CardContent>
-                </Card>
-              ))}
-              {todayLogs.length === 0 && (
-                <p className="text-center text-slate-500 py-4">No logs recorded yet</p>
-              )}
-            </div>
+                  ) : (
+                    <p className="text-center text-slate-400 py-4 bg-slate-50 rounded-lg">
+                      No logs for this shift yet
+                    </p>
+                  )}
+                </div>
+              );
+            })}
           </div>
         </CardContent>
       </Card>
