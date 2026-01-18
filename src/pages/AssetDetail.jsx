@@ -13,7 +13,7 @@ import {
 import { format } from 'date-fns';
 import LoadingSpinner from '@/components/ui/LoadingSpinner';
 import { Link } from 'react-router-dom';
-import { createPageUrl } from './utils';
+import { createPageUrl } from '../utils';
 
 export default function AssetDetail() {
   const urlParams = new URLSearchParams(window.location.search);
