@@ -3,31 +3,32 @@ import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { motion } from 'framer-motion';
 import { format } from 'date-fns';
-import { Thermometer, AlertTriangle, CheckCircle, Plus } from 'lucide-react';
+import { Thermometer, AlertTriangle, CheckCircle, Plus, Settings, Edit, Trash2 } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
-
-const equipment = [
-  { name: 'Fridge 1', location: 'Main Kitchen', min: 0, max: 5 },
-  { name: 'Fridge 2', location: 'Prep Area', min: 0, max: 5 },
-  { name: 'Fridge 3', location: 'Bar', min: 0, max: 5 },
-  { name: 'Freezer 1', location: 'Main Kitchen', min: -22, max: -18 },
-  { name: 'Freezer 2', location: 'Storage', min: -22, max: -18 },
-  { name: 'Chiller', location: 'Walk-in', min: 0, max: 4 },
-  { name: 'Display Fridge', location: 'Front Counter', min: 0, max: 5 }
-];
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
+import { Label } from '@/components/ui/label';
 
 export default function TemperatureLog({ user }) {
   const [showForm, setShowForm] = useState(false);
+  const [showEquipmentManager, setShowEquipmentManager] = useState(false);
+  const [showEquipmentForm, setShowEquipmentForm] = useState(false);
+  const [editingEquipment, setEditingEquipment] = useState(null);
   const [formData, setFormData] = useState({
     equipment_name: '',
     temperature: '',
     check_time: '',
     notes: ''
+  });
+  const [equipmentFormData, setEquipmentFormData] = useState({
+    name: '',
+    location: '',
+    min_temp: '',
+    max_temp: ''
   });
 
   const queryClient = useQueryClient();
@@ -36,6 +37,11 @@ export default function TemperatureLog({ user }) {
   const { data: todayLogs = [] } = useQuery({
     queryKey: ['temperatureLogs', today],
     queryFn: () => base44.entities.TemperatureLog.filter({ log_date: today }, '-created_date', 100)
+  });
+
+  const { data: equipmentList = [] } = useQuery({
+    queryKey: ['temperature-equipment'],
+    queryFn: () => base44.entities.Asset.filter({ category: 'refrigeration' }, 'name', 100)
   });
 
   const createLogMutation = useMutation({
@@ -47,22 +53,57 @@ export default function TemperatureLog({ user }) {
     }
   });
 
+  const equipmentMutation = useMutation({
+    mutationFn: ({ id, data }) => id 
+      ? base44.entities.Asset.update(id, data)
+      : base44.entities.Asset.create(data),
+    onSuccess: () => {
+      queryClient.invalidateQueries(['temperature-equipment']);
+      setShowEquipmentForm(false);
+      setEditingEquipment(null);
+      setEquipmentFormData({ name: '', location: '', min_temp: '', max_temp: '' });
+    }
+  });
+
+  const deleteEquipmentMutation = useMutation({
+    mutationFn: (id) => base44.entities.Asset.delete(id),
+    onSuccess: () => queryClient.invalidateQueries(['temperature-equipment'])
+  });
+
   const handleSubmit = () => {
-    const selectedEquip = equipment.find(e => e.name === formData.equipment_name);
+    const selectedEquip = equipmentList.find(e => e.name === formData.equipment_name);
     const temp = parseFloat(formData.temperature);
-    const isInRange = temp >= selectedEquip.min && temp <= selectedEquip.max;
+    const minTemp = selectedEquip?.min_temp ?? 0;
+    const maxTemp = selectedEquip?.max_temp ?? 5;
+    const isInRange = temp >= minTemp && temp <= maxTemp;
 
     createLogMutation.mutate({
       ...formData,
       temperature: temp,
-      location: selectedEquip.location,
-      min_temp: selectedEquip.min,
-      max_temp: selectedEquip.max,
+      location: selectedEquip?.location || '',
+      min_temp: minTemp,
+      max_temp: maxTemp,
       is_in_range: isInRange,
       logged_by: user.email,
       logged_by_name: user.full_name || user.email,
       log_date: today,
       manager_notified: !isInRange
+    });
+  };
+
+  const handleEquipmentSubmit = () => {
+    const data = {
+      name: equipmentFormData.name,
+      location: equipmentFormData.location,
+      category: 'refrigeration',
+      min_temp: parseFloat(equipmentFormData.min_temp),
+      max_temp: parseFloat(equipmentFormData.max_temp),
+      status: 'active'
+    };
+
+    equipmentMutation.mutate({ 
+      id: editingEquipment?.id, 
+      data 
     });
   };
 
@@ -77,10 +118,16 @@ export default function TemperatureLog({ user }) {
         <CardHeader>
           <div className="flex items-center justify-between">
             <CardTitle>Temperature Monitoring</CardTitle>
-            <Button onClick={() => setShowForm(!showForm)} size="sm">
-              <Plus className="w-4 h-4 mr-2" />
-              Log Temperature
-            </Button>
+            <div className="flex gap-2">
+              <Button onClick={() => setShowEquipmentManager(true)} size="sm" variant="outline">
+                <Settings className="w-4 h-4 mr-2" />
+                Manage Equipment
+              </Button>
+              <Button onClick={() => setShowForm(!showForm)} size="sm">
+                <Plus className="w-4 h-4 mr-2" />
+                Log Temperature
+              </Button>
+            </div>
           </div>
         </CardHeader>
         <CardContent className="space-y-4">
@@ -119,8 +166,8 @@ export default function TemperatureLog({ user }) {
                   <SelectValue placeholder="Select equipment..." />
                 </SelectTrigger>
                 <SelectContent>
-                  {equipment.map(e => (
-                    <SelectItem key={e.name} value={e.name}>
+                  {equipmentList.map(e => (
+                    <SelectItem key={e.id} value={e.name}>
                       {e.name} - {e.location}
                     </SelectItem>
                   ))}
@@ -131,8 +178,8 @@ export default function TemperatureLog({ user }) {
                 <>
                   <div className="p-3 bg-blue-50 rounded-lg text-sm">
                     <p className="text-blue-900">
-                      <strong>Range:</strong> {equipment.find(e => e.name === formData.equipment_name)?.min}°C to{' '}
-                      {equipment.find(e => e.name === formData.equipment_name)?.max}°C
+                      <strong>Range:</strong> {equipmentList.find(e => e.name === formData.equipment_name)?.min_temp}°C to{' '}
+                      {equipmentList.find(e => e.name === formData.equipment_name)?.max_temp}°C
                     </p>
                   </div>
 
@@ -210,6 +257,137 @@ export default function TemperatureLog({ user }) {
           </div>
         </CardContent>
       </Card>
+
+      {/* Equipment Manager Dialog */}
+      <Dialog open={showEquipmentManager} onOpenChange={setShowEquipmentManager}>
+        <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>Manage Temperature Equipment</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4">
+            <Button 
+              onClick={() => {
+                setEditingEquipment(null);
+                setEquipmentFormData({ name: '', location: '', min_temp: '', max_temp: '' });
+                setShowEquipmentForm(true);
+              }} 
+              className="w-full"
+            >
+              <Plus className="w-4 h-4 mr-2" />
+              Add New Equipment
+            </Button>
+            
+            <div className="space-y-2">
+              {equipmentList.map((equip) => (
+                <Card key={equip.id} className="p-4">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="font-semibold">{equip.name}</p>
+                      <p className="text-sm text-slate-600">{equip.location}</p>
+                      <p className="text-xs text-slate-500 mt-1">
+                        Range: {equip.min_temp}°C to {equip.max_temp}°C
+                      </p>
+                    </div>
+                    <div className="flex gap-2">
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={() => {
+                          setEditingEquipment(equip);
+                          setEquipmentFormData({
+                            name: equip.name,
+                            location: equip.location || '',
+                            min_temp: equip.min_temp?.toString() || '',
+                            max_temp: equip.max_temp?.toString() || ''
+                          });
+                          setShowEquipmentForm(true);
+                        }}
+                      >
+                        <Edit className="w-4 h-4" />
+                      </Button>
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        className="text-red-600 hover:text-red-700"
+                        onClick={() => {
+                          if (confirm('Delete this equipment?')) {
+                            deleteEquipmentMutation.mutate(equip.id);
+                          }
+                        }}
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </Button>
+                    </div>
+                  </div>
+                </Card>
+              ))}
+              {equipmentList.length === 0 && (
+                <p className="text-center text-slate-500 py-8">No equipment added yet</p>
+              )}
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Equipment Form Dialog */}
+      <Dialog open={showEquipmentForm} onOpenChange={setShowEquipmentForm}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>{editingEquipment ? 'Edit Equipment' : 'Add Equipment'}</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div>
+              <Label>Equipment Name *</Label>
+              <Input
+                value={equipmentFormData.name}
+                onChange={(e) => setEquipmentFormData({...equipmentFormData, name: e.target.value})}
+                placeholder="e.g., Fridge 1"
+              />
+            </div>
+            <div>
+              <Label>Location *</Label>
+              <Input
+                value={equipmentFormData.location}
+                onChange={(e) => setEquipmentFormData({...equipmentFormData, location: e.target.value})}
+                placeholder="e.g., Main Kitchen"
+              />
+            </div>
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <Label>Min Temp (°C) *</Label>
+                <Input
+                  type="number"
+                  step="0.1"
+                  value={equipmentFormData.min_temp}
+                  onChange={(e) => setEquipmentFormData({...equipmentFormData, min_temp: e.target.value})}
+                  placeholder="e.g., 0"
+                />
+              </div>
+              <div>
+                <Label>Max Temp (°C) *</Label>
+                <Input
+                  type="number"
+                  step="0.1"
+                  value={equipmentFormData.max_temp}
+                  onChange={(e) => setEquipmentFormData({...equipmentFormData, max_temp: e.target.value})}
+                  placeholder="e.g., 5"
+                />
+              </div>
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setShowEquipmentForm(false)}>
+              Cancel
+            </Button>
+            <Button
+              onClick={handleEquipmentSubmit}
+              disabled={!equipmentFormData.name || !equipmentFormData.location || !equipmentFormData.min_temp || !equipmentFormData.max_temp}
+            >
+              {editingEquipment ? 'Update' : 'Add'} Equipment
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
