@@ -47,6 +47,7 @@ const navItems = [
   { name: 'Menu Manager', icon: ChefHat, page: 'MenuManager', roles: ['all'] },
   { name: 'Operations', icon: ClipboardCheck, page: 'Operations', roles: ['all'] },
   { name: 'POS System', icon: Shield, page: 'POSSystem', roles: ['all'] },
+  { name: 'Assets & Equipment', icon: Package, page: 'Assets', roles: ['all'] },
   { name: 'Quality & Safety', icon: Shield, page: 'QualitySafety', roles: ['all'] },
   { name: 'Chemical Safety', icon: Wrench, page: 'ChemicalDashboard', roles: ['all'] },
   { name: 'Equipment Health', icon: Wrench, page: 'EquipmentHealth', roles: ['all'] },
