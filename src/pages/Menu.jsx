@@ -550,10 +550,17 @@ export default function Menu() {
                 {itemRecipe && (
                   <Card className="bg-blue-50 border-blue-200">
                     <CardContent className="pt-4">
-                      <h4 className="font-semibold text-blue-900 mb-3 flex items-center gap-2">
-                        <FileText className="w-5 h-5" />
-                        Recipe Details
-                      </h4>
+                      <div className="flex items-center justify-between mb-3">
+                        <h4 className="font-semibold text-blue-900 flex items-center gap-2">
+                          <FileText className="w-5 h-5" />
+                          Recipe Details
+                        </h4>
+                        <Link to={createPageUrl('RecipeDetail') + '?id=' + itemRecipe.id}>
+                          <Button size="sm" variant="outline" className="border-blue-300 text-blue-700 hover:bg-blue-100">
+                            View Recipe
+                          </Button>
+                        </Link>
+                      </div>
                       <div className="grid grid-cols-2 gap-3 text-sm">
                         <div>
                           <span className="text-blue-700">Portion Yield:</span>

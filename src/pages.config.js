@@ -50,6 +50,7 @@ import Training from './pages/Training';
 import TrainingAcademy from './pages/TrainingAcademy';
 import TrainingInsights from './pages/TrainingInsights';
 import AssetDetail from './pages/AssetDetail';
+import RecipeDetail from './pages/RecipeDetail';
 import __Layout from './Layout.jsx';
 
 
@@ -106,6 +107,7 @@ export const PAGES = {
     "TrainingAcademy": TrainingAcademy,
     "TrainingInsights": TrainingInsights,
     "AssetDetail": AssetDetail,
+    "RecipeDetail": RecipeDetail,
 }
 
 export const pagesConfig = {
