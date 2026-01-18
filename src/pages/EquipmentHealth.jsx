@@ -35,10 +35,12 @@ export default function EquipmentHealth() {
     queryFn: () => base44.auth.me()
   });
 
-  // Fetch all equipment
+  // Fetch all equipment from Assets Registry
   const { data: equipment = [], isLoading: loadingEquipment } = useQuery({
     queryKey: ['equipment'],
-    queryFn: () => base44.entities.Asset.filter({ category: 'kitchen_equipment' }, '-created_date', 100)
+    queryFn: () => base44.entities.Assets_Registry_v1.filter({ 
+      status: { $ne: 'deactivated' }
+    }, '-created_date', 100)
   });
 
   // Fetch today's checks
@@ -74,11 +76,11 @@ export default function EquipmentHealth() {
   });
 
   // Calculate stats
-  const criticalEquipment = equipment.filter(e => e.condition === 'poor' || e.status !== 'active');
+  const criticalEquipment = equipment.filter(e => ['fault', 'out_of_service', 'warning'].includes(e.status));
   const checkedToday = todayChecks.filter(c => c.status === 'ok').length;
   const warningsToday = todayChecks.filter(c => c.status === 'warning').length;
   const faultsToday = todayChecks.filter(c => c.status === 'fault').length;
-  const totalRepairCost = allFaults.reduce((sum, f) => sum + (f.repair_cost || 0), 0);
+  const totalRepairCost = equipment.reduce((sum, e) => sum + (e.total_repair_cost || 0), 0);
   const criticalFaults = activeFaults.filter(f => f.severity === 'critical').length;
 
   const handleReportFault = (equipment) => {
@@ -260,12 +262,12 @@ export default function EquipmentHealth() {
                       <div className="flex items-center gap-3">
                         <AlertTriangle className="w-5 h-5 text-orange-600" />
                         <div>
-                          <p className="font-semibold">{eq.name}</p>
-                          <p className="text-sm text-slate-600">{eq.location}</p>
+                          <p className="font-semibold">{eq.asset_name}</p>
+                          <p className="text-sm text-slate-600 capitalize">{eq.location?.replace(/_/g, ' ')}</p>
                         </div>
                       </div>
-                      <Badge variant="outline" className="bg-orange-100 text-orange-800 border-orange-300">
-                        {eq.condition || eq.status}
+                      <Badge variant="outline" className="bg-orange-100 text-orange-800 border-orange-300 capitalize">
+                        {eq.status?.replace(/_/g, ' ')}
                       </Badge>
                     </div>
                   ))}
@@ -357,11 +359,14 @@ export default function EquipmentHealth() {
                 {equipment.map(eq => (
                   <div key={eq.id} className="flex items-center justify-between p-3 bg-slate-50 rounded-lg">
                     <div>
-                      <p className="font-semibold">{eq.name}</p>
-                      <p className="text-sm text-slate-600">{eq.location}</p>
+                      <p className="font-semibold">{eq.asset_name}</p>
+                      <p className="text-sm text-slate-600 capitalize">{eq.location?.replace(/_/g, ' ')}</p>
+                      {eq.is_critical_asset && (
+                        <Badge className="mt-1 bg-red-100 text-red-800">Critical</Badge>
+                      )}
                     </div>
                     <div className="flex items-center gap-2">
-                      <Badge variant="outline">{eq.condition || 'good'}</Badge>
+                      <Badge variant="outline" className="capitalize">{eq.status?.replace(/_/g, ' ')}</Badge>
                       <Button size="sm" variant="outline" onClick={() => handleReportFault(eq)}>
                         Report Issue
                       </Button>
