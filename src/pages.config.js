@@ -14,6 +14,7 @@ import EquipmentHealth from './pages/EquipmentHealth';
 import FoodSafetyChecklist from './pages/FoodSafetyChecklist';
 import Forms from './pages/Forms';
 import Inventory from './pages/Inventory';
+import InventoryAdjustment from './pages/InventoryAdjustment';
 import Invitations from './pages/Invitations';
 import LeadershipPathway from './pages/LeadershipPathway';
 import Meetings from './pages/Meetings';
@@ -22,11 +23,13 @@ import MenuAnalyticsDashboard from './pages/MenuAnalyticsDashboard';
 import MenuCostingDashboard from './pages/MenuCostingDashboard';
 import MenuManager from './pages/MenuManager';
 import menuV3Hub from './pages/Menu_v3_HUB';
+import MorningPrep from './pages/MorningPrep';
 import Operations from './pages/Operations';
 import OperationsHistory from './pages/OperationsHistory';
 import POSSystem from './pages/POSSystem';
 import People from './pages/People';
 import Performance from './pages/Performance';
+import PrepComponentsManager from './pages/PrepComponentsManager';
 import PrepPlanner from './pages/PrepPlanner';
 import Profile from './pages/Profile';
 import Quality from './pages/Quality';
@@ -46,9 +49,6 @@ import StockDashboard from './pages/StockDashboard';
 import Training from './pages/Training';
 import TrainingAcademy from './pages/TrainingAcademy';
 import TrainingInsights from './pages/TrainingInsights';
-import InventoryAdjustment from './pages/InventoryAdjustment';
-import MorningPrep from './pages/MorningPrep';
-import PrepComponentsManager from './pages/PrepComponentsManager';
 import __Layout from './Layout.jsx';
 
 
@@ -69,6 +69,7 @@ export const PAGES = {
     "FoodSafetyChecklist": FoodSafetyChecklist,
     "Forms": Forms,
     "Inventory": Inventory,
+    "InventoryAdjustment": InventoryAdjustment,
     "Invitations": Invitations,
     "LeadershipPathway": LeadershipPathway,
     "Meetings": Meetings,
@@ -77,11 +78,13 @@ export const PAGES = {
     "MenuCostingDashboard": MenuCostingDashboard,
     "MenuManager": MenuManager,
     "Menu_v3_HUB": menuV3Hub,
+    "MorningPrep": MorningPrep,
     "Operations": Operations,
     "OperationsHistory": OperationsHistory,
     "POSSystem": POSSystem,
     "People": People,
     "Performance": Performance,
+    "PrepComponentsManager": PrepComponentsManager,
     "PrepPlanner": PrepPlanner,
     "Profile": Profile,
     "Quality": Quality,
@@ -101,9 +104,6 @@ export const PAGES = {
     "Training": Training,
     "TrainingAcademy": TrainingAcademy,
     "TrainingInsights": TrainingInsights,
-    "InventoryAdjustment": InventoryAdjustment,
-    "MorningPrep": MorningPrep,
-    "PrepComponentsManager": PrepComponentsManager,
 }
 
 export const pagesConfig = {

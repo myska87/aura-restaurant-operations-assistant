@@ -43,6 +43,11 @@ export default function PrepComponentsManager() {
       queryClient.invalidateQueries({ queryKey: ['prep_components'] });
       resetForm();
       setDialogOpen(false);
+      alert('Prep component created successfully!');
+    },
+    onError: (error) => {
+      console.error('Failed to create prep component:', error);
+      alert('Failed to create prep component. Please try again.');
     },
   });
 
@@ -52,6 +57,11 @@ export default function PrepComponentsManager() {
       queryClient.invalidateQueries({ queryKey: ['prep_components'] });
       resetForm();
       setDialogOpen(false);
+      alert('Prep component updated successfully!');
+    },
+    onError: (error) => {
+      console.error('Failed to update prep component:', error);
+      alert('Failed to update prep component. Please try again.');
     },
   });
 
@@ -114,11 +124,18 @@ export default function PrepComponentsManager() {
   };
 
   const handleSubmit = () => {
+    // Validate required fields
+    if (!formData.prep_name || !formData.category || !formData.station || 
+        !formData.batch_size || !formData.batch_unit || !formData.storage_location) {
+      alert('Please fill in all required fields (marked with *)');
+      return;
+    }
+
     const data = {
       ...formData,
       batch_size: parseFloat(formData.batch_size),
-      yield_portions: parseFloat(formData.yield_portions),
-      shelf_life_hours: parseFloat(formData.shelf_life_hours),
+      yield_portions: parseFloat(formData.yield_portions) || 0,
+      shelf_life_hours: parseFloat(formData.shelf_life_hours) || 24,
       status: 'not_prepared',
     };
 
