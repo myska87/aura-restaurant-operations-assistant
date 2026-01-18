@@ -14,6 +14,7 @@ import { format } from 'date-fns';
 import { motion } from 'framer-motion';
 import LoadingSpinner from '@/components/ui/LoadingSpinner';
 import TemperatureLog from '@/components/operations/TemperatureLog';
+import TemperatureReport from '@/components/operations/TemperatureReport';
 import LabelPrinter from '@/components/operations/LabelPrinter';
 import HandoverForm from '@/components/operations/HandoverForm';
 import ServiceRecoveryForm from '@/components/recovery/ServiceRecoveryForm';
@@ -317,12 +318,18 @@ export default function CommandCenter() {
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="grid grid-cols-2 gap-3">
+            <div className="grid grid-cols-3 gap-3">
               <QuickAction
                 icon={Thermometer}
                 label="Log Temperatures"
                 onClick={() => setActiveDialog('temperature')}
                 color="red"
+              />
+              <QuickAction
+                icon={FileText}
+                label="Temp Report"
+                onClick={() => setActiveDialog('tempReport')}
+                color="blue"
               />
               <QuickAction
                 icon={Droplets}
@@ -441,6 +448,15 @@ export default function CommandCenter() {
             <DialogTitle>Temperature Logs</DialogTitle>
           </DialogHeader>
           <TemperatureLog user={user} />
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={activeDialog === 'tempReport'} onOpenChange={() => setActiveDialog(null)}>
+        <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>Temperature Report</DialogTitle>
+          </DialogHeader>
+          <TemperatureReport />
         </DialogContent>
       </Dialog>
 
