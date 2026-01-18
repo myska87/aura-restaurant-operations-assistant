@@ -40,8 +40,11 @@ export default function EquipmentList({ equipment, todayChecks, onCheck, onRepor
                 <div className="flex items-center gap-3 flex-1">
                   <StatusIcon className={`w-6 h-6 ${checkStatus.color}`} />
                   <div>
-                    <h3 className="font-semibold">{eq.name}</h3>
-                    <p className="text-sm text-slate-600">{eq.location}</p>
+                    <h3 className="font-semibold">{eq.asset_name}</h3>
+                    <p className="text-sm text-slate-600 capitalize">{eq.location?.replace(/_/g, ' ')}</p>
+                    {eq.is_critical_asset && (
+                      <Badge className="mt-1 bg-red-100 text-red-800 text-xs">Critical Asset</Badge>
+                    )}
                   </div>
                 </div>
                 
