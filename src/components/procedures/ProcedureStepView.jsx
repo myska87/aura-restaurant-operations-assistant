@@ -16,6 +16,11 @@ export default function ProcedureStepView({ step, totalSteps }) {
           <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-emerald-500 to-emerald-600 text-white flex items-center justify-center font-bold text-lg shadow-lg">
             {step.step_number}
           </div>
+          {totalSteps && (
+            <div className="text-xs text-center mt-1 text-slate-500">
+              of {totalSteps}
+            </div>
+          )}
         </div>
 
         {/* Content */}
@@ -35,36 +40,14 @@ export default function ProcedureStepView({ step, totalSteps }) {
             )}
           </div>
 
-          {/* Photo */}
+          {/* Photo - Compact */}
           {step.photo_url && (
             <div className="rounded-xl overflow-hidden shadow-md border-2 border-slate-200">
               <img
                 src={step.photo_url}
                 alt={step.step_title}
-                className="w-full object-cover"
+                className="w-full h-48 object-cover"
               />
-            </div>
-          )}
-
-          {/* Video */}
-          {step.video_url && (
-            <div className="rounded-xl overflow-hidden shadow-md border-2 border-emerald-200">
-              <div className="bg-slate-900 aspect-video relative">
-                <video
-                  src={step.video_url}
-                  controls
-                  className="w-full h-full"
-                  preload="metadata"
-                >
-                  Your browser does not support videos.
-                </video>
-                <div className="absolute top-3 right-3">
-                  <Badge className="bg-emerald-600 text-white">
-                    <Play className="w-3 h-3 mr-1" />
-                    Video Guide
-                  </Badge>
-                </div>
-              </div>
             </div>
           )}
         </div>
