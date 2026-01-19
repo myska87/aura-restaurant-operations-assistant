@@ -54,6 +54,9 @@ import TrainingInsights from './pages/TrainingInsights';
 import VisualProcedures from './pages/VisualProcedures';
 import VisualProcedureDetail from './pages/VisualProcedureDetail';
 import VisualProcedureForm from './pages/VisualProcedureForm';
+import VisualDishGuides from './pages/VisualDishGuides';
+import VisualDishGuideDetail from './pages/VisualDishGuideDetail';
+import VisualDishGuideForm from './pages/VisualDishGuideForm';
 import __Layout from './Layout.jsx';
 
 
@@ -114,6 +117,9 @@ export const PAGES = {
     "VisualProcedures": VisualProcedures,
     "VisualProcedureDetail": VisualProcedureDetail,
     "VisualProcedureForm": VisualProcedureForm,
+    "VisualDishGuides": VisualDishGuides,
+    "VisualDishGuideDetail": VisualDishGuideDetail,
+    "VisualDishGuideForm": VisualDishGuideForm,
 }
 
 export const pagesConfig = {
