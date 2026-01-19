@@ -3,7 +3,7 @@ import { motion } from 'framer-motion';
 import { Play, Clock } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 
-export default function ProcedureStepView({ step }) {
+export default function ProcedureStepView({ step, totalSteps }) {
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
