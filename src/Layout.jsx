@@ -28,7 +28,8 @@ import {
   Shield,
   Heart,
   Trophy,
-  AlertCircle
+  AlertCircle,
+  CookingPot
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -45,6 +46,7 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 const navItems = [
   { name: 'Command Center', icon: LayoutDashboard, page: 'CommandCenter', roles: ['all'] },
   { name: 'Menu Manager', icon: ChefHat, page: 'MenuManager', roles: ['all'] },
+  { name: 'Visual Dish Guides', icon: CookingPot, page: 'VisualDishGuides', roles: ['all'] },
   { name: 'Operations', icon: ClipboardCheck, page: 'Operations', roles: ['all'] },
   { name: 'POS System', icon: Shield, page: 'POSSystem', roles: ['all'] },
   { name: 'Visual Procedures', icon: FileText, page: 'VisualProcedures', roles: ['all'] },
