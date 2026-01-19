@@ -8,9 +8,10 @@ import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { ArrowLeft, Plus, Trash2, Save } from 'lucide-react';
+import { ArrowLeft, Plus, Trash2, Save, Upload, Loader2 } from 'lucide-react';
 import { createPageUrl } from '../utils';
 import LoadingSpinner from '@/components/ui/LoadingSpinner';
+import AIProcedureAssistant from '../components/procedures/AIProcedureAssistant';
 
 export default function VisualProcedureForm() {
   const navigate = useNavigate();
@@ -33,6 +34,9 @@ export default function VisualProcedureForm() {
     version: '1.0',
     is_published: true
   });
+  
+  const [uploadingCover, setUploadingCover] = useState(false);
+  const [uploadingStepPhotos, setUploadingStepPhotos] = useState({});
 
   const { data: procedure, isLoading } = useQuery({
     queryKey: ['visual-procedure', procedureId],
@@ -113,6 +117,48 @@ export default function VisualProcedureForm() {
     setFormData({ ...formData, tips_warnings: newTips });
   };
 
+  const handleCoverImageUpload = async (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    setUploadingCover(true);
+    try {
+      const result = await base44.integrations.Core.UploadFile({ file });
+      setFormData({ ...formData, cover_image_url: result.file_url });
+    } catch (error) {
+      alert('Failed to upload image');
+    } finally {
+      setUploadingCover(false);
+    }
+  };
+
+  const handleStepPhotoUpload = async (index, e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    setUploadingStepPhotos({ ...uploadingStepPhotos, [index]: true });
+    try {
+      const result = await base44.integrations.Core.UploadFile({ file });
+      updateStep(index, 'photo_url', result.file_url);
+    } catch (error) {
+      alert('Failed to upload image');
+    } finally {
+      setUploadingStepPhotos({ ...uploadingStepPhotos, [index]: false });
+    }
+  };
+
+  const handleAIGenerated = (generatedData) => {
+    setFormData({
+      ...formData,
+      ...generatedData,
+      steps: generatedData.steps.map(step => ({
+        ...step,
+        photo_url: '',
+        video_url: ''
+      }))
+    });
+  };
+
   if (isLoading) return <LoadingSpinner />;
 
   return (
@@ -127,6 +173,11 @@ export default function VisualProcedureForm() {
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-6">
+        {/* AI Assistant */}
+        {!isEditing && (
+          <AIProcedureAssistant onProcedureGenerated={handleAIGenerated} />
+        )}
+
         {/* Basic Info */}
         <Card>
           <CardHeader>
@@ -201,12 +252,28 @@ export default function VisualProcedureForm() {
             </div>
 
             <div>
-              <Label>Cover Image URL</Label>
-              <Input
-                value={formData.cover_image_url}
-                onChange={(e) => setFormData({ ...formData, cover_image_url: e.target.value })}
-                placeholder="https://..."
-              />
+              <Label>Cover Image</Label>
+              <div className="flex gap-2">
+                <Input
+                  value={formData.cover_image_url}
+                  onChange={(e) => setFormData({ ...formData, cover_image_url: e.target.value })}
+                  placeholder="https://... or upload below"
+                  className="flex-1"
+                />
+                <Button type="button" variant="outline" disabled={uploadingCover} onClick={() => document.getElementById('cover-upload').click()}>
+                  {uploadingCover ? <Loader2 className="w-4 h-4 animate-spin" /> : <Upload className="w-4 h-4" />}
+                </Button>
+                <input
+                  id="cover-upload"
+                  type="file"
+                  accept="image/*"
+                  className="hidden"
+                  onChange={handleCoverImageUpload}
+                />
+              </div>
+              {formData.cover_image_url && (
+                <img src={formData.cover_image_url} alt="Cover" className="mt-2 h-32 w-full object-cover rounded" />
+              )}
             </div>
           </CardContent>
         </Card>
@@ -255,12 +322,34 @@ export default function VisualProcedureForm() {
 
                 <div className="grid grid-cols-2 gap-3">
                   <div>
-                    <Label>Photo URL</Label>
-                    <Input
-                      value={step.photo_url}
-                      onChange={(e) => updateStep(index, 'photo_url', e.target.value)}
-                      placeholder="https://..."
-                    />
+                    <Label>Step Photo</Label>
+                    <div className="flex gap-2">
+                      <Input
+                        value={step.photo_url}
+                        onChange={(e) => updateStep(index, 'photo_url', e.target.value)}
+                        placeholder="https://... or upload"
+                        className="flex-1"
+                      />
+                      <Button 
+                        type="button" 
+                        variant="outline" 
+                        size="sm"
+                        disabled={uploadingStepPhotos[index]}
+                        onClick={() => document.getElementById(`step-photo-${index}`).click()}
+                      >
+                        {uploadingStepPhotos[index] ? <Loader2 className="w-4 h-4 animate-spin" /> : <Upload className="w-4 h-4" />}
+                      </Button>
+                      <input
+                        id={`step-photo-${index}`}
+                        type="file"
+                        accept="image/*"
+                        className="hidden"
+                        onChange={(e) => handleStepPhotoUpload(index, e)}
+                      />
+                    </div>
+                    {step.photo_url && (
+                      <img src={step.photo_url} alt={step.step_title} className="mt-2 h-20 w-full object-cover rounded" />
+                    )}
                   </div>
                   <div>
                     <Label>Duration (seconds)</Label>
