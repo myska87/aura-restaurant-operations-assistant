@@ -53,6 +53,7 @@ import TrainingAcademy from './pages/TrainingAcademy';
 import TrainingInsights from './pages/TrainingInsights';
 import VisualProcedures from './pages/VisualProcedures';
 import VisualProcedureDetail from './pages/VisualProcedureDetail';
+import VisualProcedureForm from './pages/VisualProcedureForm';
 import __Layout from './Layout.jsx';
 
 
@@ -112,6 +113,7 @@ export const PAGES = {
     "TrainingInsights": TrainingInsights,
     "VisualProcedures": VisualProcedures,
     "VisualProcedureDetail": VisualProcedureDetail,
+    "VisualProcedureForm": VisualProcedureForm,
 }
 
 export const pagesConfig = {
