@@ -12,7 +12,8 @@ import {
   Lightbulb,
   Play,
   Edit,
-  Archive
+  Archive,
+  Printer
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -33,6 +34,7 @@ export default function VisualProcedureDetail() {
   const [user, setUser] = useState(null);
   const [showCompletionDialog, setShowCompletionDialog] = useState(false);
   const [completionComment, setCompletionComment] = useState('');
+  const [printMode, setPrintMode] = useState(false);
   const urlParams = new URLSearchParams(window.location.search);
   const procedureId = urlParams.get('id');
   const queryClient = useQueryClient();
@@ -88,6 +90,14 @@ export default function VisualProcedureDetail() {
     });
   };
 
+  const handlePrint = () => {
+    setPrintMode(true);
+    setTimeout(() => {
+      window.print();
+      setPrintMode(false);
+    }, 100);
+  };
+
   if (isLoading) return <LoadingSpinner />;
   if (!procedure) return <div className="p-8 text-center">Procedure not found</div>;
 
@@ -110,7 +120,25 @@ export default function VisualProcedureDetail() {
   };
 
   return (
-    <div className="max-w-4xl mx-auto space-y-6 pb-20">
+    <>
+      <style>{`
+        @media print {
+          body * { visibility: hidden; }
+          .print-content, .print-content * { visibility: visible; }
+          .print-content { 
+            position: absolute;
+            left: 0;
+            top: 0;
+            width: 100%;
+            padding: 20px;
+          }
+          .no-print { display: none !important; }
+          .print-step { break-inside: avoid; page-break-inside: avoid; }
+          .print-step img { max-height: 120px; object-fit: cover; }
+        }
+      `}</style>
+      
+      <div className={`max-w-4xl mx-auto space-y-6 pb-20 ${printMode ? 'print-content' : ''}`}>
       {/* Header */}
       <div className="flex items-start gap-4">
         <Link to={createPageUrl('VisualProcedures')}>
@@ -142,14 +170,20 @@ export default function VisualProcedureDetail() {
             </div>
           </div>
         </div>
-        {isAdmin && (
-          <Link to={createPageUrl('VisualProcedureForm') + '?id=' + procedureId}>
-            <Button variant="outline">
-              <Edit className="w-4 h-4 mr-2" />
-              Edit
-            </Button>
-          </Link>
-        )}
+        <div className="flex gap-2 no-print">
+          <Button variant="outline" onClick={handlePrint}>
+            <Printer className="w-4 h-4 mr-2" />
+            Print
+          </Button>
+          {isAdmin && (
+            <Link to={createPageUrl('VisualProcedureForm') + '?id=' + procedureId}>
+              <Button variant="outline">
+                <Edit className="w-4 h-4 mr-2" />
+                Edit
+              </Button>
+            </Link>
+          )}
+        </div>
       </div>
 
       {/* Cover Image */}
@@ -210,7 +244,9 @@ export default function VisualProcedureDetail() {
         </CardHeader>
         <CardContent className="space-y-6">
           {procedure.steps?.map((step, index) => (
-            <ProcedureStepView key={index} step={step} />
+            <div key={index} className="print-step">
+              <ProcedureStepView step={step} />
+            </div>
           ))}
         </CardContent>
       </Card>
@@ -260,7 +296,7 @@ export default function VisualProcedureDetail() {
       )}
 
       {/* Complete Button - Fixed at bottom */}
-      <div className="fixed bottom-0 left-0 right-0 bg-white border-t shadow-lg p-4 lg:pl-80">
+      <div className="fixed bottom-0 left-0 right-0 bg-white border-t shadow-lg p-4 lg:pl-80 no-print">
         <div className="max-w-4xl mx-auto">
           <Button
             onClick={() => setShowCompletionDialog(true)}
@@ -312,6 +348,7 @@ export default function VisualProcedureDetail() {
         </DialogContent>
       </Dialog>
     </div>
+    </>
   );
 }
 
