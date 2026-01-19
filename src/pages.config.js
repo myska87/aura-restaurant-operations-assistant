@@ -1,5 +1,6 @@
 import AllergenDashboard from './pages/AllergenDashboard';
 import Announcements from './pages/Announcements';
+import AssetDetail from './pages/AssetDetail';
 import Assets from './pages/Assets';
 import ChangeRequests from './pages/ChangeRequests';
 import ChemicalDashboard from './pages/ChemicalDashboard';
@@ -35,6 +36,7 @@ import Profile from './pages/Profile';
 import Quality from './pages/Quality';
 import QualityControl from './pages/QualityControl';
 import QualitySafety from './pages/QualitySafety';
+import RecipeDetail from './pages/RecipeDetail';
 import Reports from './pages/Reports';
 import SOPLibrary from './pages/SOPLibrary';
 import SOPPrint from './pages/SOPPrint';
@@ -49,14 +51,15 @@ import StockDashboard from './pages/StockDashboard';
 import Training from './pages/Training';
 import TrainingAcademy from './pages/TrainingAcademy';
 import TrainingInsights from './pages/TrainingInsights';
-import AssetDetail from './pages/AssetDetail';
-import RecipeDetail from './pages/RecipeDetail';
+import VisualProcedures from './pages/VisualProcedures';
+import VisualProcedureDetail from './pages/VisualProcedureDetail';
 import __Layout from './Layout.jsx';
 
 
 export const PAGES = {
     "AllergenDashboard": AllergenDashboard,
     "Announcements": Announcements,
+    "AssetDetail": AssetDetail,
     "Assets": Assets,
     "ChangeRequests": ChangeRequests,
     "ChemicalDashboard": ChemicalDashboard,
@@ -92,6 +95,7 @@ export const PAGES = {
     "Quality": Quality,
     "QualityControl": QualityControl,
     "QualitySafety": QualitySafety,
+    "RecipeDetail": RecipeDetail,
     "Reports": Reports,
     "SOPLibrary": SOPLibrary,
     "SOPPrint": SOPPrint,
@@ -106,8 +110,8 @@ export const PAGES = {
     "Training": Training,
     "TrainingAcademy": TrainingAcademy,
     "TrainingInsights": TrainingInsights,
-    "AssetDetail": AssetDetail,
-    "RecipeDetail": RecipeDetail,
+    "VisualProcedures": VisualProcedures,
+    "VisualProcedureDetail": VisualProcedureDetail,
 }
 
 export const pagesConfig = {
