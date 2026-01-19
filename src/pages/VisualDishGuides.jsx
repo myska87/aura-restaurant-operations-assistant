@@ -10,7 +10,10 @@ import {
   ChefHat,
   Clock,
   BarChart3,
-  Filter
+  Filter,
+  Printer,
+  Edit,
+  Sparkles
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -42,6 +45,11 @@ export default function VisualDishGuides() {
   const [searchTerm, setSearchTerm] = useState('');
   const [categoryFilter, setCategoryFilter] = useState('all');
   const [difficultyFilter, setDifficultyFilter] = useState('all');
+
+  const handlePrintGuide = (guideId) => {
+    window.open(createPageUrl('VisualDishGuideDetail') + '?id=' + guideId, '_blank');
+    setTimeout(() => window.print(), 500);
+  };
 
   useEffect(() => {
     const loadUser = async () => {
@@ -81,10 +89,24 @@ export default function VisualDishGuides() {
       <PageHeader
         title="Visual Dish Guides"
         description="Step-by-step cooking guides with photos and videos"
-        actionLabel={isAdmin ? "Create Guide" : null}
-        actionIcon={Plus}
-        actionHref={isAdmin ? createPageUrl('VisualDishGuideForm') : null}
-      />
+      >
+        {isAdmin && (
+          <div className="flex gap-2">
+            <Link to={createPageUrl('VisualDishGuideForm')}>
+              <Button className="bg-gradient-to-r from-purple-600 to-pink-600">
+                <Sparkles className="w-4 h-4 mr-2" />
+                AI Create Guide
+              </Button>
+            </Link>
+            <Link to={createPageUrl('VisualDishGuideForm')}>
+              <Button variant="outline">
+                <Plus className="w-4 h-4 mr-2" />
+                Manual Create
+              </Button>
+            </Link>
+          </div>
+        )}
+      </PageHeader>
 
       {/* Stats Cards */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
@@ -187,8 +209,8 @@ export default function VisualDishGuides() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: index * 0.05 }}
           >
-            <Link to={createPageUrl('VisualDishGuideDetail') + '?id=' + guide.id}>
-              <Card className="overflow-hidden hover:shadow-xl transition-all duration-300 cursor-pointer group">
+            <Card className="overflow-hidden hover:shadow-xl transition-all duration-300 group">
+              <Link to={createPageUrl('VisualDishGuideDetail') + '?id=' + guide.id}>
                 <div className="aspect-video overflow-hidden bg-slate-100">
                   {guide.hero_image_url ? (
                     <img
@@ -202,7 +224,9 @@ export default function VisualDishGuides() {
                     </div>
                   )}
                 </div>
-                <CardContent className="p-5">
+              </Link>
+              <CardContent className="p-5">
+                <Link to={createPageUrl('VisualDishGuideDetail') + '?id=' + guide.id}>
                   <div className="flex items-start justify-between mb-3">
                     <h3 className="text-lg font-bold text-slate-800 group-hover:text-emerald-600 transition-colors">
                       {guide.dish_name}
@@ -221,7 +245,7 @@ export default function VisualDishGuides() {
                       </Badge>
                     )}
                   </div>
-                  <div className="flex items-center gap-4 text-sm text-slate-600">
+                  <div className="flex items-center gap-4 text-sm text-slate-600 mb-4">
                     <div className="flex items-center gap-1">
                       <Clock className="w-4 h-4" />
                       {guide.estimated_cook_time_minutes || 0}m
@@ -230,9 +254,33 @@ export default function VisualDishGuides() {
                       v{guide.version}
                     </div>
                   </div>
-                </CardContent>
-              </Card>
-            </Link>
+                </Link>
+                <div className="flex gap-2 pt-3 border-t">
+                  <Link to={createPageUrl('VisualDishGuideDetail') + '?id=' + guide.id} className="flex-1">
+                    <Button variant="outline" size="sm" className="w-full">
+                      View
+                    </Button>
+                  </Link>
+                  <Button 
+                    variant="outline" 
+                    size="sm"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      handlePrintGuide(guide.id);
+                    }}
+                  >
+                    <Printer className="w-4 h-4" />
+                  </Button>
+                  {isAdmin && (
+                    <Link to={createPageUrl('VisualDishGuideForm') + '?id=' + guide.id}>
+                      <Button variant="outline" size="sm">
+                        <Edit className="w-4 h-4" />
+                      </Button>
+                    </Link>
+                  )}
+                </div>
+              </CardContent>
+            </Card>
           </motion.div>
         ))}
       </div>
