@@ -5,6 +5,7 @@ import AssetDetail from './pages/AssetDetail';
 import Assets from './pages/Assets';
 import ChangeRequests from './pages/ChangeRequests';
 import ChemicalDashboard from './pages/ChemicalDashboard';
+import ChemicalDetail from './pages/ChemicalDetail';
 import ChemicalRegister from './pages/ChemicalRegister';
 import ChemicalStockList from './pages/ChemicalStockList';
 import CommandCenter from './pages/CommandCenter';
@@ -60,7 +61,7 @@ import VisualDishGuides from './pages/VisualDishGuides';
 import VisualProcedureDetail from './pages/VisualProcedureDetail';
 import VisualProcedureForm from './pages/VisualProcedureForm';
 import VisualProcedures from './pages/VisualProcedures';
-import ChemicalDetail from './pages/ChemicalDetail';
+import DocumentCreator from './pages/DocumentCreator';
 import __Layout from './Layout.jsx';
 
 
@@ -72,6 +73,7 @@ export const PAGES = {
     "Assets": Assets,
     "ChangeRequests": ChangeRequests,
     "ChemicalDashboard": ChemicalDashboard,
+    "ChemicalDetail": ChemicalDetail,
     "ChemicalRegister": ChemicalRegister,
     "ChemicalStockList": ChemicalStockList,
     "CommandCenter": CommandCenter,
@@ -127,7 +129,7 @@ export const PAGES = {
     "VisualProcedureDetail": VisualProcedureDetail,
     "VisualProcedureForm": VisualProcedureForm,
     "VisualProcedures": VisualProcedures,
-    "ChemicalDetail": ChemicalDetail,
+    "DocumentCreator": DocumentCreator,
 }
 
 export const pagesConfig = {
