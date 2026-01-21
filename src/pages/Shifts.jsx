@@ -76,6 +76,32 @@ export default function Shifts() {
     loadUser();
   }, []);
 
+  useEffect(() => {
+    if (editingShift) {
+      setFormData({
+        staff_id: editingShift.staff_id || '',
+        date: editingShift.date || format(new Date(), 'yyyy-MM-dd'),
+        position: editingShift.position || '',
+        scheduled_start: editingShift.scheduled_start || '09:00',
+        scheduled_end: editingShift.scheduled_end || '17:00',
+        break_duration: editingShift.break_duration || 30,
+        hourly_rate: editingShift.hourly_rate || 12.5,
+        notes: editingShift.notes || ''
+      });
+    } else {
+      setFormData({
+        staff_id: '',
+        date: format(new Date(), 'yyyy-MM-dd'),
+        position: '',
+        scheduled_start: '09:00',
+        scheduled_end: '17:00',
+        break_duration: 30,
+        hourly_rate: 12.5,
+        notes: ''
+      });
+    }
+  }, [editingShift, showForm]);
+
   const weekDays = Array.from({ length: 7 }, (_, i) => addDays(currentWeekStart, i));
 
   const { data: shifts = [], isLoading } = useQuery({
