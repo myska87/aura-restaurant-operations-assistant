@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
-import { useQuery } from '@tanstack/react-query';
-import { Plus, Trash2, Calculator, Sparkles, Upload, FileText } from 'lucide-react';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { Plus, Trash2, Calculator, Sparkles, Upload, FileText, Check, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -48,6 +48,15 @@ export default function MenuItemForm({ item, onSubmit, onCancel, aiGenerating })
 
   const [uploading, setUploading] = useState(false);
   const [selectedAllergen, setSelectedAllergen] = useState('');
+  const [showNewIngredient, setShowNewIngredient] = useState(false);
+  const [newIngredient, setNewIngredient] = useState({
+    name: '',
+    category: 'spice',
+    unit: 'g',
+    cost_per_unit: ''
+  });
+
+  const queryClient = useQueryClient();
 
   const { data: ingredients = [] } = useQuery({
     queryKey: ['ingredients'],
@@ -57,6 +66,19 @@ export default function MenuItemForm({ item, onSubmit, onCancel, aiGenerating })
   const { data: sops = [] } = useQuery({
     queryKey: ['sops'],
     queryFn: () => base44.entities.SOP.filter({ status: 'active' }),
+  });
+
+  const createIngredientMutation = useMutation({
+    mutationFn: (data) => base44.entities.Ingredient_Master_v1.create(data),
+    onSuccess: () => {
+      queryClient.invalidateQueries(['ingredients']);
+      setShowNewIngredient(false);
+      setNewIngredient({ name: '', category: 'spice', unit: 'g', cost_per_unit: '' });
+      alert('✅ Ingredient created successfully!');
+    },
+    onError: (error) => {
+      alert('❌ Failed to create ingredient: ' + (error.message || 'Unknown error'));
+    }
   });
 
   useEffect(() => {
@@ -313,24 +335,132 @@ export default function MenuItemForm({ item, onSubmit, onCancel, aiGenerating })
           </div>
         </CardHeader>
         <CardContent className="space-y-3">
-          <div className="flex gap-2">
-            <Select onValueChange={addIngredient}>
-              <SelectTrigger className="flex-1">
-                <SelectValue placeholder="Add ingredient..." />
-              </SelectTrigger>
-              <SelectContent>
-                <ScrollArea className="h-64">
-                  {ingredients.map(ing => (
-                    <SelectItem key={ing.id} value={ing.id}>
-                      {ing.name} ({ing.unit}) - £{ing.cost_per_unit?.toFixed(2) || '0.00'}
-                    </SelectItem>
-                  ))}
-                </ScrollArea>
-              </SelectContent>
-            </Select>
-            <Button type="button" onClick={() => {}} disabled>
-              <Plus className="w-4 h-4" />
-            </Button>
+          <div className="space-y-3">
+            <div className="flex gap-2">
+              <Select onValueChange={addIngredient}>
+                <SelectTrigger className="flex-1">
+                  <SelectValue placeholder="Add ingredient..." />
+                </SelectTrigger>
+                <SelectContent>
+                  <ScrollArea className="h-64">
+                    {ingredients.map(ing => (
+                      <SelectItem key={ing.id} value={ing.id}>
+                        {ing.name} ({ing.unit}) - £{ing.cost_per_unit?.toFixed(2) || '0.00'}
+                      </SelectItem>
+                    ))}
+                  </ScrollArea>
+                </SelectContent>
+              </Select>
+              <Button 
+                type="button" 
+                onClick={() => setShowNewIngredient(!showNewIngredient)}
+                variant={showNewIngredient ? "default" : "outline"}
+                className={showNewIngredient ? "bg-emerald-600" : ""}
+              >
+                <Plus className="w-4 h-4" />
+                New
+              </Button>
+            </div>
+
+            {showNewIngredient && (
+              <div className="p-4 border-2 border-emerald-200 rounded-lg bg-emerald-50 space-y-3">
+                <div className="flex items-center justify-between mb-2">
+                  <h4 className="font-semibold text-emerald-900">Create New Ingredient</h4>
+                  <Button 
+                    type="button" 
+                    variant="ghost" 
+                    size="icon"
+                    onClick={() => setShowNewIngredient(false)}
+                  >
+                    <X className="w-4 h-4" />
+                  </Button>
+                </div>
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <Label className="text-xs">Ingredient Name *</Label>
+                    <Input
+                      value={newIngredient.name}
+                      onChange={(e) => setNewIngredient({...newIngredient, name: e.target.value})}
+                      placeholder="e.g., Turmeric Powder"
+                      className="mt-1"
+                    />
+                  </div>
+                  <div>
+                    <Label className="text-xs">Category *</Label>
+                    <Select 
+                      value={newIngredient.category} 
+                      onValueChange={(v) => setNewIngredient({...newIngredient, category: v})}
+                    >
+                      <SelectTrigger className="mt-1">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="meat">Meat</SelectItem>
+                        <SelectItem value="dairy">Dairy</SelectItem>
+                        <SelectItem value="veg">Vegetables</SelectItem>
+                        <SelectItem value="spice">Spices</SelectItem>
+                        <SelectItem value="dry_goods">Dry Goods</SelectItem>
+                        <SelectItem value="sauce">Sauces</SelectItem>
+                        <SelectItem value="oil">Oils</SelectItem>
+                        <SelectItem value="beverage">Beverages</SelectItem>
+                        <SelectItem value="bread">Bread</SelectItem>
+                        <SelectItem value="frozen">Frozen</SelectItem>
+                        <SelectItem value="garnish">Garnish</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div>
+                    <Label className="text-xs">Unit *</Label>
+                    <Select 
+                      value={newIngredient.unit} 
+                      onValueChange={(v) => setNewIngredient({...newIngredient, unit: v})}
+                    >
+                      <SelectTrigger className="mt-1">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="g">Grams (g)</SelectItem>
+                        <SelectItem value="kg">Kilograms (kg)</SelectItem>
+                        <SelectItem value="ml">Milliliters (ml)</SelectItem>
+                        <SelectItem value="L">Liters (L)</SelectItem>
+                        <SelectItem value="pcs">Pieces (pcs)</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div>
+                    <Label className="text-xs">Cost per Unit (£) *</Label>
+                    <Input
+                      type="number"
+                      step="0.01"
+                      value={newIngredient.cost_per_unit}
+                      onChange={(e) => setNewIngredient({...newIngredient, cost_per_unit: e.target.value})}
+                      placeholder="0.00"
+                      className="mt-1"
+                    />
+                  </div>
+                </div>
+                <Button
+                  type="button"
+                  onClick={() => {
+                    if (!newIngredient.name || !newIngredient.cost_per_unit) {
+                      alert('Please fill all required fields');
+                      return;
+                    }
+                    createIngredientMutation.mutate({
+                      ...newIngredient,
+                      cost_per_unit: parseFloat(newIngredient.cost_per_unit),
+                      current_stock: 0,
+                      is_active: true
+                    });
+                  }}
+                  className="w-full bg-emerald-600 hover:bg-emerald-700"
+                  disabled={createIngredientMutation.isPending}
+                >
+                  <Check className="w-4 h-4 mr-2" />
+                  {createIngredientMutation.isPending ? 'Creating...' : 'Create Ingredient'}
+                </Button>
+              </div>
+            )}
           </div>
           
           <ScrollArea className="max-h-64">
