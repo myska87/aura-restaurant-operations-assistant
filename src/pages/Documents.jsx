@@ -457,10 +457,11 @@ export default function Documents() {
                 </div>
                 
                 {viewingDoc.content && (
-                  <div className="flex-1 bg-slate-50 rounded-xl p-4 overflow-y-auto border border-slate-200">
-                    <p className="text-sm text-slate-700 whitespace-pre-wrap leading-relaxed">
-                      {viewingDoc.content}
-                    </p>
+                  <div className="flex-1 bg-white rounded-xl p-6 overflow-y-auto border border-slate-200">
+                    <div 
+                      className="prose prose-sm max-w-none text-slate-800 [&_h1]:text-xl [&_h2]:text-lg [&_h3]:text-base [&_p]:mb-3 [&_ul]:mb-3 [&_ol]:mb-3"
+                      dangerouslySetInnerHTML={{ __html: viewingDoc.content }}
+                    />
                   </div>
                 )}
                 
