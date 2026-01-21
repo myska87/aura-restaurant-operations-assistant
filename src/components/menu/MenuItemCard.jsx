@@ -71,7 +71,7 @@ export default function MenuItemCard({ item, onEdit, onDuplicate, onDelete, onVi
     return 'text-red-600 bg-red-50';
   };
 
-  // Calculate stock status
+  // Calculate stock status - check ingredient availability
   const getStockStatus = () => {
     if (!item.ingredients || item.ingredients.length === 0) return { status: 'unknown', color: 'bg-slate-500' };
     
@@ -80,6 +80,7 @@ export default function MenuItemCard({ item, onEdit, onDuplicate, onDelete, onVi
     
     item.ingredients.forEach(ing => {
       const inventoryItem = ingredients.find(inv => 
+        inv.id === ing.ingredient_id ||
         inv.name?.toLowerCase().includes(ing.ingredient_name?.toLowerCase()) ||
         ing.ingredient_name?.toLowerCase().includes(inv.name?.toLowerCase())
       );
@@ -87,14 +88,19 @@ export default function MenuItemCard({ item, onEdit, onDuplicate, onDelete, onVi
       if (!inventoryItem) return;
       
       const currentStock = inventoryItem.current_stock || 0;
-      const minStock = inventoryItem.min_stock_level || 0;
+      const requiredStock = ing.quantity || 0;
+      const minStock = inventoryItem.min_stock_level || 10;
       
-      if (currentStock === 0) hasOutOfStock = true;
-      else if (currentStock <= minStock) hasLowStock = true;
+      // Check if we can make at least one serving
+      if (currentStock < requiredStock) {
+        hasOutOfStock = true;
+      } else if (currentStock <= minStock) {
+        hasLowStock = true;
+      }
     });
     
     if (hasOutOfStock) return { status: 'out', color: 'bg-red-600', icon: AlertTriangle, text: 'Out of Stock' };
-    if (hasLowStock) return { status: 'low', color: 'bg-amber-600', icon: AlertTriangle, text: 'Low Stock' };
+    if (hasLowStock) return { status: 'low', color: 'bg-amber-500', icon: AlertTriangle, text: 'Low Stock' };
     return { status: 'good', color: 'bg-emerald-600', icon: CheckCircle, text: 'In Stock' };
   };
 
