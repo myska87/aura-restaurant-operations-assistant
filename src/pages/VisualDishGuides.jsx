@@ -72,6 +72,12 @@ export default function VisualDishGuides() {
     staleTime: 0
   });
 
+  // Get visual menu links to show which guides are linked
+  const { data: visualLinks = [] } = useQuery({
+    queryKey: ['allVisualMenuLinks'],
+    queryFn: () => base44.entities.VisualMenuLink.list()
+  });
+
   const isAdmin = user && ['admin', 'owner', 'manager'].includes(user.role);
 
   const filteredGuides = guides.filter(guide => {
@@ -248,6 +254,12 @@ export default function VisualDishGuides() {
                     {guide.cooking_steps?.length > 0 && (
                       <Badge variant="outline" className="text-xs">
                         {guide.cooking_steps.length} steps
+                      </Badge>
+                    )}
+                    {visualLinks.some(link => link.visual_guide_id === guide.id) && (
+                      <Badge className="bg-emerald-100 text-emerald-700 text-xs">
+                        <ChefHat className="w-3 h-3 mr-1" />
+                        Linked
                       </Badge>
                     )}
                   </div>
