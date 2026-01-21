@@ -1,55 +1,51 @@
 import React from 'react';
 import { motion } from 'framer-motion';
+import { LineChart, Line, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Sparkles, Heart, Users, TrendingUp } from 'lucide-react';
-import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
+import { Heart, Share2, TrendingUp, MessageSquare } from 'lucide-react';
 
 export default function MarketingInsights({ dateRange = {} }) {
-  // Placeholder social data (would be connected to real APIs)
-  const socialMetrics = {
-    instagram: { followers: 2450, engagement: 5.8, reach: 8920 },
-    tiktok: { followers: 1230, engagement: 7.2, reach: 15600 },
-    google: { reviews: 87, rating: 4.7, visits: 1230 }
-  };
-
-  const weeklyEngagementData = [
-    { day: 'Mon', instagram: 4.2, tiktok: 6.1, google: 3.9 },
-    { day: 'Tue', instagram: 4.8, tiktok: 6.8, google: 4.2 },
-    { day: 'Wed', instagram: 5.1, tiktok: 6.9, google: 4.5 },
-    { day: 'Thu', instagram: 5.2, tiktok: 7.1, google: 4.8 },
-    { day: 'Fri', instagram: 6.2, tiktok: 8.3, google: 5.2 },
-    { day: 'Sat', instagram: 6.8, tiktok: 8.9, google: 5.9 },
-    { day: 'Sun', instagram: 6.1, tiktok: 7.8, google: 5.1 }
+  const socialData = [
+    { date: 'Mon', followers: 4200, engagement: 3.2, reach: 8500 },
+    { date: 'Tue', followers: 4350, engagement: 3.8, reach: 9200 },
+    { date: 'Wed', followers: 4520, engagement: 4.1, reach: 10100 },
+    { date: 'Thu', followers: 4680, engagement: 3.9, reach: 9800 },
+    { date: 'Fri', followers: 4920, engagement: 5.2, reach: 12500 },
+    { date: 'Sat', followers: 5150, engagement: 6.1, reach: 15200 },
+    { date: 'Sun', followers: 5380, engagement: 4.8, reach: 11800 }
   ];
 
-  const campaigns = [
-    { name: 'Winter Menu Launch', status: 'Active', engagement: '8.2%', reach: 12400, days: 14 },
-    { name: 'Loyalty Rewards', status: 'Active', engagement: '6.1%', reach: 5600, days: 7 },
-    { name: 'Weekend Brunch Push', status: 'Pending', engagement: '-', reach: 0, days: 0 }
+  const campaignData = [
+    { campaign: 'Weekend Brunch', reach: 12500, clicks: 845, conversions: 142, roi: 320 },
+    { campaign: 'Lunch Combo Deal', reach: 9800, clicks: 623, conversions: 98, roi: 280 },
+    { campaign: 'New Menu Launch', reach: 15200, clicks: 1280, conversions: 189, roi: 410 },
+    { campaign: 'Student Discount', reach: 8500, clicks: 510, conversions: 76, roi: 220 }
   ];
 
-  const totalFollowers = 
-    socialMetrics.instagram.followers + 
-    socialMetrics.tiktok.followers;
+  const topPosts = [
+    { title: 'Butter Chicken Roll Showcase', likes: 1240, shares: 340, comments: 128 },
+    { title: 'Behind-the-Scenes Kitchen', likes: 980, shares: 280, comments: 95 },
+    { title: 'Customer Reviews Highlight', likes: 756, shares: 210, comments: 74 }
+  ];
 
-  const avgEngagement = (
-    (socialMetrics.instagram.engagement + socialMetrics.tiktok.engagement) / 2
-  ).toFixed(1);
+  const totalReach = socialData.reduce((sum, d) => sum + d.reach, 0);
+  const avgEngagement = (socialData.reduce((sum, d) => sum + d.engagement, 0) / socialData.length).toFixed(1);
+  const followerGrowth = ((5380 - 4200) / 4200 * 100).toFixed(1);
 
   return (
     <div className="space-y-6">
-      {/* KPI Cards */}
+      {/* KPIs */}
       <div className="grid md:grid-cols-4 gap-4">
         <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0 }}>
           <Card>
             <CardContent className="pt-6">
               <div className="flex items-center gap-3">
-                <div className="w-12 h-12 rounded-xl bg-pink-100 flex items-center justify-center">
-                  <Users className="w-6 h-6 text-pink-600" />
+                <div className="w-12 h-12 rounded-xl bg-red-100 flex items-center justify-center">
+                  <Heart className="w-6 h-6 text-red-600" />
                 </div>
                 <div>
-                  <p className="text-2xl font-bold text-pink-600">{totalFollowers.toLocaleString()}</p>
+                  <p className="text-2xl font-bold text-red-600">5.3K</p>
                   <p className="text-xs text-slate-500">Total Followers</p>
                 </div>
               </div>
@@ -61,12 +57,12 @@ export default function MarketingInsights({ dateRange = {} }) {
           <Card>
             <CardContent className="pt-6">
               <div className="flex items-center gap-3">
-                <div className="w-12 h-12 rounded-xl bg-red-100 flex items-center justify-center">
-                  <Heart className="w-6 h-6 text-red-600" />
+                <div className="w-12 h-12 rounded-xl bg-blue-100 flex items-center justify-center">
+                  <Share2 className="w-6 h-6 text-blue-600" />
                 </div>
                 <div>
-                  <p className="text-2xl font-bold text-red-600">{avgEngagement}%</p>
-                  <p className="text-xs text-slate-500">Avg Engagement</p>
+                  <p className="text-2xl font-bold text-blue-600">£{totalReach.toLocaleString()}</p>
+                  <p className="text-xs text-slate-500">Weekly Reach</p>
                 </div>
               </div>
             </CardContent>
@@ -77,12 +73,12 @@ export default function MarketingInsights({ dateRange = {} }) {
           <Card>
             <CardContent className="pt-6">
               <div className="flex items-center gap-3">
-                <div className="w-12 h-12 rounded-xl bg-blue-100 flex items-center justify-center">
-                  <TrendingUp className="w-6 h-6 text-blue-600" />
+                <div className="w-12 h-12 rounded-xl bg-purple-100 flex items-center justify-center">
+                  <TrendingUp className="w-6 h-6 text-purple-600" />
                 </div>
                 <div>
-                  <p className="text-2xl font-bold text-blue-600">{socialMetrics.google.reviews}</p>
-                  <p className="text-xs text-slate-500">Google Reviews</p>
+                  <p className="text-2xl font-bold text-purple-600">{avgEngagement}%</p>
+                  <p className="text-xs text-slate-500">Avg Engagement</p>
                 </div>
               </div>
             </CardContent>
@@ -93,12 +89,12 @@ export default function MarketingInsights({ dateRange = {} }) {
           <Card>
             <CardContent className="pt-6">
               <div className="flex items-center gap-3">
-                <div className="w-12 h-12 rounded-xl bg-amber-100 flex items-center justify-center">
-                  <span className="text-lg">⭐</span>
+                <div className="w-12 h-12 rounded-xl bg-green-100 flex items-center justify-center">
+                  <MessageSquare className="w-6 h-6 text-green-600" />
                 </div>
                 <div>
-                  <p className="text-2xl font-bold text-amber-600">{socialMetrics.google.rating}</p>
-                  <p className="text-xs text-slate-500">Rating</p>
+                  <p className="text-2xl font-bold text-green-600">+{followerGrowth}%</p>
+                  <p className="text-xs text-slate-500">Follower Growth</p>
                 </div>
               </div>
             </CardContent>
@@ -106,123 +102,51 @@ export default function MarketingInsights({ dateRange = {} }) {
         </motion.div>
       </div>
 
-      {/* Social Platforms */}
-      <div className="grid md:grid-cols-3 gap-4">
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              📱 Instagram
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-3">
-              <div>
-                <p className="text-sm text-slate-600">Followers</p>
-                <p className="text-2xl font-bold text-slate-800">{socialMetrics.instagram.followers.toLocaleString()}</p>
-              </div>
-              <div>
-                <p className="text-sm text-slate-600">Engagement Rate</p>
-                <p className="text-2xl font-bold text-pink-600">{socialMetrics.instagram.engagement}%</p>
-              </div>
-              <div>
-                <p className="text-sm text-slate-600">Weekly Reach</p>
-                <p className="text-lg font-semibold text-slate-800">{socialMetrics.instagram.reach.toLocaleString()}</p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              🎵 TikTok
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-3">
-              <div>
-                <p className="text-sm text-slate-600">Followers</p>
-                <p className="text-2xl font-bold text-slate-800">{socialMetrics.tiktok.followers.toLocaleString()}</p>
-              </div>
-              <div>
-                <p className="text-sm text-slate-600">Engagement Rate</p>
-                <p className="text-2xl font-bold text-purple-600">{socialMetrics.tiktok.engagement}%</p>
-              </div>
-              <div>
-                <p className="text-sm text-slate-600">Weekly Reach</p>
-                <p className="text-lg font-semibold text-slate-800">{socialMetrics.tiktok.reach.toLocaleString()}</p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              🔍 Google
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-3">
-              <div>
-                <p className="text-sm text-slate-600">Reviews</p>
-                <p className="text-2xl font-bold text-slate-800">{socialMetrics.google.reviews}</p>
-              </div>
-              <div>
-                <p className="text-sm text-slate-600">Rating</p>
-                <p className="text-2xl font-bold text-amber-600">⭐ {socialMetrics.google.rating}</p>
-              </div>
-              <div>
-                <p className="text-sm text-slate-600">Monthly Visits</p>
-                <p className="text-lg font-semibold text-slate-800">{socialMetrics.google.visits.toLocaleString()}</p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-      </div>
-
-      {/* Engagement Trend */}
+      {/* Social Growth */}
       <Card>
         <CardHeader>
-          <CardTitle>Weekly Engagement Trend</CardTitle>
+          <CardTitle>Social Media Growth Trend</CardTitle>
         </CardHeader>
         <CardContent>
           <ResponsiveContainer width="100%" height={300}>
-            <AreaChart data={weeklyEngagementData}>
+            <LineChart data={socialData}>
               <CartesianGrid strokeDasharray="3 3" />
-              <XAxis dataKey="day" />
+              <XAxis dataKey="date" />
               <YAxis />
-              <Tooltip formatter={(value) => `${value.toFixed(1)}%`} />
-              <Area type="monotone" dataKey="instagram" stackId="1" stroke="#e1306c" fill="#e1306c" opacity={0.8} name="Instagram" />
-              <Area type="monotone" dataKey="tiktok" stackId="1" stroke="#000" fill="#000" opacity={0.6} name="TikTok" />
-              <Area type="monotone" dataKey="google" stackId="1" stroke="#4285f4" fill="#4285f4" opacity={0.6} name="Google" />
-            </AreaChart>
+              <Tooltip />
+              <Legend />
+              <Line type="monotone" dataKey="followers" stroke="#059669" strokeWidth={2} name="Followers" />
+            </LineChart>
           </ResponsiveContainer>
         </CardContent>
       </Card>
 
-      {/* Active Campaigns */}
+      {/* Campaign Performance */}
       <Card>
         <CardHeader>
-          <CardTitle>Active Campaigns</CardTitle>
+          <CardTitle>Campaign Performance</CardTitle>
         </CardHeader>
         <CardContent>
           <div className="space-y-3">
-            {campaigns.map((campaign, idx) => (
-              <div key={idx} className="flex items-center justify-between p-3 rounded-lg border border-slate-200">
-                <div className="flex-1">
-                  <p className="font-semibold text-slate-800">{campaign.name}</p>
-                  <p className="text-xs text-slate-600">{campaign.days} days running</p>
+            {campaignData.map((camp, idx) => (
+              <div key={idx} className="p-4 rounded-lg border border-slate-200 bg-gradient-to-r from-slate-50 to-white">
+                <div className="flex items-center justify-between mb-2">
+                  <p className="font-semibold text-slate-800">{camp.campaign}</p>
+                  <Badge className="bg-emerald-100 text-emerald-700">ROI: {camp.roi}%</Badge>
                 </div>
-                <div className="flex items-center gap-2">
-                  <Badge 
-                    className={campaign.status === 'Active' ? 'bg-green-100 text-green-700' : 'bg-slate-100 text-slate-700'}
-                  >
-                    {campaign.status}
-                  </Badge>
-                  {campaign.engagement !== '-' && (
-                    <Badge className="bg-blue-100 text-blue-700">{campaign.engagement}</Badge>
-                  )}
+                <div className="grid grid-cols-3 gap-3 text-sm">
+                  <div>
+                    <p className="text-slate-600">Reach</p>
+                    <p className="font-bold">{camp.reach.toLocaleString()}</p>
+                  </div>
+                  <div>
+                    <p className="text-slate-600">Clicks</p>
+                    <p className="font-bold text-blue-600">{camp.clicks}</p>
+                  </div>
+                  <div>
+                    <p className="text-slate-600">Conversions</p>
+                    <p className="font-bold text-green-600">{camp.conversions}</p>
+                  </div>
                 </div>
               </div>
             ))}
@@ -230,17 +154,59 @@ export default function MarketingInsights({ dateRange = {} }) {
         </CardContent>
       </Card>
 
-      {/* AI Insights */}
-      <Card className="border-amber-300 bg-gradient-to-r from-amber-50 to-orange-50">
+      {/* Top Posts */}
+      <Card>
+        <CardHeader>
+          <CardTitle>Top Performing Posts</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="space-y-2">
+            {topPosts.map((post, idx) => (
+              <div key={idx} className="flex items-center justify-between p-3 bg-slate-50 rounded-lg border border-slate-200">
+                <div>
+                  <p className="font-semibold text-slate-800 text-sm">{post.title}</p>
+                  <div className="flex gap-4 mt-1 text-xs text-slate-600">
+                    <span>❤️ {post.likes}</span>
+                    <span>💬 {post.comments}</span>
+                    <span>↗️ {post.shares}</span>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Engagement Trend */}
+      <Card>
+        <CardHeader>
+          <CardTitle>Engagement Rate Trend</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <ResponsiveContainer width="100%" height={250}>
+            <BarChart data={socialData}>
+              <CartesianGrid strokeDasharray="3 3" />
+              <XAxis dataKey="date" />
+              <YAxis />
+              <Tooltip formatter={(value) => `${value}%`} />
+              <Bar dataKey="engagement" fill="#ec4899" radius={[8, 8, 0, 0]} name="Engagement %" />
+            </BarChart>
+          </ResponsiveContainer>
+        </CardContent>
+      </Card>
+
+      {/* Marketing Insights */}
+      <Card className="border-blue-300 bg-gradient-to-r from-blue-50 to-indigo-50">
         <CardContent className="pt-6">
-          <p className="text-sm text-amber-900 mb-2">
-            <strong>🔮 Marketing Insights:</strong>
+          <p className="text-sm text-blue-900 mb-2">
+            <strong>📱 Marketing Insights & Recommendations:</strong>
           </p>
-          <ul className="text-xs text-amber-800 space-y-1 ml-4">
-            <li>• TikTok engagement is 24% higher than Instagram — boost TikTok content budget</li>
-            <li>• Friday-Saturday show 28% higher engagement — schedule top content for weekends</li>
-            <li>• Winter Menu campaign performing well at 8.2% — continue momentum into Q1</li>
-            <li>• Google reviews improved +5 this month — feature positive reviews in ads</li>
+          <ul className="text-xs text-blue-800 space-y-1 ml-4">
+            <li>• Follower growth at {followerGrowth}% week-on-week — accelerating nicely!</li>
+            <li>• New Menu Launch campaign driving highest ROI at 410% — replicate this format</li>
+            <li>• Weekend engagement peaks at 5-6% — push more content Friday-Sunday</li>
+            <li>• Behind-the-Scenes content performs well — increase production frequency</li>
+            <li>• Reach averaging {(totalReach / 7).toFixed(0)}/day — target 12K+ daily reach</li>
           </ul>
         </CardContent>
       </Card>
