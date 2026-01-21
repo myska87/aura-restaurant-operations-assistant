@@ -210,22 +210,25 @@ export default function VisualDishGuides() {
                 className="pl-10"
               />
             </div>
-            <Select value={categoryFilter} onValueChange={setCategoryFilter}>
-              <SelectTrigger>
-                <SelectValue placeholder="All Categories" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">All Categories</SelectItem>
-                <SelectItem value="wrap">Wrap</SelectItem>
-                <SelectItem value="curry">Curry</SelectItem>
-                <SelectItem value="drink">Drink</SelectItem>
-                <SelectItem value="bakery">Bakery</SelectItem>
-                <SelectItem value="chai">Chai</SelectItem>
-                <SelectItem value="dessert">Dessert</SelectItem>
-                <SelectItem value="appetizer">Appetizer</SelectItem>
-                <SelectItem value="main">Main</SelectItem>
-              </SelectContent>
-            </Select>
+            <div className="flex gap-2">
+              <Select value={categoryFilter} onValueChange={setCategoryFilter} className="flex-1">
+                <SelectTrigger>
+                  <SelectValue placeholder="All Categories" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All Categories</SelectItem>
+                  {categories.map(cat => (
+                    <SelectItem key={cat} value={cat}>
+                      {cat.charAt(0).toUpperCase() + cat.slice(1)}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              <AddCategoryDialog 
+                categories={categories} 
+                onCategoryAdded={handleAddCategory}
+              />
+            </div>
             <Select value={difficultyFilter} onValueChange={setDifficultyFilter}>
               <SelectTrigger>
                 <SelectValue placeholder="All Difficulties" />
