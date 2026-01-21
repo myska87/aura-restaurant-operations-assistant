@@ -9,9 +9,14 @@ import { FlaskConical, AlertTriangle, TrendingUp, Shield, Download, Printer } fr
 import { format } from 'date-fns';
 import PageHeader from '@/components/ui/PageHeader';
 import LoadingSpinner from '@/components/ui/LoadingSpinner';
+import ChemicalListView from '@/components/chemical/ChemicalListView';
+import ChemicalStockAlerts from '@/components/chemical/ChemicalStockAlerts';
+import ChemicalIncidentForm from '@/components/chemical/ChemicalIncidentForm';
+import DailyChemicalChecklist from '@/components/chemical/DailyChemicalChecklist';
 
 export default function ChemicalDashboard() {
   const [user, setUser] = useState(null);
+  const [showIncidentForm, setShowIncidentForm] = useState(false);
 
   useEffect(() => {
     const loadUser = async () => {
@@ -117,7 +122,7 @@ export default function ChemicalDashboard() {
         description="COSHH compliance, stock control & incident tracking"
       />
 
-      <div className="flex gap-2">
+      <div className="flex gap-2 flex-wrap">
         <Button onClick={exportReport} variant="outline">
           <Download className="w-4 h-4 mr-2" />
           Export Report
@@ -126,7 +131,19 @@ export default function ChemicalDashboard() {
           <Printer className="w-4 h-4 mr-2" />
           Print
         </Button>
+        <Button onClick={() => setShowIncidentForm(!showIncidentForm)} className="ml-auto">
+          ⚠️ Report Incident
+        </Button>
       </div>
+
+      {/* Incident Form Modal */}
+      {showIncidentForm && (
+        <Card className="border-amber-200 bg-amber-50/50">
+          <CardContent className="pt-6">
+            <ChemicalIncidentForm onClose={() => setShowIncidentForm(false)} />
+          </CardContent>
+        </Card>
+      )}
 
       {/* Stats Grid */}
       <div className="grid md:grid-cols-4 gap-4">
@@ -187,12 +204,25 @@ export default function ChemicalDashboard() {
         </Card>
       </div>
 
-      <Tabs defaultValue="incidents">
-        <TabsList className="grid w-full grid-cols-3">
-          <TabsTrigger value="incidents">Incidents</TabsTrigger>
-          <TabsTrigger value="stock">Stock Alerts</TabsTrigger>
-          <TabsTrigger value="checks">Daily Checks</TabsTrigger>
+      <Tabs defaultValue="chemicals">
+        <TabsList className="grid w-full grid-cols-4">
+          <TabsTrigger value="chemicals">📚 Chemical Library</TabsTrigger>
+          <TabsTrigger value="stock">📦 Stock Alerts</TabsTrigger>
+          <TabsTrigger value="checks">✅ Daily Checks</TabsTrigger>
+          <TabsTrigger value="incidents">⚠️ Incidents</TabsTrigger>
         </TabsList>
+
+        <TabsContent value="chemicals" className="mt-6">
+          <ChemicalListView chemicals={chemicals} />
+        </TabsContent>
+
+        <TabsContent value="stock" className="mt-6">
+          <ChemicalStockAlerts chemicals={chemicals} />
+        </TabsContent>
+
+        <TabsContent value="checks" className="mt-6">
+          <DailyChemicalChecklist />
+        </TabsContent>
 
         <TabsContent value="incidents">
           <Card>
@@ -248,59 +278,7 @@ export default function ChemicalDashboard() {
           </Card>
         </TabsContent>
 
-        <TabsContent value="stock">
-          <Card>
-            <CardHeader>
-              <CardTitle>Stock Alerts</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-2">
-                {stock.filter(s => s.status !== 'in_stock' || s.is_expired).map(item => (
-                  <div key={item.id} className="p-3 bg-slate-50 rounded-lg flex items-center justify-between">
-                    <div>
-                      <p className="font-semibold">{item.chemical_name}</p>
-                      <p className="text-sm text-slate-600">{item.current_stock} {item.unit_type}</p>
-                    </div>
-                    <Badge className={
-                      item.is_expired ? 'bg-red-600' :
-                      item.status === 'out_of_stock' ? 'bg-red-600' :
-                      'bg-amber-600'
-                    }>
-                      {item.is_expired ? 'Expired' : item.status.replace('_', ' ')}
-                    </Badge>
-                  </div>
-                ))}
-              </div>
-            </CardContent>
-          </Card>
-        </TabsContent>
 
-        <TabsContent value="checks">
-          <Card>
-            <CardHeader>
-              <CardTitle>Daily Checks</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-2">
-                {checks.slice(0, 15).map(check => (
-                  <div key={check.id} className={`p-3 rounded-lg flex items-center justify-between ${
-                    check.all_checks_passed ? 'bg-emerald-50' : 'bg-amber-50'
-                  }`}>
-                    <div>
-                      <p className="font-semibold capitalize">{check.shift_type} Shift</p>
-                      <p className="text-sm text-slate-600">
-                        {check.checked_by_name} • {format(new Date(check.check_date), 'MMM d')}
-                      </p>
-                    </div>
-                    <Badge className={check.all_checks_passed ? 'bg-emerald-600' : 'bg-amber-600'}>
-                      {check.all_checks_passed ? '✓ Passed' : 'Issues Found'}
-                    </Badge>
-                  </div>
-                ))}
-              </div>
-            </CardContent>
-          </Card>
-        </TabsContent>
       </Tabs>
     </div>
   );
