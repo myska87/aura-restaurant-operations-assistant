@@ -150,7 +150,8 @@ export default function VisualDishGuideDetail() {
       <style>{`
         @media print {
           body * { visibility: hidden; }
-          .print-content, .print-content * { visibility: visible; }
+          .print-content, .print-content * { visibility: visible !important; }
+          .print-content img { display: block !important; visibility: visible !important; }
           .print-content { 
             position: absolute;
             left: 0;
@@ -170,6 +171,18 @@ export default function VisualDishGuideDetail() {
           .print-header h1 { 
             font-size: 18px !important;
             margin-bottom: 4px !important;
+          }
+          .print-hero-image {
+            width: 100%;
+            max-width: 100%;
+            margin-bottom: 16px;
+            page-break-inside: avoid;
+          }
+          .print-hero-image img {
+            width: 100%;
+            max-height: 300px;
+            object-fit: cover;
+            display: block !important;
           }
           .print-ingredients {
             background: #fff7ed !important;
@@ -199,6 +212,12 @@ export default function VisualDishGuideDetail() {
           .print-table tr:last-child td {
             border-bottom: 2px solid #f97316;
           }
+          .print-table .step-image {
+            display: block !important;
+            max-width: 80px;
+            max-height: 60px;
+            object-fit: cover;
+          }
           .print-tips {
             display: grid;
             grid-template-columns: 1fr 1fr;
@@ -210,6 +229,15 @@ export default function VisualDishGuideDetail() {
             padding: 6px 8px;
             border-radius: 4px;
             border: 1px solid;
+            page-break-inside: avoid;
+          }
+          .print-footer {
+            margin-top: 20px;
+            padding-top: 12px;
+            border-top: 2px solid #f97316;
+            font-size: 8px;
+            color: #666;
+            text-align: center;
           }
         }
       `}</style>
