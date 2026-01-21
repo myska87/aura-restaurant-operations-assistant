@@ -799,6 +799,7 @@ export default function Menu() {
         onClose={() => setShowAI(false)}
         onGenerate={handleAIGenerate}
         ingredients={ingredients}
+        existingItem={editingItem}
       />
 
       {/* Order by Dish Dialog */}
