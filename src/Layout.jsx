@@ -48,6 +48,7 @@ const navItems = [
   { name: 'Menu Manager', icon: ChefHat, page: 'MenuManager', roles: ['all'] },
   { name: 'Visual Dish Guides', icon: CookingPot, page: 'VisualDishGuides', roles: ['all'] },
   { name: 'Operations', icon: ClipboardCheck, page: 'Operations', roles: ['all'] },
+  { name: 'Prep Workflow', icon: ChefHat, page: 'PrepWorkflow', roles: ['all'] },
   { name: 'POS System', icon: Shield, page: 'POSSystem', roles: ['all'] },
   { name: 'Visual Procedures', icon: FileText, page: 'VisualProcedures', roles: ['all'] },
   { name: 'Assets & Equipment', icon: Package, page: 'Assets', roles: ['all'] },
