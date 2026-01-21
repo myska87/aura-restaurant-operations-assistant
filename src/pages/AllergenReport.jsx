@@ -152,20 +152,25 @@ export default function AllergenReport() {
 
   // Export to Excel
   const exportToExcel = async () => {
-    const XLSX = await import('xlsx');
-    
-    const headers = ['Menu Item', ...UK_ALLERGENS.map(a => a.name), 'Vegetarian', 'Vegan'];
-    const rows = filteredItems.map(item => [
-      item.name,
-      ...UK_ALLERGENS.map(allergen => hasAllergen(item, allergen.id) ? '✓' : ''),
-      item.is_vegetarian ? '✓' : '',
-      item.is_vegan ? '✓' : ''
-    ]);
+    try {
+      const XLSX = (await import('xlsx')).default || (await import('xlsx'));
+      
+      const headers = ['Menu Item', ...UK_ALLERGENS.map(a => a.name), 'Vegetarian', 'Vegan'];
+      const rows = filteredItems.map(item => [
+        item.name,
+        ...UK_ALLERGENS.map(allergen => hasAllergen(item, allergen.id) ? '✓' : ''),
+        item.is_vegetarian ? '✓' : '',
+        item.is_vegan ? '✓' : ''
+      ]);
 
-    const ws = XLSX.utils.aoa_to_sheet([headers, ...rows]);
-    const wb = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(wb, ws, 'Allergen Matrix');
-    XLSX.writeFile(wb, `allergen-matrix-${format(new Date(), 'yyyy-MM-dd')}.xlsx`);
+      const ws = XLSX.utils.aoa_to_sheet([headers, ...rows]);
+      const wb = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(wb, ws, 'Allergen Matrix');
+      XLSX.writeFile(wb, `allergen-matrix-${format(new Date(), 'yyyy-MM-dd')}.xlsx`);
+    } catch (error) {
+      console.error('Excel export failed:', error);
+      alert('Excel export is not available. Please use CSV export instead.');
+    }
   };
 
   // Export to PDF
