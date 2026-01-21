@@ -1,4 +1,6 @@
 import React, { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
+import { createPageUrl } from '@/utils';
 import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -18,7 +20,8 @@ import {
   Users,
   Shield,
   FileCheck,
-  Signature
+  Signature,
+  PenTool
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -215,10 +218,21 @@ export default function Documents() {
       <PageHeader
         title="Document Manager"
         description={`${documents.length} documents`}
-        action={() => { setEditingDoc(null); setShowForm(true); }}
-        actionLabel="Add Document"
-        actionIcon={FilePlus}
       />
+
+      {/* Quick Actions */}
+      <div className="flex gap-2">
+        <Button asChild className="bg-emerald-600 hover:bg-emerald-700">
+          <Link to={createPageUrl('DocumentCreator')}>
+            <PenTool className="w-4 h-4 mr-2" />
+            Create New Document
+          </Link>
+        </Button>
+        <Button variant="outline">
+          <Upload className="w-4 h-4 mr-2" />
+          Import
+        </Button>
+      </div>
 
       {/* Filters */}
       <div className="flex flex-wrap gap-3">
@@ -280,8 +294,13 @@ export default function Documents() {
                         </Button>
                       </DropdownMenuTrigger>
                       <DropdownMenuContent align="end">
+                        <DropdownMenuItem asChild onClick={(e) => e.stopPropagation()}>
+                          <Link to={createPageUrl('DocumentCreator') + `?id=${doc.id}`} className="flex items-center">
+                            <PenTool className="w-4 h-4 mr-2" /> Edit in Creator
+                          </Link>
+                        </DropdownMenuItem>
                         <DropdownMenuItem onClick={(e) => { e.stopPropagation(); setEditingDoc(doc); setShowForm(true); }}>
-                          <Edit className="w-4 h-4 mr-2" /> Edit
+                          <Edit className="w-4 h-4 mr-2" /> Quick Edit
                         </DropdownMenuItem>
                         {doc.file_url && (
                           <DropdownMenuItem onClick={(e) => { e.stopPropagation(); window.open(doc.file_url, '_blank'); }}>
