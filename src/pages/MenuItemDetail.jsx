@@ -87,7 +87,7 @@ export default function MenuItemDetail() {
   };
 
   const openVisualGuide = () => {
-    window.open(createPageUrl('VisualDishGuideDetail') + '?id=' + linkedGuide.id, '_blank');
+    navigate(createPageUrl('VisualDishGuideDetail') + '?id=' + linkedGuide.id);
   };
 
   return (
@@ -120,7 +120,11 @@ export default function MenuItemDetail() {
                 <p className="text-3xl font-bold text-slate-800">£{menuItem.price?.toFixed(2)}</p>
               </div>
               {isAdmin && (
-                <Button variant="outline" className="gap-2">
+                <Button 
+                  variant="outline" 
+                  className="gap-2"
+                  onClick={() => navigate(createPageUrl('MenuManager'))}
+                >
                   <Edit className="w-4 h-4" />
                   Edit Item
                 </Button>
