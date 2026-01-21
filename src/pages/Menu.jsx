@@ -184,9 +184,11 @@ export default function Menu() {
   });
 
   const handleSubmit = (data) => {
-    if (editingItem) {
+    if (editingItem?.id) {
+      console.log('Updating menu item with ID:', editingItem.id);
       updateMutation.mutate({ id: editingItem.id, data });
     } else {
+      console.log('Creating new menu item');
       createMutation.mutate(data);
     }
   };
@@ -202,7 +204,11 @@ export default function Menu() {
   };
 
   const handleAIGenerate = (generatedData) => {
-    setEditingItem(generatedData);
+    // Preserve ID if editing, otherwise it's a new item
+    const itemData = editingItem?.id 
+      ? { ...generatedData, id: editingItem.id }
+      : generatedData;
+    setEditingItem(itemData);
     setShowForm(true);
   };
 
