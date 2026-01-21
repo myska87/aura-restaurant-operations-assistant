@@ -1,30 +1,38 @@
 import React, { useState, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import { 
-  Play, Pause, Square, Thermometer, Droplets, Wrench, AlertTriangle, 
-  Shield, Tag, ClipboardList, RefreshCw, Trash2, Heart, Calendar,
-  CheckCircle2, GraduationCap, FileText, Users, TrendingUp
-} from 'lucide-react';
-import { format } from 'date-fns';
+import { useQuery } from '@tanstack/react-query';
 import { motion } from 'framer-motion';
+import { format, subDays, startOfMonth, endOfMonth, subMonths } from 'date-fns';
+import {
+  Download,
+  Calendar,
+  TrendingUp,
+  RefreshCw,
+  BarChart3,
+  Sparkles,
+  Mail
+} from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Card } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import PageHeader from '@/components/ui/PageHeader';
 import LoadingSpinner from '@/components/ui/LoadingSpinner';
-import TemperatureLog from '@/components/operations/TemperatureLog';
-import TemperatureReport from '@/components/operations/TemperatureReport';
-import LabelPrinter from '@/components/operations/LabelPrinter';
-import HandoverForm from '@/components/operations/HandoverForm';
-import ServiceRecoveryForm from '@/components/recovery/ServiceRecoveryForm';
+import SalesInsights from '@/components/dashboard/SalesInsights';
+import MarketingInsights from '@/components/dashboard/MarketingInsights';
+import OperationalMetrics from '@/components/dashboard/OperationalMetrics';
+import MenuProfitability from '@/components/dashboard/MenuProfitability';
+import FinancialOverview from '@/components/dashboard/FinancialOverview';
+import TrainingCulture from '@/components/dashboard/TrainingCulture';
+import PredictiveAnalytics from '@/components/dashboard/PredictiveAnalytics';
 
 export default function CommandCenter() {
   const [user, setUser] = useState(null);
-  const [activeDialog, setActiveDialog] = useState(null);
-  const [currentShift, setCurrentShift] = useState(null);
-
-  const queryClient = useQueryClient();
+  const [dateRange, setDateRange] = useState({
+    from: subDays(new Date(), 30),
+    to: new Date()
+  });
+  const [refreshing, setRefreshing] = useState(false);
 
   useEffect(() => {
     const loadUser = async () => {
@@ -36,510 +44,218 @@ export default function CommandCenter() {
     loadUser();
   }, []);
 
-  const today = format(new Date(), 'yyyy-MM-dd');
-  const currentHour = new Date().getHours();
-  const shiftType = currentHour < 11 ? 'opening' : currentHour < 17 ? 'mid' : 'closing';
+  const { data: shifts = [] } = useQuery({
+    queryKey: ['shifts-dashboard', format(dateRange.from, 'yyyy-MM-dd')],
+    queryFn: () => base44.entities.Shift.filter({
+      date: {
+        $gte: format(dateRange.from, 'yyyy-MM-dd'),
+        $lte: format(dateRange.to, 'yyyy-MM-dd')
+      }
+    }, '-updated_date', 500)
+  });
 
-  // Real-time data fetching
-  const { data: todayCheckIn } = useQuery({
-    queryKey: ['todayCheckIn', user?.email, today],
-    queryFn: async () => {
-      if (!user?.email) return null;
-      const checks = await base44.entities.DailyCheckIn.filter({
-        staff_email: user.email,
-        shift_date: today
+  const { data: menuItems = [] } = useQuery({
+    queryKey: ['menu-items-dashboard'],
+    queryFn: () => base44.entities.MenuItem.list()
+  });
+
+  const { data: sales = [] } = useQuery({
+    queryKey: ['sales-dashboard', format(dateRange.from, 'yyyy-MM-dd')],
+    queryFn: () => base44.entities.Sale?.list?.() || [],
+  });
+
+  const handleRefresh = async () => {
+    setRefreshing(true);
+    setTimeout(() => setRefreshing(false), 1000);
+  };
+
+  const exportPDF = async () => {
+    const html2canvas = (await import('html2canvas')).default;
+    const jsPDF = (await import('jspdf')).default;
+    
+    const element = document.getElementById('dashboard-content');
+    const canvas = await html2canvas(element, { scale: 2 });
+    const pdf = new jsPDF('l', 'mm', 'a4');
+    const imgData = canvas.toDataURL('image/png');
+    pdf.addImage(imgData, 'PNG', 10, 10, 277, 190);
+    pdf.save(`aura-dashboard-${format(new Date(), 'yyyy-MM-dd')}.pdf`);
+  };
+
+  const exportExcel = async () => {
+    const XLSX = (await import('xlsx')).default;
+    
+    const summaryData = [
+      ['AURA Performance Command Center', '', ''],
+      ['Report Date', format(new Date(), 'yyyy-MM-dd'), ''],
+      ['Period', `${format(dateRange.from, 'MMM d')} - ${format(dateRange.to, 'MMM d, yyyy')}`, ''],
+      ['', '', ''],
+      ['KPI', 'Value', 'Status'],
+      ['Total Shifts', shifts.length, 'Active'],
+      ['Total Menu Items', menuItems.length, 'Active'],
+      ['', '', ''],
+      ['Generated by AURA Intelligence System', '', '']
+    ];
+
+    const ws = XLSX.utils.aoa_to_sheet(summaryData);
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, 'Dashboard');
+    XLSX.writeFile(wb, `aura-dashboard-${format(new Date(), 'yyyy-MM-dd')}.xlsx`);
+  };
+
+  const sendReport = async () => {
+    if (!user?.email) return;
+    try {
+      await base44.integrations.Core.SendEmail({
+        to: user.email,
+        subject: `Weekly AURA Report – ${format(new Date(), 'MMM d, yyyy')}`,
+        body: `
+Your AURA Performance Command Center Weekly Summary:
+
+Period: ${format(dateRange.from, 'MMM d')} - ${format(dateRange.to, 'MMM d, yyyy')}
+
+📊 Quick Metrics:
+• Total Shifts: ${shifts.length}
+• Menu Items: ${menuItems.length}
+• Data Points: ${shifts.length + menuItems.length}
+
+🔍 Action Items:
+Review the Command Center dashboard for detailed insights and AI recommendations.
+
+AI Insights will be available soon with predictive analytics.
+
+---
+AURA Intelligence System
+`
       });
-      return checks[0] || null;
-    },
-    enabled: !!user?.email,
-    refetchInterval: 30000
-  });
-
-  const { data: tempLogs = [] } = useQuery({
-    queryKey: ['tempLogs', today],
-    queryFn: () => base44.entities.TemperatureLog.filter({ log_date: today }),
-    refetchInterval: 60000
-  });
-
-  const { data: myTasks = [] } = useQuery({
-    queryKey: ['myTasks', user?.email],
-    queryFn: async () => {
-      if (!user?.email) return [];
-      return base44.entities.Task.filter({ 
-        assigned_to: user.email,
-        status: { $ne: 'completed' }
-      });
-    },
-    enabled: !!user?.email
-  });
-
-  const { data: myShifts = [] } = useQuery({
-    queryKey: ['myShifts', user?.email, today],
-    queryFn: async () => {
-      if (!user?.email) return [];
-      return base44.entities.Shift.filter({
-        staff_email: user.email,
-        shift_date: today
-      });
-    },
-    enabled: !!user?.email
-  });
-
-  const { data: trainingProgress = [] } = useQuery({
-    queryKey: ['myTraining', user?.email],
-    queryFn: async () => {
-      if (!user?.email) return [];
-      return base44.entities.TrainingProgress.filter({
-        staff_email: user.email,
-        completion_percentage: { $lt: 100 }
-      });
-    },
-    enabled: !!user?.email
-  });
-
-  const { data: equipmentIssues = [] } = useQuery({
-    queryKey: ['equipmentIssues'],
-    queryFn: () => base44.entities.EquipmentFault.filter({
-      status: { $ne: 'resolved' }
-    }),
-    refetchInterval: 60000
-  });
-
-  const { data: lowStock = [] } = useQuery({
-    queryKey: ['lowStock'],
-    queryFn: () => base44.entities.ChemicalStock.filter({
-      status: { $in: ['low', 'out_of_stock'] }
-    }),
-    refetchInterval: 120000
-  });
-
-  const startShiftMutation = useMutation({
-    mutationFn: async () => {
-      return base44.entities.DailyCheckIn.create({
-        staff_email: user.email,
-        staff_name: user.full_name,
-        shift_date: today,
-        shift_type: shiftType,
-        staff_role: user.role === 'admin' || user.role === 'manager' ? 'manager' : user.role === 'staff' ? 'foh' : 'kitchen',
-        check_in_time: new Date().toISOString(),
-        status: 'checked_in'
-      });
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries(['todayCheckIn']);
-      setActiveDialog('checklist');
+      alert('✅ Report sent to ' + user.email);
+    } catch (error) {
+      console.error('Email error:', error);
     }
-  });
+  };
 
-  const endShiftMutation = useMutation({
-    mutationFn: async () => {
-      return base44.entities.DailyCheckIn.update(todayCheckIn.id, {
-        check_out_time: new Date().toISOString(),
-        status: 'checked_out'
-      });
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries(['todayCheckIn']);
-      setActiveDialog('handover');
-    }
-  });
+  const isLoading = !user;
 
-  if (!user) return <LoadingSpinner />;
+  if (isLoading) return <LoadingSpinner message="Loading Command Center..." />;
 
-  const isManager = ['admin', 'manager', 'owner'].includes(user.role);
-  const todayShift = myShifts[0];
-  const hasStartedShift = !!todayCheckIn;
-  const tempLogsComplete = tempLogs.filter(t => t.check_time === shiftType).length >= 3;
-  const dueTasks = myTasks.filter(t => t.due_date && new Date(t.due_date) <= new Date());
-
-  // Alert calculations
-  const alerts = [
-    ...(!tempLogsComplete && hasStartedShift ? [{ type: 'temperature', severity: 'high', message: 'Temperature logs incomplete' }] : []),
-    ...equipmentIssues.map(e => ({ type: 'equipment', severity: e.severity, message: `${e.equipment_name} - ${e.fault_type}` })),
-    ...lowStock.map(s => ({ type: 'stock', severity: 'medium', message: `${s.chemical_name} low stock` })),
-    ...(dueTasks.length > 0 ? [{ type: 'tasks', severity: 'medium', message: `${dueTasks.length} task(s) due today` }] : [])
-  ];
-
-  const ShiftButton = ({ icon: Icon, label, onClick, variant = 'default', disabled = false }) => (
-    <Button
-      onClick={onClick}
-      disabled={disabled}
-      className={`h-24 text-lg font-bold shadow-lg ${
-        variant === 'start' ? 'bg-gradient-to-br from-emerald-500 to-emerald-600 hover:from-emerald-600 hover:to-emerald-700' :
-        variant === 'mid' ? 'bg-gradient-to-br from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700' :
-        variant === 'end' ? 'bg-gradient-to-br from-red-500 to-red-600 hover:from-red-600 hover:to-red-700' :
-        ''
-      }`}
-    >
-      <Icon className="w-8 h-8 mr-3" />
-      {label}
-    </Button>
-  );
-
-  const QuickAction = ({ icon: Icon, label, onClick, color = 'blue' }) => (
-    <Card 
-      className="hover:shadow-xl transition-all cursor-pointer border-2 hover:border-emerald-400"
-      onClick={onClick}
-    >
-      <CardContent className="pt-6 pb-6 text-center">
-        <div className={`w-14 h-14 mx-auto rounded-xl bg-gradient-to-br from-${color}-500 to-${color}-600 flex items-center justify-center mb-3 shadow-lg`}>
-          <Icon className="w-7 h-7 text-white" />
-        </div>
-        <p className="font-semibold text-sm">{label}</p>
-      </CardContent>
-    </Card>
-  );
+  const canViewFinancials = ['owner', 'admin'].includes(user?.role);
 
   return (
-    <div className="space-y-6 pb-8">
-      {/* Header */}
-      <div className="bg-gradient-to-br from-emerald-600 to-emerald-700 rounded-2xl p-6 text-white shadow-xl">
-        <h1 className="text-3xl font-bold mb-2">Command Center</h1>
-        <p className="text-emerald-100">Everything you need today — in one place</p>
-        <div className="mt-4 flex items-center gap-4 text-sm">
-          <Badge className="bg-white/20 text-white border-0">
-            {format(new Date(), 'EEEE, MMM d')}
-          </Badge>
-          <Badge className="bg-white/20 text-white border-0 capitalize">
-            {shiftType} Shift
-          </Badge>
-          {todayShift && (
-            <Badge className="bg-emerald-800 text-white border-0">
-              On Shift: {format(new Date(todayShift.start_time), 'HH:mm')} - {format(new Date(todayShift.end_time), 'HH:mm')}
-            </Badge>
-          )}
+    <div id="dashboard-content" className="space-y-6">
+      <PageHeader
+        title="AURA Performance Command Center"
+        description="Real-time business intelligence with AI-powered predictions"
+      />
+
+      {/* Controls */}
+      <motion.div
+        initial={{ opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+        className="flex flex-wrap gap-3 items-center justify-between bg-gradient-to-r from-emerald-50 to-amber-50 p-4 rounded-xl border border-emerald-200"
+      >
+        <div className="flex flex-wrap gap-2">
+          <Button 
+            variant="outline"
+            onClick={handleRefresh}
+            disabled={refreshing}
+            className="gap-2"
+          >
+            <RefreshCw className={`w-4 h-4 ${refreshing ? 'animate-spin' : ''}`} />
+            Refresh
+          </Button>
+          <Button 
+            variant="outline"
+            onClick={exportPDF}
+            className="gap-2"
+          >
+            <Download className="w-4 h-4" />
+            PDF
+          </Button>
+          <Button 
+            variant="outline"
+            onClick={exportExcel}
+            className="gap-2"
+          >
+            <Download className="w-4 h-4" />
+            Excel
+          </Button>
+          <Button 
+            variant="outline"
+            onClick={sendReport}
+            className="gap-2"
+          >
+            <Mail className="w-4 h-4" />
+            Email Report
+          </Button>
         </div>
-      </div>
+        <Badge className="bg-emerald-600">Live</Badge>
+      </motion.div>
 
-      {/* ZONE 1: SHIFT CONTROL */}
-      <Card className="bg-gradient-to-br from-slate-50 to-white border-2 border-emerald-200">
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Play className="w-6 h-6 text-emerald-600" />
-            Shift Control
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="grid grid-cols-3 gap-4">
-            {!hasStartedShift ? (
-              <>
-                <ShiftButton
-                  icon={Play}
-                  label="Start Shift"
-                  onClick={() => startShiftMutation.mutate()}
-                  variant="start"
-                />
-                <div className="col-span-2 flex items-center justify-center text-slate-400">
-                  <p>Start your shift to unlock actions</p>
-                </div>
-              </>
-            ) : todayCheckIn?.status === 'checked_out' ? (
-              <div className="col-span-3 text-center py-4">
-                <CheckCircle2 className="w-12 h-12 mx-auto mb-2 text-emerald-600" />
-                <p className="font-semibold text-lg">Shift Complete</p>
-                <p className="text-sm text-slate-600">Great work today!</p>
-              </div>
-            ) : (
-              <>
-                <ShiftButton
-                  icon={Pause}
-                  label="Mid Check"
-                  onClick={() => setActiveDialog('checklist')}
-                  variant="mid"
-                />
-                <ShiftButton
-                  icon={Square}
-                  label="End Shift"
-                  onClick={() => endShiftMutation.mutate()}
-                  variant="end"
-                  disabled={!tempLogsComplete}
-                />
-                <div className="flex items-center text-xs text-slate-600">
-                  {!tempLogsComplete && (
-                    <p>⚠️ Complete temp logs first</p>
-                  )}
-                </div>
-              </>
-            )}
-          </div>
-        </CardContent>
-      </Card>
+      {/* Main Dashboard Tabs */}
+      <Tabs defaultValue="sales" className="space-y-6">
+        <TabsList className="grid w-full grid-cols-4 lg:grid-cols-7">
+          <TabsTrigger value="sales" className="text-xs">
+            <TrendingUp className="w-3 h-3 mr-1" />
+            Sales
+          </TabsTrigger>
+          <TabsTrigger value="marketing" className="text-xs">
+            📱 Marketing
+          </TabsTrigger>
+          <TabsTrigger value="operations" className="text-xs">
+            ⚙️ Operations
+          </TabsTrigger>
+          <TabsTrigger value="menu" className="text-xs">
+            🥘 Menu
+          </TabsTrigger>
+          {canViewFinancials && (
+            <TabsTrigger value="financial" className="text-xs">
+              💰 Financial
+            </TabsTrigger>
+          )}
+          <TabsTrigger value="training" className="text-xs">
+            🎓 Training
+          </TabsTrigger>
+          <TabsTrigger value="forecast" className="text-xs">
+            🔮 Forecast
+          </TabsTrigger>
+        </TabsList>
 
-      {/* ZONE 5: SMART ALERTS (Moved up for visibility) */}
-      {alerts.length > 0 && (
-        <Card className="bg-amber-50 border-2 border-amber-300">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2 text-amber-800">
-              <AlertTriangle className="w-6 h-6" />
-              Active Alerts ({alerts.length})
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-2">
-              {alerts.slice(0, 5).map((alert, idx) => (
-                <motion.div
-                  key={idx}
-                  initial={{ opacity: 0, x: -20 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  transition={{ delay: idx * 0.1 }}
-                  className={`p-3 rounded-lg flex items-center gap-3 ${
-                    alert.severity === 'critical' ? 'bg-red-100 border border-red-300' :
-                    alert.severity === 'high' ? 'bg-orange-100 border border-orange-300' :
-                    'bg-yellow-100 border border-yellow-300'
-                  }`}
-                >
-                  <AlertTriangle className={`w-5 h-5 ${
-                    alert.severity === 'critical' ? 'text-red-600' :
-                    alert.severity === 'high' ? 'text-orange-600' :
-                    'text-yellow-600'
-                  }`} />
-                  <p className="font-medium text-sm">{alert.message}</p>
-                  <Badge className={`ml-auto ${
-                    alert.severity === 'critical' ? 'bg-red-600' :
-                    alert.severity === 'high' ? 'bg-orange-600' :
-                    'bg-yellow-600'
-                  }`}>
-                    {alert.type}
-                  </Badge>
-                </motion.div>
-              ))}
-            </div>
-          </CardContent>
-        </Card>
-      )}
+        {/* Sales Tab */}
+        <TabsContent value="sales">
+          <SalesInsights shifts={shifts} menuItems={menuItems} dateRange={dateRange} />
+        </TabsContent>
 
-      <div className="grid lg:grid-cols-2 gap-6">
-        {/* ZONE 2: DAILY CHECKS & SAFETY */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Shield className="w-6 h-6 text-blue-600" />
-              Daily Checks & Safety
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="grid grid-cols-3 gap-3">
-              <QuickAction
-                icon={Thermometer}
-                label="Log Temperatures"
-                onClick={() => setActiveDialog('temperature')}
-                color="red"
-              />
-              <QuickAction
-                icon={FileText}
-                label="Temp Report"
-                onClick={() => setActiveDialog('tempReport')}
-                color="blue"
-              />
-              <QuickAction
-                icon={Droplets}
-                label="Hygiene Check"
-                onClick={() => setActiveDialog('checklist')}
-                color="blue"
-              />
-              <QuickAction
-                icon={Wrench}
-                label="Equipment Status"
-                onClick={() => setActiveDialog('equipment')}
-                color="orange"
-              />
-              <QuickAction
-                icon={AlertTriangle}
-                label="Report Incident"
-                onClick={() => setActiveDialog('incident')}
-                color="amber"
-              />
-              <QuickAction
-                icon={Shield}
-                label="Allergen Alert"
-                onClick={() => setActiveDialog('allergen')}
-                color="red"
-              />
-            </div>
-          </CardContent>
-        </Card>
+        {/* Marketing Tab */}
+        <TabsContent value="marketing">
+          <MarketingInsights dateRange={dateRange} />
+        </TabsContent>
 
-        {/* ZONE 3: OPERATIONS QUICK ACTIONS */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <ClipboardList className="w-6 h-6 text-emerald-600" />
-              Quick Operations
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="grid grid-cols-2 gap-3">
-              <QuickAction
-                icon={Tag}
-                label="Print Label"
-                onClick={() => setActiveDialog('label')}
-                color="green"
-              />
-              <QuickAction
-                icon={ClipboardList}
-                label="Prep Checklist"
-                onClick={() => setActiveDialog('prep')}
-                color="purple"
-              />
-              <QuickAction
-                icon={RefreshCw}
-                label="Shift Handover"
-                onClick={() => setActiveDialog('handover')}
-                color="indigo"
-              />
-              <QuickAction
-                icon={Trash2}
-                label="Log Waste"
-                onClick={() => setActiveDialog('waste')}
-                color="slate"
-              />
-              <QuickAction
-                icon={Heart}
-                label="Service Recovery"
-                onClick={() => setActiveDialog('recovery')}
-                color="pink"
-              />
-            </div>
-          </CardContent>
-        </Card>
-      </div>
+        {/* Operations Tab */}
+        <TabsContent value="operations">
+          <OperationalMetrics shifts={shifts} dateRange={dateRange} />
+        </TabsContent>
 
-      {/* ZONE 4: PEOPLE & TASKS */}
-      <Card className="bg-gradient-to-br from-blue-50 to-white border-2 border-blue-200">
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Users className="w-6 h-6 text-blue-600" />
-            My Today
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="grid md:grid-cols-4 gap-4">
-            <div className="text-center p-4 bg-white rounded-xl border-2 border-slate-200">
-              <Calendar className="w-8 h-8 mx-auto mb-2 text-blue-600" />
-              <p className="text-2xl font-bold">{todayShift ? '1' : '0'}</p>
-              <p className="text-xs text-slate-600">Shifts Today</p>
-            </div>
-            <div className="text-center p-4 bg-white rounded-xl border-2 border-slate-200">
-              <CheckCircle2 className="w-8 h-8 mx-auto mb-2 text-emerald-600" />
-              <p className="text-2xl font-bold">{myTasks.length}</p>
-              <p className="text-xs text-slate-600">Open Tasks</p>
-              {dueTasks.length > 0 && (
-                <Badge className="mt-1 bg-red-600 text-xs">{dueTasks.length} due</Badge>
-              )}
-            </div>
-            <div className="text-center p-4 bg-white rounded-xl border-2 border-slate-200">
-              <GraduationCap className="w-8 h-8 mx-auto mb-2 text-purple-600" />
-              <p className="text-2xl font-bold">{trainingProgress.length}</p>
-              <p className="text-xs text-slate-600">Training Due</p>
-            </div>
-            <div className="text-center p-4 bg-white rounded-xl border-2 border-slate-200">
-              <TrendingUp className="w-8 h-8 mx-auto mb-2 text-amber-600" />
-              <p className="text-2xl font-bold">{hasStartedShift ? '✓' : '-'}</p>
-              <p className="text-xs text-slate-600">Shift Status</p>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
+        {/* Menu Tab */}
+        <TabsContent value="menu">
+          <MenuProfitability menuItems={menuItems} shifts={shifts} />
+        </TabsContent>
 
-      {/* Mini-Form Dialogs */}
-      <Dialog open={activeDialog === 'temperature'} onOpenChange={() => setActiveDialog(null)}>
-        <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
-          <DialogHeader>
-            <DialogTitle>Temperature Logs</DialogTitle>
-          </DialogHeader>
-          <TemperatureLog user={user} />
-        </DialogContent>
-      </Dialog>
+        {/* Financial Tab */}
+        {canViewFinancials && (
+          <TabsContent value="financial">
+            <FinancialOverview shifts={shifts} menuItems={menuItems} dateRange={dateRange} />
+          </TabsContent>
+        )}
 
-      <Dialog open={activeDialog === 'tempReport'} onOpenChange={() => setActiveDialog(null)}>
-        <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
-          <DialogHeader>
-            <DialogTitle>Temperature Report</DialogTitle>
-          </DialogHeader>
-          <TemperatureReport />
-        </DialogContent>
-      </Dialog>
+        {/* Training Tab */}
+        <TabsContent value="training">
+          <TrainingCulture dateRange={dateRange} />
+        </TabsContent>
 
-      <Dialog open={activeDialog === 'label'} onOpenChange={() => setActiveDialog(null)}>
-        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
-          <DialogHeader>
-            <DialogTitle>Print Food Label</DialogTitle>
-          </DialogHeader>
-          <LabelPrinter />
-        </DialogContent>
-      </Dialog>
-
-      <Dialog open={activeDialog === 'handover'} onOpenChange={() => setActiveDialog(null)}>
-        <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
-          <DialogHeader>
-            <DialogTitle>Shift Handover</DialogTitle>
-          </DialogHeader>
-          <HandoverForm />
-        </DialogContent>
-      </Dialog>
-
-      <Dialog open={activeDialog === 'recovery'} onOpenChange={() => setActiveDialog(null)}>
-        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
-          <DialogHeader>
-            <DialogTitle>Service Recovery</DialogTitle>
-          </DialogHeader>
-          <ServiceRecoveryForm onComplete={() => setActiveDialog(null)} />
-        </DialogContent>
-      </Dialog>
-
-      <Dialog open={activeDialog === 'checklist'} onOpenChange={() => setActiveDialog(null)}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Hygiene Checklist</DialogTitle>
-          </DialogHeader>
-          <p className="text-slate-600">Daily hygiene checks will appear here.</p>
-        </DialogContent>
-      </Dialog>
-
-      <Dialog open={activeDialog === 'equipment'} onOpenChange={() => setActiveDialog(null)}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Equipment Status</DialogTitle>
-          </DialogHeader>
-          <p className="text-slate-600">Equipment health monitoring will appear here.</p>
-        </DialogContent>
-      </Dialog>
-
-      <Dialog open={activeDialog === 'incident'} onOpenChange={() => setActiveDialog(null)}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Report Incident</DialogTitle>
-          </DialogHeader>
-          <p className="text-slate-600">Incident reporting form will appear here.</p>
-        </DialogContent>
-      </Dialog>
-
-      <Dialog open={activeDialog === 'allergen'} onOpenChange={() => setActiveDialog(null)}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Allergen Alert</DialogTitle>
-          </DialogHeader>
-          <p className="text-slate-600">Allergen management will appear here.</p>
-        </DialogContent>
-      </Dialog>
-
-      <Dialog open={activeDialog === 'prep'} onOpenChange={() => setActiveDialog(null)}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Prep Checklist</DialogTitle>
-          </DialogHeader>
-          <p className="text-slate-600">Prep task checklist will appear here.</p>
-        </DialogContent>
-      </Dialog>
-
-      <Dialog open={activeDialog === 'waste'} onOpenChange={() => setActiveDialog(null)}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Log Waste</DialogTitle>
-          </DialogHeader>
-          <p className="text-slate-600">Waste logging form will appear here.</p>
-        </DialogContent>
-      </Dialog>
+        {/* Forecast Tab */}
+        <TabsContent value="forecast">
+          <PredictiveAnalytics shifts={shifts} menuItems={menuItems} dateRange={dateRange} />
+        </TabsContent>
+      </Tabs>
     </div>
   );
 }
