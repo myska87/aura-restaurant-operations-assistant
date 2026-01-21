@@ -254,7 +254,11 @@ export default function MenuCostingDashboard() {
               {topProfitable.map((item, index) => {
                 const profit = (item.price || 0) - (item.cost || 0);
                 return (
-                  <div key={item.id} className="flex items-center gap-3 p-3 bg-emerald-50 rounded-xl">
+                  <Link 
+                    key={item.id} 
+                    to={createPageUrl('MenuItemDetail') + '?id=' + item.id}
+                    className="flex items-center gap-3 p-3 bg-emerald-50 rounded-xl hover:bg-emerald-100 transition-colors cursor-pointer"
+                  >
                     <div className="w-8 h-8 rounded-full bg-emerald-600 text-white flex items-center justify-center font-bold text-sm">
                       {index + 1}
                     </div>
@@ -270,7 +274,7 @@ export default function MenuCostingDashboard() {
                       </p>
                       <p className="text-xs text-emerald-600">+£{profit.toFixed(2)}</p>
                     </div>
-                  </div>
+                  </Link>
                 );
               })}
             </div>
@@ -290,7 +294,11 @@ export default function MenuCostingDashboard() {
               {leastProfitable.map((item, index) => {
                 const profit = (item.price || 0) - (item.cost || 0);
                 return (
-                  <div key={item.id} className="flex items-center gap-3 p-3 bg-red-50 rounded-xl">
+                  <Link 
+                    key={item.id} 
+                    to={createPageUrl('MenuItemDetail') + '?id=' + item.id}
+                    className="flex items-center gap-3 p-3 bg-red-50 rounded-xl hover:bg-red-100 transition-colors cursor-pointer"
+                  >
                     <div className="w-8 h-8 rounded-full bg-red-600 text-white flex items-center justify-center font-bold text-sm">
                       {index + 1}
                     </div>
@@ -306,7 +314,7 @@ export default function MenuCostingDashboard() {
                       </p>
                       <p className="text-xs text-red-600">£{profit.toFixed(2)}</p>
                     </div>
-                  </div>
+                  </Link>
                 );
               })}
             </div>
@@ -377,7 +385,11 @@ export default function MenuCostingDashboard() {
                 {filteredItems.map((item) => {
                   const profit = (item.price || 0) - (item.cost || 0);
                   return (
-                    <TableRow key={item.id}>
+                    <TableRow 
+                      key={item.id} 
+                      className="cursor-pointer hover:bg-slate-50"
+                      onClick={() => window.location.href = createPageUrl('MenuItemDetail') + '?id=' + item.id}
+                    >
                       <TableCell className="font-medium">{item.name}</TableCell>
                       <TableCell>
                         <Badge variant="outline">
