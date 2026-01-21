@@ -59,7 +59,7 @@ export default function VisualProcedureForm() {
       }
     },
     onSuccess: () => {
-      queryClient.invalidateQueries(['visual-procedures']);
+      queryClient.invalidateQueries({ queryKey: ['visualProcedures'] });
       navigate(createPageUrl('VisualProcedures'));
     },
   });
