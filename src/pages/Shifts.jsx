@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { motion, AnimatePresence } from 'framer-motion';
-import { format, addDays, startOfWeek, isSameDay, parseISO } from 'date-fns';
+import { format, addDays, startOfWeek, isSameDay, parseISO, startOfMonth, endOfMonth } from 'date-fns';
 import {
   Calendar,
   Clock,
@@ -14,11 +14,17 @@ import {
   Download,
   Sparkles,
   User,
-  Printer
+  Printer,
+  TrendingUp,
+  DollarSign,
+  PieChart,
+  BarChart3,
+  AlertCircle
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import {
   Dialog,
   DialogContent,
@@ -34,7 +40,7 @@ import {
 } from '@/components/ui/select';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
-import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import PageHeader from '@/components/ui/PageHeader';
 import LoadingSpinner from '@/components/ui/LoadingSpinner';
 

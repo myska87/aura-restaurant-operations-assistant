@@ -1,4 +1,5 @@
 import AllergenDashboard from './pages/AllergenDashboard';
+import AllergenReport from './pages/AllergenReport';
 import Announcements from './pages/Announcements';
 import AssetDetail from './pages/AssetDetail';
 import Assets from './pages/Assets';
@@ -59,12 +60,12 @@ import VisualDishGuides from './pages/VisualDishGuides';
 import VisualProcedureDetail from './pages/VisualProcedureDetail';
 import VisualProcedureForm from './pages/VisualProcedureForm';
 import VisualProcedures from './pages/VisualProcedures';
-import AllergenReport from './pages/AllergenReport';
 import __Layout from './Layout.jsx';
 
 
 export const PAGES = {
     "AllergenDashboard": AllergenDashboard,
+    "AllergenReport": AllergenReport,
     "Announcements": Announcements,
     "AssetDetail": AssetDetail,
     "Assets": Assets,
@@ -125,7 +126,6 @@ export const PAGES = {
     "VisualProcedureDetail": VisualProcedureDetail,
     "VisualProcedureForm": VisualProcedureForm,
     "VisualProcedures": VisualProcedures,
-    "AllergenReport": AllergenReport,
 }
 
 export const pagesConfig = {
