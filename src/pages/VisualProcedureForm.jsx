@@ -270,6 +270,9 @@ export default function VisualProcedureForm() {
         </h1>
       </div>
 
+      {/* Core Module Protection */}
+      <CoreModuleProtectionWarning moduleName="VisualProcedures" />
+
       <form onSubmit={handleSubmit} className="space-y-6">
         {/* AI Assistant */}
         {!isEditing && (
