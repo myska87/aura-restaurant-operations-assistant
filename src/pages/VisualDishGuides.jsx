@@ -280,7 +280,7 @@ export default function VisualDishGuides() {
                     </Badge>
                   </div>
                   <div className="flex items-center gap-2 mb-3">
-                    <Badge variant="outline" className={categoryColors[guide.category]}>
+                    <Badge variant="outline" className={categoryColors[guide.category] || 'bg-gray-100 text-gray-700'}>
                       {guide.category}
                     </Badge>
                     {guide.cooking_steps?.length > 0 && (
