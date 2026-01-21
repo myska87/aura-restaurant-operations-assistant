@@ -46,11 +46,19 @@ export default function MenuItemDetail() {
     loadUser();
   }, []);
 
-  // Fetch menu item
-  const { data: menuItem, isLoading: loadingItem } = useQuery({
+  // Fetch menu item with retry and error handling
+  const { data: menuItem, isLoading: loadingItem, error: itemError, refetch: refetchItem } = useQuery({
     queryKey: ['menuItem', itemId],
-    queryFn: () => base44.entities.MenuItem.filter({ id: itemId }).then(r => r[0]),
-    enabled: !!itemId
+    queryFn: async () => {
+      if (!itemId) throw new Error('Menu item ID is missing');
+      const result = await base44.entities.MenuItem.filter({ id: itemId });
+      if (!result || result.length === 0) throw new Error('Menu item not found');
+      return result[0];
+    },
+    enabled: !!itemId,
+    retry: 2,
+    staleTime: 30000,
+    refetchOnWindowFocus: false
   });
 
   // Fetch linked visual guide
@@ -69,11 +77,45 @@ export default function MenuItemDetail() {
   // Fetch ingredients for stock checking
   const { data: ingredients = [] } = useQuery({
     queryKey: ['ingredients'],
-    queryFn: () => base44.entities.Ingredient_Master_v1.list()
+    queryFn: () => base44.entities.Ingredient_Master_v1.list(),
+    staleTime: 60000,
+    refetchOnWindowFocus: false
   });
 
   if (loadingItem) return <LoadingSpinner message="Loading menu item..." />;
-  if (!menuItem) return <div className="p-8 text-center">Menu item not found</div>;
+  
+  if (itemError || !menuItem) {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-screen py-20 px-6">
+        <motion.div
+          initial={{ opacity: 0, scale: 0.9 }}
+          animate={{ opacity: 1, scale: 1 }}
+          className="text-center max-w-md"
+        >
+          <div className="w-20 h-20 rounded-2xl bg-gradient-to-br from-red-100 to-orange-100 flex items-center justify-center mx-auto mb-6">
+            <AlertTriangle className="w-10 h-10 text-red-600" />
+          </div>
+          <h2 className="text-2xl font-bold text-slate-800 mb-3">
+            {itemError?.message === 'Menu item not found' ? 'Menu Item Not Found' : 'Unable to Load Menu Item'}
+          </h2>
+          <p className="text-slate-600 mb-6">
+            {itemError?.message === 'Menu item not found' 
+              ? 'This menu item does not exist or has been removed.'
+              : 'Something went wrong while loading the item. Please try again.'}
+          </p>
+          <div className="flex gap-3 justify-center">
+            <Button onClick={() => refetchItem()} variant="outline">
+              <ArrowLeft className="w-4 h-4 mr-2" />
+              Try Again
+            </Button>
+            <Button onClick={() => navigate(createPageUrl('MenuManager'))} className="bg-emerald-600 hover:bg-emerald-700">
+              Back to Menu
+            </Button>
+          </div>
+        </motion.div>
+      </div>
+    );
+  }
 
   const profit = menuItem.price - (menuItem.cost || 0);
   const margin = menuItem.price > 0 ? ((profit / menuItem.price) * 100) : 0;
