@@ -457,7 +457,7 @@ export default function Documents() {
                 </div>
                 
                 {viewingDoc.content && (
-                  <div className="flex-1 bg-white rounded-xl p-6 overflow-y-auto border border-slate-200">
+                  <div className="flex-1 bg-white rounded-xl p-6 overflow-y-auto border border-slate-200 space-y-4">
                     <div 
                       className="prose prose-sm max-w-none text-slate-800 [&_h1]:text-xl [&_h2]:text-lg [&_h3]:text-base [&_p]:mb-3 [&_ul]:mb-3 [&_ol]:mb-3"
                       dangerouslySetInnerHTML={{ __html: viewingDoc.content }}
@@ -473,6 +473,14 @@ export default function Documents() {
                           src={viewingDoc.file_url}
                           className="w-full h-full border-0"
                           title={viewingDoc.title}
+                        />
+                      </div>
+                    ) : viewingDoc.file_url.match(/\.(jpg|jpeg|png|gif|webp)$/i) ? (
+                      <div className="flex-1 bg-slate-50 rounded-xl overflow-hidden flex items-center justify-center">
+                        <img 
+                          src={viewingDoc.file_url}
+                          alt={viewingDoc.title}
+                          className="max-w-full max-h-full object-contain"
                         />
                       </div>
                     ) : (
