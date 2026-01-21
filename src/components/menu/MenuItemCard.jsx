@@ -135,7 +135,7 @@ export default function MenuItemCard({ item, onEdit, onDuplicate, onDelete, onVi
             <Badge className="bg-slate-600 text-white text-xs">Inactive</Badge>
           )}
           {!item.is_available && (
-            <Badge className="bg-red-600 text-white text-xs">Out of Stock</Badge>
+            <Badge className="bg-red-600 text-white text-xs">Unavailable</Badge>
           )}
           {stockStatus.status !== 'unknown' && stockStatus.status !== 'good' && (
             <Badge className={`${stockStatus.color} text-white text-xs`}>
