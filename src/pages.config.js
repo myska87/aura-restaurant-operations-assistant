@@ -22,6 +22,7 @@ import Meetings from './pages/Meetings';
 import Menu from './pages/Menu';
 import MenuAnalyticsDashboard from './pages/MenuAnalyticsDashboard';
 import MenuCostingDashboard from './pages/MenuCostingDashboard';
+import MenuItemDetail from './pages/MenuItemDetail';
 import MenuManager from './pages/MenuManager';
 import menuV3Hub from './pages/Menu_v3_HUB';
 import MorningPrep from './pages/MorningPrep';
@@ -58,7 +59,6 @@ import VisualDishGuides from './pages/VisualDishGuides';
 import VisualProcedureDetail from './pages/VisualProcedureDetail';
 import VisualProcedureForm from './pages/VisualProcedureForm';
 import VisualProcedures from './pages/VisualProcedures';
-import MenuItemDetail from './pages/MenuItemDetail';
 import __Layout from './Layout.jsx';
 
 
@@ -87,6 +87,7 @@ export const PAGES = {
     "Menu": Menu,
     "MenuAnalyticsDashboard": MenuAnalyticsDashboard,
     "MenuCostingDashboard": MenuCostingDashboard,
+    "MenuItemDetail": MenuItemDetail,
     "MenuManager": MenuManager,
     "Menu_v3_HUB": menuV3Hub,
     "MorningPrep": MorningPrep,
@@ -123,7 +124,6 @@ export const PAGES = {
     "VisualProcedureDetail": VisualProcedureDetail,
     "VisualProcedureForm": VisualProcedureForm,
     "VisualProcedures": VisualProcedures,
-    "MenuItemDetail": MenuItemDetail,
 }
 
 export const pagesConfig = {

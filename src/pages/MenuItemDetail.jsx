@@ -123,7 +123,12 @@ export default function MenuItemDetail() {
                 <Button 
                   variant="outline" 
                   className="gap-2"
-                  onClick={() => navigate(createPageUrl('MenuManager'))}
+                  onClick={() => {
+                    navigate(createPageUrl('MenuManager'));
+                    setTimeout(() => {
+                      window.dispatchEvent(new CustomEvent('openEditModal', { detail: { menuItem } }));
+                    }, 300);
+                  }}
                 >
                   <Edit className="w-4 h-4" />
                   Edit Item
@@ -135,6 +140,20 @@ export default function MenuItemDetail() {
       </div>
 
       <div className="max-w-7xl mx-auto px-6 py-8">
+        {/* Hero Image */}
+        {menuItem.photo_url && (
+          <motion.div 
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="mb-8 rounded-2xl overflow-hidden shadow-2xl"
+          >
+            <img
+              src={menuItem.photo_url}
+              alt={menuItem.name}
+              className="w-full h-[280px] object-cover"
+            />
+          </motion.div>
+        )}
         <Tabs defaultValue="overview" className="space-y-6">
           <TabsList className="bg-white border shadow-sm">
             <TabsTrigger value="overview">
