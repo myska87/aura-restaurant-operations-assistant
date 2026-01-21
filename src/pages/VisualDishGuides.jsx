@@ -50,6 +50,30 @@ export default function VisualDishGuides() {
   const [searchTerm, setSearchTerm] = useState('');
   const [categoryFilter, setCategoryFilter] = useState('all');
   const [difficultyFilter, setDifficultyFilter] = useState('all');
+  const [categories, setCategories] = useState(defaultCategories);
+  const [categoryColors, setColorMapping] = useState({
+    wrap: 'bg-purple-100 text-purple-700',
+    curry: 'bg-orange-100 text-orange-700',
+    drink: 'bg-blue-100 text-blue-700',
+    bakery: 'bg-amber-100 text-amber-700',
+    chai: 'bg-emerald-100 text-emerald-700',
+    dessert: 'bg-pink-100 text-pink-700',
+    appetizer: 'bg-indigo-100 text-indigo-700',
+    main: 'bg-red-100 text-red-700'
+  });
+
+  const handleAddCategory = (newCategory) => {
+    if (!categories.includes(newCategory)) {
+      setCategories([...categories, newCategory]);
+      // Add color mapping for new category
+      const colors = ['bg-teal-100 text-teal-700', 'bg-rose-100 text-rose-700', 'bg-cyan-100 text-cyan-700', 'bg-lime-100 text-lime-700'];
+      const colorIndex = (categories.length) % colors.length;
+      setColorMapping(prev => ({
+        ...prev,
+        [newCategory]: colors[colorIndex]
+      }));
+    }
+  };
 
   const handlePrintGuide = (guideId) => {
     window.open(createPageUrl('VisualDishGuidePrint') + '?id=' + guideId, '_blank');
