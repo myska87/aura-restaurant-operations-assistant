@@ -48,6 +48,7 @@ export default function MenuItemForm({ item, onSubmit, onCancel, aiGenerating })
 
   const [uploading, setUploading] = useState(false);
   const [selectedAllergen, setSelectedAllergen] = useState('');
+  const [selectedIngredientId, setSelectedIngredientId] = useState('');
   const [showNewIngredient, setShowNewIngredient] = useState(false);
   const [newIngredient, setNewIngredient] = useState({
     name: '',
@@ -108,6 +109,14 @@ export default function MenuItemForm({ item, onSubmit, onCancel, aiGenerating })
     const ingredient = ingredients.find(i => i.id === ingredientId);
     if (!ingredient) return;
     
+    // Check if ingredient already added
+    const alreadyAdded = formData.ingredients?.some(ing => ing.ingredient_id === ingredient.id);
+    if (alreadyAdded) {
+      alert('This ingredient is already added to the recipe');
+      setSelectedIngredientId('');
+      return;
+    }
+    
     const newIngredient = {
       ingredient_id: ingredient.id,
       ingredient_name: ingredient.name,
@@ -121,6 +130,9 @@ export default function MenuItemForm({ item, onSubmit, onCancel, aiGenerating })
       ...prev,
       ingredients: [...(prev.ingredients || []), newIngredient]
     }));
+    
+    // Reset the select
+    setSelectedIngredientId('');
   };
 
   const updateIngredient = (index, field, value) => {
@@ -339,7 +351,10 @@ export default function MenuItemForm({ item, onSubmit, onCancel, aiGenerating })
         <CardContent className="space-y-3">
           <div className="space-y-3">
             <div className="flex gap-2">
-              <Select onValueChange={addIngredient}>
+              <Select value={selectedIngredientId} onValueChange={(value) => {
+                setSelectedIngredientId(value);
+                addIngredient(value);
+              }}>
                 <SelectTrigger className="flex-1">
                   <SelectValue placeholder="Add ingredient..." />
                 </SelectTrigger>
