@@ -220,20 +220,50 @@ export default function MenuItemForm({ item, onSubmit, onCancel, aiGenerating })
       return;
     }
     
+    // Validate ingredients have quantities
+    if (formData.ingredients && formData.ingredients.length > 0) {
+      const invalidIngredients = formData.ingredients.filter(ing => !ing.quantity || ing.quantity <= 0);
+      if (invalidIngredients.length > 0) {
+        alert('Please add quantities for all ingredients before saving');
+        return;
+      }
+    }
+    
+    // Prepare ingredients for save - ensure all fields are included
+    const preparedIngredients = (formData.ingredients || []).map(ing => ({
+      ingredient_id: ing.ingredient_id,
+      ingredient_name: ing.ingredient_name,
+      quantity: parseFloat(ing.quantity) || 0,
+      unit: ing.unit,
+      cost_per_unit: parseFloat(ing.cost_per_unit) || 0,
+      total_cost: (parseFloat(ing.quantity) || 0) * (parseFloat(ing.cost_per_unit) || 0)
+    }));
+    
+    // Calculate total cost
+    const totalCost = preparedIngredients.reduce((sum, ing) => sum + ing.total_cost, 0);
+    const wastageMultiplier = 1 + ((parseFloat(formData.wastage_percent) || 0) / 100);
+    const finalCost = totalCost * wastageMultiplier;
+    const price = parseFloat(formData.price) || 0;
+    const profit = price - finalCost;
+    const profitMargin = price > 0 ? (profit / price * 100) : 0;
+    
     const submitData = {
       ...formData,
       photo_url: photoUrl,
       image_url: photoUrl,
-      price: parseFloat(formData.price) || 0,
+      price: price,
+      cost: finalCost,
+      profit_margin: profitMargin,
       prep_time_minutes: parseInt(formData.prep_time_minutes) || 0,
       servings_per_batch: parseInt(formData.servings_per_batch) || 1,
       wastage_percent: parseFloat(formData.wastage_percent) || 5,
       calories: parseInt(formData.calories) || 0,
-      ingredients: formData.ingredients || [],
+      ingredients: preparedIngredients,
       allergens: formData.allergens || [],
       last_costed: new Date().toISOString()
     };
     
+    console.log('Submitting menu item with ingredients:', submitData);
     onSubmit(submitData);
   };
 
