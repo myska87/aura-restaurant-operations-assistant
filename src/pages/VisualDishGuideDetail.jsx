@@ -45,11 +45,7 @@ export default function VisualDishGuideDetail() {
   });
 
   const handlePrint = () => {
-    setPrintMode(true);
-    setTimeout(() => {
-      window.print();
-      setPrintMode(false);
-    }, 100);
+    window.open(createPageUrl('VisualDishGuidePrint') + '?id=' + guideId, '_blank');
   };
 
   if (isLoading) return <LoadingSpinner />;
