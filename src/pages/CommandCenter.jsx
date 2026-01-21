@@ -261,6 +261,36 @@ AURA Intelligence System
         <TabsContent value="forecast">
           <PredictiveAnalytics shifts={shifts} menuItems={menuItems} dateRange={dateRange} />
         </TabsContent>
+
+        {/* Edit Data Tab */}
+        <TabsContent value="edit" className="space-y-6">
+          <Card>
+            <CardHeader>
+              <CardTitle>Weekly Shift Schedule</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <EditableShiftsTable shifts={shifts} />
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader>
+              <CardTitle>Menu Items Pricing & Margins</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <EditableMenuItemsTable menuItems={menuItems} />
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader>
+              <CardTitle>Sales Records</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <EditableSalesTable sales={sales} />
+            </CardContent>
+          </Card>
+        </TabsContent>
       </Tabs>
     </div>
   );
