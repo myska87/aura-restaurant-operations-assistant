@@ -47,8 +47,7 @@ export default function VisualDishGuides() {
   const [difficultyFilter, setDifficultyFilter] = useState('all');
 
   const handlePrintGuide = (guideId) => {
-    window.open(createPageUrl('VisualDishGuideDetail') + '?id=' + guideId, '_blank');
-    setTimeout(() => window.print(), 500);
+    window.open(createPageUrl('VisualDishGuidePrint') + '?id=' + guideId, '_blank');
   };
 
   useEffect(() => {
