@@ -13,6 +13,8 @@ import { createPageUrl } from '../utils';
 import LoadingSpinner from '@/components/ui/LoadingSpinner';
 import AIProcedureAssistant from '../components/procedures/AIProcedureAssistant';
 import { motion } from 'framer-motion';
+import CoreModuleProtectionWarning from '@/components/system/CoreModuleProtection';
+import ModuleSaveLogger from '@/components/system/ModuleSaveLogger';
 
 export default function VisualProcedureForm() {
   const navigate = useNavigate();
@@ -40,6 +42,18 @@ export default function VisualProcedureForm() {
   const [uploadingStepPhotos, setUploadingStepPhotos] = useState({});
   const [validationErrors, setValidationErrors] = useState([]);
   const [saveMessage, setSaveMessage] = useState(null);
+  const [user, setUser] = useState(null);
+
+  // Load user
+  useEffect(() => {
+    const loadUser = async () => {
+      try {
+        const userData = await base44.auth.me();
+        setUser(userData);
+      } catch (e) {}
+    };
+    loadUser();
+  }, []);
 
   const { data: procedure, isLoading } = useQuery({
     queryKey: ['visual-procedure', procedureId],
@@ -66,8 +80,12 @@ export default function VisualProcedureForm() {
         throw new Error(`Failed to save procedure: ${error.message}`);
       }
     },
-    onSuccess: (data) => {
+    onSuccess: async (data) => {
       queryClient.invalidateQueries({ queryKey: ['visualProcedures'] });
+      
+      // Log save to audit trail
+      await ModuleSaveLogger.logSave('VisualProcedures', isEditing ? 'update' : 'create', formData, user?.id);
+      
       setSaveMessage({ type: 'success', text: 'Procedure saved successfully!' });
       base44.analytics.track({
         eventName: 'procedure_saved',
