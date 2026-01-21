@@ -195,7 +195,7 @@ AURA Intelligence System
 
       {/* Main Dashboard Tabs */}
       <Tabs defaultValue="sales" className="space-y-6">
-        <TabsList className="grid w-full grid-cols-4 lg:grid-cols-7">
+        <TabsList className="grid w-full grid-cols-4 lg:grid-cols-8">
           <TabsTrigger value="sales" className="text-xs">
             <TrendingUp className="w-3 h-3 mr-1" />
             Sales
@@ -219,6 +219,9 @@ AURA Intelligence System
           </TabsTrigger>
           <TabsTrigger value="forecast" className="text-xs">
             🔮 Forecast
+          </TabsTrigger>
+          <TabsTrigger value="edit" className="text-xs">
+            ✏️ Edit Data
           </TabsTrigger>
         </TabsList>
 
