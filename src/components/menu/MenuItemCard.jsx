@@ -113,8 +113,8 @@ export default function MenuItemCard({ item, onEdit, onDuplicate, onDelete, onVi
     >
       {/* Image */}
       <div className="relative h-40 bg-gradient-to-br from-slate-100 to-slate-200 overflow-hidden group">
-        {item.image_url ? (
-          <img src={item.image_url} alt={item.name} className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-110" />
+        {(item.photo_url || item.image_url) ? (
+          <img src={item.photo_url || item.image_url} alt={item.name} className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-110" />
         ) : (
           <div className="w-full h-full flex items-center justify-center text-6xl transition-transform duration-300 group-hover:scale-110">
             {categoryEmojis[item.category] || '🍽️'}
