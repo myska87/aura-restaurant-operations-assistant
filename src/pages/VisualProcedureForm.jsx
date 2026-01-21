@@ -8,10 +8,11 @@ import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { ArrowLeft, Plus, Trash2, Save, Upload, Loader2 } from 'lucide-react';
+import { ArrowLeft, Plus, Trash2, Save, Upload, Loader2, AlertCircle, CheckCircle } from 'lucide-react';
 import { createPageUrl } from '../utils';
 import LoadingSpinner from '@/components/ui/LoadingSpinner';
 import AIProcedureAssistant from '../components/procedures/AIProcedureAssistant';
+import { motion } from 'framer-motion';
 
 export default function VisualProcedureForm() {
   const navigate = useNavigate();
@@ -37,6 +38,8 @@ export default function VisualProcedureForm() {
   
   const [uploadingCover, setUploadingCover] = useState(false);
   const [uploadingStepPhotos, setUploadingStepPhotos] = useState({});
+  const [validationErrors, setValidationErrors] = useState([]);
+  const [saveMessage, setSaveMessage] = useState(null);
 
   const { data: procedure, isLoading } = useQuery({
     queryKey: ['visual-procedure', procedureId],
@@ -51,21 +54,59 @@ export default function VisualProcedureForm() {
   }, [procedure]);
 
   const saveMutation = useMutation({
-    mutationFn: (data) => {
-      if (isEditing) {
-        return base44.entities.Visual_Procedures_v1.update(procedureId, data);
-      } else {
-        return base44.entities.Visual_Procedures_v1.create(data);
+    mutationFn: async (data) => {
+      try {
+        if (isEditing) {
+          return await base44.entities.Visual_Procedures_v1.update(procedureId, data);
+        } else {
+          return await base44.entities.Visual_Procedures_v1.create(data);
+        }
+      } catch (error) {
+        console.error('Save error:', error);
+        throw new Error(`Failed to save procedure: ${error.message}`);
       }
     },
-    onSuccess: () => {
+    onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: ['visualProcedures'] });
-      navigate(createPageUrl('VisualProcedures'));
+      setSaveMessage({ type: 'success', text: 'Procedure saved successfully!' });
+      base44.analytics.track({
+        eventName: 'procedure_saved',
+        properties: { procedure_id: data.id, is_new: !isEditing }
+      });
+      setTimeout(() => {
+        navigate(createPageUrl('VisualProcedures'));
+      }, 1500);
     },
+    onError: (error) => {
+      setSaveMessage({ type: 'error', text: error.message || 'Failed to save procedure. Please try again.' });
+      console.error('Procedure save failed:', error);
+    }
   });
+
+  const validateForm = () => {
+    const errors = [];
+    if (!formData.title?.trim()) errors.push('Title is required');
+    if (!formData.category) errors.push('Category is required');
+    if (!formData.station) errors.push('Station is required');
+    if (!formData.intro_description?.trim()) errors.push('Introduction description is required');
+    if (!formData.steps || formData.steps.length === 0) errors.push('At least one step is required');
+    formData.steps.forEach((step, idx) => {
+      if (!step.step_title?.trim()) errors.push(`Step ${idx + 1}: Title is required`);
+      if (!step.instruction_text?.trim()) errors.push(`Step ${idx + 1}: Instruction is required`);
+    });
+    return errors;
+  };
 
   const handleSubmit = (e) => {
     e.preventDefault();
+    const errors = validateForm();
+    if (errors.length > 0) {
+      setValidationErrors(errors);
+      setSaveMessage({ type: 'error', text: 'Please fix the errors below before saving.' });
+      return;
+    }
+    setValidationErrors([]);
+    setSaveMessage(null);
     saveMutation.mutate(formData);
   };
 
@@ -163,6 +204,45 @@ export default function VisualProcedureForm() {
 
   return (
     <div className="max-w-4xl mx-auto space-y-6">
+      {/* Status Messages */}
+      {saveMessage && (
+        <motion.div
+          initial={{ opacity: 0, y: -10 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0, y: -10 }}
+          className={`flex items-center gap-2 p-4 rounded-lg ${
+            saveMessage.type === 'success' 
+              ? 'bg-emerald-50 text-emerald-900 border border-emerald-200' 
+              : 'bg-red-50 text-red-900 border border-red-200'
+          }`}
+        >
+          {saveMessage.type === 'success' ? (
+            <CheckCircle className="w-5 h-5 flex-shrink-0" />
+          ) : (
+            <AlertCircle className="w-5 h-5 flex-shrink-0" />
+          )}
+          <span className="text-sm font-medium">{saveMessage.text}</span>
+        </motion.div>
+      )}
+
+      {validationErrors.length > 0 && (
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          className="bg-red-50 border border-red-200 rounded-lg p-4"
+        >
+          <div className="flex gap-2 mb-2">
+            <AlertCircle className="w-5 h-5 text-red-600 flex-shrink-0 mt-0.5" />
+            <h3 className="font-semibold text-red-900">Please fix these errors:</h3>
+          </div>
+          <ul className="space-y-1 ml-7">
+            {validationErrors.map((error, idx) => (
+              <li key={idx} className="text-sm text-red-800">• {error}</li>
+            ))}
+          </ul>
+        </motion.div>
+      )}
+
       <div className="flex items-center gap-4">
         <Button variant="ghost" onClick={() => navigate(createPageUrl('VisualProcedures'))}>
           <ArrowLeft className="w-4 h-4" />
