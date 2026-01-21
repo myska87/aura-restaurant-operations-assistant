@@ -25,6 +25,9 @@ import MenuProfitability from '@/components/dashboard/MenuProfitability';
 import FinancialOverview from '@/components/dashboard/FinancialOverview';
 import TrainingCulture from '@/components/dashboard/TrainingCulture';
 import PredictiveAnalytics from '@/components/dashboard/PredictiveAnalytics';
+import EditableShiftsTable from '@/components/dashboard/EditableShiftsTable';
+import EditableMenuItemsTable from '@/components/dashboard/EditableMenuItemsTable';
+import EditableSalesTable from '@/components/dashboard/EditableSalesTable';
 
 export default function CommandCenter() {
   const [user, setUser] = useState(null);
