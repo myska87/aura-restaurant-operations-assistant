@@ -78,6 +78,12 @@ export default function Shifts() {
     }, 'date'),
   });
 
+  const { data: pendingApprovals = [] } = useQuery({
+    queryKey: ['pending-approvals'],
+    queryFn: () => base44.entities.Shift.filter({ needs_approval: true }, '-updated_date', 50),
+    enabled: ['owner', 'admin', 'manager'].includes(user?.role)
+  });
+
   const { data: allShiftsThisMonth = [] } = useQuery({
     queryKey: ['shifts-month'],
     queryFn: () => base44.entities.Shift.filter({
@@ -132,21 +138,43 @@ export default function Shifts() {
   };
 
   const handleClockIn = async (shift) => {
+    const now = new Date().toISOString();
     await updateMutation.mutateAsync({
       id: shift.id,
       data: {
-        actual_clock_in: new Date().toISOString(),
-        status: 'clocked_in'
+        actual_clock_in: now,
+        status: 'clocked_in',
+        needs_approval: true
       }
     });
   };
 
   const handleClockOut = async (shift) => {
+    const now = new Date().toISOString();
+    const clockInTime = new Date(shift.actual_clock_in);
+    const clockOutTime = new Date(now);
+    const actualDuration = ((clockOutTime - clockInTime) / (1000 * 60 * 60)) - ((shift.break_duration || 30) / 60);
+    const actualCost = actualDuration * (shift.hourly_rate || 12.5);
+    
     await updateMutation.mutateAsync({
       id: shift.id,
       data: {
-        actual_clock_out: new Date().toISOString(),
-        status: 'completed'
+        actual_clock_out: now,
+        duration: actualDuration.toFixed(2),
+        total_cost: actualCost.toFixed(2),
+        status: 'completed',
+        needs_approval: true
+      }
+    });
+  };
+
+  const handleApproveShift = async (shift) => {
+    await updateMutation.mutateAsync({
+      id: shift.id,
+      data: {
+        needs_approval: false,
+        approved_by: user?.email,
+        approved_date: new Date().toISOString()
       }
     });
   };
@@ -317,6 +345,45 @@ export default function Shifts() {
     XLSX.writeFile(wb, `payroll-${format(currentWeekStart, 'yyyy-MM-dd')}.xlsx`);
   };
 
+  const exportWeeklyReport = async () => {
+    const XLSX = (await import('xlsx')).default || (await import('xlsx'));
+    
+    const detailHeaders = ['Date', 'Staff', 'Position', 'Scheduled Start', 'Scheduled End', 'Clock In', 'Clock Out', 'Hours', 'Rate (£/hr)', 'Cost (£)', 'Status', 'Approved'];
+    const detailRows = shifts.map(s => [
+      s.date,
+      s.staff_name,
+      s.position,
+      s.scheduled_start,
+      s.scheduled_end,
+      s.actual_clock_in ? format(new Date(s.actual_clock_in), 'HH:mm') : '-',
+      s.actual_clock_out ? format(new Date(s.actual_clock_out), 'HH:mm') : '-',
+      s.duration?.toFixed(2) || 0,
+      s.hourly_rate || 0,
+      s.total_cost?.toFixed(2) || 0,
+      s.status,
+      s.needs_approval ? 'Pending' : 'Yes'
+    ]);
+    
+    const summaryHeaders = ['Metric', 'Value'];
+    const summaryRows = [
+      ['Week', `${format(currentWeekStart, 'MMM d')} - ${format(addDays(currentWeekStart, 6), 'MMM d, yyyy')}`],
+      ['Total Shifts', shifts.length],
+      ['Total Hours', weekStats.totalHours.toFixed(2)],
+      ['Total Cost', `£${weekStats.totalCost.toFixed(2)}`],
+      ['Average Rate', `£${weekStats.avgRate.toFixed(2)}/hr`],
+      ['Completed Shifts', shifts.filter(s => s.status === 'completed').length],
+      ['Pending Approvals', shifts.filter(s => s.needs_approval).length]
+    ];
+    
+    const ws1 = XLSX.utils.aoa_to_sheet([summaryHeaders, ...summaryRows]);
+    const ws2 = XLSX.utils.aoa_to_sheet([detailHeaders, ...detailRows]);
+    
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws1, 'Summary');
+    XLSX.utils.book_append_sheet(wb, ws2, 'Details');
+    XLSX.writeFile(wb, `weekly-report-${format(currentWeekStart, 'yyyy-MM-dd')}.xlsx`);
+  };
+
   const exportTimesheet = () => {
     const csvContent = [
       ['Staff', 'Date', 'Start', 'End', 'Duration (hrs)', 'Rate (£/hr)', 'Cost (£)', 'Status'].join(','),
@@ -418,7 +485,7 @@ export default function Shifts() {
       />
 
       <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-        <TabsList className="grid w-full grid-cols-4">
+        <TabsList className="grid w-full grid-cols-5">
           <TabsTrigger value="schedule">
             <Calendar className="w-4 h-4 mr-2" />
             Schedule
@@ -435,6 +502,15 @@ export default function Shifts() {
             <User className="w-4 h-4 mr-2" />
             Staff Summary
           </TabsTrigger>
+          {['owner', 'admin', 'manager'].includes(user?.role) && (
+            <TabsTrigger value="approvals">
+              <Clock className="w-4 h-4 mr-2" />
+              Approvals
+              {pendingApprovals.length > 0 && (
+                <Badge className="ml-2 bg-red-500">{pendingApprovals.length}</Badge>
+              )}
+            </TabsTrigger>
+          )}
         </TabsList>
 
         {/* Schedule View */}
@@ -459,6 +535,10 @@ export default function Shifts() {
             <Button variant="outline" onClick={exportPayroll}>
               <Download className="w-4 h-4 mr-2" />
               Payroll Excel
+            </Button>
+            <Button variant="outline" onClick={exportWeeklyReport} className="border-blue-300 text-blue-700 hover:bg-blue-50">
+              <Download className="w-4 h-4 mr-2" />
+              Weekly Report
             </Button>
             <Button variant="outline" onClick={handlePrint}>
               <Printer className="w-4 h-4 mr-2" />
@@ -572,6 +652,11 @@ export default function Shifts() {
                             <div className="text-[10px] text-emerald-700 font-bold">
                               £{shift.hourly_rate || 0}/hr • {shift.duration?.toFixed(1) || 0}h = £{shift.total_cost?.toFixed(2) || 0}
                             </div>
+                            {shift.needs_approval && (
+                              <Badge className="mt-1 bg-amber-500 text-white text-[8px] py-0 px-1">
+                                Needs Approval
+                              </Badge>
+                            )}
                             
                             {isToday && shift.status === 'scheduled' && (
                               <Button 
@@ -836,6 +921,82 @@ export default function Shifts() {
             })}
           </div>
         </TabsContent>
+
+        {/* Approvals Tab */}
+        {['owner', 'admin', 'manager'].includes(user?.role) && (
+          <TabsContent value="approvals" className="space-y-4">
+            <Card>
+              <CardHeader>
+                <CardTitle>Pending Time Approvals</CardTitle>
+              </CardHeader>
+              <CardContent>
+                {pendingApprovals.length === 0 ? (
+                  <div className="text-center py-8 text-slate-500">
+                    <Clock className="w-12 h-12 mx-auto mb-3 opacity-30" />
+                    <p>No pending approvals</p>
+                  </div>
+                ) : (
+                  <div className="space-y-3">
+                    {pendingApprovals.map((shift) => (
+                      <div key={shift.id} className="border border-slate-200 rounded-lg p-4">
+                        <div className="flex items-start justify-between">
+                          <div className="flex-1">
+                            <div className="flex items-center gap-2 mb-2">
+                              <p className="font-bold text-slate-800">{shift.staff_name}</p>
+                              <Badge variant="outline">{shift.position}</Badge>
+                              <Badge className="bg-amber-100 text-amber-700">{shift.status}</Badge>
+                            </div>
+                            <div className="grid grid-cols-2 gap-3 text-sm">
+                              <div>
+                                <p className="text-slate-500">Date</p>
+                                <p className="font-semibold">{format(new Date(shift.date), 'MMM d, yyyy')}</p>
+                              </div>
+                              <div>
+                                <p className="text-slate-500">Scheduled</p>
+                                <p className="font-semibold">{shift.scheduled_start} - {shift.scheduled_end}</p>
+                              </div>
+                              {shift.actual_clock_in && (
+                                <div>
+                                  <p className="text-slate-500">Clock In</p>
+                                  <p className="font-semibold text-blue-600">
+                                    {format(new Date(shift.actual_clock_in), 'HH:mm')}
+                                  </p>
+                                </div>
+                              )}
+                              {shift.actual_clock_out && (
+                                <div>
+                                  <p className="text-slate-500">Clock Out</p>
+                                  <p className="font-semibold text-blue-600">
+                                    {format(new Date(shift.actual_clock_out), 'HH:mm')}
+                                  </p>
+                                </div>
+                              )}
+                              <div>
+                                <p className="text-slate-500">Hours</p>
+                                <p className="font-semibold">{shift.duration?.toFixed(2) || 0} hrs</p>
+                              </div>
+                              <div>
+                                <p className="text-slate-500">Cost</p>
+                                <p className="font-semibold text-emerald-600">£{shift.total_cost?.toFixed(2) || 0}</p>
+                              </div>
+                            </div>
+                          </div>
+                          <Button 
+                            onClick={() => handleApproveShift(shift)}
+                            disabled={updateMutation.isPending}
+                            className="bg-emerald-600 hover:bg-emerald-700"
+                          >
+                            Approve
+                          </Button>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+          </TabsContent>
+        )}
       </Tabs>
 
       {/* Shift Form Dialog */}
