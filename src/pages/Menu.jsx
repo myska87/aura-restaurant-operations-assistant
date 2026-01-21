@@ -58,6 +58,7 @@ import MenuItemForm from '@/components/menu/MenuItemForm';
 import AIMenuAssistant from '@/components/menu/AIMenuAssistant';
 import OrderByDishDialog from '@/components/menu/OrderByDishDialog';
 import PortionOrderingDialog from '@/components/menu/PortionOrderingDialog';
+import LinkVisualGuideButton from '@/components/menu/LinkVisualGuideButton';
 import { Link } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
 
@@ -474,7 +475,29 @@ export default function Menu() {
       <Dialog open={showForm} onOpenChange={setShowForm}>
         <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
-            <DialogTitle>{editingItem?.id ? 'Edit Menu Item' : 'Create Menu Item'}</DialogTitle>
+            <div className="flex items-center justify-between">
+              <DialogTitle>{editingItem?.id ? 'Edit Menu Item' : 'Create Menu Item'}</DialogTitle>
+              <div className="flex items-center gap-2">
+                {editingItem?.id && (
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    onClick={() => {
+                      setShowForm(false);
+                      setTimeout(() => setShowAI(true), 100);
+                    }}
+                    className="border-purple-300 text-purple-700 hover:bg-purple-50"
+                  >
+                    <Sparkles className="w-4 h-4 mr-2" />
+                    AI Edit
+                  </Button>
+                )}
+                {editingItem?.id && (
+                  <LinkVisualGuideButton menuItem={editingItem} />
+                )}
+              </div>
+            </div>
           </DialogHeader>
           <MenuItemForm
             item={editingItem}
