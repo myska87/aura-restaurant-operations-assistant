@@ -265,32 +265,45 @@ AURA Intelligence System
 
         {/* Edit Data Tab */}
         <TabsContent value="edit" className="space-y-6">
-          <Card>
-            <CardHeader>
-              <CardTitle>Weekly Shift Schedule</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <EditableShiftsTable shifts={shifts} />
-            </CardContent>
-          </Card>
+          <Tabs defaultValue="kpi" className="w-full">
+            <TabsList className="grid w-full grid-cols-2">
+              <TabsTrigger value="kpi">📊 KPI Data Feed</TabsTrigger>
+              <TabsTrigger value="detailed">📋 Detailed Records</TabsTrigger>
+            </TabsList>
 
-          <Card>
-            <CardHeader>
-              <CardTitle>Menu Items Pricing & Margins</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <EditableMenuItemsTable menuItems={menuItems} />
-            </CardContent>
-          </Card>
+            <TabsContent value="kpi" className="mt-6">
+              <DataFeedManager />
+            </TabsContent>
 
-          <Card>
-            <CardHeader>
-              <CardTitle>Sales Records</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <EditableSalesTable sales={sales} />
-            </CardContent>
-          </Card>
+            <TabsContent value="detailed" className="mt-6 space-y-6">
+              <Card>
+                <CardHeader>
+                  <CardTitle>Weekly Shift Schedule</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <EditableShiftsTable shifts={shifts} />
+                </CardContent>
+              </Card>
+
+              <Card>
+                <CardHeader>
+                  <CardTitle>Menu Items Pricing & Margins</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <EditableMenuItemsTable menuItems={menuItems} />
+                </CardContent>
+              </Card>
+
+              <Card>
+                <CardHeader>
+                  <CardTitle>Sales Records</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <EditableSalesTable sales={sales} />
+                </CardContent>
+              </Card>
+            </TabsContent>
+          </Tabs>
         </TabsContent>
       </Tabs>
     </div>
