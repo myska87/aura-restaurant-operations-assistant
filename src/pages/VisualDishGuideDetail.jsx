@@ -322,6 +322,19 @@ export default function VisualDishGuideDetail() {
             ))}
           </div>
         )}
+        
+        {guide.plating_photo_url && (
+          <div className="print-hero-image" style={{marginTop: '16px'}}>
+            <img 
+              src={guide.plating_photo_url} 
+              alt="Final plated dish"
+            />
+          </div>
+        )}
+        
+        <div className="print-footer">
+          Printed from AURA Restaurant Ops | {new Date().toLocaleDateString()}
+        </div>
       </div>
 
       {/* APP MODE - Rich Interactive Layout */}
