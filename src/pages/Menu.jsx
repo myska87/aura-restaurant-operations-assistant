@@ -87,6 +87,18 @@ export default function Menu() {
       } catch (e) {}
     };
     loadUser();
+
+    // Listen for edit modal trigger from MenuItemDetail
+    const handleOpenEdit = (event) => {
+      const item = event.detail?.menuItem;
+      if (item) {
+        setEditingItem(item);
+        setShowForm(true);
+      }
+    };
+
+    window.addEventListener('openEditModal', handleOpenEdit);
+    return () => window.removeEventListener('openEditModal', handleOpenEdit);
   }, []);
 
   const { data: menuItems = [], isLoading } = useQuery({
