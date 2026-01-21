@@ -18,13 +18,13 @@ import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import PageHeader from '@/components/ui/PageHeader';
 import LoadingSpinner from '@/components/ui/LoadingSpinner';
-import SalesInsights from '@/components/dashboard/SalesInsights';
-import MarketingInsights from '@/components/dashboard/MarketingInsights';
-import OperationalMetrics from '@/components/dashboard/OperationalMetrics';
-import MenuProfitability from '@/components/dashboard/MenuProfitability';
-import FinancialOverview from '@/components/dashboard/FinancialOverview';
-import TrainingCulture from '@/components/dashboard/TrainingCulture';
-import PredictiveAnalytics from '@/components/dashboard/PredictiveAnalytics';
+import SalesInsights from '@/components/dashboard/SalesInsights.js';
+import MarketingInsights from '@/components/dashboard/MarketingInsights.js';
+import OperationalMetrics from '@/components/dashboard/OperationalMetrics.js';
+import MenuProfitability from '@/components/dashboard/MenuProfitability.js';
+import FinancialOverview from '@/components/dashboard/FinancialOverview.js';
+import TrainingCulture from '@/components/dashboard/TrainingCulture.js';
+import PredictiveAnalytics from '@/components/dashboard/PredictiveAnalytics.js';
 
 export default function CommandCenter() {
   const [user, setUser] = useState(null);
