@@ -57,8 +57,9 @@ export default function MenuItemDetail() {
     },
     enabled: !!itemId,
     retry: 2,
-    staleTime: 30000,
-    refetchOnWindowFocus: false
+    staleTime: 0, // Always fetch fresh data
+    refetchOnWindowFocus: true,
+    refetchInterval: 5000 // Auto-refresh every 5 seconds
   });
 
   // Fetch linked visual guide
@@ -117,8 +118,26 @@ export default function MenuItemDetail() {
     );
   }
 
-  const profit = menuItem.price - (menuItem.cost || 0);
-  const margin = menuItem.price > 0 ? ((profit / menuItem.price) * 100) : 0;
+  // Calculate real-time cost and margin
+  const [calculatedCost, setCalculatedCost] = React.useState(menuItem.cost || 0);
+  const [calculatedMargin, setCalculatedMargin] = React.useState(menuItem.profit_margin || 0);
+
+  React.useEffect(() => {
+    if (menuItem?.ingredients && menuItem.ingredients.length > 0) {
+      const totalCost = menuItem.ingredients.reduce((sum, ing) => {
+        return sum + ((ing.quantity || 0) * (ing.cost_per_unit || 0));
+      }, 0);
+      setCalculatedCost(totalCost);
+      
+      const price = menuItem.price || 0;
+      const profit = price - totalCost;
+      const margin = price > 0 ? ((profit / price) * 100) : 0;
+      setCalculatedMargin(margin);
+    }
+  }, [menuItem]);
+
+  const profit = menuItem.price - calculatedCost;
+  const margin = calculatedMargin;
   const isAdmin = user && ['admin', 'owner', 'manager'].includes(user.role);
 
   const getProfitColor = () => {
@@ -294,7 +313,12 @@ export default function MenuItemDetail() {
                 <Card>
                   <CardContent className="pt-6">
                     <p className="text-sm text-slate-500 mb-2">Portion Cost</p>
-                    <p className="text-3xl font-bold text-slate-800">£{(menuItem.cost || 0).toFixed(2)}</p>
+                    <p className="text-3xl font-bold text-slate-800">£{calculatedCost.toFixed(2)}</p>
+                    {menuItem.ingredients?.length > 0 && (
+                      <p className="text-xs text-emerald-600 mt-1">
+                        {menuItem.ingredients.length} ingredients tracked
+                      </p>
+                    )}
                   </CardContent>
                 </Card>
 
@@ -302,6 +326,14 @@ export default function MenuItemDetail() {
                   <CardContent className="pt-6">
                     <p className="text-sm text-slate-500 mb-2">Total Ingredients</p>
                     <p className="text-3xl font-bold text-slate-800">{menuItem.ingredients?.length || 0}</p>
+                    <Button
+                      size="sm"
+                      variant="ghost"
+                      onClick={() => refetchItem()}
+                      className="mt-2 w-full text-xs"
+                    >
+                      Refresh Data
+                    </Button>
                   </CardContent>
                 </Card>
 
@@ -384,7 +416,12 @@ export default function MenuItemDetail() {
                         <tfoot>
                           <tr className="bg-slate-50 font-bold">
                             <td colSpan="3" className="py-3 px-4 text-right">Total Cost:</td>
-                            <td className="py-3 px-4 text-right text-lg">£{(menuItem.cost || 0).toFixed(2)}</td>
+                            <td className="py-3 px-4 text-right text-lg">£{calculatedCost.toFixed(2)}</td>
+                            <td></td>
+                          </tr>
+                          <tr className="bg-emerald-50 font-bold">
+                            <td colSpan="3" className="py-3 px-4 text-right">Profit Margin:</td>
+                            <td className="py-3 px-4 text-right text-lg text-emerald-700">{calculatedMargin.toFixed(1)}%</td>
                             <td></td>
                           </tr>
                         </tfoot>
@@ -396,7 +433,27 @@ export default function MenuItemDetail() {
                     </Button>
                   </div>
                 ) : (
-                  <p className="text-center text-slate-500 py-8">No ingredients defined</p>
+                  <div className="text-center py-12">
+                    <Package className="w-16 h-16 text-slate-300 mx-auto mb-4" />
+                    <p className="text-lg text-slate-600 mb-2">No Ingredients Defined</p>
+                    <p className="text-sm text-slate-500 mb-6">
+                      Add ingredients to this menu item to track costs and calculate profit margins
+                    </p>
+                    {isAdmin && (
+                      <Button
+                        onClick={() => {
+                          navigate(createPageUrl('MenuManager'));
+                          setTimeout(() => {
+                            window.dispatchEvent(new CustomEvent('openEditModal', { detail: { menuItem } }));
+                          }, 300);
+                        }}
+                        className="bg-emerald-600 hover:bg-emerald-700"
+                      >
+                        <Edit className="w-4 h-4 mr-2" />
+                        Add Ingredients
+                      </Button>
+                    )}
+                  </div>
                 )}
               </CardContent>
             </Card>

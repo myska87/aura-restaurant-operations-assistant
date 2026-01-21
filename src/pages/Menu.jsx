@@ -104,6 +104,8 @@ export default function Menu() {
   const { data: menuItems = [], isLoading } = useQuery({
     queryKey: ['menuItems'],
     queryFn: () => base44.entities.MenuItem.list('name'),
+    staleTime: 0,
+    refetchOnWindowFocus: true
   });
 
   const { data: ingredients = [] } = useQuery({
