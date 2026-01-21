@@ -1024,7 +1024,10 @@ export default function Shifts() {
       </Tabs>
 
       {/* Shift Form Dialog */}
-      <Dialog open={showForm} onOpenChange={setShowForm}>
+      <Dialog open={showForm} onOpenChange={(open) => {
+        setShowForm(open);
+        if (!open) setEditingShift(null);
+      }}>
         <DialogContent className="max-w-2xl">
           <DialogHeader>
             <DialogTitle>{editingShift ? 'Edit Shift' : 'Add Shift'}</DialogTitle>
@@ -1032,7 +1035,10 @@ export default function Shifts() {
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
               <Label>Staff Member *</Label>
-              <Select name="staff_id" defaultValue={editingShift?.staff_id} required>
+              <Select 
+                value={formData.staff_id} 
+                onValueChange={(value) => setFormData({ ...formData, staff_id: value })}
+              >
                 <SelectTrigger>
                   <SelectValue placeholder="Select staff..." />
                 </SelectTrigger>
@@ -1050,17 +1056,17 @@ export default function Shifts() {
               <div>
                 <Label>Date *</Label>
                 <Input 
-                  name="date" 
                   type="date"
-                  defaultValue={editingShift?.date || format(new Date(), 'yyyy-MM-dd')}
+                  value={formData.date}
+                  onChange={(e) => setFormData({ ...formData, date: e.target.value })}
                   required 
                 />
               </div>
               <div>
                 <Label>Position/Role</Label>
                 <Input 
-                  name="position" 
-                  defaultValue={editingShift?.position}
+                  value={formData.position}
+                  onChange={(e) => setFormData({ ...formData, position: e.target.value })}
                   placeholder="e.g., Chef, FOH, Barista"
                 />
               </div>
@@ -1070,27 +1076,27 @@ export default function Shifts() {
               <div>
                 <Label>Start Time *</Label>
                 <Input 
-                  name="scheduled_start" 
                   type="time"
-                  defaultValue={editingShift?.scheduled_start || '09:00'}
+                  value={formData.scheduled_start}
+                  onChange={(e) => setFormData({ ...formData, scheduled_start: e.target.value })}
                   required 
                 />
               </div>
               <div>
                 <Label>End Time *</Label>
                 <Input 
-                  name="scheduled_end" 
                   type="time"
-                  defaultValue={editingShift?.scheduled_end || '17:00'}
+                  value={formData.scheduled_end}
+                  onChange={(e) => setFormData({ ...formData, scheduled_end: e.target.value })}
                   required 
                 />
               </div>
               <div>
                 <Label>Break (minutes)</Label>
                 <Input 
-                  name="break_duration" 
                   type="number"
-                  defaultValue={editingShift?.break_duration || 30}
+                  value={formData.break_duration}
+                  onChange={(e) => setFormData({ ...formData, break_duration: parseInt(e.target.value) || 30 })}
                 />
               </div>
             </div>
@@ -1098,10 +1104,10 @@ export default function Shifts() {
             <div>
               <Label>Hourly Rate (£) {!canEditRates && '(Admin Only)'} *</Label>
               <Input 
-                name="hourly_rate" 
                 type="number"
                 step="0.01"
-                defaultValue={editingShift?.hourly_rate || staff.find(s => s.id === editingShift?.staff_id)?.hourly_rate || 12.5}
+                value={formData.hourly_rate}
+                onChange={(e) => setFormData({ ...formData, hourly_rate: parseFloat(e.target.value) || 12.5 })}
                 disabled={!canEditRates}
                 required 
               />
@@ -1110,8 +1116,8 @@ export default function Shifts() {
             <div>
               <Label>Notes</Label>
               <Textarea 
-                name="notes" 
-                defaultValue={editingShift?.notes}
+                value={formData.notes}
+                onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
                 rows={2}
               />
             </div>
