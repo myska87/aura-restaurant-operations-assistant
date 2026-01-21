@@ -28,6 +28,7 @@ import PredictiveAnalytics from '@/components/dashboard/PredictiveAnalytics';
 import EditableShiftsTable from '@/components/dashboard/EditableShiftsTable';
 import EditableMenuItemsTable from '@/components/dashboard/EditableMenuItemsTable';
 import EditableSalesTable from '@/components/dashboard/EditableSalesTable';
+import DataFeedManager from '@/components/dashboard/DataFeedManager';
 
 export default function CommandCenter() {
   const [user, setUser] = useState(null);
