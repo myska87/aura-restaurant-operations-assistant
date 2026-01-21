@@ -53,6 +53,16 @@ export default function Shifts() {
   const [editingShift, setEditingShift] = useState(null);
   const [activeTab, setActiveTab] = useState('schedule');
   const [user, setUser] = useState(null);
+  const [formData, setFormData] = useState({
+    staff_id: '',
+    date: format(new Date(), 'yyyy-MM-dd'),
+    position: '',
+    scheduled_start: '09:00',
+    scheduled_end: '17:00',
+    break_duration: 30,
+    hourly_rate: 12.5,
+    notes: ''
+  });
 
   const queryClient = useQueryClient();
 
