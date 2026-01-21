@@ -12,7 +12,8 @@ import {
   Timer,
   Edit,
   Printer,
-  Play
+  Play,
+  Share2
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -20,6 +21,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import LoadingSpinner from '@/components/ui/LoadingSpinner';
 import DishStepView from '@/components/dishes/DishStepView';
 import LinkedMenuItemBadge from '@/components/dishes/LinkedMenuItemBadge';
+import DishShareButton from '@/components/dishes/DishShareButton';
 import { Link } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
 
@@ -295,6 +297,7 @@ export default function VisualDishGuideDetail() {
           </div>
         </div>
         <div className="flex gap-2 no-print">
+          <DishShareButton guideId={guideId} dishName={guide.dish_name} />
           <Button variant="outline" onClick={handlePrint}>
             <Printer className="w-4 h-4 mr-2" />
             Print

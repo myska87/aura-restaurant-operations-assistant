@@ -13,7 +13,8 @@ import {
   Filter,
   Printer,
   Edit,
-  Sparkles
+  Sparkles,
+  Share2
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -22,6 +23,7 @@ import { Badge } from '@/components/ui/badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import LoadingSpinner from '@/components/ui/LoadingSpinner';
 import PageHeader from '@/components/ui/PageHeader';
+import DishShareButton from '@/components/dishes/DishShareButton';
 
 const difficultyColors = {
   easy: 'bg-emerald-100 text-emerald-700',
@@ -279,6 +281,7 @@ export default function VisualDishGuides() {
                       View
                     </Button>
                   </Link>
+                  <DishShareButton guideId={guide.id} dishName={guide.dish_name} />
                   <Button 
                     variant="outline" 
                     size="sm"
