@@ -457,8 +457,10 @@ export default function Documents() {
                 </div>
                 
                 {viewingDoc.content && (
-                  <div className="flex-none bg-slate-50 rounded-xl p-4 whitespace-pre-wrap text-slate-600 max-h-48 overflow-y-auto">
-                    {viewingDoc.content}
+                  <div className="flex-1 bg-slate-50 rounded-xl p-4 overflow-y-auto border border-slate-200">
+                    <p className="text-sm text-slate-700 whitespace-pre-wrap leading-relaxed">
+                      {viewingDoc.content}
+                    </p>
                   </div>
                 )}
                 
