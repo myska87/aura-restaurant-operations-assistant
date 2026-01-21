@@ -191,28 +191,31 @@ export default function Shifts() {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    const formData = new FormData(e.target);
-    const selectedStaff = staff.find(s => s.id === formData.get('staff_id'));
+    if (!formData.staff_id) {
+      alert('Please select a staff member');
+      return;
+    }
     
-    const startTime = formData.get('scheduled_start');
-    const endTime = formData.get('scheduled_end');
-    const hourlyRate = parseFloat(formData.get('hourly_rate'));
-    const breakDuration = parseInt(formData.get('break_duration')) || 30;
+    const selectedStaff = staff.find(s => s.id === formData.staff_id);
+    const startTime = formData.scheduled_start;
+    const endTime = formData.scheduled_end;
+    const hourlyRate = parseFloat(formData.hourly_rate);
+    const breakDuration = parseInt(formData.break_duration) || 30;
     
     const { duration, totalCost } = calculateShiftMetrics(startTime, endTime, hourlyRate, breakDuration);
     
     const data = {
-      staff_id: formData.get('staff_id'),
+      staff_id: formData.staff_id,
       staff_name: selectedStaff?.full_name || '',
-      date: formData.get('date'),
+      date: formData.date,
       scheduled_start: startTime,
       scheduled_end: endTime,
-      position: formData.get('position'),
+      position: formData.position,
       hourly_rate: hourlyRate,
       duration: parseFloat(duration),
       total_cost: parseFloat(totalCost),
       break_duration: breakDuration,
-      notes: formData.get('notes'),
+      notes: formData.notes,
       status: 'scheduled'
     };
     
@@ -221,6 +224,17 @@ export default function Shifts() {
     } else {
       createMutation.mutate(data);
     }
+    
+    setFormData({
+      staff_id: '',
+      date: format(new Date(), 'yyyy-MM-dd'),
+      position: '',
+      scheduled_start: '09:00',
+      scheduled_end: '17:00',
+      break_duration: 30,
+      hourly_rate: 12.5,
+      notes: ''
+    });
   };
 
   const handleAISchedule = async () => {
