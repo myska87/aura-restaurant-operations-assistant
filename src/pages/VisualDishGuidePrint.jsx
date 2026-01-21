@@ -19,8 +19,24 @@ export default function VisualDishGuidePrint() {
     window.print();
   };
 
-  if (isLoading) return <LoadingSpinner message="Loading print preview..." />;
-  if (!guide) return <div className="p-8 text-center">Guide not found</div>;
+  if (isLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-white">
+        <LoadingSpinner message="Loading print preview..." />
+      </div>
+    );
+  }
+  
+  if (!guide) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-white p-8">
+        <div className="text-center">
+          <p className="text-xl font-semibold text-slate-800 mb-2">Guide not found</p>
+          <p className="text-slate-600">This dish guide may not exist.</p>
+        </div>
+      </div>
+    );
+  }
 
   const difficultyColors = {
     easy: '#10B981',
@@ -29,7 +45,7 @@ export default function VisualDishGuidePrint() {
   };
 
   return (
-    <div>
+    <div className="min-h-screen bg-white">
       {/* Print Button - Hidden when printing */}
       <div className="fixed top-4 right-4 print:hidden z-50">
         <Button onClick={handlePrint} className="bg-emerald-600 hover:bg-emerald-700">
