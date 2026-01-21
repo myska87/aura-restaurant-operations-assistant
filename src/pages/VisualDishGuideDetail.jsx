@@ -45,6 +45,19 @@ export default function VisualDishGuideDetail() {
     enabled: !!guideId
   });
 
+  // Get linked menu item for photo
+  const { data: menuLink } = useQuery({
+    queryKey: ['menuVisualLink', guideId],
+    queryFn: () => base44.entities.VisualMenuLink.filter({ visual_guide_id: guideId }).then(r => r[0]),
+    enabled: !!guideId
+  });
+
+  const { data: linkedMenuItem } = useQuery({
+    queryKey: ['linkedMenuItem', menuLink?.menu_item_id],
+    queryFn: () => base44.entities.MenuItem.filter({ id: menuLink.menu_item_id }).then(r => r[0]),
+    enabled: !!menuLink?.menu_item_id
+  });
+
   const handlePrint = () => {
     setPrintMode(true);
     setTimeout(() => {
@@ -256,6 +269,27 @@ export default function VisualDishGuideDetail() {
           )}
         </div>
       </div>
+
+      {/* Menu Item Photo (if linked) */}
+      {linkedMenuItem?.photo_url && (
+        <Card className="bg-gradient-to-br from-emerald-50 to-teal-50 border-emerald-200">
+          <CardHeader>
+            <CardTitle className="text-emerald-900 flex items-center gap-2">
+              <ChefHat className="w-5 h-5" />
+              Menu Item: {linkedMenuItem.name}
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="aspect-video rounded-xl overflow-hidden shadow-lg">
+              <img 
+                src={linkedMenuItem.photo_url} 
+                alt={linkedMenuItem.name}
+                className="w-full h-full object-cover"
+              />
+            </div>
+          </CardContent>
+        </Card>
+      )}
 
       {/* Hero Image */}
       {guide.hero_image_url && (
