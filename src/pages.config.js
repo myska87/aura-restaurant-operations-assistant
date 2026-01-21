@@ -58,6 +58,7 @@ import VisualDishGuides from './pages/VisualDishGuides';
 import VisualProcedureDetail from './pages/VisualProcedureDetail';
 import VisualProcedureForm from './pages/VisualProcedureForm';
 import VisualProcedures from './pages/VisualProcedures';
+import MenuItemDetail from './pages/MenuItemDetail';
 import __Layout from './Layout.jsx';
 
 
@@ -122,6 +123,7 @@ export const PAGES = {
     "VisualProcedureDetail": VisualProcedureDetail,
     "VisualProcedureForm": VisualProcedureForm,
     "VisualProcedures": VisualProcedures,
+    "MenuItemDetail": MenuItemDetail,
 }
 
 export const pagesConfig = {
