@@ -109,7 +109,7 @@ export default function MenuItemCard({ item, onEdit, onDuplicate, onDelete, onVi
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
       onClick={() => onView?.(item)}
-      className="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden hover:shadow-lg hover:border-emerald-400 transition-all cursor-pointer"
+      className="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden hover:shadow-lg hover:border-emerald-400 transition-all cursor-pointer group"
     >
       {/* Image */}
       <div className="relative h-40 bg-gradient-to-br from-slate-100 to-slate-200 overflow-hidden group">

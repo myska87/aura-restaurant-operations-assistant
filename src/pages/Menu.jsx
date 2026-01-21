@@ -383,7 +383,7 @@ export default function Menu() {
                 onEdit={canEdit ? (i) => { setEditingItem(i); setShowForm(true); } : undefined}
                 onDuplicate={canEdit ? handleDuplicate : undefined}
                 onDelete={canEdit ? (i) => deleteMutation.mutate(i.id) : undefined}
-                onView={(i) => { setViewingItem(i); setShowDetails(true); }}
+                onView={(i) => window.location.href = createPageUrl('MenuItemDetail') + '?id=' + i.id}
                 onOrderIngredients={canEdit ? (i) => { setOrderingItem(i); setShowPortionDialog(true); } : undefined}
               />
             ))}
