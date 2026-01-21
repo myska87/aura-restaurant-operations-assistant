@@ -62,6 +62,7 @@ import VisualProcedureDetail from './pages/VisualProcedureDetail';
 import VisualProcedureForm from './pages/VisualProcedureForm';
 import VisualProcedures from './pages/VisualProcedures';
 import DocumentCreator from './pages/DocumentCreator';
+import PrepWorkflow from './pages/PrepWorkflow';
 import __Layout from './Layout.jsx';
 
 
@@ -130,6 +131,7 @@ export const PAGES = {
     "VisualProcedureForm": VisualProcedureForm,
     "VisualProcedures": VisualProcedures,
     "DocumentCreator": DocumentCreator,
+    "PrepWorkflow": PrepWorkflow,
 }
 
 export const pagesConfig = {
