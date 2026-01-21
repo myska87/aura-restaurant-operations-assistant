@@ -52,18 +52,19 @@ export default function VisualDishGuideForm() {
   const { data: existingGuide, isLoading } = useQuery({
     queryKey: ['visualDishGuide', guideId],
     queryFn: () => base44.entities.Visual_Dish_Guides_v1.filter({ id: guideId }).then(g => g[0]),
-    enabled: isEditing,
-    onSuccess: (data) => {
-      if (data) {
-        setFormData({
-          ...data,
-          ingredients_summary: data.ingredients_summary || [],
-          cooking_steps: data.cooking_steps || [],
-          quality_tips: data.quality_tips || []
-        });
-      }
-    }
+    enabled: isEditing
   });
+
+  useEffect(() => {
+    if (existingGuide) {
+      setFormData({
+        ...existingGuide,
+        ingredients_summary: existingGuide.ingredients_summary || [],
+        cooking_steps: existingGuide.cooking_steps || [],
+        quality_tips: existingGuide.quality_tips || []
+      });
+    }
+  }, [existingGuide]);
 
   const saveMutation = useMutation({
     mutationFn: async (data) => {
