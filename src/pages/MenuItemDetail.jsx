@@ -32,6 +32,8 @@ export default function MenuItemDetail() {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const [user, setUser] = useState(null);
+  const [calculatedCost, setCalculatedCost] = useState(0);
+  const [calculatedMargin, setCalculatedMargin] = useState(0);
   
   const urlParams = new URLSearchParams(window.location.search);
   const itemId = urlParams.get('id');
@@ -83,6 +85,24 @@ export default function MenuItemDetail() {
     refetchOnWindowFocus: false
   });
 
+  // Calculate real-time cost and margin
+  useEffect(() => {
+    if (menuItem?.ingredients && menuItem.ingredients.length > 0) {
+      const totalCost = menuItem.ingredients.reduce((sum, ing) => {
+        return sum + ((ing.quantity || 0) * (ing.cost_per_unit || 0));
+      }, 0);
+      setCalculatedCost(totalCost);
+      
+      const price = menuItem.price || 0;
+      const profit = price - totalCost;
+      const margin = price > 0 ? ((profit / price) * 100) : 0;
+      setCalculatedMargin(margin);
+    } else if (menuItem) {
+      setCalculatedCost(menuItem.cost || 0);
+      setCalculatedMargin(menuItem.profit_margin || 0);
+    }
+  }, [menuItem]);
+
   if (loadingItem) return <LoadingSpinner message="Loading menu item..." />;
   
   if (itemError || !menuItem) {
@@ -117,24 +137,6 @@ export default function MenuItemDetail() {
       </div>
     );
   }
-
-  // Calculate real-time cost and margin
-  const [calculatedCost, setCalculatedCost] = React.useState(menuItem.cost || 0);
-  const [calculatedMargin, setCalculatedMargin] = React.useState(menuItem.profit_margin || 0);
-
-  React.useEffect(() => {
-    if (menuItem?.ingredients && menuItem.ingredients.length > 0) {
-      const totalCost = menuItem.ingredients.reduce((sum, ing) => {
-        return sum + ((ing.quantity || 0) * (ing.cost_per_unit || 0));
-      }, 0);
-      setCalculatedCost(totalCost);
-      
-      const price = menuItem.price || 0;
-      const profit = price - totalCost;
-      const margin = price > 0 ? ((profit / price) * 100) : 0;
-      setCalculatedMargin(margin);
-    }
-  }, [menuItem]);
 
   const profit = menuItem.price - calculatedCost;
   const margin = calculatedMargin;
