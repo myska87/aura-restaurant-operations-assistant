@@ -257,6 +257,16 @@ export default function VisualDishGuideDetail() {
           </div>
         </div>
         
+        {/* Hero Image - Print */}
+        {guide.hero_image_url && (
+          <div className="print-hero-image">
+            <img 
+              src={guide.hero_image_url} 
+              alt={guide.dish_name}
+            />
+          </div>
+        )}
+        
         {guide.ingredients_summary?.length > 0 && (
           <div className="print-ingredients">
             <strong>Ingredients:</strong>{' '}
