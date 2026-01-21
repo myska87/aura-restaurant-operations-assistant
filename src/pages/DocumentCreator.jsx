@@ -4,10 +4,12 @@ import { base44 } from '@/api/base44Client';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { Button } from '@/components/ui/button';
 import { motion } from 'framer-motion';
-import { ArrowLeft, Save, FileDown, Eye, Share2, X } from 'lucide-react';
+import { ArrowLeft, Save, FileDown, Eye, Share2, X, Copy, Check } from 'lucide-react';
 import DocumentEditor from '@/components/document/DocumentEditor';
 import DocumentPropertiesPanel from '@/components/document/DocumentPropertiesPanel';
 import DocumentVersionHistory from '@/components/document/DocumentVersionHistory';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Badge } from '@/components/ui/badge';
 import LoadingSpinner from '@/components/ui/LoadingSpinner';
 
 const AUTO_SAVE_INTERVAL = 10000; // 10 seconds
@@ -31,6 +33,8 @@ export default function DocumentCreator() {
   const [version, setVersion] = useState('1.0');
   const [status, setStatus] = useState('draft');
   const [showPreview, setShowPreview] = useState(false);
+  const [showShare, setShowShare] = useState(false);
+  const [copied, setCopied] = useState(false);
 
   // Load user
   useEffect(() => {
@@ -130,6 +134,15 @@ export default function DocumentCreator() {
     setTags(tags.filter((_, i) => i !== idx));
   };
 
+  const handleCopyShareLink = () => {
+    if (documentId) {
+      const shareLink = `${window.location.origin}/app/Documents?share=${documentId}`;
+      navigator.clipboard.writeText(shareLink);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    }
+  };
+
   if (isLoading) return <LoadingSpinner />;
 
   return (
@@ -165,7 +178,12 @@ export default function DocumentCreator() {
               <Eye className="w-4 h-4 mr-2" />
               {showPreview ? 'Close Preview' : 'Preview'}
             </Button>
-            <Button variant="outline" size="sm">
+            <Button 
+              variant="outline" 
+              size="sm"
+              onClick={() => setShowShare(true)}
+              disabled={!documentId}
+            >
               <Share2 className="w-4 h-4 mr-2" />
               Share
             </Button>
@@ -227,6 +245,41 @@ export default function DocumentCreator() {
           />}
         </div>
       </div>
+
+      {/* Share Dialog */}
+      <Dialog open={showShare} onOpenChange={setShowShare}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle>Share Document</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div>
+              <label className="text-sm font-semibold text-slate-700 block mb-2">Who can access?</label>
+              <Badge className="bg-blue-100 text-blue-800">{visibility === 'public' ? '🌐 Public' : visibility === 'staff_only' ? '👥 Staff Only' : visibility === 'managers_only' ? '👔 Managers Only' : '🔒 Owners Only'}</Badge>
+              <p className="text-xs text-slate-500 mt-2">Set visibility in the properties panel to change access level.</p>
+            </div>
+            <div>
+              <label className="text-sm font-semibold text-slate-700 block mb-2">Share Link</label>
+              <div className="flex gap-2">
+                <input
+                  type="text"
+                  readOnly
+                  value={documentId ? `${window.location.origin}/app/Documents?share=${documentId}` : ''}
+                  className="flex-1 px-3 py-2 border border-slate-300 rounded-lg text-sm bg-slate-50"
+                />
+                <Button
+                  size="sm"
+                  onClick={handleCopyShareLink}
+                  className={copied ? 'bg-emerald-600' : 'bg-blue-600'}
+                >
+                  {copied ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
+                </Button>
+              </div>
+              <p className="text-xs text-slate-500 mt-2">Share this link with your team members.</p>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
     </motion.div>
   );
 }
