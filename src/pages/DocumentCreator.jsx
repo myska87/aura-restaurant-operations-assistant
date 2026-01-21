@@ -4,7 +4,7 @@ import { base44 } from '@/api/base44Client';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { Button } from '@/components/ui/button';
 import { motion } from 'framer-motion';
-import { ArrowLeft, Save, FileDown, Eye, Share2 } from 'lucide-react';
+import { ArrowLeft, Save, FileDown, Eye, Share2, X } from 'lucide-react';
 import DocumentEditor from '@/components/document/DocumentEditor';
 import DocumentPropertiesPanel from '@/components/document/DocumentPropertiesPanel';
 import DocumentVersionHistory from '@/components/document/DocumentVersionHistory';
@@ -30,6 +30,7 @@ export default function DocumentCreator() {
   const [tags, setTags] = useState([]);
   const [version, setVersion] = useState('1.0');
   const [status, setStatus] = useState('draft');
+  const [showPreview, setShowPreview] = useState(false);
 
   // Load user
   useEffect(() => {
@@ -156,9 +157,13 @@ export default function DocumentCreator() {
 
           <div className="flex items-center gap-2">
             {documentId && <DocumentVersionHistory documentId={documentId} currentVersion={version} />}
-            <Button variant="outline" size="sm">
+            <Button 
+              variant="outline" 
+              size="sm"
+              onClick={() => setShowPreview(!showPreview)}
+            >
               <Eye className="w-4 h-4 mr-2" />
-              Preview
+              {showPreview ? 'Close Preview' : 'Preview'}
             </Button>
             <Button variant="outline" size="sm">
               <Share2 className="w-4 h-4 mr-2" />
@@ -178,14 +183,33 @@ export default function DocumentCreator() {
 
         {/* Editor Content Area */}
         <div className="flex-1 flex overflow-hidden">
-          <DocumentEditor
-            content={content}
-            onContentChange={setContent}
-            isSaving={isSaving}
-          />
+          {showPreview ? (
+            // Preview Mode
+            <div className="flex-1 overflow-y-auto bg-white">
+              <div className="max-w-4xl mx-auto p-8">
+                <div className="mb-8 pb-8 border-b border-slate-200">
+                  <h1 className="text-4xl font-bold text-slate-900 mb-4">{title}</h1>
+                  <div className="flex flex-wrap gap-2">
+                    {tags.map((tag, idx) => (
+                      <Badge key={idx} variant="secondary" className="text-xs">{tag}</Badge>
+                    ))}
+                  </div>
+                </div>
+                <div className="prose prose-sm max-w-none">
+                  <div dangerouslySetInnerHTML={{ __html: content }} />
+                </div>
+              </div>
+            </div>
+          ) : (
+            <DocumentEditor
+              content={content}
+              onContentChange={setContent}
+              isSaving={isSaving}
+            />
+          )}
 
           {/* Properties Panel */}
-          <DocumentPropertiesPanel
+          {!showPreview && <DocumentPropertiesPanel
             title={title}
             category={category}
             version={version}
@@ -200,7 +224,7 @@ export default function DocumentCreator() {
             onVisibilityChange={setVisibility}
             onTagAdd={handleAddTag}
             onTagRemove={handleRemoveTag}
-          />
+          />}
         </div>
       </div>
     </motion.div>
