@@ -280,20 +280,28 @@ export default function VisualDishGuideDetail() {
           <thead>
             <tr>
               <th style={{width: '40px'}}>#</th>
-              <th style={{width: '140px'}}>Step</th>
+              <th style={{width: '80px'}}>Step</th>
               <th>Instructions</th>
-              <th style={{width: '60px'}}>Time</th>
-              <th style={{width: '30px'}}>✓</th>
+              <th style={{width: '70px'}}>Photo</th>
+              <th style={{width: '50px'}}>Time</th>
             </tr>
           </thead>
           <tbody>
             {guide.cooking_steps?.map((step, idx) => (
               <tr key={idx}>
                 <td className="font-bold text-center">{step.step_number}</td>
-                <td className="font-semibold">{step.step_title}</td>
-                <td>{step.instruction_text}</td>
-                <td className="text-center">{Math.floor(step.duration_seconds / 60)}m</td>
-                <td></td>
+                <td className="font-semibold text-sm">{step.step_title}</td>
+                <td className="text-sm">{step.instruction_text}</td>
+                <td className="text-center">
+                  {step.photo_url && (
+                    <img 
+                      src={step.photo_url} 
+                      alt={`Step ${step.step_number}`}
+                      className="step-image"
+                    />
+                  )}
+                </td>
+                <td className="text-center text-sm">{Math.floor(step.duration_seconds / 60)}m</td>
               </tr>
             ))}
           </tbody>
