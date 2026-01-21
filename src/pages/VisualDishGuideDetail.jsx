@@ -39,10 +39,17 @@ export default function VisualDishGuideDetail() {
     loadUser();
   }, []);
 
-  const { data: guide, isLoading } = useQuery({
+  const { data: guide, isLoading, error, refetch } = useQuery({
     queryKey: ['visualDishGuide', guideId],
-    queryFn: () => base44.entities.Visual_Dish_Guides_v1.filter({ id: guideId }).then(g => g[0]),
-    enabled: !!guideId
+    queryFn: async () => {
+      if (!guideId) throw new Error('Guide ID is missing');
+      const result = await base44.entities.Visual_Dish_Guides_v1.filter({ id: guideId });
+      if (!result || result.length === 0) throw new Error('Guide not found');
+      return result[0];
+    },
+    enabled: !!guideId,
+    retry: 2,
+    staleTime: 30000
   });
 
   // Get linked menu item for photo
@@ -66,8 +73,41 @@ export default function VisualDishGuideDetail() {
     }, 300);
   };
 
-  if (isLoading) return <LoadingSpinner />;
-  if (!guide) return <div className="p-8 text-center">Dish guide not found</div>;
+  if (isLoading) return <LoadingSpinner message="Loading visual dish guide..." />;
+  
+  if (error || !guide) {
+    return (
+      <div className="flex flex-col items-center justify-center py-20 px-6">
+        <motion.div
+          initial={{ opacity: 0, scale: 0.9 }}
+          animate={{ opacity: 1, scale: 1 }}
+          className="text-center max-w-md"
+        >
+          <div className="w-20 h-20 rounded-2xl bg-gradient-to-br from-orange-100 to-red-100 flex items-center justify-center mx-auto mb-6">
+            <AlertTriangle className="w-10 h-10 text-orange-600" />
+          </div>
+          <h2 className="text-2xl font-bold text-slate-800 mb-3">
+            {error?.message === 'Guide not found' ? 'Visual Guide Not Found' : 'Unable to Load Guide'}
+          </h2>
+          <p className="text-slate-600 mb-6">
+            {error?.message === 'Guide not found' 
+              ? 'This visual dish guide does not exist or has been removed.'
+              : 'Something went wrong while loading the guide. Please try again.'}
+          </p>
+          <div className="flex gap-3 justify-center">
+            <Button onClick={() => refetch()} variant="outline">
+              Try Again
+            </Button>
+            <Link to={createPageUrl('VisualDishGuides')}>
+              <Button className="bg-orange-600 hover:bg-orange-700">
+                Browse All Guides
+              </Button>
+            </Link>
+          </div>
+        </motion.div>
+      </div>
+    );
+  }
 
   const isAdmin = user && ['admin', 'owner', 'manager'].includes(user.role);
 
