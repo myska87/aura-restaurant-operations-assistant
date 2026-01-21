@@ -24,6 +24,9 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import LoadingSpinner from '@/components/ui/LoadingSpinner';
 import PageHeader from '@/components/ui/PageHeader';
 import DishShareButton from '@/components/dishes/DishShareButton';
+import AddCategoryDialog from '@/components/dishes/AddCategoryDialog';
+
+const defaultCategories = ['wrap', 'curry', 'drink', 'bakery', 'chai', 'dessert', 'appetizer', 'main'];
 
 const difficultyColors = {
   easy: 'bg-emerald-100 text-emerald-700',
