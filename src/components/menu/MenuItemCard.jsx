@@ -13,7 +13,8 @@ import {
   ChefHat,
   DollarSign,
   Eye,
-  ShoppingCart
+  ShoppingCart,
+  Video
 } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -24,6 +25,9 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { Progress } from '@/components/ui/progress';
+import LinkVisualGuideButton from './LinkVisualGuideButton';
+import { base44 } from '@/api/base44Client';
+import { useQuery } from '@tanstack/react-query';
 
 const locationColors = {
   kitchen: 'bg-orange-100 text-orange-700',
@@ -52,6 +56,13 @@ export default function MenuItemCard({ item, onEdit, onDuplicate, onDelete, onVi
   const [isHovered, setIsHovered] = React.useState(false);
   const profit = item.price - (item.cost || 0);
   const margin = item.price > 0 ? ((profit / item.price) * 100) : 0;
+
+  // Check if linked to visual guide
+  const { data: visualLink } = useQuery({
+    queryKey: ['visualMenuLink', item?.id],
+    queryFn: () => base44.entities.VisualMenuLink.filter({ menu_item_id: item?.id }).then(r => r[0]),
+    enabled: !!item?.id
+  });
   
   const getProfitColor = () => {
     if (margin >= 60) return 'text-emerald-600 bg-emerald-50';
@@ -130,6 +141,12 @@ export default function MenuItemCard({ item, onEdit, onDuplicate, onDelete, onVi
             <Badge className={`${stockStatus.color} text-white text-xs`}>
               <stockStatus.icon className="w-3 h-3 mr-1" />
               {stockStatus.text}
+            </Badge>
+          )}
+          {visualLink && (
+            <Badge className="bg-orange-600 text-white text-xs">
+              <Video className="w-3 h-3 mr-1" />
+              Visual Guide
             </Badge>
           )}
         </div>
@@ -233,6 +250,11 @@ export default function MenuItemCard({ item, onEdit, onDuplicate, onDelete, onVi
           {item.is_vegetarian && <Badge className="bg-green-100 text-green-700 text-xs">🌱 Veg</Badge>}
           {item.is_vegan && <Badge className="bg-green-100 text-green-700 text-xs">🌿 Vegan</Badge>}
           {item.is_gluten_free && <Badge className="bg-blue-100 text-blue-700 text-xs">GF</Badge>}
+        </div>
+
+        {/* Visual Guide Link */}
+        <div className="mt-3 pt-3 border-t border-slate-100">
+          <LinkVisualGuideButton menuItem={item} />
         </div>
       </div>
     </motion.div>

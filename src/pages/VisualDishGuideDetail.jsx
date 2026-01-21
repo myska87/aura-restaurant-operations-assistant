@@ -19,6 +19,7 @@ import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import LoadingSpinner from '@/components/ui/LoadingSpinner';
 import DishStepView from '@/components/dishes/DishStepView';
+import LinkedMenuItemBadge from '@/components/dishes/LinkedMenuItemBadge';
 import { Link } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
 
@@ -226,6 +227,7 @@ export default function VisualDishGuideDetail() {
             </Badge>
             <Badge variant="outline">{guide.category}</Badge>
             <Badge variant="outline">v{guide.version}</Badge>
+            <LinkedMenuItemBadge visualGuideId={guideId} />
           </div>
           <h1 className="text-3xl font-bold text-slate-800 mb-2">{guide.dish_name}</h1>
           <div className="flex items-center gap-4 text-sm text-slate-600">

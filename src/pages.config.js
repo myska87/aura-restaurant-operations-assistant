@@ -53,11 +53,11 @@ import TrainingAcademy from './pages/TrainingAcademy';
 import TrainingInsights from './pages/TrainingInsights';
 import VisualDishGuideDetail from './pages/VisualDishGuideDetail';
 import VisualDishGuideForm from './pages/VisualDishGuideForm';
+import VisualDishGuidePrint from './pages/VisualDishGuidePrint';
 import VisualDishGuides from './pages/VisualDishGuides';
 import VisualProcedureDetail from './pages/VisualProcedureDetail';
 import VisualProcedureForm from './pages/VisualProcedureForm';
 import VisualProcedures from './pages/VisualProcedures';
-import VisualDishGuidePrint from './pages/VisualDishGuidePrint';
 import __Layout from './Layout.jsx';
 
 
@@ -117,11 +117,11 @@ export const PAGES = {
     "TrainingInsights": TrainingInsights,
     "VisualDishGuideDetail": VisualDishGuideDetail,
     "VisualDishGuideForm": VisualDishGuideForm,
+    "VisualDishGuidePrint": VisualDishGuidePrint,
     "VisualDishGuides": VisualDishGuides,
     "VisualProcedureDetail": VisualProcedureDetail,
     "VisualProcedureForm": VisualProcedureForm,
     "VisualProcedures": VisualProcedures,
-    "VisualDishGuidePrint": VisualDishGuidePrint,
 }
 
 export const pagesConfig = {
