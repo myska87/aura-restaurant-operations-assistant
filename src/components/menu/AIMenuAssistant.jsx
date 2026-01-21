@@ -13,8 +13,8 @@ import {
 import { Badge } from '@/components/ui/badge';
 import { ScrollArea } from '@/components/ui/scroll-area';
 
-export default function AIMenuAssistant({ open, onClose, onGenerate, ingredients }) {
-  const [mode, setMode] = useState('create'); // create, optimize, analyze, sop
+export default function AIMenuAssistant({ open, onClose, onGenerate, ingredients, existingItem }) {
+  const [mode, setMode] = useState(existingItem ? 'edit' : 'create'); // create, edit, optimize, analyze, sop
   const [prompt, setPrompt] = useState('');
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState(null);
@@ -26,9 +26,23 @@ export default function AIMenuAssistant({ open, onClose, onGenerate, ingredients
     setResult(null);
     
     try {
-      if (mode === 'create') {
+      if (mode === 'create' || mode === 'edit') {
+        const basePrompt = mode === 'edit' 
+          ? `Edit this existing menu item based on the following request: "${prompt}"
+          
+          Current item details:
+          - Name: ${existingItem?.name}
+          - Description: ${existingItem?.description}
+          - Category: ${existingItem?.category}
+          - Price: £${existingItem?.price}
+          - Ingredients: ${existingItem?.ingredients?.map(i => `${i.ingredient_name} (${i.quantity}${i.unit})`).join(', ')}
+          - Allergens: ${existingItem?.allergens?.join(', ')}
+          
+          Make the requested changes while keeping other details the same unless they need to change.`
+          : `Create a restaurant menu item based on this description: "${prompt}"`;
+        
         const response = await base44.integrations.Core.InvokeLLM({
-          prompt: `Create a restaurant menu item based on this description: "${prompt}"
+          prompt: `${basePrompt}
           
           Available ingredients: ${ingredients.map(i => `${i.name} (${i.unit}, £${i.cost_per_unit}/unit)`).join(', ')}
           
@@ -176,15 +190,27 @@ export default function AIMenuAssistant({ open, onClose, onGenerate, ingredients
         
         <div className="space-y-4">
           {/* Mode Selection */}
-          <div className="grid grid-cols-3 gap-2">
-            <Button
-              variant={mode === 'create' ? 'default' : 'outline'}
-              onClick={() => setMode('create')}
-              className="justify-start"
-            >
-              <Sparkles className="w-4 h-4 mr-2" />
-              Create Item
-            </Button>
+          <div className="grid grid-cols-4 gap-2">
+            {!existingItem && (
+              <Button
+                variant={mode === 'create' ? 'default' : 'outline'}
+                onClick={() => setMode('create')}
+                className="justify-start"
+              >
+                <Sparkles className="w-4 h-4 mr-2" />
+                Create Item
+              </Button>
+            )}
+            {existingItem && (
+              <Button
+                variant={mode === 'edit' ? 'default' : 'outline'}
+                onClick={() => setMode('edit')}
+                className="justify-start"
+              >
+                <Sparkles className="w-4 h-4 mr-2" />
+                Edit Item
+              </Button>
+            )}
             <Button
               variant={mode === 'optimize' ? 'default' : 'outline'}
               onClick={() => setMode('optimize')}
@@ -208,6 +234,7 @@ export default function AIMenuAssistant({ open, onClose, onGenerate, ingredients
             <Textarea
               placeholder={
                 mode === 'create' ? 'Describe the menu item you want to create, e.g., "A spicy tandoori chicken wrap with mint yogurt sauce"' :
+                mode === 'edit' ? 'Describe what you want to change, e.g., "Add more spice", "Make it vegetarian", "Reduce the cost"' :
                 mode === 'optimize' ? 'Enter a menu item name or ingredients to find cheaper alternatives' :
                 'Ask about menu profitability, popular items, or get recommendations'
               }
@@ -231,7 +258,8 @@ export default function AIMenuAssistant({ open, onClose, onGenerate, ingredients
             ) : (
               <>
                 <Sparkles className="w-4 h-4 mr-2" />
-                {mode === 'create' ? 'Generate Menu Item' : 
+                {mode === 'create' ? 'Generate Menu Item' :
+                 mode === 'edit' ? 'Generate Edited Item' : 
                  mode === 'optimize' ? 'Get Suggestions' : 
                  'Analyze'}
               </>
