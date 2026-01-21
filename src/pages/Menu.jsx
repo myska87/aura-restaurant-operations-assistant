@@ -498,9 +498,9 @@ export default function Menu() {
               
               <div className="space-y-6">
                 {/* Image */}
-                {viewingItem.image_url && (
-                  <div className="aspect-video rounded-xl overflow-hidden">
-                    <img src={viewingItem.image_url} alt={viewingItem.name} className="w-full h-full object-cover" />
+                {(viewingItem.photo_url || viewingItem.image_url) && (
+                  <div className="aspect-video rounded-xl overflow-hidden border-2 border-emerald-200 shadow-lg">
+                    <img src={viewingItem.photo_url || viewingItem.image_url} alt={viewingItem.name} className="w-full h-full object-cover" />
                   </div>
                 )}
                 
