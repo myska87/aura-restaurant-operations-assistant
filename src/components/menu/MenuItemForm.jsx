@@ -217,6 +217,8 @@ export default function MenuItemForm({ item, onSubmit, onCancel, aiGenerating })
       servings_per_batch: parseInt(formData.servings_per_batch) || 1,
       wastage_percent: parseFloat(formData.wastage_percent) || 5,
       calories: parseInt(formData.calories) || 0,
+      ingredients: formData.ingredients || [],
+      allergens: formData.allergens || [],
       last_costed: new Date().toISOString()
     };
     
