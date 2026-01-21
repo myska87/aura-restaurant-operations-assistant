@@ -67,8 +67,20 @@ export default function VisualDishGuideDetail() {
     enabled: !!menuLink?.menu_item_id
   });
 
-  const handlePrint = () => {
+  const handlePrint = async () => {
     setPrintMode(true);
+    
+    // Wait for all images to load before printing
+    const images = document.querySelectorAll('.print-content img');
+    await Promise.all(
+      Array.from(images).map(img => 
+        img.complete ? Promise.resolve() : new Promise(resolve => {
+          img.onload = resolve;
+          img.onerror = resolve;
+        })
+      )
+    );
+    
     setTimeout(() => {
       window.print();
       setTimeout(() => setPrintMode(false), 100);

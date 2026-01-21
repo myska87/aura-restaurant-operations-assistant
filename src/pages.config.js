@@ -12,6 +12,7 @@ import CommandCenter from './pages/CommandCenter';
 import Culture from './pages/Culture';
 import DailyCheckIn from './pages/DailyCheckIn';
 import Dashboard from './pages/Dashboard';
+import DocumentCreator from './pages/DocumentCreator';
 import Documents from './pages/Documents';
 import EquipmentHealth from './pages/EquipmentHealth';
 import FoodSafetyChecklist from './pages/FoodSafetyChecklist';
@@ -35,6 +36,7 @@ import People from './pages/People';
 import Performance from './pages/Performance';
 import PrepComponentsManager from './pages/PrepComponentsManager';
 import PrepPlanner from './pages/PrepPlanner';
+import PrepWorkflow from './pages/PrepWorkflow';
 import Profile from './pages/Profile';
 import Quality from './pages/Quality';
 import QualityControl from './pages/QualityControl';
@@ -61,8 +63,6 @@ import VisualDishGuides from './pages/VisualDishGuides';
 import VisualProcedureDetail from './pages/VisualProcedureDetail';
 import VisualProcedureForm from './pages/VisualProcedureForm';
 import VisualProcedures from './pages/VisualProcedures';
-import DocumentCreator from './pages/DocumentCreator';
-import PrepWorkflow from './pages/PrepWorkflow';
 import __Layout from './Layout.jsx';
 
 
@@ -81,6 +81,7 @@ export const PAGES = {
     "Culture": Culture,
     "DailyCheckIn": DailyCheckIn,
     "Dashboard": Dashboard,
+    "DocumentCreator": DocumentCreator,
     "Documents": Documents,
     "EquipmentHealth": EquipmentHealth,
     "FoodSafetyChecklist": FoodSafetyChecklist,
@@ -104,6 +105,7 @@ export const PAGES = {
     "Performance": Performance,
     "PrepComponentsManager": PrepComponentsManager,
     "PrepPlanner": PrepPlanner,
+    "PrepWorkflow": PrepWorkflow,
     "Profile": Profile,
     "Quality": Quality,
     "QualityControl": QualityControl,
@@ -130,8 +132,6 @@ export const PAGES = {
     "VisualProcedureDetail": VisualProcedureDetail,
     "VisualProcedureForm": VisualProcedureForm,
     "VisualProcedures": VisualProcedures,
-    "DocumentCreator": DocumentCreator,
-    "PrepWorkflow": PrepWorkflow,
 }
 
 export const pagesConfig = {
