@@ -59,6 +59,7 @@ import VisualDishGuides from './pages/VisualDishGuides';
 import VisualProcedureDetail from './pages/VisualProcedureDetail';
 import VisualProcedureForm from './pages/VisualProcedureForm';
 import VisualProcedures from './pages/VisualProcedures';
+import AllergenReport from './pages/AllergenReport';
 import __Layout from './Layout.jsx';
 
 
@@ -124,6 +125,7 @@ export const PAGES = {
     "VisualProcedureDetail": VisualProcedureDetail,
     "VisualProcedureForm": VisualProcedureForm,
     "VisualProcedures": VisualProcedures,
+    "AllergenReport": AllergenReport,
 }
 
 export const pagesConfig = {
