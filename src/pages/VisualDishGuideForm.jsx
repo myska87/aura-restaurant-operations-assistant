@@ -201,16 +201,26 @@ export default function VisualDishGuideForm() {
           </div>
         </div>
         <div className="flex gap-2">
-          <Button variant="outline" onClick={() => setFormData(prev => ({ ...prev, is_published: false }))}>
+          <Button 
+            variant="outline" 
+            onClick={() => {
+              setFormData(prev => ({ ...prev, is_published: false }));
+              setTimeout(() => handleSave(), 100);
+            }}
+            disabled={saveMutation.isPending}
+          >
             Save Draft
           </Button>
           <Button 
-            onClick={handleSave}
+            onClick={() => {
+              setFormData(prev => ({ ...prev, is_published: true }));
+              setTimeout(() => handleSave(), 100);
+            }}
             disabled={saveMutation.isPending}
             className="bg-gradient-to-r from-orange-600 to-red-600"
           >
             <Save className="w-4 h-4 mr-2" />
-            {isEditing ? 'Update' : 'Create'} Guide
+            {isEditing ? 'Update & Publish' : 'Create & Publish'}
           </Button>
         </div>
       </div>

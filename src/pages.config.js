@@ -51,12 +51,12 @@ import StockDashboard from './pages/StockDashboard';
 import Training from './pages/Training';
 import TrainingAcademy from './pages/TrainingAcademy';
 import TrainingInsights from './pages/TrainingInsights';
-import VisualProcedures from './pages/VisualProcedures';
-import VisualProcedureDetail from './pages/VisualProcedureDetail';
-import VisualProcedureForm from './pages/VisualProcedureForm';
-import VisualDishGuides from './pages/VisualDishGuides';
 import VisualDishGuideDetail from './pages/VisualDishGuideDetail';
 import VisualDishGuideForm from './pages/VisualDishGuideForm';
+import VisualDishGuides from './pages/VisualDishGuides';
+import VisualProcedureDetail from './pages/VisualProcedureDetail';
+import VisualProcedureForm from './pages/VisualProcedureForm';
+import VisualProcedures from './pages/VisualProcedures';
 import __Layout from './Layout.jsx';
 
 
@@ -114,12 +114,12 @@ export const PAGES = {
     "Training": Training,
     "TrainingAcademy": TrainingAcademy,
     "TrainingInsights": TrainingInsights,
-    "VisualProcedures": VisualProcedures,
-    "VisualProcedureDetail": VisualProcedureDetail,
-    "VisualProcedureForm": VisualProcedureForm,
-    "VisualDishGuides": VisualDishGuides,
     "VisualDishGuideDetail": VisualDishGuideDetail,
     "VisualDishGuideForm": VisualDishGuideForm,
+    "VisualDishGuides": VisualDishGuides,
+    "VisualProcedureDetail": VisualProcedureDetail,
+    "VisualProcedureForm": VisualProcedureForm,
+    "VisualProcedures": VisualProcedures,
 }
 
 export const pagesConfig = {
