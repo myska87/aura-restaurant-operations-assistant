@@ -143,12 +143,33 @@ export default function MenuItemForm({ item, onSubmit, onCancel, aiGenerating })
     const file = e.target.files?.[0];
     if (!file) return;
     
+    // Validate file type
+    if (!file.type.startsWith('image/')) {
+      alert('Please upload an image file');
+      return;
+    }
+    
+    // Validate file size (max 5MB)
+    if (file.size > 5 * 1024 * 1024) {
+      alert('Image size must be less than 5MB');
+      return;
+    }
+    
     setUploading(true);
     try {
       const result = await base44.integrations.Core.UploadFile({ file });
-      setFormData(prev => ({ ...prev, image_url: result.file_url }));
+      if (result && result.file_url) {
+        setFormData(prev => ({ 
+          ...prev, 
+          photo_url: result.file_url,
+          image_url: result.file_url 
+        }));
+      } else {
+        throw new Error('Upload failed - no URL returned');
+      }
     } catch (error) {
       console.error('Upload error:', error);
+      alert('Failed to upload image. Please try again.');
     } finally {
       setUploading(false);
     }
@@ -157,8 +178,18 @@ export default function MenuItemForm({ item, onSubmit, onCancel, aiGenerating })
   const handleSubmit = (e) => {
     e.preventDefault();
     
+    // Ensure photo_url is set
+    const photoUrl = formData.photo_url || formData.image_url;
+    
+    if (!photoUrl) {
+      alert('Please upload a menu item image before submitting');
+      return;
+    }
+    
     const submitData = {
       ...formData,
+      photo_url: photoUrl,
+      image_url: photoUrl,
       price: parseFloat(formData.price) || 0,
       prep_time_minutes: parseInt(formData.prep_time_minutes) || 0,
       servings_per_batch: parseInt(formData.servings_per_batch) || 1,
@@ -500,13 +531,44 @@ export default function MenuItemForm({ item, onSubmit, onCancel, aiGenerating })
 
       {/* Image Upload */}
       <div>
-        <Label>Menu Item Image</Label>
-        <Input type="file" accept="image/*" onChange={handleImageUpload} disabled={uploading} />
-        {formData.image_url && (
-          <div className="mt-2">
-            <img src={formData.image_url} alt="Preview" className="w-32 h-32 object-cover rounded-lg" />
+        <Label>Menu Item Image *</Label>
+        <div className="space-y-3">
+          <div className="flex items-center gap-3">
+            <Input 
+              type="file" 
+              accept="image/*" 
+              onChange={handleImageUpload} 
+              disabled={uploading}
+              className="flex-1"
+            />
+            {uploading && (
+              <div className="flex items-center gap-2 text-sm text-emerald-600">
+                <div className="w-4 h-4 border-2 border-emerald-600 border-t-transparent rounded-full animate-spin" />
+                Uploading...
+              </div>
+            )}
           </div>
-        )}
+          {(formData.image_url || formData.photo_url) && (
+            <div className="relative inline-block">
+              <img 
+                src={formData.photo_url || formData.image_url} 
+                alt="Preview" 
+                className="w-48 h-48 object-cover rounded-lg border-2 border-emerald-200 shadow-md" 
+              />
+              <Badge className="absolute top-2 right-2 bg-emerald-600 text-white">
+                ✓ Uploaded
+              </Badge>
+            </div>
+          )}
+          {!formData.image_url && !formData.photo_url && (
+            <div className="w-48 h-48 border-2 border-dashed border-slate-300 rounded-lg flex items-center justify-center bg-slate-50">
+              <div className="text-center">
+                <Upload className="w-8 h-8 text-slate-400 mx-auto mb-2" />
+                <p className="text-sm text-slate-500">Upload image</p>
+              </div>
+            </div>
+          )}
+        </div>
       </div>
 
       {/* Submit */}

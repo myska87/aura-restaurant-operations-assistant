@@ -134,11 +134,11 @@ export default function MenuItemDetail() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-white">
-      {/* Sticky Header */}
+      {/* Sticky Header with Hero Image */}
       <div className="sticky top-0 z-10 bg-white border-b shadow-sm">
         <div className="max-w-7xl mx-auto px-6 py-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-4">
+          <div className="flex items-center justify-between gap-4">
+            <div className="flex items-center gap-4 flex-1">
               <Button
                 variant="ghost"
                 size="icon"
@@ -146,6 +146,15 @@ export default function MenuItemDetail() {
               >
                 <ArrowLeft className="w-5 h-5" />
               </Button>
+              {menuItem.photo_url && (
+                <div className="w-16 h-16 rounded-lg overflow-hidden shadow-md border-2 border-white">
+                  <img
+                    src={menuItem.photo_url}
+                    alt={menuItem.name}
+                    className="w-full h-full object-cover"
+                  />
+                </div>
+              )}
               <div>
                 <h1 className="text-2xl font-bold text-slate-800">{menuItem.name}</h1>
                 <div className="flex items-center gap-2 mt-1">
