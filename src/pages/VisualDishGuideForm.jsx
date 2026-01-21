@@ -73,15 +73,29 @@ export default function VisualDishGuideForm() {
         last_updated_by_name: user?.full_name || user?.email
       };
 
+      console.log('Mutation - saving data:', saveData);
+
+      let result;
       if (isEditing) {
-        return base44.entities.Visual_Dish_Guides_v1.update(guideId, saveData);
+        result = await base44.entities.Visual_Dish_Guides_v1.update(guideId, saveData);
+        console.log('Update result:', result);
       } else {
-        return base44.entities.Visual_Dish_Guides_v1.create(saveData);
+        result = await base44.entities.Visual_Dish_Guides_v1.create(saveData);
+        console.log('Create result:', result);
       }
+      
+      return result;
     },
     onSuccess: (result) => {
+      console.log('Save successful, result:', result);
       queryClient.invalidateQueries(['visualDishGuides']);
-      navigate(createPageUrl('VisualDishGuideDetail') + '?id=' + result.id);
+      const guideIdToUse = result.id || guideId;
+      alert(`✅ Visual Dish Guide ${isEditing ? 'Updated' : 'Published'} Successfully!`);
+      navigate(createPageUrl('VisualDishGuides'));
+    },
+    onError: (error) => {
+      console.error('Save failed:', error);
+      alert(`❌ Failed to save guide: ${error.message}`);
     }
   });
 
@@ -173,12 +187,19 @@ export default function VisualDishGuideForm() {
     }));
   };
 
-  const handleSave = () => {
+  const handleSave = (publishStatus) => {
     if (!formData.dish_name || formData.cooking_steps.length === 0) {
       alert('Please provide dish name and at least one cooking step');
       return;
     }
-    saveMutation.mutate(formData);
+    
+    const dataToSave = {
+      ...formData,
+      is_published: publishStatus
+    };
+    
+    console.log('Saving Visual Dish Guide:', dataToSave);
+    saveMutation.mutate(dataToSave);
   };
 
   if (isLoading) return <LoadingSpinner />;
@@ -203,24 +224,18 @@ export default function VisualDishGuideForm() {
         <div className="flex gap-2">
           <Button 
             variant="outline" 
-            onClick={() => {
-              setFormData(prev => ({ ...prev, is_published: false }));
-              setTimeout(() => handleSave(), 100);
-            }}
+            onClick={() => handleSave(false)}
             disabled={saveMutation.isPending}
           >
-            Save Draft
+            {saveMutation.isPending ? 'Saving...' : 'Save Draft'}
           </Button>
           <Button 
-            onClick={() => {
-              setFormData(prev => ({ ...prev, is_published: true }));
-              setTimeout(() => handleSave(), 100);
-            }}
+            onClick={() => handleSave(true)}
             disabled={saveMutation.isPending}
             className="bg-gradient-to-r from-orange-600 to-red-600"
           >
             <Save className="w-4 h-4 mr-2" />
-            {isEditing ? 'Update & Publish' : 'Create & Publish'}
+            {saveMutation.isPending ? 'Publishing...' : (isEditing ? 'Update & Publish' : 'Create & Publish')}
           </Button>
         </div>
       </div>

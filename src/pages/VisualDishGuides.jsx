@@ -61,9 +61,16 @@ export default function VisualDishGuides() {
     loadUser();
   }, []);
 
-  const { data: guides = [], isLoading } = useQuery({
+  const { data: guides = [], isLoading, refetch } = useQuery({
     queryKey: ['visualDishGuides'],
-    queryFn: () => base44.entities.Visual_Dish_Guides_v1.filter({ is_published: true }, '-updated_date')
+    queryFn: async () => {
+      console.log('Fetching Visual Dish Guides from database...');
+      const result = await base44.entities.Visual_Dish_Guides_v1.filter({ is_published: true }, '-updated_date');
+      console.log('Fetched guides:', result);
+      return result;
+    },
+    refetchOnMount: 'always',
+    staleTime: 0
   });
 
   const isAdmin = user && ['admin', 'owner', 'manager'].includes(user.role);
