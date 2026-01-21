@@ -45,11 +45,11 @@ export default function VisualDishGuideDetail() {
   });
 
   const handlePrint = () => {
-    const printUrl = createPageUrl('VisualDishGuidePrint') + '?id=' + guideId;
-    const printWindow = window.open(printUrl, '_blank');
-    if (!printWindow) {
-      alert('Please allow pop-ups to print this guide');
-    }
+    setPrintMode(true);
+    setTimeout(() => {
+      window.print();
+      setTimeout(() => setPrintMode(false), 100);
+    }, 300);
   };
 
   if (isLoading) return <LoadingSpinner />;
