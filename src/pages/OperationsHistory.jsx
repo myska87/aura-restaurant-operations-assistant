@@ -59,25 +59,7 @@ export default function OperationsHistory() {
     enabled: !!user
   });
 
-  if (!user) return <LoadingSpinner />;
-
-  const filteredCheckIns = dateFilter 
-    ? checkIns.filter(c => c.shift_date === dateFilter)
-    : checkIns;
-
-  const filteredTemps = dateFilter 
-    ? temperatures.filter(t => t.log_date === dateFilter)
-    : temperatures;
-
-  const filteredLabels = dateFilter 
-    ? labels.filter(l => l.prep_date === dateFilter)
-    : labels;
-
-  const filteredHandovers = dateFilter 
-    ? handovers.filter(h => h.shift_date === dateFilter)
-    : handovers;
-
-  // Mutations for adding new records
+  // Mutations for adding new records - MUST be before any early returns
   const createCheckInMutation = useMutation({
     mutationFn: (data) => base44.entities.DailyCheckIn.create(data),
     onSuccess: () => {
@@ -109,6 +91,24 @@ export default function OperationsHistory() {
       setShowHandoverDialog(false);
     }
   });
+
+  if (!user) return <LoadingSpinner />;
+
+  const filteredCheckIns = dateFilter 
+    ? checkIns.filter(c => c.shift_date === dateFilter)
+    : checkIns;
+
+  const filteredTemps = dateFilter 
+    ? temperatures.filter(t => t.log_date === dateFilter)
+    : temperatures;
+
+  const filteredLabels = dateFilter 
+    ? labels.filter(l => l.prep_date === dateFilter)
+    : labels;
+
+  const filteredHandovers = dateFilter 
+    ? handovers.filter(h => h.shift_date === dateFilter)
+    : handovers;
 
   return (
     <div className="space-y-6">
