@@ -43,29 +43,48 @@ import {
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
 import { ScrollArea } from '@/components/ui/scroll-area';
 
-const navItems = [
-  { name: 'Command Center', icon: LayoutDashboard, page: 'CommandCenter', roles: ['all'] },
-  { name: 'Menu Manager', icon: ChefHat, page: 'MenuManager', roles: ['all'] },
-  { name: 'Visual Dish Guides', icon: CookingPot, page: 'VisualDishGuides', roles: ['all'] },
-  { name: 'Operations', icon: ClipboardCheck, page: 'Operations', roles: ['all'] },
-  { name: 'Prep Workflow', icon: ChefHat, page: 'PrepWorkflow', roles: ['all'] },
-  { name: 'POS System', icon: Shield, page: 'POSSystem', roles: ['all'] },
-  { name: 'Visual Procedures', icon: FileText, page: 'VisualProcedures', roles: ['all'] },
-  { name: 'Assets & Equipment', icon: Package, page: 'Assets', roles: ['all'] },
-  { name: 'Quality & Safety', icon: Shield, page: 'QualitySafety', roles: ['all'] },
-  { name: 'Chemical Safety', icon: Wrench, page: 'ChemicalDashboard', roles: ['all'] },
-  { name: 'Equipment Health', icon: Wrench, page: 'EquipmentHealth', roles: ['all'] },
-  { name: 'Change Requests', icon: MessageSquare, page: 'ChangeRequests', roles: ['all'] },
-  { name: 'Training Academy', icon: GraduationCap, page: 'TrainingAcademy', roles: ['all'] },
-  { name: 'Leadership Path', icon: Trophy, page: 'LeadershipPathway', roles: ['all'] },
-  { name: 'Culture', icon: Heart, page: 'Culture', roles: ['all'] },
-  { name: 'People', icon: Users, page: 'People', roles: ['all'] },
-  { name: 'Shifts', icon: Calendar, page: 'Shifts', roles: ['all'] },
-  { name: 'Performance', icon: TrendingUp, page: 'Performance', roles: ['manager', 'owner', 'admin'] },
-  { name: 'Documents', icon: FolderOpen, page: 'Documents', roles: ['all'] },
-  { name: 'Announcements', icon: Bell, page: 'Announcements', roles: ['all'] },
-  { name: 'Meetings', icon: Calendar, page: 'Meetings', roles: ['all'] },
-  { name: 'Reports', icon: TrendingUp, page: 'Reports', roles: ['manager', 'owner', 'admin'] },
+const navGroups = [
+  {
+    title: 'Operations',
+    items: [
+      { name: 'Command Center', icon: LayoutDashboard, page: 'CommandCenter', roles: ['all'] },
+      { name: 'Operations', icon: ClipboardCheck, page: 'Operations', roles: ['all'] },
+      { name: 'Prep Workflow', icon: ChefHat, page: 'PrepWorkflow', roles: ['all'] },
+      { name: 'Menu Manager', icon: ChefHat, page: 'MenuManager', roles: ['all'] },
+      { name: 'Visual Dish Guides', icon: CookingPot, page: 'VisualDishGuides', roles: ['all'] },
+    ]
+  },
+  {
+    title: 'Compliance & Safety',
+    items: [
+      { name: 'Quality & Safety', icon: Shield, page: 'QualitySafety', roles: ['all'] },
+      { name: 'Chemical Safety', icon: Wrench, page: 'ChemicalDashboard', roles: ['all'] },
+      { name: 'Visual Procedures', icon: FileText, page: 'VisualProcedures', roles: ['all'] },
+      { name: 'Assets & Equipment', icon: Package, page: 'Assets', roles: ['all'] },
+      { name: 'Equipment Health', icon: Wrench, page: 'EquipmentHealth', roles: ['all'] },
+    ]
+  },
+  {
+    title: 'Team & Training',
+    items: [
+      { name: 'Training Academy', icon: GraduationCap, page: 'TrainingAcademy', roles: ['all'] },
+      { name: 'Leadership Path', icon: Trophy, page: 'LeadershipPathway', roles: ['all'] },
+      { name: 'Culture', icon: Heart, page: 'Culture', roles: ['all'] },
+      { name: 'People', icon: Users, page: 'People', roles: ['all'] },
+      { name: 'Shifts', icon: Calendar, page: 'Shifts', roles: ['all'] },
+      { name: 'Performance', icon: TrendingUp, page: 'Performance', roles: ['manager', 'owner', 'admin'] },
+    ]
+  },
+  {
+    title: 'Admin & Reports',
+    items: [
+      { name: 'Reports', icon: TrendingUp, page: 'Reports', roles: ['manager', 'owner', 'admin'] },
+      { name: 'Documents', icon: FolderOpen, page: 'Documents', roles: ['all'] },
+      { name: 'Announcements', icon: Bell, page: 'Announcements', roles: ['all'] },
+      { name: 'Meetings', icon: Calendar, page: 'Meetings', roles: ['all'] },
+      { name: 'Change Requests', icon: MessageSquare, page: 'ChangeRequests', roles: ['all'] },
+    ]
+  }
 ];
 
 export default function Layout({ children, currentPageName }) {
@@ -118,35 +137,44 @@ export default function Layout({ children, currentPageName }) {
 
       {/* Navigation */}
       <ScrollArea className="flex-1 py-4">
-        <nav className="px-3 space-y-1">
-          {navItems
-            .filter(item => item.roles.includes('all') || item.roles.includes(user?.role))
-            .map((item) => {
-              const isActive = currentPageName === item.page;
-              return (
-                <Link
-                  key={item.page}
-                  to={createPageUrl(item.page)}
-                  onClick={() => setSidebarOpen(false)}
-                  className={`
-                    flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200
-                    ${isActive 
-                      ? 'bg-gradient-to-r from-amber-500/20 to-amber-600/10 text-amber-400 shadow-lg shadow-amber-500/10' 
-                      : 'text-emerald-100/70 hover:text-white hover:bg-white/5'
-                    }
-                  `}
-                >
-                  <item.icon className={`w-5 h-5 ${isActive ? 'text-amber-400' : ''}`} />
-                  <span className="font-medium">{item.name}</span>
-                  {isActive && (
-                    <motion.div
-                      layoutId="activeIndicator"
-                      className="ml-auto w-1.5 h-1.5 rounded-full bg-amber-400"
-                    />
-                  )}
-                </Link>
-              );
-            })}
+        <nav className="px-3 space-y-6">
+          {navGroups.map((group) => (
+            <div key={group.title}>
+              <h3 className="px-4 mb-2 text-xs font-semibold text-emerald-400/60 uppercase tracking-wider">
+                {group.title}
+              </h3>
+              <div className="space-y-1">
+                {group.items
+                  .filter(item => item.roles.includes('all') || item.roles.includes(user?.role))
+                  .map((item) => {
+                    const isActive = currentPageName === item.page;
+                    return (
+                      <Link
+                        key={item.page}
+                        to={createPageUrl(item.page)}
+                        onClick={() => setSidebarOpen(false)}
+                        className={`
+                          flex items-center gap-3 px-4 py-2.5 rounded-xl transition-all duration-200
+                          ${isActive 
+                            ? 'bg-gradient-to-r from-amber-500/20 to-amber-600/10 text-amber-400 shadow-lg shadow-amber-500/10' 
+                            : 'text-emerald-100/70 hover:text-white hover:bg-white/5'
+                          }
+                        `}
+                      >
+                        <item.icon className={`w-4 h-4 ${isActive ? 'text-amber-400' : ''}`} />
+                        <span className="font-medium text-sm">{item.name}</span>
+                        {isActive && (
+                          <motion.div
+                            layoutId="activeIndicator"
+                            className="ml-auto w-1.5 h-1.5 rounded-full bg-amber-400"
+                          />
+                        )}
+                      </Link>
+                    );
+                  })}
+              </div>
+            </div>
+          ))}
         </nav>
       </ScrollArea>
 
