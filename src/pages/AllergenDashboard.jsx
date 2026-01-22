@@ -36,12 +36,13 @@ export default function AllergenDashboard() {
     loadUser();
   }, []);
 
+  const canView = ['manager', 'owner', 'admin'].includes(user?.role);
+
   const { data: allergenOrders = [], isLoading } = useQuery({
     queryKey: ['allergenOrders'],
-    queryFn: () => base44.entities.AllergenOrder.list('-order_date', 500)
+    queryFn: () => base44.entities.AllergenOrder.list('-order_date', 500),
+    enabled: canView
   });
-
-  const canView = ['manager', 'owner', 'admin'].includes(user?.role);
 
   if (isLoading) return <LoadingSpinner message="Loading allergen data..." />;
 
