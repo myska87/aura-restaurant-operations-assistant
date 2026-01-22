@@ -42,6 +42,7 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
 import { ScrollArea } from '@/components/ui/scroll-area';
+import QuickAccessToolbar from '@/components/ui/QuickAccessToolbar';
 
 const navGroups = [
   {
@@ -344,7 +345,7 @@ export default function Layout({ children, currentPageName }) {
       </header>
 
       {/* Main Content */}
-      <main className="lg:pl-72 pt-16 min-h-screen">
+      <main className="lg:pl-72 pt-16 min-h-screen pb-24">
         <div className="p-4 md:p-6 lg:p-8">
           <AnimatePresence mode="wait">
             <motion.div
@@ -359,6 +360,9 @@ export default function Layout({ children, currentPageName }) {
           </AnimatePresence>
         </div>
       </main>
-    </div>
-  );
-}
+
+      {/* Quick Access Toolbar */}
+      <QuickAccessToolbar />
+      </div>
+      );
+      }
