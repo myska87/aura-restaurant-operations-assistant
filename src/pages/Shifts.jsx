@@ -43,6 +43,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import PageHeader from '@/components/ui/PageHeader';
 import LoadingSpinner from '@/components/ui/LoadingSpinner';
+import ShiftApprovalDialog from '@/components/shifts/ShiftApprovalDialog';
 
 export default function Shifts() {
   const [currentWeekStart, setCurrentWeekStart] = useState(startOfWeek(new Date(), { weekStartsOn: 1 }));
@@ -53,6 +54,7 @@ export default function Shifts() {
   const [editingShift, setEditingShift] = useState(null);
   const [activeTab, setActiveTab] = useState('schedule');
   const [user, setUser] = useState(null);
+  const [approvingShift, setApprovingShift] = useState(null);
   const [formData, setFormData] = useState({
     staff_id: '',
     date: format(new Date(), 'yyyy-MM-dd'),
@@ -198,19 +200,8 @@ export default function Shifts() {
         actual_clock_out: now,
         duration: actualDuration.toFixed(2),
         total_cost: actualCost.toFixed(2),
-        status: 'completed',
+        status: 'pending_approval',
         needs_approval: true
-      }
-    });
-  };
-
-  const handleApproveShift = async (shift) => {
-    await updateMutation.mutateAsync({
-      id: shift.id,
-      data: {
-        needs_approval: false,
-        approved_by: user?.email,
-        approved_date: new Date().toISOString()
       }
     });
   };
@@ -988,58 +979,58 @@ export default function Shifts() {
                 ) : (
                   <div className="space-y-3">
                     {pendingApprovals.map((shift) => (
-                      <div key={shift.id} className="border border-slate-200 rounded-lg p-4">
-                        <div className="flex items-start justify-between">
-                          <div className="flex-1">
-                            <div className="flex items-center gap-2 mb-2">
-                              <p className="font-bold text-slate-800">{shift.staff_name}</p>
-                              <Badge variant="outline">{shift.position}</Badge>
-                              <Badge className="bg-amber-100 text-amber-700">{shift.status}</Badge>
-                            </div>
-                            <div className="grid grid-cols-2 gap-3 text-sm">
-                              <div>
-                                <p className="text-slate-500">Date</p>
-                                <p className="font-semibold">{format(new Date(shift.date), 'MMM d, yyyy')}</p>
-                              </div>
-                              <div>
-                                <p className="text-slate-500">Scheduled</p>
-                                <p className="font-semibold">{shift.scheduled_start} - {shift.scheduled_end}</p>
-                              </div>
-                              {shift.actual_clock_in && (
-                                <div>
-                                  <p className="text-slate-500">Clock In</p>
-                                  <p className="font-semibold text-blue-600">
-                                    {format(new Date(shift.actual_clock_in), 'HH:mm')}
-                                  </p>
-                                </div>
-                              )}
-                              {shift.actual_clock_out && (
-                                <div>
-                                  <p className="text-slate-500">Clock Out</p>
-                                  <p className="font-semibold text-blue-600">
-                                    {format(new Date(shift.actual_clock_out), 'HH:mm')}
-                                  </p>
-                                </div>
-                              )}
-                              <div>
-                                <p className="text-slate-500">Hours</p>
-                                <p className="font-semibold">{shift.duration?.toFixed(2) || 0} hrs</p>
-                              </div>
-                              <div>
-                                <p className="text-slate-500">Cost</p>
-                                <p className="font-semibold text-emerald-600">£{shift.total_cost?.toFixed(2) || 0}</p>
-                              </div>
-                            </div>
-                          </div>
-                          <Button 
-                            onClick={() => handleApproveShift(shift)}
-                            disabled={updateMutation.isPending}
-                            className="bg-emerald-600 hover:bg-emerald-700"
-                          >
-                            Approve
-                          </Button>
-                        </div>
-                      </div>
+                     <div key={shift.id} className="border border-slate-200 rounded-lg p-4">
+                       <div className="flex items-start justify-between">
+                         <div className="flex-1">
+                           <div className="flex items-center gap-2 mb-2">
+                             <p className="font-bold text-slate-800">{shift.staff_name}</p>
+                             <Badge variant="outline">{shift.position}</Badge>
+                             <Badge className="bg-amber-100 text-amber-700">{shift.status}</Badge>
+                           </div>
+                           <div className="grid grid-cols-2 gap-3 text-sm">
+                             <div>
+                               <p className="text-slate-500">Date</p>
+                               <p className="font-semibold">{format(new Date(shift.date), 'MMM d, yyyy')}</p>
+                             </div>
+                             <div>
+                               <p className="text-slate-500">Scheduled</p>
+                               <p className="font-semibold">{shift.scheduled_start} - {shift.scheduled_end}</p>
+                             </div>
+                             {shift.actual_clock_in && (
+                               <div>
+                                 <p className="text-slate-500">Clock In</p>
+                                 <p className="font-semibold text-blue-600">
+                                   {format(new Date(shift.actual_clock_in), 'HH:mm')}
+                                 </p>
+                               </div>
+                             )}
+                             {shift.actual_clock_out && (
+                               <div>
+                                 <p className="text-slate-500">Clock Out</p>
+                                 <p className="font-semibold text-blue-600">
+                                   {format(new Date(shift.actual_clock_out), 'HH:mm')}
+                                 </p>
+                               </div>
+                             )}
+                             <div>
+                               <p className="text-slate-500">Hours</p>
+                               <p className="font-semibold">{shift.duration?.toFixed(2) || 0} hrs</p>
+                             </div>
+                             <div>
+                               <p className="text-slate-500">Cost</p>
+                               <p className="font-semibold text-emerald-600">£{shift.total_cost?.toFixed(2) || 0}</p>
+                             </div>
+                           </div>
+                         </div>
+                         <Button 
+                           onClick={() => setApprovingShift(shift)}
+                           disabled={updateMutation.isPending}
+                           className="bg-emerald-600 hover:bg-emerald-700"
+                         >
+                           Review & Approve
+                         </Button>
+                       </div>
+                     </div>
                     ))}
                   </div>
                 )}
@@ -1205,6 +1196,14 @@ export default function Shifts() {
           </div>
         </DialogContent>
       </Dialog>
+
+      {/* Shift Approval Dialog */}
+      <ShiftApprovalDialog
+        shift={approvingShift}
+        open={!!approvingShift}
+        onOpenChange={(open) => !open && setApprovingShift(null)}
+        user={user}
+      />
     </div>
   );
 }

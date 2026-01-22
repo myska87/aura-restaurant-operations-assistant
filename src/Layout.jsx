@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { createPageUrl } from './utils';
 import { base44 } from '@/api/base44Client';
 import { useQuery } from '@tanstack/react-query';
@@ -29,7 +29,8 @@ import {
   Heart,
   Trophy,
   AlertCircle,
-  CookingPot
+  CookingPot,
+  ArrowLeft
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -80,6 +81,7 @@ const navGroups = [
     title: 'Admin & Reports',
     items: [
       { name: 'Reports', icon: TrendingUp, page: 'Reports', roles: ['manager', 'owner', 'admin'] },
+      { name: 'Weekly Manager Reports', icon: FileText, page: 'WeeklyManagerReports', roles: ['manager', 'owner', 'admin'] },
       { name: 'Documents', icon: FolderOpen, page: 'Documents', roles: ['all'] },
       { name: 'Announcements', icon: Bell, page: 'Announcements', roles: ['all'] },
       { name: 'Meetings', icon: Calendar, page: 'Meetings', roles: ['all'] },
@@ -91,6 +93,8 @@ const navGroups = [
 export default function Layout({ children, currentPageName }) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [user, setUser] = useState(null);
+  const navigate = useNavigate();
+  const location = useLocation();
 
   useEffect(() => {
     const loadUser = async () => {
@@ -236,16 +240,26 @@ export default function Layout({ children, currentPageName }) {
       {/* Mobile Header */}
       <header className="lg:hidden fixed top-0 left-0 right-0 z-40 h-16 bg-white/80 backdrop-blur-xl border-b border-slate-200/50 shadow-sm">
         <div className="flex items-center justify-between h-full px-4">
-          <Sheet open={sidebarOpen} onOpenChange={setSidebarOpen}>
-            <SheetTrigger asChild>
-              <Button variant="ghost" size="icon" className="lg:hidden">
-                <MenuIcon className="w-6 h-6" />
-              </Button>
-            </SheetTrigger>
-            <SheetContent side="left" className="w-72 p-0 bg-gradient-to-b from-emerald-900 via-emerald-800 to-emerald-900">
-              <NavContent />
-            </SheetContent>
-          </Sheet>
+          <div className="flex items-center gap-2">
+            <Sheet open={sidebarOpen} onOpenChange={setSidebarOpen}>
+              <SheetTrigger asChild>
+                <Button variant="ghost" size="icon" className="lg:hidden">
+                  <MenuIcon className="w-6 h-6" />
+                </Button>
+              </SheetTrigger>
+              <SheetContent side="left" className="w-72 p-0 bg-gradient-to-b from-emerald-900 via-emerald-800 to-emerald-900">
+                <NavContent />
+              </SheetContent>
+            </Sheet>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => navigate(-1)}
+              className="hover:bg-slate-100"
+            >
+              <ArrowLeft className="w-4 h-4" />
+            </Button>
+          </div>
 
           <div className="flex items-center gap-2">
             <Leaf className="w-6 h-6 text-emerald-600" />
@@ -292,7 +306,17 @@ export default function Layout({ children, currentPageName }) {
 
       {/* Desktop Header */}
       <header className="hidden lg:flex fixed top-0 left-72 right-0 z-40 h-16 bg-white/80 backdrop-blur-xl border-b border-slate-200/50 shadow-sm items-center justify-between px-8">
-        <div>
+        <div className="flex items-center gap-3">
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => navigate(-1)}
+            className="hover:bg-slate-100"
+          >
+            <ArrowLeft className="w-4 h-4 mr-2" />
+            Back
+          </Button>
+          <div className="h-6 w-px bg-slate-300" />
           <h1 className="text-xl font-semibold text-slate-800 capitalize">
             {currentPageName?.replace(/([A-Z])/g, ' $1').trim() || 'Dashboard'}
           </h1>
