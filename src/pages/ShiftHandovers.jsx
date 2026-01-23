@@ -12,7 +12,8 @@ import {
   TrendingUp,
   Plus,
   Eye,
-  CheckCircle
+  CheckCircle,
+  BarChart3
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -20,9 +21,11 @@ import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import PageHeader from '@/components/ui/PageHeader';
 import LoadingSpinner from '@/components/ui/LoadingSpinner';
+import ShiftHandoverReports from '@/components/operations/ShiftHandoverReports';
 import { format } from 'date-fns';
 
 export default function ShiftHandovers() {
@@ -112,7 +115,18 @@ export default function ShiftHandovers() {
         actionLabel="Create Handover"
       />
 
-      {/* Recent Handovers */}
+      {/* Tabs for Recent vs Reports */}
+      <Tabs defaultValue="recent" className="space-y-4">
+        <TabsList className="grid w-full max-w-sm grid-cols-2">
+          <TabsTrigger value="recent">Recent Handovers</TabsTrigger>
+          <TabsTrigger value="reports" className="flex items-center gap-2">
+            <BarChart3 className="w-4 h-4" />
+            Reports
+          </TabsTrigger>
+        </TabsList>
+
+        <TabsContent value="recent" className="space-y-4">
+          {/* Recent Handovers */}
       <div className="space-y-4">
         {handovers.map((handover, idx) => {
           const isAcknowledged = !!handover.acknowledged_by;
@@ -205,14 +219,20 @@ export default function ShiftHandovers() {
         })}
       </div>
 
-      {handovers.length === 0 && (
-        <Card>
-          <CardContent className="py-12 text-center">
-            <Clock className="w-16 h-16 mx-auto mb-4 text-slate-300" />
-            <p className="text-slate-500">No shift handovers yet</p>
-          </CardContent>
-        </Card>
-      )}
+          {handovers.length === 0 && (
+            <Card>
+              <CardContent className="py-12 text-center">
+                <Clock className="w-16 h-16 mx-auto mb-4 text-slate-300" />
+                <p className="text-slate-500">No shift handovers yet</p>
+              </CardContent>
+            </Card>
+          )}
+        </TabsContent>
+
+        <TabsContent value="reports">
+          <ShiftHandoverReports handovers={handovers} />
+        </TabsContent>
+      </Tabs>
 
       {/* Create Handover Dialog */}
       <Dialog open={showDialog} onOpenChange={setShowDialog}>
