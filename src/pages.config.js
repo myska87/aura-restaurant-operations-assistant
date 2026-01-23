@@ -18,12 +18,15 @@ import DataManagement from './pages/DataManagement';
 import DocumentCreator from './pages/DocumentCreator';
 import Documents from './pages/Documents';
 import EquipmentHealth from './pages/EquipmentHealth';
+import FlowBoard from './pages/FlowBoard';
 import FoodSafetyChecklist from './pages/FoodSafetyChecklist';
 import Forms from './pages/Forms';
+import InspectorMode from './pages/InspectorMode';
 import Inventory from './pages/Inventory';
 import InventoryAdjustment from './pages/InventoryAdjustment';
 import Invitations from './pages/Invitations';
 import LeadershipPathway from './pages/LeadershipPathway';
+import ManageHome from './pages/ManageHome';
 import Meetings from './pages/Meetings';
 import Menu from './pages/Menu';
 import MenuAnalyticsDashboard from './pages/MenuAnalyticsDashboard';
@@ -33,6 +36,7 @@ import MenuManager from './pages/MenuManager';
 import menuV3Hub from './pages/Menu_v3_HUB';
 import MorningPrep from './pages/MorningPrep';
 import OnboardingFlow from './pages/OnboardingFlow';
+import OperateHome from './pages/OperateHome';
 import Operations from './pages/Operations';
 import OperationsHistory from './pages/OperationsHistory';
 import POSSystem from './pages/POSSystem';
@@ -57,6 +61,7 @@ import ShiftHandovers from './pages/ShiftHandovers';
 import Shifts from './pages/Shifts';
 import Staff from './pages/Staff';
 import StockDashboard from './pages/StockDashboard';
+import TrainHome from './pages/TrainHome';
 import Training from './pages/Training';
 import TrainingAcademy from './pages/TrainingAcademy';
 import TrainingInsights from './pages/TrainingInsights';
@@ -70,11 +75,6 @@ import VisualProcedures from './pages/VisualProcedures';
 import WeeklyManagerReportDetail from './pages/WeeklyManagerReportDetail';
 import WeeklyManagerReportForm from './pages/WeeklyManagerReportForm';
 import WeeklyManagerReports from './pages/WeeklyManagerReports';
-import OperateHome from './pages/OperateHome';
-import TrainHome from './pages/TrainHome';
-import ManageHome from './pages/ManageHome';
-import FlowBoard from './pages/FlowBoard';
-import InspectorMode from './pages/InspectorMode';
 import __Layout from './Layout.jsx';
 
 
@@ -99,12 +99,15 @@ export const PAGES = {
     "DocumentCreator": DocumentCreator,
     "Documents": Documents,
     "EquipmentHealth": EquipmentHealth,
+    "FlowBoard": FlowBoard,
     "FoodSafetyChecklist": FoodSafetyChecklist,
     "Forms": Forms,
+    "InspectorMode": InspectorMode,
     "Inventory": Inventory,
     "InventoryAdjustment": InventoryAdjustment,
     "Invitations": Invitations,
     "LeadershipPathway": LeadershipPathway,
+    "ManageHome": ManageHome,
     "Meetings": Meetings,
     "Menu": Menu,
     "MenuAnalyticsDashboard": MenuAnalyticsDashboard,
@@ -114,6 +117,7 @@ export const PAGES = {
     "Menu_v3_HUB": menuV3Hub,
     "MorningPrep": MorningPrep,
     "OnboardingFlow": OnboardingFlow,
+    "OperateHome": OperateHome,
     "Operations": Operations,
     "OperationsHistory": OperationsHistory,
     "POSSystem": POSSystem,
@@ -138,6 +142,7 @@ export const PAGES = {
     "Shifts": Shifts,
     "Staff": Staff,
     "StockDashboard": StockDashboard,
+    "TrainHome": TrainHome,
     "Training": Training,
     "TrainingAcademy": TrainingAcademy,
     "TrainingInsights": TrainingInsights,
@@ -151,11 +156,6 @@ export const PAGES = {
     "WeeklyManagerReportDetail": WeeklyManagerReportDetail,
     "WeeklyManagerReportForm": WeeklyManagerReportForm,
     "WeeklyManagerReports": WeeklyManagerReports,
-    "OperateHome": OperateHome,
-    "TrainHome": TrainHome,
-    "ManageHome": ManageHome,
-    "FlowBoard": FlowBoard,
-    "InspectorMode": InspectorMode,
 }
 
 export const pagesConfig = {
