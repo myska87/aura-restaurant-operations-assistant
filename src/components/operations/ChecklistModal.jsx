@@ -60,8 +60,8 @@ export default function ChecklistModal({
 
   return (
     <Dialog open={open} onOpenChange={onClose}>
-      <DialogContent className="max-w-3xl h-[90vh] flex flex-col">
-        <DialogHeader className="flex-shrink-0">
+      <DialogContent className="max-w-3xl max-h-[90vh] overflow-hidden flex flex-col">
+        <DialogHeader>
           <div className="flex items-center justify-between">
             <div>
               <DialogTitle className="text-2xl">{checklist.checklist_name}</DialogTitle>
@@ -77,7 +77,7 @@ export default function ChecklistModal({
           <Progress value={progress} className="h-3 mt-2" />
         </DialogHeader>
 
-        <ScrollArea className="flex-1 overflow-y-auto pr-4 my-4">
+        <ScrollArea className="flex-1 pr-4">
           <div className="space-y-6">
             {Object.entries(groupedItems).map(([category, categoryItems]) => (
               <div key={category}>
@@ -149,7 +149,7 @@ export default function ChecklistModal({
           </div>
         </ScrollArea>
 
-        <div className="border-t pt-4 flex items-center justify-between flex-shrink-0">
+        <div className="border-t pt-4 flex items-center justify-between">
           <div className="text-sm text-slate-600">
             {completedCount} of {totalItems} required items completed
           </div>
