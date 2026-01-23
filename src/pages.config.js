@@ -73,6 +73,7 @@ import WeeklyManagerReports from './pages/WeeklyManagerReports';
 import OperateHome from './pages/OperateHome';
 import TrainHome from './pages/TrainHome';
 import ManageHome from './pages/ManageHome';
+import FlowBoard from './pages/FlowBoard';
 import __Layout from './Layout.jsx';
 
 
@@ -152,6 +153,7 @@ export const PAGES = {
     "OperateHome": OperateHome,
     "TrainHome": TrainHome,
     "ManageHome": ManageHome,
+    "FlowBoard": FlowBoard,
 }
 
 export const pagesConfig = {
