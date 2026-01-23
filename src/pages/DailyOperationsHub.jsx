@@ -33,6 +33,7 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import LoadingSpinner from '@/components/ui/LoadingSpinner';
 import ChecklistModal from '@/components/operations/ChecklistModal';
 import TemperatureLog from '@/components/operations/TemperatureLog';
+import DailyBriefingForm from '@/components/operations/DailyBriefingForm';
 
 export default function DailyOperationsHub() {
   const [user, setUser] = useState(null);
@@ -40,6 +41,7 @@ export default function DailyOperationsHub() {
   const [showClosingChecklist, setShowClosingChecklist] = useState(false);
   const [currentChecklistData, setCurrentChecklistData] = useState(null);
   const [showTempAssets, setShowTempAssets] = useState(false);
+  const [showBriefingForm, setShowBriefingForm] = useState(false);
   const queryClient = useQueryClient();
 
   useEffect(() => {
@@ -99,6 +101,12 @@ export default function DailyOperationsHub() {
   const { data: labels = [] } = useQuery({
     queryKey: ['labels', today],
     queryFn: () => base44.entities.FoodLabel.filter({ created_date: { $gte: today } }),
+    enabled: !!user
+  });
+
+  const { data: briefings = [] } = useQuery({
+    queryKey: ['briefings', today],
+    queryFn: () => base44.entities.DailyBriefing.filter({ date: today }),
     enabled: !!user
   });
 
@@ -409,8 +417,8 @@ export default function DailyOperationsHub() {
           </p>
         </div>
 
-        {/* Opening & Closing Checklist Buttons */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        {/* Opening, Closing & Briefing Buttons */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <Button
             onClick={() => openChecklist('opening')}
             disabled={!myCheckIn || myOpeningCompletion?.status === 'completed'}
@@ -420,6 +428,17 @@ export default function DailyOperationsHub() {
             <PlayCircle className="w-6 h-6 mr-3" />
             {myOpeningCompletion?.status === 'completed' ? '✓ OPENING COMPLETE' : 'OPENING CHECKLIST'}
           </Button>
+          
+          <Button
+            onClick={() => setShowBriefingForm(true)}
+            disabled={!myCheckIn || briefings.length > 0}
+            className="h-20 text-lg font-bold bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 shadow-lg"
+            size="lg"
+          >
+            <MessageSquare className="w-6 h-6 mr-3" />
+            {briefings.length > 0 ? '✓ BRIEFING LOGGED' : 'DAILY BRIEFING'}
+          </Button>
+          
           <Button
             onClick={() => openChecklist('closing')}
             disabled={!myCheckIn || myClosingCompletion?.status === 'completed'}
@@ -610,6 +629,16 @@ export default function DailyOperationsHub() {
             </div>
           </DialogContent>
         </Dialog>
+
+        {/* Daily Briefing Form */}
+        <DailyBriefingForm
+          open={showBriefingForm}
+          onClose={() => setShowBriefingForm(false)}
+          user={user}
+          currentShift={currentShift}
+          today={today}
+          onSuccess={() => queryClient.invalidateQueries(['briefings'])}
+        />
       </div>
 
       {/* Bottom Quick Toolbar */}
