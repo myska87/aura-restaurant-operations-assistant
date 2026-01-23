@@ -4,6 +4,9 @@ import Announcements from './pages/Announcements';
 import AssetDetail from './pages/AssetDetail';
 import Assets from './pages/Assets';
 import ChangeRequests from './pages/ChangeRequests';
+import ChecklistBuilder from './pages/ChecklistBuilder';
+import ChecklistLibrary from './pages/ChecklistLibrary';
+import ChecklistReports from './pages/ChecklistReports';
 import ChemicalDashboard from './pages/ChemicalDashboard';
 import ChemicalDetail from './pages/ChemicalDetail';
 import ChemicalRegister from './pages/ChemicalRegister';
@@ -21,6 +24,7 @@ import EquipmentHealth from './pages/EquipmentHealth';
 import FlowBoard from './pages/FlowBoard';
 import FoodSafetyChecklist from './pages/FoodSafetyChecklist';
 import Forms from './pages/Forms';
+import GlobalInfo from './pages/GlobalInfo';
 import InspectorMode from './pages/InspectorMode';
 import Inventory from './pages/Inventory';
 import InventoryAdjustment from './pages/InventoryAdjustment';
@@ -75,10 +79,6 @@ import VisualProcedures from './pages/VisualProcedures';
 import WeeklyManagerReportDetail from './pages/WeeklyManagerReportDetail';
 import WeeklyManagerReportForm from './pages/WeeklyManagerReportForm';
 import WeeklyManagerReports from './pages/WeeklyManagerReports';
-import ChecklistLibrary from './pages/ChecklistLibrary';
-import ChecklistBuilder from './pages/ChecklistBuilder';
-import ChecklistReports from './pages/ChecklistReports';
-import GlobalInfo from './pages/GlobalInfo';
 import __Layout from './Layout.jsx';
 
 
@@ -89,6 +89,9 @@ export const PAGES = {
     "AssetDetail": AssetDetail,
     "Assets": Assets,
     "ChangeRequests": ChangeRequests,
+    "ChecklistBuilder": ChecklistBuilder,
+    "ChecklistLibrary": ChecklistLibrary,
+    "ChecklistReports": ChecklistReports,
     "ChemicalDashboard": ChemicalDashboard,
     "ChemicalDetail": ChemicalDetail,
     "ChemicalRegister": ChemicalRegister,
@@ -106,6 +109,7 @@ export const PAGES = {
     "FlowBoard": FlowBoard,
     "FoodSafetyChecklist": FoodSafetyChecklist,
     "Forms": Forms,
+    "GlobalInfo": GlobalInfo,
     "InspectorMode": InspectorMode,
     "Inventory": Inventory,
     "InventoryAdjustment": InventoryAdjustment,
@@ -160,10 +164,6 @@ export const PAGES = {
     "WeeklyManagerReportDetail": WeeklyManagerReportDetail,
     "WeeklyManagerReportForm": WeeklyManagerReportForm,
     "WeeklyManagerReports": WeeklyManagerReports,
-    "ChecklistLibrary": ChecklistLibrary,
-    "ChecklistBuilder": ChecklistBuilder,
-    "ChecklistReports": ChecklistReports,
-    "GlobalInfo": GlobalInfo,
 }
 
 export const pagesConfig = {

@@ -10,7 +10,7 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { ClipboardCheck, Thermometer, Tag, MessageSquare, User, Clock, Calendar, Plus } from 'lucide-react';
+import { ClipboardCheck, Thermometer, Tag, MessageSquare, User, Clock, Calendar, Plus, Printer, Eye } from 'lucide-react';
 import { format } from 'date-fns';
 import PageHeader from '@/components/ui/PageHeader';
 import LoadingSpinner from '@/components/ui/LoadingSpinner';
@@ -56,6 +56,12 @@ export default function OperationsHistory() {
   const { data: handovers = [] } = useQuery({
     queryKey: ['allHandovers', dateFilter],
     queryFn: () => base44.entities.ShiftHandover.list('-shift_date', 100),
+    enabled: !!user
+  });
+
+  const { data: checklists = [] } = useQuery({
+    queryKey: ['allChecklists', dateFilter],
+    queryFn: () => base44.entities.ChecklistCompletion.list('-completed_at', 100),
     enabled: !!user
   });
 
@@ -110,6 +116,10 @@ export default function OperationsHistory() {
     ? handovers.filter(h => h.shift_date === dateFilter)
     : handovers;
 
+  const filteredChecklists = dateFilter 
+    ? checklists.filter(c => c.date === dateFilter)
+    : checklists;
+
   return (
     <div className="space-y-6">
       <PageHeader
@@ -140,8 +150,12 @@ export default function OperationsHistory() {
         </CardContent>
       </Card>
 
-      <Tabs defaultValue="checkins">
-        <TabsList className="grid w-full grid-cols-4">
+      <Tabs defaultValue="checklists">
+        <TabsList className="grid w-full grid-cols-5">
+          <TabsTrigger value="checklists">
+            <ClipboardCheck className="w-4 h-4 mr-2" />
+            Checklists
+          </TabsTrigger>
           <TabsTrigger value="checkins">
             <ClipboardCheck className="w-4 h-4 mr-2" />
             Check-Ins
@@ -159,6 +173,86 @@ export default function OperationsHistory() {
             Handovers
           </TabsTrigger>
         </TabsList>
+
+        {/* Checklists */}
+        <TabsContent value="checklists">
+          <Card>
+            <CardHeader>
+              <CardTitle>Opening & Closing Checklists ({filteredChecklists.length})</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <ScrollArea className="h-[600px]">
+                <div className="space-y-3">
+                  {filteredChecklists.map(checklist => (
+                    <Card key={checklist.id} className={`${
+                      checklist.checklist_category === 'opening' ? 'border-l-4 border-l-emerald-600' : 'border-l-4 border-l-red-600'
+                    }`}>
+                      <CardContent className="pt-4">
+                        <div className="flex items-start justify-between mb-3">
+                          <div className="flex-1">
+                            <div className="flex items-center gap-3 mb-2">
+                              <Badge className={checklist.checklist_category === 'opening' ? 'bg-emerald-600' : 'bg-red-600'}>
+                                {checklist.checklist_category?.toUpperCase()}
+                              </Badge>
+                              <Badge className={checklist.status === 'completed' ? 'bg-emerald-600' : checklist.status === 'failed' ? 'bg-red-600' : 'bg-amber-600'}>
+                                {checklist.status?.toUpperCase()}
+                              </Badge>
+                            </div>
+                            <p className="font-semibold">{checklist.checklist_name}</p>
+                            <p className="text-sm text-slate-600">{checklist.user_name}</p>
+                          </div>
+                          <div className="text-right flex flex-col items-end gap-2">
+                            <p className="text-3xl font-bold text-emerald-600">{Math.round(checklist.completion_percentage)}%</p>
+                            <div className="flex gap-2">
+                              <Button
+                                size="sm"
+                                variant="outline"
+                                onClick={() => window.print()}
+                                className="flex items-center gap-1"
+                              >
+                                <Printer className="w-4 h-4" />
+                                Print
+                              </Button>
+                            </div>
+                          </div>
+                        </div>
+
+                        <div className="grid grid-cols-3 gap-3 mb-3 text-sm">
+                          <div className="p-2 bg-slate-50 rounded">
+                            <p className="text-xs text-slate-600">Date</p>
+                            <p className="font-semibold">{format(new Date(checklist.date), 'MMM d')}</p>
+                          </div>
+                          <div className="p-2 bg-slate-50 rounded">
+                            <p className="text-xs text-slate-600">Shift</p>
+                            <p className="font-semibold">{checklist.shift}</p>
+                          </div>
+                          <div className="p-2 bg-slate-50 rounded">
+                            <p className="text-xs text-slate-600">Completed</p>
+                            <p className="font-semibold">{checklist.completed_at ? format(new Date(checklist.completed_at), 'HH:mm') : '-'}</p>
+                          </div>
+                        </div>
+
+                        {checklist.failed_items && checklist.failed_items.length > 0 && (
+                          <div className="p-2 bg-red-50 border border-red-200 rounded mb-2">
+                            <p className="text-xs font-semibold text-red-700 mb-1">⚠ {checklist.failed_items.length} Issues Flagged</p>
+                            <p className="text-xs text-red-600">Requires manager review</p>
+                          </div>
+                        )}
+
+                        <div className="border-t pt-2 text-xs text-slate-500">
+                          Items completed: {checklist.answers?.length || 0}
+                        </div>
+                      </CardContent>
+                    </Card>
+                  ))}
+                  {filteredChecklists.length === 0 && (
+                    <p className="text-center text-slate-500 py-8">No checklists completed</p>
+                  )}
+                </div>
+              </ScrollArea>
+            </CardContent>
+          </Card>
+        </TabsContent>
 
         {/* Check-Ins */}
         <TabsContent value="checkins">

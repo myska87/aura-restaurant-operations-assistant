@@ -3,7 +3,7 @@ import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { format } from 'date-fns';
 import { motion } from 'framer-motion';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
 import {
   ClipboardCheck,
@@ -22,7 +22,8 @@ import {
   Settings,
   PlayCircle,
   StopCircle,
-  Droplet
+  Droplet,
+  Eye
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
@@ -43,6 +44,7 @@ export default function DailyOperationsHub() {
   const [showTempAssets, setShowTempAssets] = useState(false);
   const [showBriefingForm, setShowBriefingForm] = useState(false);
   const queryClient = useQueryClient();
+  const navigate = useNavigate();
 
   useEffect(() => {
     base44.auth.me().then(setUser).catch(() => {});
@@ -228,11 +230,18 @@ export default function DailyOperationsHub() {
     try {
       const status = completionInProgress.failed_items?.length > 0 ? 'failed' : 'completed';
       
-      await base44.entities.ChecklistCompletion.update(completionInProgress.id, {
+      const finalData = {
+        ...completionInProgress,
         status,
         completed_at: new Date().toISOString(),
         completion_percentage: 100
-      });
+      };
+
+      if (completionInProgress.id) {
+        await base44.entities.ChecklistCompletion.update(completionInProgress.id, finalData);
+      } else {
+        await base44.entities.ChecklistCompletion.create(finalData);
+      }
 
       queryClient.invalidateQueries(['completions']);
       
@@ -419,35 +428,74 @@ export default function DailyOperationsHub() {
 
         {/* Opening, Closing & Briefing Buttons */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <Button
-            onClick={() => openChecklist('opening')}
-            disabled={!myCheckIn || myOpeningCompletion?.status === 'completed'}
-            className="h-20 text-lg font-bold bg-gradient-to-r from-emerald-500 to-emerald-600 hover:from-emerald-600 hover:to-emerald-700 shadow-lg"
-            size="lg"
-          >
-            <PlayCircle className="w-6 h-6 mr-3" />
-            {myOpeningCompletion?.status === 'completed' ? '✓ OPENING COMPLETE' : 'OPENING CHECKLIST'}
-          </Button>
+          <div className="space-y-2">
+            <Button
+              onClick={() => openChecklist('opening')}
+              disabled={!myCheckIn || myOpeningCompletion?.status === 'completed'}
+              className="h-20 w-full text-lg font-bold bg-gradient-to-r from-emerald-500 to-emerald-600 hover:from-emerald-600 hover:to-emerald-700 shadow-lg"
+              size="lg"
+            >
+              <PlayCircle className="w-6 h-6 mr-3" />
+              {myOpeningCompletion?.status === 'completed' ? '✓ OPENING COMPLETE' : 'OPENING CHECKLIST'}
+            </Button>
+            {myOpeningCompletion?.status === 'completed' && (
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => navigate(createPageUrl('OperationsHistory'))}
+                className="w-full flex items-center justify-center gap-2"
+              >
+                <Eye className="w-4 h-4" />
+                View Report
+              </Button>
+            )}
+          </div>
           
-          <Button
-            onClick={() => setShowBriefingForm(true)}
-            disabled={!myCheckIn || briefings.length > 0}
-            className="h-20 text-lg font-bold bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 shadow-lg"
-            size="lg"
-          >
-            <MessageSquare className="w-6 h-6 mr-3" />
-            {briefings.length > 0 ? '✓ BRIEFING LOGGED' : 'DAILY BRIEFING'}
-          </Button>
+          <div className="space-y-2">
+            <Button
+              onClick={() => setShowBriefingForm(true)}
+              disabled={!myCheckIn || briefings.length > 0}
+              className="h-20 w-full text-lg font-bold bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 shadow-lg"
+              size="lg"
+            >
+              <MessageSquare className="w-6 h-6 mr-3" />
+              {briefings.length > 0 ? '✓ BRIEFING LOGGED' : 'DAILY BRIEFING'}
+            </Button>
+            {briefings.length > 0 && (
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => navigate(createPageUrl('OperationsHistory'))}
+                className="w-full flex items-center justify-center gap-2"
+              >
+                <Eye className="w-4 h-4" />
+                View
+              </Button>
+            )}
+          </div>
           
-          <Button
-            onClick={() => openChecklist('closing')}
-            disabled={!myCheckIn || myClosingCompletion?.status === 'completed'}
-            className="h-20 text-lg font-bold bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 shadow-lg"
-            size="lg"
-          >
-            <StopCircle className="w-6 h-6 mr-3" />
-            {myClosingCompletion?.status === 'completed' ? '✓ CLOSING COMPLETE' : 'CLOSING CHECKLIST'}
-          </Button>
+          <div className="space-y-2">
+            <Button
+              onClick={() => openChecklist('closing')}
+              disabled={!myCheckIn || myClosingCompletion?.status === 'completed'}
+              className="h-20 w-full text-lg font-bold bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 shadow-lg"
+              size="lg"
+            >
+              <StopCircle className="w-6 h-6 mr-3" />
+              {myClosingCompletion?.status === 'completed' ? '✓ CLOSING COMPLETE' : 'CLOSING CHECKLIST'}
+            </Button>
+            {myClosingCompletion?.status === 'completed' && (
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => navigate(createPageUrl('OperationsHistory'))}
+                className="w-full flex items-center justify-center gap-2"
+              >
+                <Eye className="w-4 h-4" />
+                View Report
+              </Button>
+            )}
+          </div>
         </div>
 
         {/* Shift Summary Card */}
