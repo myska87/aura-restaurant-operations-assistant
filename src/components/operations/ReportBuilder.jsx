@@ -8,8 +8,21 @@ import { motion } from 'framer-motion';
 import html2canvas from 'html2canvas';
 import jsPDF from 'jspdf';
 import * as XLSX from 'xlsx';
+import {
+  DetailedCheckInsSection,
+  DetailedTemperaturesSection,
+  DetailedLabelsSection,
+  DetailedHandoversSection,
+  DetailedIssuesSection
+} from './DetailedReportSections';
+import {
+  CheckInCompletionChart,
+  TemperatureComplianceChart,
+  IssuesTrendChart,
+  EquipmentActivityChart
+} from './ReportCharts';
 
-export default function ReportBuilder({ reportData, reportType, dateRange, globalInfo, user }) {
+export default function ReportBuilder({ reportData, reportType, dateRange, globalInfo, user, detailedMode = true }) {
   const reportRef = useRef();
   const [exporting, setExporting] = useState(false);
 
@@ -160,122 +173,170 @@ export default function ReportBuilder({ reportData, reportType, dateRange, globa
 
         {/* Report Sections */}
         <div className="p-8 space-y-8">
-          {/* Check-Ins Section */}
-          {reportData.checkIns && (
-            <div>
-              <h2 className="text-xl font-bold text-slate-800 mb-4 pb-2 border-b-2 border-emerald-300">
-                ✅ Daily Check-Ins
-              </h2>
-              <div className="grid grid-cols-3 gap-4 mb-4">
-                <Card>
-                  <CardContent className="pt-4">
-                    <p className="text-sm text-slate-600">Total Check-Ins</p>
-                    <p className="text-2xl font-bold text-emerald-600">{reportData.checkIns.total || 0}</p>
-                  </CardContent>
-                </Card>
-                <Card>
-                  <CardContent className="pt-4">
-                    <p className="text-sm text-slate-600">Completed</p>
-                    <p className="text-2xl font-bold text-blue-600">{reportData.checkIns.completed || 0}</p>
-                  </CardContent>
-                </Card>
-                <Card>
-                  <CardContent className="pt-4">
-                    <p className="text-sm text-slate-600">Completion Rate</p>
-                    <p className="text-2xl font-bold text-purple-600">
-                      {reportData.checkIns.total > 0 ? Math.round((reportData.checkIns.completed / reportData.checkIns.total) * 100) : 0}%
-                    </p>
-                  </CardContent>
-                </Card>
-              </div>
-            </div>
-          )}
+          {/* Summary or Detailed Sections */}
+          {!detailedMode ? (
+            <>
+              {/* Quick Summary */}
+              {reportData.checkIns && (
+                <div>
+                  <h2 className="text-xl font-bold text-slate-800 mb-4 pb-2 border-b-2 border-emerald-300">
+                    ✅ Daily Check-Ins Summary
+                  </h2>
+                  <div className="grid grid-cols-3 gap-4 mb-4">
+                    <Card>
+                      <CardContent className="pt-4">
+                        <p className="text-sm text-slate-600">Total Check-Ins</p>
+                        <p className="text-2xl font-bold text-emerald-600">{reportData.checkIns.total || 0}</p>
+                      </CardContent>
+                    </Card>
+                    <Card>
+                      <CardContent className="pt-4">
+                        <p className="text-sm text-slate-600">Completed</p>
+                        <p className="text-2xl font-bold text-blue-600">{reportData.checkIns.completed || 0}</p>
+                      </CardContent>
+                    </Card>
+                    <Card>
+                      <CardContent className="pt-4">
+                        <p className="text-sm text-slate-600">Completion Rate</p>
+                        <p className="text-2xl font-bold text-purple-600">
+                          {reportData.checkIns.total > 0 ? Math.round((reportData.checkIns.completed / reportData.checkIns.total) * 100) : 0}%
+                        </p>
+                      </CardContent>
+                    </Card>
+                  </div>
+                </div>
+              )}
 
-          {/* Temperature Logs */}
-          {reportData.temperatures && (
-            <div>
-              <h2 className="text-xl font-bold text-slate-800 mb-4 pb-2 border-b-2 border-emerald-300">
-                🕒 Temperature Logs
-              </h2>
-              <div className="grid grid-cols-3 gap-4 mb-4">
-                <Card>
-                  <CardContent className="pt-4">
-                    <p className="text-sm text-slate-600">Total Logs</p>
-                    <p className="text-2xl font-bold text-emerald-600">{reportData.temperatures.total || 0}</p>
-                  </CardContent>
-                </Card>
-                <Card>
-                  <CardContent className="pt-4">
-                    <p className="text-sm text-slate-600">Compliant</p>
-                    <p className="text-2xl font-bold text-emerald-600">{reportData.temperatures.compliant || 0}</p>
-                  </CardContent>
-                </Card>
-                <Card>
-                  <CardContent className="pt-4">
-                    <p className="text-sm text-slate-600">Issues</p>
-                    <p className="text-2xl font-bold text-red-600">{reportData.temperatures.issues || 0}</p>
-                  </CardContent>
-                </Card>
-              </div>
-            </div>
-          )}
+              {/* Temperature Logs Summary */}
+              {reportData.temperatures && (
+                <div>
+                  <h2 className="text-xl font-bold text-slate-800 mb-4 pb-2 border-b-2 border-emerald-300">
+                    🕒 Temperature Logs Summary
+                  </h2>
+                  <div className="grid grid-cols-3 gap-4 mb-4">
+                    <Card>
+                      <CardContent className="pt-4">
+                        <p className="text-sm text-slate-600">Total Logs</p>
+                        <p className="text-2xl font-bold text-emerald-600">{reportData.temperatures.total || 0}</p>
+                      </CardContent>
+                    </Card>
+                    <Card>
+                      <CardContent className="pt-4">
+                        <p className="text-sm text-slate-600">Compliant</p>
+                        <p className="text-2xl font-bold text-emerald-600">{reportData.temperatures.compliant || 0}</p>
+                      </CardContent>
+                    </Card>
+                    <Card>
+                      <CardContent className="pt-4">
+                        <p className="text-sm text-slate-600">Issues</p>
+                        <p className="text-2xl font-bold text-red-600">{reportData.temperatures.issues || 0}</p>
+                      </CardContent>
+                    </Card>
+                  </div>
+                </div>
+              )}
 
-          {/* Labels */}
-          {reportData.labels && (
-            <div>
-              <h2 className="text-xl font-bold text-slate-800 mb-4 pb-2 border-b-2 border-emerald-300">
-                🏷️ Label Print Log
-              </h2>
-              <div className="grid grid-cols-3 gap-4 mb-4">
-                <Card>
-                  <CardContent className="pt-4">
-                    <p className="text-sm text-slate-600">Labels Printed</p>
-                    <p className="text-2xl font-bold text-purple-600">{reportData.labels.total || 0}</p>
-                  </CardContent>
-                </Card>
-                <Card>
-                  <CardContent className="pt-4">
-                    <p className="text-sm text-slate-600">Active Labels</p>
-                    <p className="text-2xl font-bold text-emerald-600">{reportData.labels.active || 0}</p>
-                  </CardContent>
-                </Card>
-                <Card>
-                  <CardContent className="pt-4">
-                    <p className="text-sm text-slate-600">Expiring Soon</p>
-                    <p className="text-2xl font-bold text-amber-600">{reportData.labels.expiringSoon || 0}</p>
-                  </CardContent>
-                </Card>
-              </div>
-            </div>
-          )}
+              {/* Labels Summary */}
+              {reportData.labels && (
+                <div>
+                  <h2 className="text-xl font-bold text-slate-800 mb-4 pb-2 border-b-2 border-emerald-300">
+                    🏷️ Label Print Log Summary
+                  </h2>
+                  <div className="grid grid-cols-3 gap-4 mb-4">
+                    <Card>
+                      <CardContent className="pt-4">
+                        <p className="text-sm text-slate-600">Labels Printed</p>
+                        <p className="text-2xl font-bold text-purple-600">{reportData.labels.total || 0}</p>
+                      </CardContent>
+                    </Card>
+                    <Card>
+                      <CardContent className="pt-4">
+                        <p className="text-sm text-slate-600">Active Labels</p>
+                        <p className="text-2xl font-bold text-emerald-600">{reportData.labels.active || 0}</p>
+                      </CardContent>
+                    </Card>
+                    <Card>
+                      <CardContent className="pt-4">
+                        <p className="text-sm text-slate-600">Expiring Soon</p>
+                        <p className="text-2xl font-bold text-amber-600">{reportData.labels.expiringSoon || 0}</p>
+                      </CardContent>
+                    </Card>
+                  </div>
+                </div>
+              )}
 
-          {/* Handovers */}
-          {reportData.handovers && (
-            <div>
-              <h2 className="text-xl font-bold text-slate-800 mb-4 pb-2 border-b-2 border-emerald-300">
-                🔁 Shift Handovers
-              </h2>
-              <div className="grid grid-cols-3 gap-4 mb-4">
-                <Card>
-                  <CardContent className="pt-4">
-                    <p className="text-sm text-slate-600">Total Handovers</p>
-                    <p className="text-2xl font-bold text-emerald-600">{reportData.handovers.total || 0}</p>
-                  </CardContent>
-                </Card>
-                <Card>
-                  <CardContent className="pt-4">
-                    <p className="text-sm text-slate-600">Acknowledged</p>
-                    <p className="text-2xl font-bold text-emerald-600">{reportData.handovers.acknowledged || 0}</p>
-                  </CardContent>
-                </Card>
-                <Card>
-                  <CardContent className="pt-4">
-                    <p className="text-sm text-slate-600">Issues Logged</p>
-                    <p className="text-2xl font-bold text-amber-600">{reportData.handovers.withIssues || 0}</p>
-                  </CardContent>
-                </Card>
+              {/* Handovers Summary */}
+              {reportData.handovers && (
+                <div>
+                  <h2 className="text-xl font-bold text-slate-800 mb-4 pb-2 border-b-2 border-emerald-300">
+                    🔁 Shift Handovers Summary
+                  </h2>
+                  <div className="grid grid-cols-3 gap-4 mb-4">
+                    <Card>
+                      <CardContent className="pt-4">
+                        <p className="text-sm text-slate-600">Total Handovers</p>
+                        <p className="text-2xl font-bold text-emerald-600">{reportData.handovers.total || 0}</p>
+                      </CardContent>
+                    </Card>
+                    <Card>
+                      <CardContent className="pt-4">
+                        <p className="text-sm text-slate-600">Acknowledged</p>
+                        <p className="text-2xl font-bold text-emerald-600">{reportData.handovers.acknowledged || 0}</p>
+                      </CardContent>
+                    </Card>
+                    <Card>
+                      <CardContent className="pt-4">
+                        <p className="text-sm text-slate-600">Issues Logged</p>
+                        <p className="text-2xl font-bold text-amber-600">{reportData.handovers.withIssues || 0}</p>
+                      </CardContent>
+                    </Card>
+                  </div>
+                </div>
+              )}
+            </>
+          ) : (
+            <>
+              {/* Detailed Tables */}
+              {reportData.rawData?.checkIns && (
+                <>
+                  <DetailedCheckInsSection checkIns={reportData.rawData.checkIns} />
+                  <div className="page-break" style={{ pageBreakAfter: 'always' }} />
+                </>
+              )}
+              {reportData.rawData?.temperatures && (
+                <>
+                  <DetailedTemperaturesSection temperatures={reportData.rawData.temperatures} />
+                  <div className="page-break" style={{ pageBreakAfter: 'always' }} />
+                </>
+              )}
+              {reportData.rawData?.labels && (
+                <>
+                  <DetailedLabelsSection labels={reportData.rawData.labels} />
+                  <div className="page-break" style={{ pageBreakAfter: 'always' }} />
+                </>
+              )}
+              {reportData.rawData?.handovers && (
+                <>
+                  <DetailedHandoversSection handovers={reportData.rawData.handovers} />
+                  <div className="page-break" style={{ pageBreakAfter: 'always' }} />
+                </>
+              )}
+              {reportData.rawData?.issues && reportData.rawData.issues.length > 0 && (
+                <>
+                  <DetailedIssuesSection issues={reportData.rawData.issues} />
+                  <div className="page-break" style={{ pageBreakAfter: 'always' }} />
+                </>
+              )}
+
+              {/* Analytics Charts */}
+              <div className="space-y-6">
+                <h2 className="text-2xl font-bold text-slate-800 mb-4">📊 Analytics & Charts</h2>
+                {reportData.rawData?.checkIns && <CheckInCompletionChart checkIns={reportData.rawData.checkIns} />}
+                {reportData.rawData?.temperatures && <TemperatureComplianceChart temperatures={reportData.rawData.temperatures} />}
+                {reportData.rawData?.issues && <IssuesTrendChart issues={reportData.rawData.issues} />}
+                {reportData.rawData?.temperatures && <EquipmentActivityChart temperatures={reportData.rawData.temperatures} />}
               </div>
-            </div>
+            </>
           )}
         </div>
 
