@@ -115,13 +115,21 @@ export default function DocumentCreator() {
     if (!user) return;
     
     setIsSaving(true);
+    
+    // Auto-increment version if content changed
+    let newVersion = documentId ? existingDocument?.version : '1.0';
+    if (documentId && existingDocument?.content !== content) {
+      const [major, minor] = (existingDocument?.version || '1.0').split('.').map(Number);
+      newVersion = `${major}.${minor + 1}`;
+    }
+    
     const docData = {
       title,
       content,
       category,
       visibility,
       tags,
-      version: documentId ? existingDocument?.version : '1.0',
+      version: newVersion,
       status,
       author_id: user.id,
       author_name: user.full_name || user.email,
@@ -129,6 +137,31 @@ export default function DocumentCreator() {
       requires_signature: requiresSignature,
       next_review_date: nextReviewDate || null
     };
+
+    // Create version snapshot
+    if (documentId && existingDocument?.content !== content) {
+      await base44.entities.DocumentVersion.create({
+        document_id: documentId,
+        document_title: title,
+        version_number: newVersion,
+        content_snapshot: content,
+        change_summary: 'Content updated',
+        created_by_id: user.id,
+        created_by_name: user.full_name || user.email,
+        change_type: 'content_update'
+      });
+
+      // Log audit
+      await base44.entities.AuditLog.create({
+        action: 'document_edited',
+        entity_type: 'Document',
+        entity_id: documentId,
+        user_id: user.id,
+        user_name: user.full_name || user.email,
+        details: `Document "${title}" updated to version ${newVersion}`,
+        timestamp: new Date().toISOString()
+      });
+    }
 
     // If updating and requires_reacknowledgement is enabled, flag all existing acknowledgements
     if (documentId && requiresReacknowledgement && existingDocument?.content !== content) {
@@ -259,6 +292,7 @@ export default function DocumentCreator() {
               content={content}
               onContentChange={setContent}
               isSaving={isSaving}
+              documentId={documentId}
             />
           )}
 
@@ -273,6 +307,7 @@ export default function DocumentCreator() {
             createdDate={existingDocument?.created_date}
             lastEditedDate={existingDocument?.updated_date}
             status={status}
+            onStatusChange={setStatus}
             requiresReacknowledgement={requiresReacknowledgement}
             requiresSignature={requiresSignature}
             nextReviewDate={nextReviewDate}

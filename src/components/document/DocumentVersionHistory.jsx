@@ -21,6 +21,14 @@ export default function DocumentVersionHistory({ documentId, currentVersion }) {
     enabled: !!documentId
   });
 
+  const { data: auditLogs = [] } = useQuery({
+    queryKey: ['documentAudits', documentId],
+    queryFn: () => documentId 
+      ? base44.entities.AuditLog.filter({ entity_id: documentId, entity_type: 'Document' }, '-timestamp')
+      : [],
+    enabled: !!documentId
+  });
+
   return (
     <>
       <Button
@@ -34,16 +42,20 @@ export default function DocumentVersionHistory({ documentId, currentVersion }) {
       </Button>
 
       <Dialog open={showDialog} onOpenChange={setShowDialog}>
-        <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
+        <DialogContent className="max-w-3xl max-h-[80vh] overflow-y-auto">
           <DialogHeader>
-            <DialogTitle>Version History</DialogTitle>
+            <DialogTitle>Version History & Audit Log</DialogTitle>
           </DialogHeader>
 
-          <div className="space-y-3">
-            {versions.length === 0 ? (
-              <p className="text-center text-slate-500 py-8">No version history yet</p>
-            ) : (
-              versions.map((version, idx) => (
+          <div className="space-y-6">
+            {/* Version History */}
+            <div>
+              <h3 className="font-semibold text-slate-800 mb-3">Versions</h3>
+              {versions.length === 0 ? (
+                <p className="text-center text-slate-500 py-8">No version history yet</p>
+              ) : (
+                <div className="space-y-3">
+                  {versions.map((version, idx) => (
                 <motion.div
                   key={version.id}
                   initial={{ opacity: 0, x: -10 }}
@@ -86,8 +98,29 @@ export default function DocumentVersionHistory({ documentId, currentVersion }) {
                     </CardContent>
                   </Card>
                 </motion.div>
-              ))
-            )}
+              ))}
+                </div>
+              )}
+            </div>
+
+            {/* Audit Log */}
+            <div className="border-t pt-6">
+              <h3 className="font-semibold text-slate-800 mb-3">Audit Log</h3>
+              {auditLogs.length === 0 ? (
+                <p className="text-center text-slate-500 py-4">No audit logs</p>
+              ) : (
+                <div className="space-y-2 max-h-60 overflow-y-auto">
+                  {auditLogs.map((log, idx) => (
+                    <div key={log.id} className="text-xs bg-slate-50 p-2 rounded border border-slate-200">
+                      <p className="text-slate-700">{log.details}</p>
+                      <p className="text-slate-500 text-[10px] mt-1">
+                        {log.user_name} • {format(new Date(log.timestamp), 'MMM d, yyyy HH:mm')}
+                      </p>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
           </div>
         </DialogContent>
       </Dialog>

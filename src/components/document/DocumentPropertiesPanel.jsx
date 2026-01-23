@@ -11,9 +11,10 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { X, Tag, FileText, Link2, RefreshCw, FileSignature, CalendarClock } from 'lucide-react';
+import { X, Tag, FileText, Link2, RefreshCw, FileSignature, CalendarClock, CheckSquare } from 'lucide-react';
 import { Switch } from '@/components/ui/switch';
 import { format } from 'date-fns';
+import ImageControlPanel from './ImageControlPanel';
 
 const CATEGORIES = [
   { value: 'policies', label: 'Policies' },
@@ -49,12 +50,18 @@ export default function DocumentPropertiesPanel({
   onTagAdd,
   onTagRemove,
   status,
+  onStatusChange,
   requiresReacknowledgement = false,
   onRequiresReacknowledgementChange,
   requiresSignature = false,
   onRequiresSignatureChange,
   nextReviewDate = '',
-  onNextReviewDateChange
+  onNextReviewDateChange,
+  selectedImage = null,
+  onImageRotate,
+  onImageAlign,
+  onImageDelete,
+  onImageSizeChange
 }) {
   const [newTag, setNewTag] = React.useState('');
 
@@ -85,28 +92,59 @@ export default function DocumentPropertiesPanel({
       {/* Category & Status */}
       <Card>
         <CardHeader className="pb-3">
-          <CardTitle className="text-sm">Category</CardTitle>
+          <CardTitle className="text-sm">Category & Status</CardTitle>
         </CardHeader>
-        <CardContent className="space-y-2">
-          <Select value={category} onValueChange={onCategoryChange}>
-            <SelectTrigger className="text-sm">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              {CATEGORIES.map(cat => (
-                <SelectItem key={cat.value} value={cat.value}>{cat.label}</SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-          {status && (
-            <Badge className={
-              status === 'published' ? 'bg-emerald-100 text-emerald-800' :
-              status === 'draft' ? 'bg-amber-100 text-amber-800' :
-              'bg-slate-100 text-slate-800'
-            }>
-              {status}
-            </Badge>
-          )}
+        <CardContent className="space-y-3">
+          <div>
+            <Label className="text-xs font-semibold mb-1 block">Category</Label>
+            <Select value={category} onValueChange={onCategoryChange}>
+              <SelectTrigger className="text-sm">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                {CATEGORIES.map(cat => (
+                  <SelectItem key={cat.value} value={cat.value}>{cat.label}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+          <div>
+            <Label className="text-xs font-semibold mb-1 block">Status</Label>
+            <Select value={status} onValueChange={onStatusChange}>
+              <SelectTrigger className="text-sm">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="draft">
+                  <span className="flex items-center gap-2">
+                    <span className="w-2 h-2 rounded-full bg-amber-500" />
+                    Draft
+                  </span>
+                </SelectItem>
+                <SelectItem value="under_review">
+                  <span className="flex items-center gap-2">
+                    <span className="w-2 h-2 rounded-full bg-blue-500" />
+                    Under Review
+                  </span>
+                </SelectItem>
+                <SelectItem value="approved">
+                  <span className="flex items-center gap-2">
+                    <span className="w-2 h-2 rounded-full bg-emerald-500" />
+                    Approved
+                  </span>
+                </SelectItem>
+                <SelectItem value="archived">
+                  <span className="flex items-center gap-2">
+                    <span className="w-2 h-2 rounded-full bg-slate-400" />
+                    Archived
+                  </span>
+                </SelectItem>
+              </SelectContent>
+            </Select>
+            <p className="text-xs text-slate-500 mt-1">
+              Only approved documents can be assigned & signed
+            </p>
+          </div>
         </CardContent>
       </Card>
 
@@ -219,7 +257,7 @@ export default function DocumentPropertiesPanel({
         <CardHeader className="pb-3">
           <CardTitle className="text-sm flex items-center gap-2">
             <Tag className="w-4 h-4" />
-            Tags
+            Keywords & Tags
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-3">
@@ -227,7 +265,7 @@ export default function DocumentPropertiesPanel({
             <Input
               value={newTag}
               onChange={(e) => setNewTag(e.target.value)}
-              placeholder="Add tag..."
+              placeholder="Add keyword..."
               className="text-xs"
               onKeyPress={(e) => e.key === 'Enter' && handleAddTag()}
             />
@@ -246,8 +284,18 @@ export default function DocumentPropertiesPanel({
               </Badge>
             ))}
           </div>
+          <p className="text-xs text-slate-500">Keywords improve search & discoverability</p>
         </CardContent>
       </Card>
+
+      {/* Image Controls */}
+      <ImageControlPanel
+        selectedImage={selectedImage}
+        onRotate={onImageRotate}
+        onAlign={onImageAlign}
+        onDelete={onImageDelete}
+        onSizeChange={onImageSizeChange}
+      />
     </div>
   );
 }

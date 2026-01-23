@@ -147,7 +147,9 @@ export default function Documents() {
 
   const filteredDocuments = documents.filter(doc => {
     if (!canViewDocument(doc)) return false;
-    const matchesSearch = doc.title?.toLowerCase().includes(searchQuery.toLowerCase());
+    const matchesSearch = doc.title?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                          doc.tags?.some(tag => tag.toLowerCase().includes(searchQuery.toLowerCase())) ||
+                          doc.content?.toLowerCase().includes(searchQuery.toLowerCase());
     const matchesCategory = filterCategory === 'all' || doc.category === filterCategory;
     return matchesSearch && matchesCategory;
   });
@@ -207,7 +209,8 @@ export default function Documents() {
 
   const statusColors = {
     draft: 'bg-amber-100 text-amber-700',
-    published: 'bg-emerald-100 text-emerald-700',
+    under_review: 'bg-blue-100 text-blue-700',
+    approved: 'bg-emerald-100 text-emerald-700',
     archived: 'bg-slate-100 text-slate-600'
   };
 
@@ -381,7 +384,8 @@ export default function Documents() {
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="draft">Draft</SelectItem>
-                    <SelectItem value="published">Published</SelectItem>
+                    <SelectItem value="under_review">Under Review</SelectItem>
+                    <SelectItem value="approved">Approved</SelectItem>
                     <SelectItem value="archived">Archived</SelectItem>
                   </SelectContent>
                 </Select>

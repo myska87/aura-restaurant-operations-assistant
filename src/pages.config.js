@@ -9,9 +9,12 @@ import ChemicalDetail from './pages/ChemicalDetail';
 import ChemicalRegister from './pages/ChemicalRegister';
 import ChemicalStockList from './pages/ChemicalStockList';
 import CommandCenter from './pages/CommandCenter';
+import ComplianceHub from './pages/ComplianceHub';
 import Culture from './pages/Culture';
 import DailyCheckIn from './pages/DailyCheckIn';
+import DailyOperationsHub from './pages/DailyOperationsHub';
 import Dashboard from './pages/Dashboard';
+import DataManagement from './pages/DataManagement';
 import DocumentCreator from './pages/DocumentCreator';
 import Documents from './pages/Documents';
 import EquipmentHealth from './pages/EquipmentHealth';
@@ -29,6 +32,7 @@ import MenuItemDetail from './pages/MenuItemDetail';
 import MenuManager from './pages/MenuManager';
 import menuV3Hub from './pages/Menu_v3_HUB';
 import MorningPrep from './pages/MorningPrep';
+import OnboardingFlow from './pages/OnboardingFlow';
 import Operations from './pages/Operations';
 import OperationsHistory from './pages/OperationsHistory';
 import POSSystem from './pages/POSSystem';
@@ -66,10 +70,6 @@ import VisualProcedures from './pages/VisualProcedures';
 import WeeklyManagerReportDetail from './pages/WeeklyManagerReportDetail';
 import WeeklyManagerReportForm from './pages/WeeklyManagerReportForm';
 import WeeklyManagerReports from './pages/WeeklyManagerReports';
-import DailyOperationsHub from './pages/DailyOperationsHub';
-import DataManagement from './pages/DataManagement';
-import OnboardingFlow from './pages/OnboardingFlow';
-import ComplianceHub from './pages/ComplianceHub';
 import __Layout from './Layout.jsx';
 
 
@@ -85,9 +85,12 @@ export const PAGES = {
     "ChemicalRegister": ChemicalRegister,
     "ChemicalStockList": ChemicalStockList,
     "CommandCenter": CommandCenter,
+    "ComplianceHub": ComplianceHub,
     "Culture": Culture,
     "DailyCheckIn": DailyCheckIn,
+    "DailyOperationsHub": DailyOperationsHub,
     "Dashboard": Dashboard,
+    "DataManagement": DataManagement,
     "DocumentCreator": DocumentCreator,
     "Documents": Documents,
     "EquipmentHealth": EquipmentHealth,
@@ -105,6 +108,7 @@ export const PAGES = {
     "MenuManager": MenuManager,
     "Menu_v3_HUB": menuV3Hub,
     "MorningPrep": MorningPrep,
+    "OnboardingFlow": OnboardingFlow,
     "Operations": Operations,
     "OperationsHistory": OperationsHistory,
     "POSSystem": POSSystem,
@@ -142,10 +146,6 @@ export const PAGES = {
     "WeeklyManagerReportDetail": WeeklyManagerReportDetail,
     "WeeklyManagerReportForm": WeeklyManagerReportForm,
     "WeeklyManagerReports": WeeklyManagerReports,
-    "DailyOperationsHub": DailyOperationsHub,
-    "DataManagement": DataManagement,
-    "OnboardingFlow": OnboardingFlow,
-    "ComplianceHub": ComplianceHub,
 }
 
 export const pagesConfig = {
