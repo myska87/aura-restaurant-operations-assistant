@@ -50,6 +50,7 @@ const navGroups = [
     title: 'Operations',
     items: [
       { name: 'Command Center', icon: LayoutDashboard, page: 'CommandCenter', roles: ['all'] },
+      { name: 'Daily Operations Hub', icon: ClipboardCheck, page: 'DailyOperationsHub', roles: ['all'] },
       { name: 'Operations', icon: ClipboardCheck, page: 'Operations', roles: ['all'] },
       { name: 'Prep Workflow', icon: ChefHat, page: 'PrepWorkflow', roles: ['all'] },
       { name: 'Menu Manager', icon: ChefHat, page: 'MenuManager', roles: ['all'] },

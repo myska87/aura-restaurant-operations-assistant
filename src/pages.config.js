@@ -63,9 +63,10 @@ import VisualDishGuides from './pages/VisualDishGuides';
 import VisualProcedureDetail from './pages/VisualProcedureDetail';
 import VisualProcedureForm from './pages/VisualProcedureForm';
 import VisualProcedures from './pages/VisualProcedures';
-import WeeklyManagerReports from './pages/WeeklyManagerReports';
-import WeeklyManagerReportForm from './pages/WeeklyManagerReportForm';
 import WeeklyManagerReportDetail from './pages/WeeklyManagerReportDetail';
+import WeeklyManagerReportForm from './pages/WeeklyManagerReportForm';
+import WeeklyManagerReports from './pages/WeeklyManagerReports';
+import DailyOperationsHub from './pages/DailyOperationsHub';
 import __Layout from './Layout.jsx';
 
 
@@ -135,9 +136,10 @@ export const PAGES = {
     "VisualProcedureDetail": VisualProcedureDetail,
     "VisualProcedureForm": VisualProcedureForm,
     "VisualProcedures": VisualProcedures,
-    "WeeklyManagerReports": WeeklyManagerReports,
-    "WeeklyManagerReportForm": WeeklyManagerReportForm,
     "WeeklyManagerReportDetail": WeeklyManagerReportDetail,
+    "WeeklyManagerReportForm": WeeklyManagerReportForm,
+    "WeeklyManagerReports": WeeklyManagerReports,
+    "DailyOperationsHub": DailyOperationsHub,
 }
 
 export const pagesConfig = {
