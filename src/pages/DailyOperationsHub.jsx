@@ -1,87 +1,71 @@
 import React, { useState, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { format, differenceInMinutes } from 'date-fns';
+import { format } from 'date-fns';
 import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
 import {
-  Clock,
+  ClipboardCheck,
+  MessageSquare,
+  Thermometer,
+  FileText,
+  Wrench,
+  History,
+  Users,
   CheckCircle,
   AlertCircle,
-  Thermometer,
-  ClipboardCheck,
-  Users,
-  MessageSquare,
-  Sparkles,
-  ChefHat,
-  Camera,
-  FileText,
+  Clock,
   TrendingUp,
-  AlertTriangle,
-  Plus,
-  ExternalLink,
-  Activity
+  MessageCircle,
+  BarChart3,
+  Settings
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import { Textarea } from '@/components/ui/textarea';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import LoadingSpinner from '@/components/ui/LoadingSpinner';
 
 export default function DailyOperationsHub() {
   const [user, setUser] = useState(null);
-  const [showHandoverModal, setShowHandoverModal] = useState(false);
-  const [showTempModal, setShowTempModal] = useState(false);
-  const [showHygieneModal, setShowHygieneModal] = useState(false);
-  const [showIncidentModal, setShowIncidentModal] = useState(false);
-  const [currentTime, setCurrentTime] = useState(new Date());
   const queryClient = useQueryClient();
 
   useEffect(() => {
     base44.auth.me().then(setUser).catch(() => {});
   }, []);
 
-  // Auto-refresh every 60 seconds
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setCurrentTime(new Date());
-      queryClient.invalidateQueries(['todayData']);
-    }, 60000);
-    return () => clearInterval(interval);
-  }, [queryClient]);
-
   const today = format(new Date(), 'yyyy-MM-dd');
   const currentHour = new Date().getHours();
   
-  // Detect shift
   const detectShift = () => {
-    if (currentHour >= 5 && currentHour < 12) return 'Opening';
+    if (currentHour >= 5 && currentHour < 12) return 'Morning';
     if (currentHour >= 12 && currentHour < 17) return 'Mid';
     return 'Closing';
   };
   const currentShift = detectShift();
 
-  // Fetch all data
+  // Fetch today's data
   const { data: shifts = [] } = useQuery({
-    queryKey: ['todayData', 'shifts', today],
+    queryKey: ['shifts', today],
     queryFn: () => base44.entities.Shift.filter({ date: today, status: 'clocked_in' }),
     enabled: !!user
   });
 
+  const { data: checkIns = [] } = useQuery({
+    queryKey: ['checkIns', today],
+    queryFn: () => base44.entities.DailyCheckIn.filter({ shift_date: today }),
+    enabled: !!user
+  });
+
   const { data: temperatureLogs = [] } = useQuery({
-    queryKey: ['todayData', 'temps', today],
+    queryKey: ['temps', today],
     queryFn: () => base44.entities.TemperatureLog.filter({ log_date: today }),
     enabled: !!user
   });
 
   const { data: tempAssets = [] } = useQuery({
-    queryKey: ['todayData', 'tempAssets'],
+    queryKey: ['tempAssets'],
     queryFn: () => base44.entities.Assets_Registry_v1.filter({ 
       is_temperature_controlled: true,
       status: { $ne: 'deactivated' }
@@ -89,434 +73,293 @@ export default function DailyOperationsHub() {
     enabled: !!user
   });
 
-  const { data: checklists = [] } = useQuery({
-    queryKey: ['todayData', 'checklists', today],
-    queryFn: () => base44.entities.FoodSafetyChecklist.filter({ date: today }),
-    enabled: !!user
-  });
-
   const { data: handovers = [] } = useQuery({
-    queryKey: ['todayData', 'handovers', today],
+    queryKey: ['handovers', today],
     queryFn: () => base44.entities.ShiftHandover.filter({ shift_date: today }),
     enabled: !!user
   });
 
-  const { data: tasks = [] } = useQuery({
-    queryKey: ['todayData', 'tasks', today],
-    queryFn: () => base44.entities.Task.filter({ due_date: today }),
+  const { data: equipmentFaults = [] } = useQuery({
+    queryKey: ['faults', today],
+    queryFn: () => base44.entities.EquipmentFault.filter({ reported_date: today }),
     enabled: !!user
   });
 
-  const { data: prepTasks = [] } = useQuery({
-    queryKey: ['todayData', 'prep', today],
-    queryFn: () => base44.entities.PrepTask.filter({ 
-      prep_date: today,
-      status: { $ne: 'completed' }
-    }),
+  const { data: labels = [] } = useQuery({
+    queryKey: ['labels', today],
+    queryFn: () => base44.entities.FoodLabel.filter({ created_date: { $gte: today } }),
     enabled: !!user
   });
 
-  // Calculate shift metrics
-  const totalHours = shifts.reduce((sum, shift) => {
-    if (shift.actual_clock_in && shift.actual_clock_out) {
-      const minutes = differenceInMinutes(
-        new Date(shift.actual_clock_out),
-        new Date(shift.actual_clock_in)
-      );
-      return sum + (minutes / 60);
-    }
-    return sum;
-  }, 0);
-
-  const estimatedCost = totalHours * 12.5;
-
-  // Calculate completion percentages
-  const hygieneProgress = checklists.length > 0 
-    ? (checklists.filter(c => c.status === 'completed').length / checklists.length) * 100 
-    : 0;
-
-  const tempProgress = tempAssets.length > 0
-    ? (temperatureLogs.length / tempAssets.length) * 100
-    : 100;
-
-  const cleaningProgress = tasks.length > 0
-    ? (tasks.filter(t => t.status === 'completed').length / tasks.length) * 100
-    : 0;
-
-  const prepProgress = prepTasks.length > 0
-    ? (prepTasks.filter(p => p.status === 'completed').length / prepTasks.length) * 100
-    : 100;
-
-  const overallProgress = (hygieneProgress + tempProgress + cleaningProgress + prepProgress) / 4;
-
-  // Quick action mutations
-  const handoverMutation = useMutation({
-    mutationFn: (data) => base44.entities.ShiftHandover.create(data),
+  // Check-in mutation
+  const checkInMutation = useMutation({
+    mutationFn: (data) => base44.entities.DailyCheckIn.create(data),
     onSuccess: () => {
-      queryClient.invalidateQueries(['todayData']);
-      setShowHandoverModal(false);
+      queryClient.invalidateQueries(['checkIns']);
     }
   });
 
-  const tempMutation = useMutation({
-    mutationFn: (data) => base44.entities.TemperatureLog.create(data),
-    onSuccess: () => {
-      queryClient.invalidateQueries(['todayData']);
-      setShowTempModal(false);
-    }
-  });
+  const handleStartShift = () => {
+    checkInMutation.mutate({
+      staff_name: user?.full_name || user?.email,
+      staff_email: user?.email,
+      staff_role: user?.role,
+      shift_date: today,
+      shift_type: currentShift,
+      clock_in_time: new Date().toISOString(),
+      status: 'in_progress'
+    });
+  };
+
+  // Calculate completion
+  const myCheckIn = checkIns.find(c => c.staff_email === user?.email);
+  const tempCompletion = tempAssets.length > 0 ? (temperatureLogs.length / tempAssets.length) * 100 : 100;
+  const overallCompletion = myCheckIn ? 
+    ((tempCompletion + (handovers.length > 0 ? 100 : 0)) / 2) : 0;
+
+  const manager = shifts.find(s => s.position?.toLowerCase().includes('manager'));
 
   if (!user) return <LoadingSpinner />;
 
-  const criticalAlerts = [
-    tempAssets.length > temperatureLogs.length && 'Missing temperature logs',
-    checklists.filter(c => c.status !== 'completed').length > 0 && 'Incomplete hygiene checks',
-    prepTasks.filter(p => p.status === 'overdue').length > 0 && 'Overdue prep tasks'
-  ].filter(Boolean);
+  const operationTiles = [
+    {
+      title: 'Daily Check-In',
+      description: 'Opening & closing checklists',
+      icon: ClipboardCheck,
+      color: 'bg-blue-500',
+      page: 'Operations',
+      status: myCheckIn ? 'complete' : 'pending',
+      count: `${checkIns.length} staff checked in`,
+      lastUpdate: checkIns[0]?.created_date
+    },
+    {
+      title: 'Shift Handover',
+      description: 'Pass info between shifts',
+      icon: MessageSquare,
+      color: 'bg-amber-500',
+      page: 'ShiftHandovers',
+      status: handovers.length > 0 ? 'complete' : 'pending',
+      count: `${handovers.length} handover notes`,
+      lastUpdate: handovers[0]?.created_date
+    },
+    {
+      title: 'Temperature Logs',
+      description: 'Equipment & food temp monitoring',
+      icon: Thermometer,
+      color: 'bg-red-500',
+      page: 'Operations',
+      status: tempCompletion === 100 ? 'complete' : 'pending',
+      count: `${temperatureLogs.length}/${tempAssets.length} logged`,
+      progress: tempCompletion,
+      lastUpdate: temperatureLogs[0]?.created_date
+    },
+    {
+      title: 'Label Printing',
+      description: 'Food safety labels & prep tracking',
+      icon: FileText,
+      color: 'bg-purple-500',
+      page: 'Operations',
+      status: 'complete',
+      count: `${labels.length} labels printed`,
+      lastUpdate: labels[0]?.created_date
+    },
+    {
+      title: 'Equipment Status',
+      description: 'Log faults & maintenance',
+      icon: Wrench,
+      color: 'bg-orange-500',
+      page: 'EquipmentHealth',
+      status: equipmentFaults.length === 0 ? 'complete' : 'pending',
+      count: `${equipmentFaults.length} faults reported`,
+      lastUpdate: equipmentFaults[0]?.created_date
+    },
+    {
+      title: 'Operations History',
+      description: 'View all logged operations',
+      icon: History,
+      color: 'bg-slate-600',
+      page: 'OperationsHistory',
+      status: 'complete',
+      count: 'View past logs',
+      lastUpdate: null
+    }
+  ];
 
   return (
-    <div className="space-y-6 p-4 md:p-6">
-      {/* Header Summary */}
-      <Card className="bg-gradient-to-r from-emerald-600 to-emerald-700 text-white border-0 shadow-lg">
-        <CardContent className="pt-6">
-          <div className="flex items-center justify-between mb-4">
-            <div>
-              <h1 className="text-3xl font-bold mb-1">Daily Operations Hub</h1>
-              <p className="text-emerald-100">
-                {format(currentTime, 'EEEE, d MMMM yyyy')} • {currentShift} Shift
-              </p>
-            </div>
-            <div className="text-right">
-              <p className="text-emerald-100 text-sm">Shift Progress</p>
-              <p className="text-4xl font-bold">{Math.round(overallProgress)}%</p>
-            </div>
-          </div>
-          <Progress value={overallProgress} className="h-3 bg-emerald-800" />
-          
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-6">
-            <div className="bg-white/10 rounded-lg p-3 backdrop-blur">
-              <p className="text-emerald-100 text-xs mb-1">Staff on Shift</p>
-              <p className="text-2xl font-bold">{shifts.length}</p>
-            </div>
-            <div className="bg-white/10 rounded-lg p-3 backdrop-blur">
-              <p className="text-emerald-100 text-xs mb-1">Total Hours</p>
-              <p className="text-2xl font-bold">{totalHours.toFixed(1)}h</p>
-            </div>
-            <div className="bg-white/10 rounded-lg p-3 backdrop-blur">
-              <p className="text-emerald-100 text-xs mb-1">Est. Cost</p>
-              <p className="text-2xl font-bold">£{estimatedCost.toFixed(0)}</p>
-            </div>
-            <div className="bg-white/10 rounded-lg p-3 backdrop-blur">
-              <p className="text-emerald-100 text-xs mb-1">Time</p>
-              <p className="text-2xl font-bold">{format(currentTime, 'HH:mm')}</p>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
+    <div className="min-h-screen bg-gradient-to-br from-emerald-50 to-slate-100 pb-24">
+      <div className="p-4 md:p-8 max-w-7xl mx-auto space-y-6">
+        {/* Header */}
+        <div className="text-center mb-8">
+          <h1 className="text-4xl md:text-5xl font-bold text-slate-900 mb-2">
+            Daily Operations Hub
+          </h1>
+          <p className="text-lg text-slate-600">
+            All essential tools to run your shift — fast, simple, live.
+          </p>
+        </div>
 
-      {/* Critical Alerts */}
-      {criticalAlerts.length > 0 && (
-        <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }}>
-          <Card className="border-red-300 bg-red-50">
-            <CardContent className="pt-4">
-              <div className="flex items-start gap-3">
-                <AlertTriangle className="w-6 h-6 text-red-600 flex-shrink-0" />
-                <div>
-                  <p className="font-bold text-red-900 mb-2">Critical Tasks Pending</p>
-                  <ul className="space-y-1">
-                    {criticalAlerts.map((alert, idx) => (
-                      <li key={idx} className="text-sm text-red-700">• {alert}</li>
-                    ))}
-                  </ul>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        </motion.div>
-      )}
-
-      {/* Action Toolbar */}
-      <Card className="bg-slate-50 border-slate-200">
-        <CardContent className="pt-4">
-          <div className="flex flex-wrap gap-2">
-            <Button 
-              onClick={() => setShowHandoverModal(true)}
-              variant="outline" 
-              size="sm"
-              className="bg-white"
-            >
-              <Plus className="w-4 h-4 mr-2" />
-              Add Note
-            </Button>
-            <Button 
-              onClick={() => setShowHygieneModal(true)}
-              variant="outline" 
-              size="sm"
-              className="bg-white"
-            >
-              <ClipboardCheck className="w-4 h-4 mr-2" />
-              Add Hygiene
-            </Button>
-            <Button 
-              onClick={() => setShowTempModal(true)}
-              variant="outline" 
-              size="sm"
-              className="bg-white"
-            >
-              <Thermometer className="w-4 h-4 mr-2" />
-              Log Temperature
-            </Button>
-            <Button 
-              onClick={() => setShowIncidentModal(true)}
-              variant="outline" 
-              size="sm"
-              className="bg-white"
-            >
-              <Camera className="w-4 h-4 mr-2" />
-              Upload Incident
-            </Button>
-            <Link to={createPageUrl('PrepWorkflow')}>
-              <Button variant="outline" size="sm" className="bg-white">
-                <ChefHat className="w-4 h-4 mr-2" />
-                Add Prep
-              </Button>
-            </Link>
-          </div>
-        </CardContent>
-      </Card>
-
-      {/* Dynamic Widgets Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        {/* Hygiene Status */}
-        <WidgetCard
-          title="Hygiene Check"
-          icon={ClipboardCheck}
-          color="bg-purple-500"
-          status={hygieneProgress === 100 ? 'complete' : 'pending'}
-          progress={hygieneProgress}
-          count={`${checklists.filter(c => c.status === 'completed').length}/${checklists.length}`}
-          lastUpdate={checklists[0]?.updated_date}
-          link="FoodSafetyChecklist"
-        />
-
-        {/* Temperature Tracker */}
-        <WidgetCard
-          title="Temperature Log"
-          icon={Thermometer}
-          color="bg-red-500"
-          status={tempProgress === 100 ? 'complete' : 'pending'}
-          progress={tempProgress}
-          count={`${temperatureLogs.length}/${tempAssets.length}`}
-          lastUpdate={temperatureLogs[0]?.updated_date}
-          link="Operations"
-        />
-
-        {/* Shift Overview */}
-        <WidgetCard
-          title="Shift Overview"
-          icon={Users}
-          color="bg-blue-500"
-          status="complete"
-          count={`${shifts.length} staff`}
-          subtitle={`${totalHours.toFixed(1)}h • £${estimatedCost.toFixed(0)}`}
-          link="Shifts"
-        />
-
-        {/* Team Handover */}
-        <WidgetCard
-          title="Team Handover"
-          icon={MessageSquare}
-          color="bg-amber-500"
-          status="complete"
-          count={`${handovers.length} notes`}
-          lastUpdate={handovers[0]?.created_date}
-          link="ShiftHandovers"
-        />
-
-        {/* Cleaning Schedule */}
-        <WidgetCard
-          title="Cleaning Tasks"
-          icon={Sparkles}
-          color="bg-cyan-500"
-          status={cleaningProgress === 100 ? 'complete' : 'pending'}
-          progress={cleaningProgress}
-          count={`${tasks.filter(t => t.status === 'completed').length}/${tasks.length}`}
-          link="FoodSafetyChecklist"
-        />
-
-        {/* Prep Tracker */}
-        <WidgetCard
-          title="Prep Workflow"
-          icon={ChefHat}
-          color="bg-emerald-500"
-          status={prepProgress === 100 ? 'complete' : 'pending'}
-          progress={prepProgress}
-          count={`${prepTasks.filter(p => p.status === 'completed').length}/${prepTasks.length}`}
-          link="PrepWorkflow"
-        />
-      </div>
-
-      {/* Modals */}
-      <HandoverModal
-        open={showHandoverModal}
-        onClose={() => setShowHandoverModal(false)}
-        onSubmit={(data) => handoverMutation.mutate({
-          ...data,
-          shift_date: today,
-          shift_type: currentShift,
-          handed_over_by: user?.full_name || user?.email
-        })}
-        loading={handoverMutation.isPending}
-      />
-
-      <TempLogModal
-        open={showTempModal}
-        onClose={() => setShowTempModal(false)}
-        assets={tempAssets}
-        onSubmit={(data) => tempMutation.mutate({
-          ...data,
-          log_date: today,
-          logged_by: user?.full_name || user?.email
-        })}
-        loading={tempMutation.isPending}
-      />
-    </div>
-  );
-}
-
-// Widget Card Component
-function WidgetCard({ title, icon: Icon, color, status, progress, count, subtitle, lastUpdate, link }) {
-  return (
-    <Link to={createPageUrl(link)}>
-      <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
-        <Card className="cursor-pointer hover:shadow-lg transition-all border-2 hover:border-emerald-300 h-full">
+        {/* Shift Summary Card */}
+        <Card className="bg-gradient-to-r from-emerald-600 to-emerald-700 text-white border-0 shadow-xl">
           <CardContent className="pt-6">
-            <div className="flex items-start justify-between mb-4">
-              <div className="flex items-center gap-3">
-                <div className={`${color} w-12 h-12 rounded-xl flex items-center justify-center`}>
-                  <Icon className="w-6 h-6 text-white" />
-                </div>
-                <div>
-                  <h3 className="font-bold text-slate-800">{title}</h3>
-                  <p className="text-sm text-slate-500">{subtitle || count}</p>
-                </div>
+            <div className="grid grid-cols-2 md:grid-cols-5 gap-4 mb-4">
+              <div>
+                <p className="text-emerald-100 text-xs mb-1">Date</p>
+                <p className="font-bold">{format(new Date(), 'd MMM yyyy')}</p>
               </div>
-              <Badge variant={status === 'complete' ? 'default' : 'outline'} 
-                     className={status === 'complete' ? 'bg-emerald-500' : 'border-amber-400 text-amber-700'}>
-                {status === 'complete' ? '✓ Done' : '⚠ Pending'}
-              </Badge>
+              <div>
+                <p className="text-emerald-100 text-xs mb-1">Shift</p>
+                <p className="font-bold">{currentShift}</p>
+              </div>
+              <div>
+                <p className="text-emerald-100 text-xs mb-1">Active Staff</p>
+                <p className="font-bold">{shifts.length} on shift</p>
+              </div>
+              <div>
+                <p className="text-emerald-100 text-xs mb-1">Manager on Duty</p>
+                <p className="font-bold text-sm">{manager?.staff_name || 'None'}</p>
+              </div>
+              <div>
+                <p className="text-emerald-100 text-xs mb-1">Completion</p>
+                <p className="font-bold">{Math.round(overallCompletion)}%</p>
+              </div>
             </div>
             
-            {progress !== undefined && (
-              <Progress value={progress} className="h-2 mb-3" />
-            )}
+            <Progress value={overallCompletion} className="h-3 bg-emerald-800 mb-4" />
             
-            <div className="flex items-center justify-between text-xs text-slate-500">
-              {lastUpdate && (
-                <span>Updated {format(new Date(lastUpdate), 'HH:mm')}</span>
+            <div className="flex gap-3">
+              {!myCheckIn ? (
+                <Button
+                  onClick={handleStartShift}
+                  disabled={checkInMutation.isPending}
+                  className="bg-white text-emerald-700 hover:bg-emerald-50 font-bold"
+                >
+                  <CheckCircle className="w-5 h-5 mr-2" />
+                  Start Shift
+                </Button>
+              ) : (
+                <Badge className="bg-white text-emerald-700 text-sm px-4 py-2">
+                  ✓ Shift Active
+                </Badge>
               )}
-              <div className="flex items-center gap-1 text-emerald-600 font-medium">
-                View Details <ExternalLink className="w-3 h-3" />
-              </div>
             </div>
           </CardContent>
         </Card>
-      </motion.div>
-    </Link>
-  );
-}
 
-// Handover Modal
-function HandoverModal({ open, onClose, onSubmit, loading }) {
-  const [notes, setNotes] = useState('');
+        {/* Alert Banner */}
+        {!myCheckIn && (
+          <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }}>
+            <Card className="border-amber-300 bg-amber-50">
+              <CardContent className="pt-4 flex items-center gap-3">
+                <AlertCircle className="w-5 h-5 text-amber-600" />
+                <p className="text-amber-900 font-medium">
+                  Start your shift to unlock all operational tools
+                </p>
+              </CardContent>
+            </Card>
+          </motion.div>
+        )}
 
-  return (
-    <Dialog open={open} onOpenChange={onClose}>
-      <DialogContent>
-        <DialogHeader>
-          <DialogTitle>Add Handover Note</DialogTitle>
-        </DialogHeader>
-        <div className="space-y-4">
-          <div>
-            <Label>Handover Notes</Label>
-            <Textarea
-              value={notes}
-              onChange={(e) => setNotes(e.target.value)}
-              placeholder="What should the next shift know?"
-              rows={4}
-            />
-          </div>
-          <Button
-            onClick={() => {
-              onSubmit({ handover_notes: notes });
-              setNotes('');
-            }}
-            disabled={!notes.trim() || loading}
-            className="w-full"
-          >
-            {loading ? 'Saving...' : 'Save Handover'}
-          </Button>
+        {tempCompletion < 100 && myCheckIn && (
+          <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }}>
+            <Card className="border-red-300 bg-red-50">
+              <CardContent className="pt-4 flex items-center gap-3">
+                <Thermometer className="w-5 h-5 text-red-600" />
+                <p className="text-red-900 font-medium">
+                  Temperature logs incomplete — {tempAssets.length - temperatureLogs.length} equipment pending
+                </p>
+              </CardContent>
+            </Card>
+          </motion.div>
+        )}
+
+        {/* Operations Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          {operationTiles.map((tile, idx) => {
+            const Icon = tile.icon;
+            return (
+              <motion.div
+                key={tile.title}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: idx * 0.05 }}
+              >
+                <Link to={createPageUrl(tile.page)}>
+                  <Card className="h-full hover:shadow-2xl transition-all cursor-pointer border-2 border-slate-200 hover:border-emerald-400 hover:scale-[1.02] duration-200">
+                    <CardContent className="pt-6">
+                      <div className="flex items-start justify-between mb-4">
+                        <div className="flex items-center gap-3">
+                          <div className={`${tile.color} w-14 h-14 rounded-2xl flex items-center justify-center shadow-lg`}>
+                            <Icon className="w-7 h-7 text-white" />
+                          </div>
+                          <div>
+                            <h3 className="text-xl font-bold text-slate-800">{tile.title}</h3>
+                            <p className="text-sm text-slate-500">{tile.description}</p>
+                          </div>
+                        </div>
+                        <Badge 
+                          variant={tile.status === 'complete' ? 'default' : 'outline'}
+                          className={tile.status === 'complete' ? 'bg-emerald-500' : 'border-amber-400 text-amber-700'}
+                        >
+                          {tile.status === 'complete' ? '✓' : '⚠'}
+                        </Badge>
+                      </div>
+
+                      {tile.progress !== undefined && (
+                        <Progress value={tile.progress} className="h-2 mb-3" />
+                      )}
+
+                      <div className="flex items-center justify-between">
+                        <p className="text-sm text-slate-600">{tile.count}</p>
+                        {tile.lastUpdate && (
+                          <p className="text-xs text-slate-400">
+                            Updated {format(new Date(tile.lastUpdate), 'HH:mm')}
+                          </p>
+                        )}
+                      </div>
+                    </CardContent>
+                  </Card>
+                </Link>
+              </motion.div>
+            );
+          })}
         </div>
-      </DialogContent>
-    </Dialog>
-  );
-}
+      </div>
 
-// Temperature Log Modal
-function TempLogModal({ open, onClose, assets, onSubmit, loading }) {
-  const [assetId, setAssetId] = useState('');
-  const [temp, setTemp] = useState('');
-
-  return (
-    <Dialog open={open} onOpenChange={onClose}>
-      <DialogContent>
-        <DialogHeader>
-          <DialogTitle>Log Temperature</DialogTitle>
-        </DialogHeader>
-        <div className="space-y-4">
-          <div>
-            <Label>Equipment</Label>
-            <Select value={assetId} onValueChange={setAssetId}>
-              <SelectTrigger>
-                <SelectValue placeholder="Select equipment" />
-              </SelectTrigger>
-              <SelectContent>
-                {assets.map(asset => (
-                  <SelectItem key={asset.id} value={asset.id}>
-                    {asset.asset_name}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-          <div>
-            <Label>Temperature (°C)</Label>
-            <Input
-              type="number"
-              value={temp}
-              onChange={(e) => setTemp(e.target.value)}
-              placeholder="e.g. 4.5"
-            />
-          </div>
-          <Button
-            onClick={() => {
-              const asset = assets.find(a => a.id === assetId);
-              onSubmit({
-                asset_id: assetId,
-                equipment_name: asset?.asset_name,
-                temperature: parseFloat(temp),
-                status: 'recorded'
-              });
-              setAssetId('');
-              setTemp('');
-            }}
-            disabled={!assetId || !temp || loading}
-            className="w-full"
-          >
-            {loading ? 'Logging...' : 'Log Temperature'}
-          </Button>
+      {/* Bottom Quick Toolbar */}
+      <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-slate-200 shadow-2xl z-50 lg:left-72">
+        <div className="flex items-center justify-around h-16 max-w-7xl mx-auto px-4">
+          <Link to={createPageUrl('DailyOperationsHub')}>
+            <Button variant="ghost" size="sm" className="flex flex-col h-14 gap-1">
+              <Clock className="w-5 h-5 text-emerald-600" />
+              <span className="text-xs">Daily Ops</span>
+            </Button>
+          </Link>
+          <Link to={createPageUrl('Operations')}>
+            <Button variant="ghost" size="sm" className="flex flex-col h-14 gap-1">
+              <CheckCircle className="w-5 h-5 text-blue-600" />
+              <span className="text-xs">Tasks</span>
+            </Button>
+          </Link>
+          <Link to={createPageUrl('ShiftHandovers')}>
+            <Button variant="ghost" size="sm" className="flex flex-col h-14 gap-1">
+              <MessageCircle className="w-5 h-5 text-amber-600" />
+              <span className="text-xs">Comms</span>
+            </Button>
+          </Link>
+          <Link to={createPageUrl('Reports')}>
+            <Button variant="ghost" size="sm" className="flex flex-col h-14 gap-1">
+              <BarChart3 className="w-5 h-5 text-purple-600" />
+              <span className="text-xs">Reports</span>
+            </Button>
+          </Link>
+          <Link to={createPageUrl('EquipmentHealth')}>
+            <Button variant="ghost" size="sm" className="flex flex-col h-14 gap-1">
+              <Settings className="w-5 h-5 text-slate-600" />
+              <span className="text-xs">Tools</span>
+            </Button>
+          </Link>
         </div>
-      </DialogContent>
-    </Dialog>
+      </div>
+    </div>
   );
 }
