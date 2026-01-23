@@ -10,10 +10,11 @@ import LoadingSpinner from '@/components/ui/LoadingSpinner';
 import { ClipboardList, Calendar, Users, BarChart3, FileText, AlertCircle } from 'lucide-react';
 import { useQueryClient } from '@tanstack/react-query';
 import AuditDashboard from '@/components/audit/AuditDashboard';
-import WeeklyReviewForm from '@/components/audit/WeeklyReviewForm';
+import WeeklyReviewFormV2 from '@/components/audit/WeeklyReviewFormV2';
 import MonthlyAuditForm from '@/components/audit/MonthlyAuditForm';
 import AuditFormsLibrary from '@/components/audit/AuditFormsLibrary';
 import AuditReportsView from '@/components/audit/AuditReportsView';
+import KPIDashboardWidget from '@/components/audit/KPIDashboardWidget';
 import FoodSafetyChecklistForm from '@/components/food-safety/FoodSafetyChecklistForm';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 
@@ -46,6 +47,11 @@ export default function AuditCenter() {
   const { data: pendingIssues = [] } = useQuery({
     queryKey: ['pending-issues'],
     queryFn: () => base44.entities.AuditIssue.filter({ status: 'open' }, '-created_date', 50)
+  });
+
+  const { data: weeklyAudits = [] } = useQuery({
+    queryKey: ['weekly-audits'],
+    queryFn: () => base44.entities.WeeklyAudit.list('-submission_date', 20)
   });
 
   if (!user) {
@@ -122,13 +128,25 @@ export default function AuditCenter() {
 
         {/* Dashboard Tab */}
         <TabsContent value="dashboard">
-          <AuditDashboard
-            user={user}
-            completedAudits={completedAudits}
-            pendingIssues={pendingIssues}
-            onStartWeekly={() => setShowWeeklyForm(true)}
-            onStartMonthly={() => setShowMonthlyForm(true)}
-          />
+          <div className="space-y-6">
+            <AuditDashboard
+              user={user}
+              completedAudits={completedAudits}
+              pendingIssues={pendingIssues}
+              onStartWeekly={() => setShowWeeklyForm(true)}
+              onStartMonthly={() => setShowMonthlyForm(true)}
+            />
+            
+            {/* KPI Integration Widget */}
+            <Card>
+              <CardHeader>
+                <CardTitle>📊 KPI Dashboard - Weekly Trends</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <KPIDashboardWidget weeklyAudits={weeklyAudits} />
+              </CardContent>
+            </Card>
+          </div>
         </TabsContent>
 
         {/* Weekly Reviews Tab */}
@@ -145,11 +163,17 @@ export default function AuditCenter() {
                 </Button>
               </div>
               {showWeeklyForm && (
-                <WeeklyReviewForm
-                  user={user}
-                  auditForms={auditForms}
-                  onClose={() => setShowWeeklyForm(false)}
-                />
+                <Dialog open={showWeeklyForm} onOpenChange={setShowWeeklyForm}>
+                  <DialogContent className="max-w-xl max-h-screen overflow-y-auto">
+                    <DialogHeader>
+                      <DialogTitle>Weekly Audit & KPI Review</DialogTitle>
+                    </DialogHeader>
+                    <WeeklyReviewFormV2
+                      user={user}
+                      onClose={() => setShowWeeklyForm(false)}
+                    />
+                  </DialogContent>
+                </Dialog>
               )}
               <Card>
                 <CardHeader>
