@@ -131,8 +131,41 @@ export default function DailyOperationsHub() {
 
   const handleHandoverSubmit = async (data) => {
     setSavingHandover(true);
+    
+    // Notify managers if there are issues
+    if (data.has_issues) {
+      const managers = shifts.filter(s => 
+        s.position?.toLowerCase().includes('manager') && s.staff_email
+      );
+      
+      const issues = [];
+      Object.entries(data.answers).forEach(([key, val]) => {
+        if (val.answer === 'yes' && val.details) {
+          issues.push(`${key.replace(/_/g, ' ')}: ${val.details}`);
+        }
+      });
+
+      managers.forEach(manager => {
+        base44.entities.Notification.create({
+          recipient_email: manager.staff_email,
+          recipient_name: manager.staff_name,
+          title: '🚨 Shift Handover Alert',
+          message: `Issues reported in ${currentShift} shift: ${issues.join(' | ')}`,
+          type: 'alert',
+          priority: 'high',
+          is_read: false,
+          related_entity: 'ShiftHandover',
+          source_user_email: user?.email,
+          source_user_name: user?.full_name
+        }).catch(() => {});
+      });
+    }
+
     handoverMutation.mutate({
-      ...data,
+      shift_date: data.shift_date,
+      shift_type: data.shift_type,
+      answers: data.answers,
+      has_issues: data.has_issues,
       handover_from: user?.email,
       handover_from_name: user?.full_name || user?.email
     });
