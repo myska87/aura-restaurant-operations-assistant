@@ -64,6 +64,8 @@ const navGroups = [
     title: 'Compliance & Safety',
     items: [
       { name: 'Quality & Safety', icon: Shield, page: 'QualitySafety', roles: ['all'] },
+      { name: 'Checklist Library', icon: ClipboardCheck, page: 'ChecklistLibrary', roles: ['all'] },
+      { name: 'Checklist Reports', icon: FileText, page: 'ChecklistReports', roles: ['all'] },
       { name: 'Chemical Safety', icon: Wrench, page: 'ChemicalDashboard', roles: ['all'] },
       { name: 'Visual Procedures', icon: FileText, page: 'VisualProcedures', roles: ['all'] },
       { name: 'Assets & Equipment', icon: Package, page: 'Assets', roles: ['all'] },
