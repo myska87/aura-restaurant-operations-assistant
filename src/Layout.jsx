@@ -83,6 +83,7 @@ const navGroups = [
     items: [
       { name: 'Reports', icon: TrendingUp, page: 'Reports', roles: ['manager', 'owner', 'admin'] },
       { name: 'Weekly Manager Reports', icon: FileText, page: 'WeeklyManagerReports', roles: ['manager', 'owner', 'admin'] },
+      { name: 'Compliance Hub', icon: Shield, page: 'ComplianceHub', roles: ['manager', 'owner', 'admin'] },
       { name: 'Data Management', icon: Shield, page: 'DataManagement', roles: ['manager', 'owner', 'admin'] },
       { name: 'Documents', icon: FolderOpen, page: 'Documents', roles: ['all'] },
       { name: 'Announcements', icon: Bell, page: 'Announcements', roles: ['all'] },
@@ -103,12 +104,17 @@ export default function Layout({ children, currentPageName }) {
       try {
         const userData = await base44.auth.me();
         setUser(userData);
+        
+        // First-login onboarding redirect
+        if (userData && !userData.onboarding_completed && currentPageName !== 'OnboardingFlow') {
+          navigate(createPageUrl('OnboardingFlow'));
+        }
       } catch (e) {
         console.log('User not authenticated');
       }
     };
     loadUser();
-  }, []);
+  }, [currentPageName, navigate]);
 
   const { data: notifications = [] } = useQuery({
     queryKey: ['notifications', user?.email],
