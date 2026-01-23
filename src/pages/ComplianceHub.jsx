@@ -14,6 +14,7 @@ import LoadingSpinner from '@/components/ui/LoadingSpinner';
 
 export default function ComplianceHub() {
   const [user, setUser] = useState(null);
+  const [showInspectorEntry, setShowInspectorEntry] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
 
   useEffect(() => {
