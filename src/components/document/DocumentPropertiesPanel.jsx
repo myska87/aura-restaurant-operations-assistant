@@ -11,8 +11,9 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { X, Tag, FileText, Link2, RefreshCw } from 'lucide-react';
+import { X, Tag, FileText, Link2, RefreshCw, FileSignature, CalendarClock } from 'lucide-react';
 import { Switch } from '@/components/ui/switch';
+import { Input } from '@/components/ui/input';
 import { format } from 'date-fns';
 
 const CATEGORIES = [
@@ -50,7 +51,11 @@ export default function DocumentPropertiesPanel({
   onTagRemove,
   status,
   requiresReacknowledgement = false,
-  onRequiresReacknowledgementChange
+  onRequiresReacknowledgementChange,
+  requiresSignature = false,
+  onRequiresSignatureChange,
+  nextReviewDate = '',
+  onNextReviewDateChange
 }) {
   const [newTag, setNewTag] = React.useState('');
 
@@ -135,15 +140,51 @@ export default function DocumentPropertiesPanel({
             Compliance
           </CardTitle>
         </CardHeader>
-        <CardContent>
+        <CardContent className="space-y-4">
           <div className="flex items-center justify-between">
             <div className="flex-1">
               <Label className="text-xs font-semibold">Require Re-Read on Update</Label>
-              <p className="text-xs text-slate-600 mt-1">All users must re-acknowledge when document changes</p>
+              <p className="text-xs text-slate-600 mt-1">Users must re-acknowledge when document changes</p>
             </div>
             <Switch
               checked={requiresReacknowledgement}
               onCheckedChange={onRequiresReacknowledgementChange}
+            />
+          </div>
+
+          <div className="flex items-center justify-between pt-3 border-t">
+            <div className="flex-1">
+              <Label className="text-xs font-semibold flex items-center gap-1">
+                <FileSignature className="w-3 h-3" />
+                Requires Signature
+              </Label>
+              <p className="text-xs text-slate-600 mt-1">Policy document requiring digital signature</p>
+            </div>
+            <Switch
+              checked={requiresSignature}
+              onCheckedChange={onRequiresSignatureChange}
+            />
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Review Schedule */}
+      <Card className="border-blue-200 bg-blue-50/30">
+        <CardHeader className="pb-3">
+          <CardTitle className="text-sm flex items-center gap-2">
+            <CalendarClock className="w-4 h-4 text-blue-600" />
+            Review Schedule
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div>
+            <Label className="text-xs font-semibold">Next Review Date</Label>
+            <p className="text-xs text-slate-600 mt-1 mb-2">Task created 7 days before review</p>
+            <Input
+              type="date"
+              value={nextReviewDate}
+              onChange={(e) => onNextReviewDateChange(e.target.value)}
+              className="text-sm"
             />
           </div>
         </CardContent>
