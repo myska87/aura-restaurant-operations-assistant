@@ -91,6 +91,7 @@ const navGroups = [
   {
     title: 'Admin & Reports',
     items: [
+      { name: 'Audit Center', icon: FileText, page: 'AuditCenter', roles: ['all'] },
       { name: 'Inspector Mode', icon: Shield, page: 'InspectorMode', roles: ['manager', 'owner', 'admin'] },
       { name: 'Reports', icon: TrendingUp, page: 'Reports', roles: ['manager', 'owner', 'admin'] },
       { name: 'Weekly Manager Reports', icon: FileText, page: 'WeeklyManagerReports', roles: ['manager', 'owner', 'admin'] },
