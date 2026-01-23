@@ -73,42 +73,61 @@ export default function LabelPrintingModal({ open, onClose, user, today }) {
       return;
     }
 
-    try {
-      // Log the print event
-      const logData = {
-        dish_name: formData.dishName,
-        prepared_by: formData.preparedBy,
-        prepared_by_email: user?.email,
-        date_printed: new Date().toISOString(),
-        expiry_date: expiryDate?.toISOString(),
-        shelf_life: formData.shelfLife,
-        batch_code: formData.batchCode,
-        quantity: formData.quantity || 1,
-        label_count: formData.quantity || 1
+    const saveLabel = async () => {
+      // Calculate shelf life in days
+      const [value, unit] = formData.shelfLife.split(' ');
+      const shelfLifeDays = unit === 'hours' ? parseFloat(value) / 24 : parseFloat(value);
+
+      // Calculate use_by_date
+      const prepDate = new Date(today);
+      const useByDate = new Date(prepDate);
+      useByDate.setDate(useByDate.getDate() + shelfLifeDays);
+
+      // Prepare data matching FoodLabel schema
+      const labelData = {
+        item_name: formData.dishName || 'Unknown Item',
+        prep_type: 'batch',
+        storage_type: 'fridge',
+        prep_date: today,
+        use_by_date: useByDate.toISOString().split('T')[0],
+        shelf_life_days: shelfLifeDays,
+        prepared_by: user?.email || 'system@aura.app',
+        prepared_by_name: formData.preparedBy || 'Unknown User',
+        allergens: [],
+        batch_size: `${formData.quantity || 1} portions`,
+        label_printed: true,
+        print_count: 1,
+        qr_code: `LABEL-${formData.dishName}-${Date.now()}`
       };
 
-      await base44.entities.FoodLabel.create(logData);
+      await base44.entities.FoodLabel.create(labelData);
+    };
+
+    try {
+      // Attempt to save with retry
+      await saveLabel();
 
       // Notify manager if near expiry (within 6 hours)
       const now = new Date();
       const sixHoursFromNow = new Date(now.getTime() + 6 * 60 * 60 * 1000);
       if (expiryDate && expiryDate < sixHoursFromNow) {
-        const managers = await base44.entities.Staff.filter({ role: 'manager', status: 'active' });
-        managers.forEach(manager => {
-          base44.entities.Notification.create({
-            recipient_email: manager.email,
-            recipient_name: manager.full_name,
-            title: '⏰ Label Expiry Alert',
-            message: `${formData.dishName} expires at ${format(expiryDate, 'HH:mm')} - printed by ${formData.preparedBy}`,
-            type: 'alert',
-            priority: expiryDate < now ? 'critical' : 'high',
-            is_read: false
-          }).catch(() => {});
-        });
+        try {
+          const managers = await base44.entities.Staff.filter({ role: 'manager', status: 'active' });
+          managers?.forEach(manager => {
+            base44.entities.Notification.create({
+              recipient_email: manager.email,
+              recipient_name: manager.full_name,
+              title: '⏰ Label Expiry Alert',
+              message: `${formData.dishName} expires at ${format(expiryDate, 'HH:mm')} - printed by ${formData.preparedBy}`,
+              type: 'alert',
+              priority: expiryDate < now ? 'critical' : 'high',
+              is_read: false
+            }).catch(() => {});
+          });
+        } catch (notifError) {
+          console.warn('Could not send notifications:', notifError);
+        }
       }
-
-      // Open print dialog
-      window.print();
 
       // Reset form
       setFormData({
@@ -119,10 +138,47 @@ export default function LabelPrintingModal({ open, onClose, user, today }) {
         quantity: 1
       });
 
-      alert('✓ Label printed and logged successfully');
+      // Show success and print
+      alert('✅ Label saved and printed successfully!');
+      setTimeout(() => window.print(), 500);
+
     } catch (error) {
       console.error('Error printing label:', error);
-      alert('Error saving label. Please try again.');
+      // Retry once after delay
+      try {
+        await new Promise(resolve => setTimeout(resolve, 1000));
+        const saveLabel2 = async () => {
+          const [value, unit] = formData.shelfLife.split(' ');
+          const shelfLifeDays = unit === 'hours' ? parseFloat(value) / 24 : parseFloat(value);
+          const prepDate = new Date(today);
+          const useByDate = new Date(prepDate);
+          useByDate.setDate(useByDate.getDate() + shelfLifeDays);
+
+          const labelData = {
+            item_name: formData.dishName || 'Unknown Item',
+            prep_type: 'batch',
+            storage_type: 'fridge',
+            prep_date: today,
+            use_by_date: useByDate.toISOString().split('T')[0],
+            shelf_life_days: shelfLifeDays,
+            prepared_by: user?.email || 'system@aura.app',
+            prepared_by_name: formData.preparedBy || 'Unknown User',
+            allergens: [],
+            batch_size: `${formData.quantity || 1} portions`,
+            label_printed: true,
+            print_count: 1,
+            qr_code: `LABEL-${formData.dishName}-${Date.now()}`
+          };
+
+          await base44.entities.FoodLabel.create(labelData);
+        };
+        await saveLabel2();
+        alert('✅ Label saved and printed successfully!');
+        setTimeout(() => window.print(), 500);
+      } catch (retryError) {
+        console.error('Retry failed:', retryError);
+        alert('Error saving label. Please check your connection and try again.');
+      }
     }
   };
 
