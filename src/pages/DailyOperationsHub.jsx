@@ -36,6 +36,7 @@ import ChecklistModal from '@/components/operations/ChecklistModal';
 import TemperatureLog from '@/components/operations/TemperatureLog';
 import DailyBriefingForm from '@/components/operations/DailyBriefingForm';
 import ShiftHandoverChecklist from '@/components/operations/ShiftHandoverChecklist';
+import LabelPrintingModal from '@/components/operations/LabelPrintingModal';
 
 export default function DailyOperationsHub() {
   const [user, setUser] = useState(null);
@@ -46,6 +47,7 @@ export default function DailyOperationsHub() {
   const [showBriefingForm, setShowBriefingForm] = useState(false);
   const [showHandoverChecklist, setShowHandoverChecklist] = useState(false);
   const [savingHandover, setSavingHandover] = useState(false);
+  const [showLabelPrinting, setShowLabelPrinting] = useState(false);
   const queryClient = useQueryClient();
   const navigate = useNavigate();
 
@@ -445,9 +447,9 @@ export default function DailyOperationsHub() {
       description: 'Food safety labels & prep tracking',
       icon: FileText,
       color: 'bg-purple-500',
-      page: 'Operations',
-      status: 'complete',
-      count: `${labels.length} labels printed`,
+      onClick: () => setShowLabelPrinting(true),
+      status: labels.filter(l => l.created_date?.startsWith(today)).length > 0 ? 'complete' : 'pending',
+      count: `${labels.filter(l => l.created_date?.startsWith(today)).length} labels today`,
       lastUpdate: labels[0]?.created_date
     },
     {
@@ -779,6 +781,14 @@ export default function DailyOperationsHub() {
           date={today}
           onSubmit={handleHandoverSubmit}
           loading={savingHandover}
+        />
+
+        {/* Label Printing Modal */}
+        <LabelPrintingModal
+          open={showLabelPrinting}
+          onClose={() => setShowLabelPrinting(false)}
+          user={user}
+          today={today}
         />
       </div>
 
