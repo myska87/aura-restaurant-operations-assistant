@@ -74,6 +74,7 @@ import OperateHome from './pages/OperateHome';
 import TrainHome from './pages/TrainHome';
 import ManageHome from './pages/ManageHome';
 import FlowBoard from './pages/FlowBoard';
+import InspectorMode from './pages/InspectorMode';
 import __Layout from './Layout.jsx';
 
 
@@ -154,6 +155,7 @@ export const PAGES = {
     "TrainHome": TrainHome,
     "ManageHome": ManageHome,
     "FlowBoard": FlowBoard,
+    "InspectorMode": InspectorMode,
 }
 
 export const pagesConfig = {
