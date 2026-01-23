@@ -32,6 +32,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/u
 import { ScrollArea } from '@/components/ui/scroll-area';
 import LoadingSpinner from '@/components/ui/LoadingSpinner';
 import ChecklistModal from '@/components/operations/ChecklistModal';
+import TemperatureLog from '@/components/operations/TemperatureLog';
 
 export default function DailyOperationsHub() {
   const [user, setUser] = useState(null);
@@ -217,8 +218,16 @@ export default function DailyOperationsHub() {
   };
 
   const openChecklist = (type) => {
+    if (!user?.email) {
+      alert('Please log in to access checklists');
+      return;
+    }
+
     const checklist = type === 'opening' ? openingChecklists[0] : closingChecklists[0];
-    if (!checklist) return;
+    if (!checklist) {
+      alert(`No ${type} checklist found. Please create one first.`);
+      return;
+    }
 
     setCurrentChecklistData(checklist);
 
@@ -256,13 +265,15 @@ export default function DailyOperationsHub() {
   };
 
   const handleStartShift = () => {
+    if (!user?.email) return;
+    
     checkInMutation.mutate({
       staff_name: user?.full_name || user?.email,
       staff_email: user?.email,
-      staff_role: user?.role,
+      staff_role: user?.role || 'staff',
       shift_date: today,
       shift_type: currentShift,
-      clock_in_time: new Date().toISOString(),
+      check_in_time: new Date().toISOString(),
       status: 'in_progress'
     });
   };
@@ -553,48 +564,15 @@ export default function DailyOperationsHub() {
           loading={false}
         />
 
-        {/* Temperature Assets Modal */}
+        {/* Temperature Logging Component */}
         <Dialog open={showTempAssets} onOpenChange={setShowTempAssets}>
-          <DialogContent className="max-w-2xl">
+          <DialogContent className="max-w-7xl h-[90vh] overflow-hidden flex flex-col">
             <DialogHeader>
-              <DialogTitle>Temperature Logs - Equipment</DialogTitle>
+              <DialogTitle>Temperature Logs</DialogTitle>
             </DialogHeader>
-            <ScrollArea className="max-h-[70vh]">
-              <div className="space-y-3">
-                {tempAssets.map((asset) => {
-                  const logged = temperatureLogs.find(log => log.asset_id === asset.id);
-                  return (
-                    <Card key={asset.id} className={logged ? 'border-emerald-300 bg-emerald-50' : 'border-slate-200'}>
-                      <CardContent className="pt-4">
-                        <div className="flex items-center justify-between">
-                          <div className="flex items-center gap-3">
-                            <div className={`w-12 h-12 rounded-xl flex items-center justify-center ${
-                              logged ? 'bg-emerald-100' : 'bg-slate-100'
-                            }`}>
-                              <Thermometer className={`w-6 h-6 ${logged ? 'text-emerald-600' : 'text-slate-400'}`} />
-                            </div>
-                            <div>
-                              <p className="font-semibold">{asset.asset_name}</p>
-                              <p className="text-sm text-slate-600">{asset.asset_category}</p>
-                              {logged && (
-                                <p className="text-sm font-medium text-emerald-700 mt-1">
-                                  {logged.temperature}°C at {format(new Date(logged.created_date), 'HH:mm')}
-                                </p>
-                              )}
-                            </div>
-                          </div>
-                          {logged ? (
-                            <Badge className="bg-emerald-600">✓ Logged</Badge>
-                          ) : (
-                            <Badge variant="outline" className="border-amber-400 text-amber-700">Pending</Badge>
-                          )}
-                        </div>
-                      </CardContent>
-                    </Card>
-                  );
-                })}
-              </div>
-            </ScrollArea>
+            <div className="flex-1 overflow-y-auto">
+              <TemperatureLog user={user} />
+            </div>
           </DialogContent>
         </Dialog>
       </div>
