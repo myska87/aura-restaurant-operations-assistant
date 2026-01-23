@@ -10,12 +10,23 @@ import { Download, Loader2, CheckCircle, AlertTriangle } from 'lucide-react';
 import jsPDF from 'jspdf';
 import { format } from 'date-fns';
 
-export default function InspectorPDFExport({ open, onClose, user }) {
+export default function InspectorPDFExport({ open, onClose, user, dateRange }) {
   const [generating, setGenerating] = useState(false);
-  const [dateFrom, setDateFrom] = useState(
-    new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0]
-  );
-  const [dateTo, setDateTo] = useState(new Date().toISOString().split('T')[0]);
+  
+  const getDateFilter = () => {
+    const today = new Date().toISOString().split('T')[0];
+    if (dateRange === 'today') return { start: today, end: today };
+    if (dateRange === 'last_7') {
+      const weekAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
+      return { start: weekAgo, end: today };
+    }
+    const monthAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
+    return { start: monthAgo, end: today };
+  };
+
+  const dates = getDateFilter();
+  const [dateFrom, setDateFrom] = useState(dates.start);
+  const [dateTo, setDateTo] = useState(dates.end);
 
   const { data: temperatureLogs = [] } = useQuery({
     queryKey: ['tempLogs', dateFrom, dateTo],

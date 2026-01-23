@@ -11,6 +11,7 @@ import { Shield, Users, FileText, CheckCircle2, AlertCircle, Search, Download } 
 import { format } from 'date-fns';
 import PageHeader from '@/components/ui/PageHeader';
 import LoadingSpinner from '@/components/ui/LoadingSpinner';
+import InspectorModeEntry from '@/components/inspector/InspectorModeEntry';
 
 export default function ComplianceHub() {
   const [user, setUser] = useState(null);
@@ -92,6 +93,9 @@ export default function ComplianceHub() {
       <PageHeader
         title="Compliance & Onboarding Hub"
         description="Monitor training completion and document acknowledgements"
+        action={() => setShowInspectorEntry(true)}
+        actionLabel="Inspector Mode"
+        actionIcon={Shield}
       />
 
       <div className="grid md:grid-cols-4 gap-4">
@@ -274,6 +278,11 @@ export default function ComplianceHub() {
           </TabsContent>
         )}
       </Tabs>
+
+      <InspectorModeEntry
+        open={showInspectorEntry}
+        onClose={() => setShowInspectorEntry(false)}
+      />
     </div>
   );
 }
