@@ -4,9 +4,11 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 import { Textarea } from '@/components/ui/textarea';
+import { Input } from '@/components/ui/input';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { CheckCircle, Circle, AlertTriangle } from 'lucide-react';
+import { CheckCircle, Circle, AlertTriangle, Upload } from 'lucide-react';
 import { motion } from 'framer-motion';
+import { base44 } from '@/api/base44Client';
 
 export default function ChecklistModal({ 
   open, 
@@ -50,13 +52,30 @@ export default function ChecklistModal({
       setAnswers(prev => ({ ...prev, [item.item_id]: nextAnswer }));
       onItemToggle(item.item_id, nextAnswer, notes[item.item_id]);
     } else if (item.question_type === 'section_header') {
-      return; // Don't toggle section headers
+      return;
+    } else if (item.question_type === 'photo') {
+      return; // Handle photo separately via file input
     } else {
-      // For other types, just mark as completed
       const newValue = !answers[item.item_id];
       setAnswers(prev => ({ ...prev, [item.item_id]: newValue ? 'completed' : '' }));
       onItemToggle(item.item_id, newValue ? 'completed' : '', notes[item.item_id]);
     }
+  };
+
+  const handlePhotoUpload = async (item, file) => {
+    if (!file) return;
+    try {
+      const { file_url } = await base44.integrations.Core.UploadFile({ file });
+      setAnswers(prev => ({ ...prev, [item.item_id]: file_url }));
+      onItemToggle(item.item_id, file_url, `Photo: ${file.name}`);
+    } catch (error) {
+      alert('Error uploading photo. Please try again.');
+    }
+  };
+
+  const handleTextInput = (item, value) => {
+    setAnswers(prev => ({ ...prev, [item.item_id]: value }));
+    onItemToggle(item.item_id, value, notes[item.item_id]);
   };
 
   // Group items by section headers
@@ -120,9 +139,10 @@ export default function ChecklistModal({
                         transition={{ delay: idx * 0.02 }}
                       >
                         <div
-                          onClick={() => handleToggle(item)}
+                          onClick={() => item.question_type !== 'photo' && handleToggle(item)}
                           className={`
-                            p-4 rounded-lg border-2 cursor-pointer transition-all
+                            p-4 rounded-lg border-2 transition-all
+                            ${item.question_type !== 'photo' ? 'cursor-pointer' : ''}
                             ${isAnswered 
                               ? answer === 'no' 
                                 ? 'bg-red-50 border-red-300'
@@ -157,6 +177,63 @@ export default function ChecklistModal({
                                 </Badge>
                               )}
                               
+                              {item.question_type === 'text' && (
+                                <Input
+                                  value={answer || ''}
+                                  onChange={(e) => handleTextInput(item, e.target.value)}
+                                  placeholder="Enter text..."
+                                  className="mt-2"
+                                  onClick={(e) => e.stopPropagation()}
+                                />
+                              )}
+                              
+                              {item.question_type === 'photo' && (
+                                <div className="mt-2">
+                                  {isAnswered ? (
+                                    <div className="flex items-center gap-2">
+                                      <img src={answer} alt="uploaded" className="h-20 rounded border" />
+                                      <Button
+                                        type="button"
+                                        variant="outline"
+                                        size="sm"
+                                        onClick={(e) => {
+                                          e.stopPropagation();
+                                          setAnswers(prev => ({ ...prev, [item.item_id]: '' }));
+                                          onItemToggle(item.item_id, '', '');
+                                        }}
+                                      >
+                                        Change
+                                      </Button>
+                                    </div>
+                                  ) : (
+                                    <label className="flex items-center justify-center border-2 border-dashed rounded p-4 cursor-pointer hover:bg-slate-50">
+                                      <input
+                                        type="file"
+                                        accept="image/*"
+                                        onChange={(e) => handlePhotoUpload(item, e.target.files?.[0])}
+                                        className="hidden"
+                                        onClick={(e) => e.stopPropagation()}
+                                      />
+                                      <div className="flex flex-col items-center gap-1 text-slate-600">
+                                        <Upload className="w-5 h-5" />
+                                        <span className="text-sm">Click to upload photo</span>
+                                      </div>
+                                    </label>
+                                  )}
+                                </div>
+                              )}
+                              
+                              {item.question_type === 'temperature' && (
+                                <Input
+                                  type="number"
+                                  value={answer || ''}
+                                  onChange={(e) => handleTextInput(item, e.target.value)}
+                                  placeholder="Enter temperature (°C)..."
+                                  className="mt-2"
+                                  onClick={(e) => e.stopPropagation()}
+                                />
+                              )}
+                              
                               {item.required && !isAnswered && (
                                 <Badge variant="outline" className="mt-1 text-xs border-amber-400 text-amber-700">
                                   Required
@@ -167,24 +244,6 @@ export default function ChecklistModal({
                                 <Badge className="mt-1 ml-2 text-xs bg-red-600">
                                   ⚠ Auto-Fail
                                 </Badge>
-                              )}
-                              
-                              {!isAnswered && (
-                                <Textarea
-                                  placeholder="Add notes..."
-                                  value={notes[item.item_id] || ''}
-                                  onChange={(e) => {
-                                    e.stopPropagation();
-                                    const newNotes = { ...notes, [item.item_id]: e.target.value };
-                                    setNotes(newNotes);
-                                    if (answers[item.item_id]) {
-                                      onItemToggle(item.item_id, answers[item.item_id], e.target.value);
-                                    }
-                                  }}
-                                  onClick={(e) => e.stopPropagation()}
-                                  className="mt-2 text-sm"
-                                  rows={2}
-                                />
                               )}
                             </div>
                           </div>
