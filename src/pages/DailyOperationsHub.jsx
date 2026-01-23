@@ -523,6 +523,27 @@ export default function DailyOperationsHub() {
             );
           })}
         </div>
+
+        {/* Checklist Modals */}
+        <ChecklistModal
+          open={showOpeningChecklist}
+          onClose={() => setShowOpeningChecklist(false)}
+          checklist={currentChecklistData}
+          existingCompletion={completionInProgress}
+          onItemToggle={handleChecklistItemToggle}
+          onComplete={handleCompleteChecklist}
+          loading={false}
+        />
+
+        <ChecklistModal
+          open={showClosingChecklist}
+          onClose={() => setShowClosingChecklist(false)}
+          checklist={currentChecklistData}
+          existingCompletion={completionInProgress}
+          onItemToggle={handleChecklistItemToggle}
+          onComplete={handleCompleteChecklist}
+          loading={false}
+        />
       </div>
 
       {/* Bottom Quick Toolbar */}
