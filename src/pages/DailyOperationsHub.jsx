@@ -19,16 +19,23 @@ import {
   TrendingUp,
   MessageCircle,
   BarChart3,
-  Settings
+  Settings,
+  PlayCircle,
+  StopCircle,
+  Droplet
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 import LoadingSpinner from '@/components/ui/LoadingSpinner';
+import ChecklistModal from '@/components/operations/ChecklistModal';
 
 export default function DailyOperationsHub() {
   const [user, setUser] = useState(null);
+  const [showOpeningChecklist, setShowOpeningChecklist] = useState(false);
+  const [showClosingChecklist, setShowClosingChecklist] = useState(false);
+  const [currentChecklistData, setCurrentChecklistData] = useState(null);
   const queryClient = useQueryClient();
 
   useEffect(() => {
@@ -91,13 +98,159 @@ export default function DailyOperationsHub() {
     enabled: !!user
   });
 
+  // Fetch checklists
+  const { data: openingChecklists = [] } = useQuery({
+    queryKey: ['checklists', 'opening'],
+    queryFn: () => base44.entities.ChecklistMaster.filter({ 
+      checklist_type: 'opening',
+      is_active: true 
+    }),
+    enabled: !!user
+  });
+
+  const { data: closingChecklists = [] } = useQuery({
+    queryKey: ['checklists', 'closing'],
+    queryFn: () => base44.entities.ChecklistMaster.filter({ 
+      checklist_type: 'closing',
+      is_active: true 
+    }),
+    enabled: !!user
+  });
+
+  const { data: todayCompletions = [] } = useQuery({
+    queryKey: ['completions', today],
+    queryFn: () => base44.entities.ChecklistCompletion.filter({ date: today }),
+    enabled: !!user
+  });
+
+  // Get dishwasher status
+  const latestCompletion = todayCompletions.sort((a, b) => 
+    new Date(b.created_date) - new Date(a.created_date)
+  )[0];
+  const dishwasherStatus = latestCompletion?.dishwasher_status || 'off';
+
   // Check-in mutation
   const checkInMutation = useMutation({
     mutationFn: (data) => base44.entities.DailyCheckIn.create(data),
     onSuccess: () => {
       queryClient.invalidateQueries(['checkIns']);
+      // Auto-open opening checklist on check-in
+      if (openingChecklists.length > 0) {
+        setShowOpeningChecklist(true);
+      }
     }
   });
+
+  // Checklist completion mutation
+  const [completionInProgress, setCompletionInProgress] = useState(null);
+
+  const handleChecklistItemToggle = async (itemId, completed, isDishwasher, notes) => {
+    if (!completionInProgress) return;
+
+    const updatedItems = completionInProgress.completed_items || [];
+    const existingIndex = updatedItems.findIndex(i => i.item_id === itemId);
+
+    if (existingIndex >= 0) {
+      updatedItems[existingIndex] = {
+        item_id: itemId,
+        completed,
+        timestamp: new Date().toISOString(),
+        notes: notes || ''
+      };
+    } else {
+      updatedItems.push({
+        item_id: itemId,
+        completed,
+        timestamp: new Date().toISOString(),
+        notes: notes || ''
+      });
+    }
+
+    let dishwasherUpdate = completionInProgress.dishwasher_status;
+    if (isDishwasher) {
+      dishwasherUpdate = completed ? 'on' : 'off';
+    }
+
+    const totalRequired = currentChecklistData?.checklist_items?.filter(i => i.required).length || 1;
+    const completedRequired = updatedItems.filter(i => {
+      const item = currentChecklistData?.checklist_items?.find(ci => ci.item_id === i.item_id);
+      return i.completed && item?.required;
+    }).length;
+    const percentage = (completedRequired / totalRequired) * 100;
+
+    const updatedCompletion = {
+      ...completionInProgress,
+      completed_items: updatedItems,
+      completion_percentage: percentage,
+      dishwasher_status: dishwasherUpdate
+    };
+
+    setCompletionInProgress(updatedCompletion);
+
+    // Save to database
+    if (completionInProgress.id) {
+      await base44.entities.ChecklistCompletion.update(completionInProgress.id, updatedCompletion);
+    } else {
+      const created = await base44.entities.ChecklistCompletion.create(updatedCompletion);
+      setCompletionInProgress({ ...updatedCompletion, id: created.id });
+    }
+
+    queryClient.invalidateQueries(['completions']);
+  };
+
+  const handleCompleteChecklist = async () => {
+    if (!completionInProgress) return;
+
+    await base44.entities.ChecklistCompletion.update(completionInProgress.id, {
+      status: 'completed',
+      completed_at: new Date().toISOString(),
+      completion_percentage: 100
+    });
+
+    queryClient.invalidateQueries(['completions']);
+    setShowOpeningChecklist(false);
+    setShowClosingChecklist(false);
+    setCompletionInProgress(null);
+  };
+
+  const openChecklist = (type) => {
+    const checklist = type === 'opening' ? openingChecklists[0] : closingChecklists[0];
+    if (!checklist) return;
+
+    setCurrentChecklistData(checklist);
+
+    const existing = todayCompletions.find(c => 
+      c.checklist_type === type && c.user_email === user?.email
+    );
+
+    if (existing) {
+      setCompletionInProgress(existing);
+    } else {
+      setCompletionInProgress({
+        date: today,
+        shift: currentShift,
+        checklist_id: checklist.id,
+        checklist_type: type,
+        user_id: user?.id,
+        user_name: user?.full_name || user?.email,
+        user_email: user?.email,
+        completed_items: [],
+        completion_percentage: 0,
+        status: 'in_progress',
+        dishwasher_status: 'not_applicable'
+      });
+    }
+
+    if (type === 'opening') {
+      setShowOpeningChecklist(true);
+    } else {
+      // Check if dishwasher is still on when opening closing checklist
+      if (dishwasherStatus === 'on') {
+        alert('⚠️ Please confirm dishwasher has been turned OFF before closing.');
+      }
+      setShowClosingChecklist(true);
+    }
+  };
 
   const handleStartShift = () => {
     checkInMutation.mutate({
@@ -114,8 +267,17 @@ export default function DailyOperationsHub() {
   // Calculate completion
   const myCheckIn = checkIns.find(c => c.staff_email === user?.email);
   const tempCompletion = tempAssets.length > 0 ? (temperatureLogs.length / tempAssets.length) * 100 : 100;
+  
+  const myOpeningCompletion = todayCompletions.find(c => 
+    c.user_email === user?.email && c.checklist_type === 'opening'
+  );
+  const myClosingCompletion = todayCompletions.find(c => 
+    c.user_email === user?.email && c.checklist_type === 'closing'
+  );
+  const checklistCompletion = myOpeningCompletion?.status === 'completed' ? 100 : 0;
+
   const overallCompletion = myCheckIn ? 
-    ((tempCompletion + (handovers.length > 0 ? 100 : 0)) / 2) : 0;
+    ((tempCompletion + (handovers.length > 0 ? 100 : 0) + checklistCompletion) / 3) : 0;
 
   const manager = shifts.find(s => s.position?.toLowerCase().includes('manager'));
 
@@ -198,10 +360,33 @@ export default function DailyOperationsHub() {
           </p>
         </div>
 
+        {/* Opening & Closing Checklist Buttons */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <Button
+            onClick={() => openChecklist('opening')}
+            disabled={!myCheckIn || myOpeningCompletion?.status === 'completed'}
+            className="h-20 text-lg font-bold bg-gradient-to-r from-emerald-500 to-emerald-600 hover:from-emerald-600 hover:to-emerald-700 shadow-lg"
+            size="lg"
+          >
+            <PlayCircle className="w-6 h-6 mr-3" />
+            {myOpeningCompletion?.status === 'completed' ? '✓ OPENING COMPLETE' : 'OPENING CHECKLIST'}
+          </Button>
+          <Button
+            onClick={() => openChecklist('closing')}
+            disabled={!myCheckIn || myClosingCompletion?.status === 'completed'}
+            className="h-20 text-lg font-bold bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 shadow-lg"
+            size="lg"
+          >
+            <StopCircle className="w-6 h-6 mr-3" />
+            {myClosingCompletion?.status === 'completed' ? '✓ CLOSING COMPLETE' : 'CLOSING CHECKLIST'}
+          </Button>
+        </div>
+
         {/* Shift Summary Card */}
         <Card className="bg-gradient-to-r from-emerald-600 to-emerald-700 text-white border-0 shadow-xl">
           <CardContent className="pt-6">
-            <div className="grid grid-cols-2 md:grid-cols-5 gap-4 mb-4">
+            <div className="flex items-center justify-between mb-4">
+              <div className="grid grid-cols-2 md:grid-cols-5 gap-4 flex-1">
               <div>
                 <p className="text-emerald-100 text-xs mb-1">Date</p>
                 <p className="font-bold">{format(new Date(), 'd MMM yyyy')}</p>
@@ -218,9 +403,24 @@ export default function DailyOperationsHub() {
                 <p className="text-emerald-100 text-xs mb-1">Manager on Duty</p>
                 <p className="font-bold text-sm">{manager?.staff_name || 'None'}</p>
               </div>
-              <div>
-                <p className="text-emerald-100 text-xs mb-1">Completion</p>
-                <p className="font-bold">{Math.round(overallCompletion)}%</p>
+                <div>
+                  <p className="text-emerald-100 text-xs mb-1">Completion</p>
+                  <p className="font-bold">{Math.round(overallCompletion)}%</p>
+                </div>
+              </div>
+              
+              {/* Dishwasher Status Badge */}
+              <div className="ml-4">
+                <Badge 
+                  className={`text-lg px-4 py-2 ${
+                    dishwasherStatus === 'on' 
+                      ? 'bg-green-500 animate-pulse' 
+                      : 'bg-slate-600'
+                  }`}
+                >
+                  <Droplet className="w-5 h-5 mr-2" />
+                  Dishwasher: {dishwasherStatus.toUpperCase()}
+                </Badge>
               </div>
             </div>
             
