@@ -91,6 +91,7 @@ const navGroups = [
       { name: 'Weekly Manager Reports', icon: FileText, page: 'WeeklyManagerReports', roles: ['manager', 'owner', 'admin'] },
       { name: 'Compliance Hub', icon: Shield, page: 'ComplianceHub', roles: ['manager', 'owner', 'admin'] },
       { name: 'Data Management', icon: Shield, page: 'DataManagement', roles: ['manager', 'owner', 'admin'] },
+      { name: 'Restaurant Info', icon: Settings, page: 'GlobalInfo', roles: ['manager', 'owner', 'admin'] },
       { name: 'Documents', icon: FolderOpen, page: 'Documents', roles: ['all'] },
       { name: 'Announcements', icon: Bell, page: 'Announcements', roles: ['all'] },
       { name: 'Meetings', icon: Calendar, page: 'Meetings', roles: ['all'] },

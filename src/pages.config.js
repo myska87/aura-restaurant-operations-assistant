@@ -78,6 +78,7 @@ import WeeklyManagerReports from './pages/WeeklyManagerReports';
 import ChecklistLibrary from './pages/ChecklistLibrary';
 import ChecklistBuilder from './pages/ChecklistBuilder';
 import ChecklistReports from './pages/ChecklistReports';
+import GlobalInfo from './pages/GlobalInfo';
 import __Layout from './Layout.jsx';
 
 
@@ -162,6 +163,7 @@ export const PAGES = {
     "ChecklistLibrary": ChecklistLibrary,
     "ChecklistBuilder": ChecklistBuilder,
     "ChecklistReports": ChecklistReports,
+    "GlobalInfo": GlobalInfo,
 }
 
 export const pagesConfig = {
