@@ -12,7 +12,6 @@ import CommandCenter from './pages/CommandCenter';
 import ComplianceHub from './pages/ComplianceHub';
 import Culture from './pages/Culture';
 import DailyCheckIn from './pages/DailyCheckIn';
-import DailyOperationsHub from './pages/DailyOperationsHub';
 import Dashboard from './pages/Dashboard';
 import DataManagement from './pages/DataManagement';
 import DocumentCreator from './pages/DocumentCreator';
@@ -75,6 +74,7 @@ import VisualProcedures from './pages/VisualProcedures';
 import WeeklyManagerReportDetail from './pages/WeeklyManagerReportDetail';
 import WeeklyManagerReportForm from './pages/WeeklyManagerReportForm';
 import WeeklyManagerReports from './pages/WeeklyManagerReports';
+import DailyOperationsHub from './pages/DailyOperationsHub';
 import __Layout from './Layout.jsx';
 
 
@@ -93,7 +93,6 @@ export const PAGES = {
     "ComplianceHub": ComplianceHub,
     "Culture": Culture,
     "DailyCheckIn": DailyCheckIn,
-    "DailyOperationsHub": DailyOperationsHub,
     "Dashboard": Dashboard,
     "DataManagement": DataManagement,
     "DocumentCreator": DocumentCreator,
@@ -156,6 +155,7 @@ export const PAGES = {
     "WeeklyManagerReportDetail": WeeklyManagerReportDetail,
     "WeeklyManagerReportForm": WeeklyManagerReportForm,
     "WeeklyManagerReports": WeeklyManagerReports,
+    "DailyOperationsHub": DailyOperationsHub,
 }
 
 export const pagesConfig = {

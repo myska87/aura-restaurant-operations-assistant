@@ -36,6 +36,7 @@ export default function DailyOperationsHub() {
   const [showOpeningChecklist, setShowOpeningChecklist] = useState(false);
   const [showClosingChecklist, setShowClosingChecklist] = useState(false);
   const [currentChecklistData, setCurrentChecklistData] = useState(null);
+  const [showTempAssets, setShowTempAssets] = useState(false);
   const queryClient = useQueryClient();
 
   useEffect(() => {
@@ -309,7 +310,7 @@ export default function DailyOperationsHub() {
       description: 'Equipment & food temp monitoring',
       icon: Thermometer,
       color: 'bg-red-500',
-      page: 'Operations',
+      onClick: () => setShowTempAssets(true),
       status: tempCompletion === 100 ? 'complete' : 'pending',
       count: `${temperatureLogs.length}/${tempAssets.length} logged`,
       progress: tempCompletion,
@@ -476,6 +477,8 @@ export default function DailyOperationsHub() {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           {operationTiles.map((tile, idx) => {
             const Icon = tile.icon;
+            const CardWrapper = tile.onClick ? 'div' : Link;
+            const wrapperProps = tile.onClick ? {} : { to: createPageUrl(tile.page) };
             return (
               <motion.div
                 key={tile.title}
@@ -483,8 +486,11 @@ export default function DailyOperationsHub() {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: idx * 0.05 }}
               >
-                <Link to={createPageUrl(tile.page)}>
-                  <Card className="h-full hover:shadow-2xl transition-all cursor-pointer border-2 border-slate-200 hover:border-emerald-400 hover:scale-[1.02] duration-200">
+                <CardWrapper {...wrapperProps}>
+                  <Card 
+                    onClick={tile.onClick}
+                    className="h-full hover:shadow-2xl transition-all cursor-pointer border-2 border-slate-200 hover:border-emerald-400 hover:scale-[1.02] duration-200"
+                  >
                     <CardContent className="pt-6">
                       <div className="flex items-start justify-between mb-4">
                         <div className="flex items-center gap-3">
@@ -518,7 +524,7 @@ export default function DailyOperationsHub() {
                       </div>
                     </CardContent>
                   </Card>
-                </Link>
+                </CardWrapper>
               </motion.div>
             );
           })}
@@ -544,6 +550,51 @@ export default function DailyOperationsHub() {
           onComplete={handleCompleteChecklist}
           loading={false}
         />
+
+        {/* Temperature Assets Modal */}
+        <Dialog open={showTempAssets} onOpenChange={setShowTempAssets}>
+          <DialogContent className="max-w-2xl">
+            <DialogHeader>
+              <DialogTitle>Temperature Logs - Equipment</DialogTitle>
+            </DialogHeader>
+            <ScrollArea className="max-h-[70vh]">
+              <div className="space-y-3">
+                {tempAssets.map((asset) => {
+                  const logged = temperatureLogs.find(log => log.asset_id === asset.id);
+                  return (
+                    <Card key={asset.id} className={logged ? 'border-emerald-300 bg-emerald-50' : 'border-slate-200'}>
+                      <CardContent className="pt-4">
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center gap-3">
+                            <div className={`w-12 h-12 rounded-xl flex items-center justify-center ${
+                              logged ? 'bg-emerald-100' : 'bg-slate-100'
+                            }`}>
+                              <Thermometer className={`w-6 h-6 ${logged ? 'text-emerald-600' : 'text-slate-400'}`} />
+                            </div>
+                            <div>
+                              <p className="font-semibold">{asset.asset_name}</p>
+                              <p className="text-sm text-slate-600">{asset.asset_category}</p>
+                              {logged && (
+                                <p className="text-sm font-medium text-emerald-700 mt-1">
+                                  {logged.temperature}°C at {format(new Date(logged.created_date), 'HH:mm')}
+                                </p>
+                              )}
+                            </div>
+                          </div>
+                          {logged ? (
+                            <Badge className="bg-emerald-600">✓ Logged</Badge>
+                          ) : (
+                            <Badge variant="outline" className="border-amber-400 text-amber-700">Pending</Badge>
+                          )}
+                        </div>
+                      </CardContent>
+                    </Card>
+                  );
+                })}
+              </div>
+            </ScrollArea>
+          </DialogContent>
+        </Dialog>
       </div>
 
       {/* Bottom Quick Toolbar */}
