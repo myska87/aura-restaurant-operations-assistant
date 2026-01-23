@@ -44,6 +44,8 @@ import {
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import QuickAccessToolbar from '@/components/ui/QuickAccessToolbar';
+import { ModeProvider, useMode, MODES } from '@/components/modes/ModeContext';
+import ModeSelector from '@/components/modes/ModeSelector';
 
 const navGroups = [
   {
@@ -93,11 +95,12 @@ const navGroups = [
   }
 ];
 
-export default function Layout({ children, currentPageName }) {
+function LayoutContent({ children, currentPageName }) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [user, setUser] = useState(null);
   const navigate = useNavigate();
   const location = useLocation();
+  const { currentMode } = useMode();
 
   useEffect(() => {
     const loadUser = async () => {
@@ -115,6 +118,19 @@ export default function Layout({ children, currentPageName }) {
     };
     loadUser();
   }, [currentPageName, navigate]);
+
+  // Redirect to mode home if on Dashboard
+  useEffect(() => {
+    if (currentPageName === 'Dashboard' && user) {
+      if (currentMode === MODES.OPERATE) {
+        navigate(createPageUrl('OperateHome'));
+      } else if (currentMode === MODES.TRAIN) {
+        navigate(createPageUrl('TrainHome'));
+      } else if (currentMode === MODES.MANAGE) {
+        navigate(createPageUrl('ManageHome'));
+      }
+    }
+  }, [currentMode, currentPageName, navigate, user]);
 
   const { data: notifications = [] } = useQuery({
     queryKey: ['notifications', user?.email],
@@ -246,8 +262,8 @@ export default function Layout({ children, currentPageName }) {
       </aside>
 
       {/* Mobile Header */}
-      <header className="lg:hidden fixed top-0 left-0 right-0 z-40 h-16 bg-white/80 backdrop-blur-xl border-b border-slate-200/50 shadow-sm">
-        <div className="flex items-center justify-between h-full px-4">
+      <header className="lg:hidden fixed top-0 left-0 right-0 z-40 bg-white/80 backdrop-blur-xl border-b border-slate-200/50 shadow-sm">
+        <div className="flex items-center justify-between h-16 px-4">
           <div className="flex items-center gap-2">
             <Sheet open={sidebarOpen} onOpenChange={setSidebarOpen}>
               <SheetTrigger asChild>
@@ -310,6 +326,9 @@ export default function Layout({ children, currentPageName }) {
             </DropdownMenu>
           </div>
         </div>
+        <div className="px-4 pb-3">
+          <ModeSelector user={user} />
+        </div>
       </header>
 
       {/* Desktop Header */}
@@ -330,6 +349,7 @@ export default function Layout({ children, currentPageName }) {
           </h1>
         </div>
         <div className="flex items-center gap-4">
+          <ModeSelector user={user} />
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button variant="ghost" size="icon" className="relative">
@@ -377,7 +397,7 @@ export default function Layout({ children, currentPageName }) {
       </header>
 
       {/* Main Content */}
-      <main className="lg:pl-72 pt-16 min-h-screen pb-24">
+      <main className="lg:pl-72 pt-16 lg:pt-16 min-h-screen pb-24" style={{ paddingTop: window.innerWidth < 1024 ? '120px' : '64px' }}>
         <div className="p-4 md:p-6 lg:p-8">
           <AnimatePresence mode="wait">
             <motion.div
@@ -395,6 +415,14 @@ export default function Layout({ children, currentPageName }) {
 
       {/* Quick Access Toolbar */}
       <QuickAccessToolbar />
-      </div>
-      );
-      }
+    </div>
+  );
+}
+
+export default function Layout({ children, currentPageName }) {
+  return (
+    <ModeProvider>
+      <LayoutContent children={children} currentPageName={currentPageName} />
+    </ModeProvider>
+  );
+}
