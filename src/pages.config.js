@@ -79,6 +79,7 @@ import VisualProcedures from './pages/VisualProcedures';
 import WeeklyManagerReportDetail from './pages/WeeklyManagerReportDetail';
 import WeeklyManagerReportForm from './pages/WeeklyManagerReportForm';
 import WeeklyManagerReports from './pages/WeeklyManagerReports';
+import AuditCenter from './pages/AuditCenter';
 import __Layout from './Layout.jsx';
 
 
@@ -164,6 +165,7 @@ export const PAGES = {
     "WeeklyManagerReportDetail": WeeklyManagerReportDetail,
     "WeeklyManagerReportForm": WeeklyManagerReportForm,
     "WeeklyManagerReports": WeeklyManagerReports,
+    "AuditCenter": AuditCenter,
 }
 
 export const pagesConfig = {
