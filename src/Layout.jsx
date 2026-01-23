@@ -83,6 +83,7 @@ const navGroups = [
     items: [
       { name: 'Reports', icon: TrendingUp, page: 'Reports', roles: ['manager', 'owner', 'admin'] },
       { name: 'Weekly Manager Reports', icon: FileText, page: 'WeeklyManagerReports', roles: ['manager', 'owner', 'admin'] },
+      { name: 'Data Management', icon: Shield, page: 'DataManagement', roles: ['manager', 'owner', 'admin'] },
       { name: 'Documents', icon: FolderOpen, page: 'Documents', roles: ['all'] },
       { name: 'Announcements', icon: Bell, page: 'Announcements', roles: ['all'] },
       { name: 'Meetings', icon: Calendar, page: 'Meetings', roles: ['all'] },
