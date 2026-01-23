@@ -1,0 +1,292 @@
+import React, { useState, useRef } from 'react';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
+import { Download, FileText, Printer, BarChart3 } from 'lucide-react';
+import { format, subDays, startOfWeek, startOfMonth } from 'date-fns';
+import { motion } from 'framer-motion';
+import html2canvas from 'html2canvas';
+import jsPDF from 'jspdf';
+import * as XLSX from 'xlsx';
+
+export default function ReportBuilder({ reportData, reportType, dateRange, globalInfo, user }) {
+  const reportRef = useRef();
+  const [exporting, setExporting] = useState(false);
+
+  const getReportTitle = () => {
+    if (reportType === 'daily') return 'Daily Operations Summary';
+    if (reportType === 'weekly') return 'Weekly Performance Review';
+    if (reportType === 'monthly') return 'Monthly Audit Report';
+    return 'Custom Report';
+  };
+
+  const exportPDF = async () => {
+    setExporting(true);
+    try {
+      const canvas = await html2canvas(reportRef.current, { scale: 2, useCORS: true });
+      const imgData = canvas.toDataURL('image/png');
+      const pdf = new jsPDF('p', 'mm', 'a4');
+      const imgWidth = 210;
+      const pageHeight = 297;
+      let heightLeft = canvas.height * imgWidth / canvas.width;
+      let position = 0;
+
+      pdf.addImage(imgData, 'PNG', 0, position, imgWidth, (canvas.height * imgWidth / canvas.width));
+      heightLeft -= pageHeight;
+
+      while (heightLeft >= 0) {
+        position = heightLeft - canvas.height * imgWidth / canvas.width;
+        pdf.addPage();
+        pdf.addImage(imgData, 'PNG', 0, position, imgWidth, (canvas.height * imgWidth / canvas.width));
+        heightLeft -= pageHeight;
+      }
+
+      pdf.save(`${getReportTitle()}-${format(new Date(), 'yyyy-MM-dd')}.pdf`);
+    } catch (error) {
+      console.error('PDF export failed:', error);
+      alert('Error exporting PDF');
+    }
+    setExporting(false);
+  };
+
+  const exportExcel = () => {
+    setExporting(true);
+    try {
+      const ws = XLSX.utils.json_to_sheet(reportData.allRecords || []);
+      const wb = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(wb, ws, 'Report');
+      XLSX.writeFile(wb, `${getReportTitle()}-${format(new Date(), 'yyyy-MM-dd')}.xlsx`);
+    } catch (error) {
+      console.error('Excel export failed:', error);
+      alert('Error exporting Excel');
+    }
+    setExporting(false);
+  };
+
+  const handlePrint = () => {
+    window.print();
+  };
+
+  return (
+    <div className="space-y-4">
+      {/* Export Buttons */}
+      <div className="flex flex-wrap gap-2">
+        <Button
+          onClick={exportPDF}
+          disabled={exporting}
+          variant="outline"
+          className="gap-2"
+        >
+          <FileText className="w-4 h-4" />
+          Export PDF
+        </Button>
+        <Button
+          onClick={exportExcel}
+          disabled={exporting}
+          variant="outline"
+          className="gap-2"
+        >
+          <Download className="w-4 h-4" />
+          Export Excel
+        </Button>
+        <Button
+          onClick={handlePrint}
+          variant="outline"
+          className="gap-2"
+        >
+          <Printer className="w-4 h-4" />
+          Print
+        </Button>
+      </div>
+
+      {/* Report Content */}
+      <motion.div
+        ref={reportRef}
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        className="bg-white rounded-lg border-2 border-slate-200 overflow-hidden"
+      >
+        {/* Header */}
+        <div className="bg-gradient-to-r from-emerald-600 to-emerald-700 p-8 text-white">
+          <div className="flex items-start justify-between mb-6">
+            <div className="flex items-center gap-4">
+              {globalInfo?.logo_url && (
+                <img src={globalInfo.logo_url} alt="Logo" className="h-12 w-auto" />
+              )}
+              <div>
+                <h1 className="text-3xl font-bold">{globalInfo?.restaurant_name || 'AURA Restaurant'}</h1>
+                <p className="text-emerald-100">{globalInfo?.address || 'Location not set'}</p>
+              </div>
+            </div>
+            <div className="text-right">
+              <Badge className="bg-white text-emerald-700 mb-2">
+                {getReportTitle()}
+              </Badge>
+              <p className="text-sm text-emerald-50">
+                {format(new Date(dateRange.from), 'MMM d, yyyy')} - {format(new Date(dateRange.to), 'MMM d, yyyy')}
+              </p>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-2 text-sm gap-4 pt-4 border-t border-emerald-500">
+            <div>
+              <p className="text-emerald-100">Manager In Charge</p>
+              <p className="font-semibold">{globalInfo?.manager_name || 'Not assigned'}</p>
+            </div>
+            <div>
+              <p className="text-emerald-100">Report Generated By</p>
+              <p className="font-semibold">{user?.full_name || user?.email || 'System'}</p>
+            </div>
+          </div>
+        </div>
+
+        {/* AI Insights */}
+        {reportData.insights && (
+          <div className="p-6 bg-blue-50 border-b border-blue-200">
+            <h3 className="font-semibold text-blue-900 mb-2 flex items-center gap-2">
+              <BarChart3 className="w-4 h-4" />
+              Key Insights
+            </h3>
+            <ul className="space-y-1 text-sm text-blue-800">
+              {reportData.insights.map((insight, idx) => (
+                <li key={idx} className="flex items-start gap-2">
+                  <span className="text-blue-600 font-bold">•</span>
+                  {insight}
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
+
+        {/* Report Sections */}
+        <div className="p-8 space-y-8">
+          {/* Check-Ins Section */}
+          {reportData.checkIns && (
+            <div>
+              <h2 className="text-xl font-bold text-slate-800 mb-4 pb-2 border-b-2 border-emerald-300">
+                ✅ Daily Check-Ins
+              </h2>
+              <div className="grid grid-cols-3 gap-4 mb-4">
+                <Card>
+                  <CardContent className="pt-4">
+                    <p className="text-sm text-slate-600">Total Check-Ins</p>
+                    <p className="text-2xl font-bold text-emerald-600">{reportData.checkIns.total || 0}</p>
+                  </CardContent>
+                </Card>
+                <Card>
+                  <CardContent className="pt-4">
+                    <p className="text-sm text-slate-600">Completed</p>
+                    <p className="text-2xl font-bold text-blue-600">{reportData.checkIns.completed || 0}</p>
+                  </CardContent>
+                </Card>
+                <Card>
+                  <CardContent className="pt-4">
+                    <p className="text-sm text-slate-600">Completion Rate</p>
+                    <p className="text-2xl font-bold text-purple-600">
+                      {reportData.checkIns.total > 0 ? Math.round((reportData.checkIns.completed / reportData.checkIns.total) * 100) : 0}%
+                    </p>
+                  </CardContent>
+                </Card>
+              </div>
+            </div>
+          )}
+
+          {/* Temperature Logs */}
+          {reportData.temperatures && (
+            <div>
+              <h2 className="text-xl font-bold text-slate-800 mb-4 pb-2 border-b-2 border-emerald-300">
+                🕒 Temperature Logs
+              </h2>
+              <div className="grid grid-cols-3 gap-4 mb-4">
+                <Card>
+                  <CardContent className="pt-4">
+                    <p className="text-sm text-slate-600">Total Logs</p>
+                    <p className="text-2xl font-bold text-emerald-600">{reportData.temperatures.total || 0}</p>
+                  </CardContent>
+                </Card>
+                <Card>
+                  <CardContent className="pt-4">
+                    <p className="text-sm text-slate-600">Compliant</p>
+                    <p className="text-2xl font-bold text-emerald-600">{reportData.temperatures.compliant || 0}</p>
+                  </CardContent>
+                </Card>
+                <Card>
+                  <CardContent className="pt-4">
+                    <p className="text-sm text-slate-600">Issues</p>
+                    <p className="text-2xl font-bold text-red-600">{reportData.temperatures.issues || 0}</p>
+                  </CardContent>
+                </Card>
+              </div>
+            </div>
+          )}
+
+          {/* Labels */}
+          {reportData.labels && (
+            <div>
+              <h2 className="text-xl font-bold text-slate-800 mb-4 pb-2 border-b-2 border-emerald-300">
+                🏷️ Label Print Log
+              </h2>
+              <div className="grid grid-cols-3 gap-4 mb-4">
+                <Card>
+                  <CardContent className="pt-4">
+                    <p className="text-sm text-slate-600">Labels Printed</p>
+                    <p className="text-2xl font-bold text-purple-600">{reportData.labels.total || 0}</p>
+                  </CardContent>
+                </Card>
+                <Card>
+                  <CardContent className="pt-4">
+                    <p className="text-sm text-slate-600">Active Labels</p>
+                    <p className="text-2xl font-bold text-emerald-600">{reportData.labels.active || 0}</p>
+                  </CardContent>
+                </Card>
+                <Card>
+                  <CardContent className="pt-4">
+                    <p className="text-sm text-slate-600">Expiring Soon</p>
+                    <p className="text-2xl font-bold text-amber-600">{reportData.labels.expiringSoon || 0}</p>
+                  </CardContent>
+                </Card>
+              </div>
+            </div>
+          )}
+
+          {/* Handovers */}
+          {reportData.handovers && (
+            <div>
+              <h2 className="text-xl font-bold text-slate-800 mb-4 pb-2 border-b-2 border-emerald-300">
+                🔁 Shift Handovers
+              </h2>
+              <div className="grid grid-cols-3 gap-4 mb-4">
+                <Card>
+                  <CardContent className="pt-4">
+                    <p className="text-sm text-slate-600">Total Handovers</p>
+                    <p className="text-2xl font-bold text-emerald-600">{reportData.handovers.total || 0}</p>
+                  </CardContent>
+                </Card>
+                <Card>
+                  <CardContent className="pt-4">
+                    <p className="text-sm text-slate-600">Acknowledged</p>
+                    <p className="text-2xl font-bold text-emerald-600">{reportData.handovers.acknowledged || 0}</p>
+                  </CardContent>
+                </Card>
+                <Card>
+                  <CardContent className="pt-4">
+                    <p className="text-sm text-slate-600">Issues Logged</p>
+                    <p className="text-2xl font-bold text-amber-600">{reportData.handovers.withIssues || 0}</p>
+                  </CardContent>
+                </Card>
+              </div>
+            </div>
+          )}
+        </div>
+
+        {/* Footer */}
+        <div className="bg-slate-50 p-6 border-t border-slate-200 text-center text-xs text-slate-600">
+          <p className="mb-2">Generated: {format(new Date(), 'PPpp')}</p>
+          <p className="text-slate-500 italic">
+            All operational data generated automatically by AURA Restaurant Operations System. FSA Compliant.
+          </p>
+        </div>
+      </motion.div>
+    </div>
+  );
+}
