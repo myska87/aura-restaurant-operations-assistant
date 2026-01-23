@@ -70,6 +70,9 @@ import VisualProcedures from './pages/VisualProcedures';
 import WeeklyManagerReportDetail from './pages/WeeklyManagerReportDetail';
 import WeeklyManagerReportForm from './pages/WeeklyManagerReportForm';
 import WeeklyManagerReports from './pages/WeeklyManagerReports';
+import OperateHome from './pages/OperateHome';
+import TrainHome from './pages/TrainHome';
+import ManageHome from './pages/ManageHome';
 import __Layout from './Layout.jsx';
 
 
@@ -146,6 +149,9 @@ export const PAGES = {
     "WeeklyManagerReportDetail": WeeklyManagerReportDetail,
     "WeeklyManagerReportForm": WeeklyManagerReportForm,
     "WeeklyManagerReports": WeeklyManagerReports,
+    "OperateHome": OperateHome,
+    "TrainHome": TrainHome,
+    "ManageHome": ManageHome,
 }
 
 export const pagesConfig = {
