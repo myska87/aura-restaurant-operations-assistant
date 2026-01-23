@@ -72,14 +72,19 @@ export default function ChecklistBuilder() {
 
   const { data: existingChecklist, isLoading } = useQuery({
     queryKey: ['checklist', checklistId],
-    queryFn: () => base44.entities.ChecklistMaster.filter({ id: checklistId }),
-    enabled: !!checklistId,
-    select: (data) => data[0]
+    queryFn: async () => {
+      const results = await base44.entities.ChecklistMaster.filter({ id: checklistId });
+      return results?.[0] || null;
+    },
+    enabled: !!checklistId
   });
 
   useEffect(() => {
-    if (existingChecklist) {
-      setFormData(existingChecklist);
+    if (existingChecklist && existingChecklist.items) {
+      setFormData({
+        ...existingChecklist,
+        items: existingChecklist.items || []
+      });
     }
   }, [existingChecklist]);
 
@@ -104,6 +109,7 @@ export default function ChecklistBuilder() {
   });
 
   const addQuestion = (type) => {
+    const currentItems = formData.items || [];
     const newItem = {
       item_id: `item_${Date.now()}`,
       question_type: type,
@@ -111,31 +117,31 @@ export default function ChecklistBuilder() {
       required: true,
       auto_fail: false,
       dropdown_options: [],
-      order: formData.items.length
+      order: currentItems.length
     };
 
     setFormData({
       ...formData,
-      items: [...formData.items, newItem]
+      items: [...currentItems, newItem]
     });
     setShowQuestionPicker(false);
   };
 
   const updateQuestion = (index, updates) => {
-    const newItems = [...formData.items];
+    const newItems = [...(formData.items || [])];
     newItems[index] = { ...newItems[index], ...updates };
     setFormData({ ...formData, items: newItems });
   };
 
   const deleteQuestion = (index) => {
-    const newItems = formData.items.filter((_, i) => i !== index);
+    const newItems = (formData.items || []).filter((_, i) => i !== index);
     setFormData({ ...formData, items: newItems });
   };
 
   const onDragEnd = (result) => {
     if (!result.destination) return;
 
-    const items = Array.from(formData.items);
+    const items = Array.from(formData.items || []);
     const [reorderedItem] = items.splice(result.source.index, 1);
     items.splice(result.destination.index, 0, reorderedItem);
 
@@ -274,7 +280,7 @@ export default function ChecklistBuilder() {
       <Card>
         <CardHeader>
           <div className="flex items-center justify-between">
-            <CardTitle>Questions ({formData.items.length})</CardTitle>
+            <CardTitle>Questions ({formData.items?.length || 0})</CardTitle>
             <Button
               onClick={() => setShowQuestionPicker(!showQuestionPicker)}
               variant="outline"
@@ -313,7 +319,7 @@ export default function ChecklistBuilder() {
             <Droppable droppableId="questions">
               {(provided) => (
                 <div {...provided.droppableProps} ref={provided.innerRef} className="space-y-3">
-                  {formData.items.map((item, index) => (
+                  {(formData.items || []).map((item, index) => (
                     <Draggable key={item.item_id} draggableId={item.item_id} index={index}>
                       {(provided) => (
                         <div
@@ -403,7 +409,7 @@ export default function ChecklistBuilder() {
             </Droppable>
           </DragDropContext>
 
-          {formData.items.length === 0 && (
+          {(!formData.items || formData.items.length === 0) && (
             <div className="text-center py-12 text-slate-500">
               <p className="mb-4">No questions added yet</p>
               <Button onClick={() => setShowQuestionPicker(true)} variant="outline">
