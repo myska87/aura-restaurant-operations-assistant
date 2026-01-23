@@ -23,11 +23,16 @@ import { format } from 'date-fns';
 import EquipmentCheckForm from '@/components/equipment/EquipmentCheckForm';
 import EquipmentFaultForm from '@/components/equipment/EquipmentFaultForm';
 import EquipmentList from '@/components/equipment/EquipmentList';
+import QuickFaultReportForm from '@/components/equipment/QuickFaultReportForm';
+import EquipmentAuditForm from '@/components/equipment/EquipmentAuditForm';
 
 export default function EquipmentHealth() {
   const [showCheckForm, setShowCheckForm] = useState(false);
   const [showFaultForm, setShowFaultForm] = useState(false);
+  const [showQuickFaultForm, setShowQuickFaultForm] = useState(false);
+  const [showAuditForm, setShowAuditForm] = useState(false);
   const [selectedEquipment, setSelectedEquipment] = useState(null);
+  const [equipmentFilter, setEquipmentFilter] = useState('all');
   const queryClient = useQueryClient();
 
   const { data: user } = useQuery({
@@ -189,11 +194,12 @@ export default function EquipmentHealth() {
 
       {/* Main Content Tabs */}
       <Tabs defaultValue="dashboard" className="space-y-4">
-        <TabsList className="grid w-full grid-cols-4">
+        <TabsList className="grid w-full grid-cols-5">
           <TabsTrigger value="dashboard">Dashboard</TabsTrigger>
           <TabsTrigger value="checks">Daily Checks</TabsTrigger>
           <TabsTrigger value="faults">Active Faults</TabsTrigger>
           <TabsTrigger value="equipment">Equipment List</TabsTrigger>
+          <TabsTrigger value="audit">Audit</TabsTrigger>
         </TabsList>
 
         <TabsContent value="dashboard" className="space-y-4">
@@ -352,27 +358,125 @@ export default function EquipmentHealth() {
         <TabsContent value="equipment">
           <Card>
             <CardHeader>
-              <CardTitle>All Equipment</CardTitle>
+              <div className="flex items-center justify-between">
+                <CardTitle>Equipment Dashboard</CardTitle>
+                <Button 
+                  onClick={() => setShowQuickFaultForm(true)}
+                  className="bg-red-600 hover:bg-red-700"
+                  size="sm"
+                >
+                  <AlertTriangle className="w-4 h-4 mr-2" />
+                  Quick Report Fault
+                </Button>
+              </div>
             </CardHeader>
             <CardContent>
-              <div className="space-y-2">
-                {equipment.map(eq => (
-                  <div key={eq.id} className="flex items-center justify-between p-3 bg-slate-50 rounded-lg">
-                    <div>
-                      <p className="font-semibold">{eq.asset_name}</p>
-                      <p className="text-sm text-slate-600 capitalize">{eq.location?.replace(/_/g, ' ')}</p>
-                      {eq.is_critical_asset && (
-                        <Badge className="mt-1 bg-red-100 text-red-800">Critical</Badge>
-                      )}
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <Badge variant="outline" className="capitalize">{eq.status?.replace(/_/g, ' ')}</Badge>
-                      <Button size="sm" variant="outline" onClick={() => handleReportFault(eq)}>
-                        Report Issue
-                      </Button>
-                    </div>
-                  </div>
+              {/* Filter */}
+              <div className="flex gap-2 mb-4">
+                {['all', 'faulty', 'under_maintenance', 'needs_audit'].map(filter => (
+                  <Button
+                    key={filter}
+                    onClick={() => setEquipmentFilter(filter)}
+                    variant={equipmentFilter === filter ? 'default' : 'outline'}
+                    size="sm"
+                  >
+                    {filter === 'all' ? 'All Equipment' :
+                     filter === 'faulty' ? '🔴 Faulty' :
+                     filter === 'under_maintenance' ? '🟠 Maintenance' :
+                     '⚠️ Needs Audit'}
+                  </Button>
                 ))}
+              </div>
+
+              {/* Equipment Grid */}
+              <div className="grid md:grid-cols-2 gap-3">
+                {equipment
+                  .filter(eq => {
+                    if (equipmentFilter === 'all') return true;
+                    if (equipmentFilter === 'faulty') return eq.status === 'fault';
+                    if (equipmentFilter === 'under_maintenance') return ['warning', 'out_of_service'].includes(eq.status);
+                    if (equipmentFilter === 'needs_audit') return !eq.last_audit_date;
+                    return true;
+                  })
+                  .map(eq => {
+                    const hasFault = activeFaults.some(f => f.equipment_name === eq.asset_name && f.severity === 'critical');
+                    return (
+                      <div 
+                        key={eq.id}
+                        className={`p-4 rounded-lg border-2 ${
+                          hasFault ? 'border-red-300 bg-red-50' :
+                          eq.status === 'warning' ? 'border-amber-300 bg-amber-50' :
+                          'border-slate-200 bg-white'
+                        }`}
+                      >
+                        <div className="flex items-start justify-between mb-3">
+                          <div>
+                            <p className="font-semibold">{eq.asset_name}</p>
+                            <p className="text-xs text-slate-600">{eq.location?.replace(/_/g, ' ')}</p>
+                          </div>
+                          <Badge variant="outline" className={
+                            hasFault ? 'bg-red-100 text-red-800' :
+                            eq.status === 'warning' ? 'bg-amber-100 text-amber-800' :
+                            'bg-emerald-100 text-emerald-800'
+                          }>
+                            {hasFault ? '🔴 Fault' : eq.status === 'ok' ? '🟢 OK' : '🟠 ' + eq.status}
+                          </Badge>
+                        </div>
+                        <div className="text-xs text-slate-600 space-y-1 mb-3">
+                          {eq.last_audit_date && <p>Last Audit: {format(new Date(eq.last_audit_date), 'MMM d')}</p>}
+                          {eq.warranty_expiry && <p>Warranty: {format(new Date(eq.warranty_expiry), 'MMM d, yyyy')}</p>}
+                        </div>
+                        <div className="flex gap-1">
+                          <Button size="sm" variant="outline" className="flex-1 text-xs" onClick={() => handleReportFault(eq)}>
+                            🪛 Report Fault
+                          </Button>
+                          <Button size="sm" variant="outline" className="flex-1 text-xs">
+                            📋 Logs
+                          </Button>
+                        </div>
+                      </div>
+                    );
+                  })}
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        {/* Audit Tab */}
+        <TabsContent value="audit">
+          <Card>
+            <CardHeader>
+              <div className="flex items-center justify-between">
+                <CardTitle>🧾 Equipment Audit & Inspection</CardTitle>
+                <Button 
+                  onClick={() => setShowAuditForm(true)}
+                  className="bg-emerald-600 hover:bg-emerald-700"
+                >
+                  <Calendar className="w-4 h-4 mr-2" />
+                  Start Audit
+                </Button>
+              </div>
+            </CardHeader>
+            <CardContent>
+              <p className="text-sm text-slate-600 mb-4">
+                Conduct weekly or monthly audits to ensure all equipment is maintained to standard.
+              </p>
+              <div className="grid md:grid-cols-2 gap-3">
+                {equipment.map(eq => {
+                  const daysAgo = eq.last_audit_date ? Math.floor((new Date() - new Date(eq.last_audit_date)) / (1000 * 60 * 60 * 24)) : 999;
+                  const auditNeeded = !eq.last_audit_date || daysAgo > 7;
+                  return (
+                    <div key={eq.id} className={`p-3 rounded-lg border ${auditNeeded ? 'border-amber-300 bg-amber-50' : 'border-slate-200 bg-slate-50'}`}>
+                      <p className="font-semibold text-sm">{eq.asset_name}</p>
+                      <p className="text-xs text-slate-600 mt-1">
+                        {eq.last_audit_date 
+                          ? `Last audited ${daysAgo} days ago`
+                          : '⚠️ Never audited'}
+                      </p>
+                      {auditNeeded && <Badge className="mt-2 text-xs bg-amber-600">Audit Due</Badge>}
+                    </div>
+                  );
+                })}
               </div>
             </CardContent>
           </Card>
@@ -398,6 +502,26 @@ export default function EquipmentHealth() {
             setShowFaultForm(false);
             setSelectedEquipment(null);
           }}
+        />
+      )}
+
+      {showQuickFaultForm && (
+        <QuickFaultReportForm
+          open={showQuickFaultForm}
+          onClose={() => setShowQuickFaultForm(false)}
+          equipment={selectedEquipment}
+          allEquipment={equipment}
+          user={user}
+        />
+      )}
+
+      {showAuditForm && (
+        <EquipmentAuditForm
+          open={showAuditForm}
+          onClose={() => setShowAuditForm(false)}
+          equipment={selectedEquipment}
+          allEquipment={equipment}
+          user={user}
         />
       )}
     </div>
