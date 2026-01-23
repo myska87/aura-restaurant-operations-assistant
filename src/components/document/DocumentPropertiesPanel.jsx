@@ -11,7 +11,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { X, Tag, FileText, Link2 } from 'lucide-react';
+import { X, Tag, FileText, Link2, RefreshCw } from 'lucide-react';
+import { Switch } from '@/components/ui/switch';
 import { format } from 'date-fns';
 
 const CATEGORIES = [
@@ -47,7 +48,9 @@ export default function DocumentPropertiesPanel({
   onVisibilityChange,
   onTagAdd,
   onTagRemove,
-  status
+  status,
+  requiresReacknowledgement = false,
+  onRequiresReacknowledgementChange
 }) {
   const [newTag, setNewTag] = React.useState('');
 
@@ -121,6 +124,28 @@ export default function DocumentPropertiesPanel({
               ))}
             </SelectContent>
           </Select>
+        </CardContent>
+      </Card>
+
+      {/* Compliance Settings */}
+      <Card className="border-amber-200 bg-amber-50/30">
+        <CardHeader className="pb-3">
+          <CardTitle className="text-sm flex items-center gap-2">
+            <RefreshCw className="w-4 h-4 text-amber-600" />
+            Compliance
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="flex items-center justify-between">
+            <div className="flex-1">
+              <Label className="text-xs font-semibold">Require Re-Read on Update</Label>
+              <p className="text-xs text-slate-600 mt-1">All users must re-acknowledge when document changes</p>
+            </div>
+            <Switch
+              checked={requiresReacknowledgement}
+              onCheckedChange={onRequiresReacknowledgementChange}
+            />
+          </div>
         </CardContent>
       </Card>
 
