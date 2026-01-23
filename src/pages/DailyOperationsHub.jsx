@@ -35,6 +35,7 @@ import LoadingSpinner from '@/components/ui/LoadingSpinner';
 import ChecklistModal from '@/components/operations/ChecklistModal';
 import TemperatureLog from '@/components/operations/TemperatureLog';
 import DailyBriefingForm from '@/components/operations/DailyBriefingForm';
+import ShiftHandoverChecklist from '@/components/operations/ShiftHandoverChecklist';
 
 export default function DailyOperationsHub() {
   const [user, setUser] = useState(null);
@@ -43,6 +44,8 @@ export default function DailyOperationsHub() {
   const [currentChecklistData, setCurrentChecklistData] = useState(null);
   const [showTempAssets, setShowTempAssets] = useState(false);
   const [showBriefingForm, setShowBriefingForm] = useState(false);
+  const [showHandoverChecklist, setShowHandoverChecklist] = useState(false);
+  const [savingHandover, setSavingHandover] = useState(false);
   const queryClient = useQueryClient();
   const navigate = useNavigate();
 
@@ -111,6 +114,29 @@ export default function DailyOperationsHub() {
     queryFn: () => base44.entities.DailyBriefing.filter({ date: today }),
     enabled: !!user
   });
+
+  const handoverMutation = useMutation({
+    mutationFn: (data) => base44.entities.ShiftHandover.create(data),
+    onSuccess: () => {
+      queryClient.invalidateQueries(['handovers']);
+      setSavingHandover(false);
+      setShowHandoverChecklist(false);
+      alert('✅ Shift handover recorded successfully');
+    },
+    onError: () => {
+      setSavingHandover(false);
+      alert('Error saving handover. Please try again.');
+    }
+  });
+
+  const handleHandoverSubmit = async (data) => {
+    setSavingHandover(true);
+    handoverMutation.mutate({
+      ...data,
+      handover_from: user?.email,
+      handover_from_name: user?.full_name || user?.email
+    });
+  };
 
   // Fetch checklists from ChecklistMaster
   const { data: openingChecklists = [] } = useQuery({
@@ -365,9 +391,9 @@ export default function DailyOperationsHub() {
       description: 'Pass info between shifts',
       icon: MessageSquare,
       color: 'bg-amber-500',
-      page: 'ShiftHandovers',
-      status: handovers.length > 0 ? 'complete' : 'pending',
-      count: `${handovers.length} handover notes`,
+      onClick: () => setShowHandoverChecklist(true),
+      status: handovers.filter(h => h.shift_date === today).length > 0 ? 'complete' : 'pending',
+      count: `${handovers.filter(h => h.shift_date === today).length} handovers today`,
       lastUpdate: handovers[0]?.created_date
     },
     {
@@ -686,6 +712,17 @@ export default function DailyOperationsHub() {
           currentShift={currentShift}
           today={today}
           onSuccess={() => queryClient.invalidateQueries(['briefings'])}
+        />
+
+        {/* Shift Handover Checklist */}
+        <ShiftHandoverChecklist
+          open={showHandoverChecklist}
+          onClose={() => setShowHandoverChecklist(false)}
+          user={user}
+          shift={currentShift}
+          date={today}
+          onSubmit={handleHandoverSubmit}
+          loading={savingHandover}
         />
       </div>
 
