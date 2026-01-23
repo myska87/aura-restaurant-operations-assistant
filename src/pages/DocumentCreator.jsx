@@ -147,8 +147,9 @@ export default function DocumentCreator() {
       if (taskDate > new Date()) {
         await base44.entities.Task.create({
           title: `Review Document: ${title}`,
+          category: 'admin',
           description: `Document review required by ${reviewDate.toLocaleDateString()}`,
-          due_date: taskDate.toISOString(),
+          due_date: taskDate.toISOString().split('T')[0],
           assigned_to: user.email,
           status: 'pending',
           priority: 'medium'
