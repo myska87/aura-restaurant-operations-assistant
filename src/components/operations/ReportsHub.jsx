@@ -21,6 +21,7 @@ export default function ReportsHub({ user }) {
   });
   const [showReport, setShowReport] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [detailedMode, setDetailedMode] = useState(true);
 
   const { data: checkIns = [] } = useQuery({
     queryKey: ['checkIns', dateRange],
@@ -90,12 +91,12 @@ export default function ReportsHub({ user }) {
       },
       temperatures: {
         total: filteredTemps.length,
-        compliant: filteredTemps.filter(t => t.temperature_ok === true).length,
-        issues: filteredTemps.filter(t => t.temperature_ok === false).length
+        compliant: filteredTemps.filter(t => t.is_in_range === true).length,
+        issues: filteredTemps.filter(t => t.is_in_range === false).length
       },
       labels: {
         total: filteredLabels.length,
-        active: filteredLabels.filter(l => !l.expired).length,
+        active: filteredLabels.filter(l => new Date(l.use_by_date) >= new Date()).length,
         expiringSoon: filteredLabels.filter(l => {
           const useBy = new Date(l.use_by_date);
           const now = new Date();
@@ -113,9 +114,16 @@ export default function ReportsHub({ user }) {
           ? `⚠️ ${filteredLabels.filter(l => new Date(l.use_by_date) < new Date()).length} expired labels detected`
           : '✅ All labels within expiry date',
         `📊 ${filteredCheckIns.filter(c => c.status === 'completed').length}/${filteredCheckIns.length} check-ins completed`,
-        `🌡️ ${filteredTemps.filter(t => t.temperature_ok === true).length}/${filteredTemps.length} temperature logs compliant`
+        `🌡️ ${filteredTemps.filter(t => t.is_in_range === true).length}/${filteredTemps.length} temperature logs compliant`
       ],
-      allRecords: [...filteredCheckIns, ...filteredTemps, ...filteredLabels, ...filteredHandovers]
+      allRecords: [...filteredCheckIns, ...filteredTemps, ...filteredLabels, ...filteredHandovers],
+      rawData: {
+        checkIns: filteredCheckIns,
+        temperatures: filteredTemps,
+        labels: filteredLabels,
+        handovers: filteredHandovers,
+        issues: []
+      }
     };
   };
 
@@ -216,6 +224,24 @@ export default function ReportsHub({ user }) {
                 </Card>
               </div>
 
+              {/* Report Detail Toggle */}
+              <div className="flex gap-2">
+                <Button
+                  onClick={() => setDetailedMode(false)}
+                  variant={!detailedMode ? 'default' : 'outline'}
+                  className={!detailedMode ? 'bg-emerald-600' : ''}
+                >
+                  Summary Only
+                </Button>
+                <Button
+                  onClick={() => setDetailedMode(true)}
+                  variant={detailedMode ? 'default' : 'outline'}
+                  className={detailedMode ? 'bg-emerald-600' : ''}
+                >
+                  Full Details
+                </Button>
+              </div>
+
               <Button
                 onClick={handleGenerateReport}
                 disabled={loading}
@@ -242,6 +268,7 @@ export default function ReportsHub({ user }) {
             dateRange={dateRange}
             globalInfo={globalInfo}
             user={user}
+            detailedMode={detailedMode}
           />
         </motion.div>
       )}
