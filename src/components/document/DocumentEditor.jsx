@@ -95,6 +95,20 @@ export default function DocumentEditor({ content, onContentChange, isSaving }) {
         .quill-editor .ql-toolbar button.ql-active {
           color: #059669;
         }
+        .quill-editor .ql-editor img {
+          cursor: move;
+          max-width: 100%;
+          height: auto;
+          border: 2px solid transparent;
+          transition: border-color 0.2s;
+        }
+        .quill-editor .ql-editor img:hover {
+          border-color: #059669;
+        }
+        .quill-editor .ql-editor img.ql-selected {
+          border-color: #059669;
+          outline: 2px solid #059669;
+        }
       `}</style>
     </div>
   );

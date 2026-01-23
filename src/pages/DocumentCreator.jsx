@@ -36,6 +36,8 @@ export default function DocumentCreator() {
   const [showShare, setShowShare] = useState(false);
   const [copied, setCopied] = useState(false);
   const [requiresReacknowledgement, setRequiresReacknowledgement] = useState(false);
+  const [requiresSignature, setRequiresSignature] = useState(false);
+  const [nextReviewDate, setNextReviewDate] = useState('');
 
   // Load user
   useEffect(() => {
@@ -67,6 +69,8 @@ export default function DocumentCreator() {
       setVersion(existingDocument.version);
       setStatus(existingDocument.status);
       setRequiresReacknowledgement(existingDocument.requires_reacknowledgement || false);
+      setRequiresSignature(existingDocument.requires_signature || false);
+      setNextReviewDate(existingDocument.next_review_date || '');
     }
   }, [existingDocument]);
 
@@ -121,7 +125,9 @@ export default function DocumentCreator() {
       status,
       author_id: user.id,
       author_name: user.full_name || user.email,
-      requires_reacknowledgement: requiresReacknowledgement
+      requires_reacknowledgement: requiresReacknowledgement,
+      requires_signature: requiresSignature,
+      next_review_date: nextReviewDate || null
     };
 
     // If updating and requires_reacknowledgement is enabled, flag all existing acknowledgements
@@ -129,6 +135,24 @@ export default function DocumentCreator() {
       const existingAcks = await base44.entities.DocumentAcknowledgement.filter({ document_id: documentId });
       for (const ack of existingAcks) {
         await base44.entities.DocumentAcknowledgement.update(ack.id, { requires_reacknowledgement: true });
+      }
+    }
+
+    // Create review task if review date is set
+    if (nextReviewDate) {
+      const reviewDate = new Date(nextReviewDate);
+      const taskDate = new Date(reviewDate);
+      taskDate.setDate(taskDate.getDate() - 7); // 7 days before review
+      
+      if (taskDate > new Date()) {
+        await base44.entities.Task.create({
+          title: `Review Document: ${title}`,
+          description: `Document review required by ${reviewDate.toLocaleDateString()}`,
+          due_date: taskDate.toISOString(),
+          assigned_to: user.email,
+          status: 'pending',
+          priority: 'medium'
+        });
       }
     }
 
@@ -249,12 +273,16 @@ export default function DocumentCreator() {
             lastEditedDate={existingDocument?.updated_date}
             status={status}
             requiresReacknowledgement={requiresReacknowledgement}
+            requiresSignature={requiresSignature}
+            nextReviewDate={nextReviewDate}
             onTitleChange={setTitle}
             onCategoryChange={setCategory}
             onVisibilityChange={setVisibility}
             onTagAdd={handleAddTag}
             onTagRemove={handleRemoveTag}
             onRequiresReacknowledgementChange={setRequiresReacknowledgement}
+            onRequiresSignatureChange={setRequiresSignature}
+            onNextReviewDateChange={setNextReviewDate}
           />}
         </div>
       </div>
