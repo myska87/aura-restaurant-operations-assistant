@@ -145,16 +145,20 @@ export default function WeeklyReviewFormV2({ user, onClose }) {
         status: 'submitted'
       };
 
-      await base44.entities.WeeklyAudit.create(auditData);
+      const result = await base44.entities.WeeklyAudit.create(auditData);
 
-      // Send notification to owner
-      await base44.entities.Notification.create({
-        recipient_email: 'owner@example.com',
-        title: 'Weekly Audit Submitted',
-        message: `Week audit completed by ${user?.full_name}. Score: ${auditData.audit_score}%. Sales: £${formData.total_sales}`,
-        type: 'audit_weekly',
-        is_read: false
-      });
+      // Log to operations history
+      try {
+        await base44.entities.OperationsHistory?.create?.({
+          entry_type: 'weekly_audit',
+          entry_date: new Date().toISOString(),
+          title: `Weekly Audit Submitted - Score: ${auditData.audit_score}%`,
+          description: `Sales: £${formData.total_sales}, Hygiene: ${formData.hygiene_checklist_percent}%`,
+          severity: 'info'
+        });
+      } catch (e) {
+        console.log('Operations history logging skipped');
+      }
 
       toast.success(`Weekly audit submitted - Score: ${auditData.audit_score}%`);
       queryClient.invalidateQueries(['weekly-audits']);
