@@ -193,13 +193,14 @@ export default function InspectorPDFExport({ open, onClose, user }) {
     doc.save(`Audit-Pack-${format(new Date(), 'yyyy-MM-dd')}.pdf`);
     
     // Log export action
-    await base44.entities.AuditLog.create({
-      action: 'audit_pack_exported',
-      entity_type: 'InspectorMode',
+    await base44.entities.ComplianceLog.create({
       user_id: user?.id,
       user_name: user?.full_name || user?.email,
-      details: `Full audit pack exported for period ${dateFrom} to ${dateTo}`,
-      timestamp: new Date().toISOString()
+      user_email: user?.email,
+      user_role: user?.role,
+      action_type: 'document_accessed',
+      action_description: `Full audit pack exported for period ${dateFrom} to ${dateTo}`,
+      action_timestamp: new Date().toISOString()
     });
 
     setGenerating(false);
