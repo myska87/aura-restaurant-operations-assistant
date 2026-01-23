@@ -30,17 +30,12 @@ import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 import LoadingSpinner from '@/components/ui/LoadingSpinner';
 import ChecklistModal from '@/components/operations/ChecklistModal';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import { Input } from '@/components/ui/input';
-import { ScrollArea } from '@/components/ui/scroll-area';
 
 export default function DailyOperationsHub() {
   const [user, setUser] = useState(null);
   const [showOpeningChecklist, setShowOpeningChecklist] = useState(false);
   const [showClosingChecklist, setShowClosingChecklist] = useState(false);
   const [currentChecklistData, setCurrentChecklistData] = useState(null);
-  const [showTempModal, setShowTempModal] = useState(false);
-  const [tempValues, setTempValues] = useState({});
   const queryClient = useQueryClient();
 
   useEffect(() => {
@@ -257,30 +252,6 @@ export default function DailyOperationsHub() {
     }
   };
 
-  const logTemperatureMutation = useMutation({
-    mutationFn: (data) => base44.entities.TemperatureLog.create(data),
-    onSuccess: () => {
-      queryClient.invalidateQueries(['temps']);
-    }
-  });
-
-  const handleTempSubmit = async (asset) => {
-    const temp = tempValues[asset.id];
-    if (!temp) return;
-
-    await logTemperatureMutation.mutateAsync({
-      asset_id: asset.id,
-      asset_name: asset.asset_name,
-      temperature: parseFloat(temp),
-      log_date: today,
-      logged_by: user?.email,
-      logged_by_name: user?.full_name || user?.email,
-      status: 'recorded'
-    });
-
-    setTempValues(prev => ({ ...prev, [asset.id]: '' }));
-  };
-
   const handleStartShift = () => {
     checkInMutation.mutate({
       staff_name: user?.full_name || user?.email,
@@ -314,6 +285,16 @@ export default function DailyOperationsHub() {
 
   const operationTiles = [
     {
+      title: 'Daily Check-In',
+      description: 'Opening & closing checklists',
+      icon: ClipboardCheck,
+      color: 'bg-blue-500',
+      page: 'Operations',
+      status: myCheckIn ? 'complete' : 'pending',
+      count: `${checkIns.length} staff checked in`,
+      lastUpdate: checkIns[0]?.created_date
+    },
+    {
       title: 'Shift Handover',
       description: 'Pass info between shifts',
       icon: MessageSquare,
@@ -328,7 +309,7 @@ export default function DailyOperationsHub() {
       description: 'Equipment & food temp monitoring',
       icon: Thermometer,
       color: 'bg-red-500',
-      isModal: true,
+      page: 'Operations',
       status: tempCompletion === 100 ? 'complete' : 'pending',
       count: `${temperatureLogs.length}/${tempAssets.length} logged`,
       progress: tempCompletion,
@@ -502,11 +483,8 @@ export default function DailyOperationsHub() {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: idx * 0.05 }}
               >
-                {tile.isModal ? (
-                  <Card 
-                    onClick={() => setShowTempModal(true)}
-                    className="h-full hover:shadow-2xl transition-all cursor-pointer border-2 border-slate-200 hover:border-emerald-400 hover:scale-[1.02] duration-200"
-                  >
+                <Link to={createPageUrl(tile.page)}>
+                  <Card className="h-full hover:shadow-2xl transition-all cursor-pointer border-2 border-slate-200 hover:border-emerald-400 hover:scale-[1.02] duration-200">
                     <CardContent className="pt-6">
                       <div className="flex items-start justify-between mb-4">
                         <div className="flex items-center gap-3">
@@ -540,44 +518,7 @@ export default function DailyOperationsHub() {
                       </div>
                     </CardContent>
                   </Card>
-                ) : (
-                  <Link to={createPageUrl(tile.page)}>
-                    <Card className="h-full hover:shadow-2xl transition-all cursor-pointer border-2 border-slate-200 hover:border-emerald-400 hover:scale-[1.02] duration-200">
-                      <CardContent className="pt-6">
-                        <div className="flex items-start justify-between mb-4">
-                          <div className="flex items-center gap-3">
-                            <div className={`${tile.color} w-14 h-14 rounded-2xl flex items-center justify-center shadow-lg`}>
-                              <Icon className="w-7 h-7 text-white" />
-                            </div>
-                            <div>
-                              <h3 className="text-xl font-bold text-slate-800">{tile.title}</h3>
-                              <p className="text-sm text-slate-500">{tile.description}</p>
-                            </div>
-                          </div>
-                          <Badge 
-                            variant={tile.status === 'complete' ? 'default' : 'outline'}
-                            className={tile.status === 'complete' ? 'bg-emerald-500' : 'border-amber-400 text-amber-700'}
-                          >
-                            {tile.status === 'complete' ? '✓' : '⚠'}
-                          </Badge>
-                        </div>
-
-                        {tile.progress !== undefined && (
-                          <Progress value={tile.progress} className="h-2 mb-3" />
-                        )}
-
-                        <div className="flex items-center justify-between">
-                          <p className="text-sm text-slate-600">{tile.count}</p>
-                          {tile.lastUpdate && (
-                            <p className="text-xs text-slate-400">
-                              Updated {format(new Date(tile.lastUpdate), 'HH:mm')}
-                            </p>
-                          )}
-                        </div>
-                      </CardContent>
-                    </Card>
-                  </Link>
-                )}
+                </Link>
               </motion.div>
             );
           })}
@@ -603,90 +544,6 @@ export default function DailyOperationsHub() {
           onComplete={handleCompleteChecklist}
           loading={false}
         />
-
-        {/* Temperature Logging Modal */}
-        <Dialog open={showTempModal} onOpenChange={setShowTempModal}>
-          <DialogContent className="max-w-2xl h-[80vh] flex flex-col">
-            <DialogHeader className="flex-shrink-0">
-              <DialogTitle className="text-2xl flex items-center gap-2">
-                <Thermometer className="w-6 h-6 text-red-600" />
-                Temperature Checks
-              </DialogTitle>
-              <Progress value={tempCompletion} className="h-3 mt-2" />
-              <p className="text-sm text-slate-600 mt-1">
-                {temperatureLogs.length} of {tempAssets.length} equipment logged
-              </p>
-            </DialogHeader>
-
-            <ScrollArea className="flex-1 overflow-y-auto pr-4 my-4">
-              <div className="space-y-3">
-                {tempAssets.map((asset, idx) => {
-                  const hasLog = temperatureLogs.find(log => log.asset_id === asset.id);
-                  return (
-                    <motion.div
-                      key={asset.id}
-                      initial={{ opacity: 0, y: 10 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      transition={{ delay: idx * 0.03 }}
-                    >
-                      <Card className={hasLog ? 'bg-emerald-50 border-emerald-300' : 'border-slate-200'}>
-                        <CardContent className="pt-4">
-                          <div className="flex items-center justify-between gap-4">
-                            <div className="flex-1">
-                              <div className="flex items-center gap-2 mb-2">
-                                <h3 className="font-bold text-slate-800">{asset.asset_name}</h3>
-                                {hasLog && (
-                                  <Badge className="bg-emerald-600">✓ Logged</Badge>
-                                )}
-                              </div>
-                              <p className="text-sm text-slate-600">
-                                {asset.location || 'Kitchen'} • Target: {asset.target_temperature || '-5 to 5'}°C
-                              </p>
-                              {hasLog && (
-                                <p className="text-sm text-emerald-700 mt-1 font-medium">
-                                  Logged: {hasLog.temperature}°C at {format(new Date(hasLog.created_date), 'HH:mm')}
-                                </p>
-                              )}
-                            </div>
-                            {!hasLog && (
-                              <div className="flex items-center gap-2">
-                                <Input
-                                  type="number"
-                                  placeholder="Temp °C"
-                                  value={tempValues[asset.id] || ''}
-                                  onChange={(e) => setTempValues(prev => ({ ...prev, [asset.id]: e.target.value }))}
-                                  className="w-24"
-                                  step="0.1"
-                                />
-                                <Button
-                                  onClick={() => handleTempSubmit(asset)}
-                                  disabled={!tempValues[asset.id] || logTemperatureMutation.isPending}
-                                  size="sm"
-                                  className="bg-red-600 hover:bg-red-700"
-                                >
-                                  Log
-                                </Button>
-                              </div>
-                            )}
-                          </div>
-                        </CardContent>
-                      </Card>
-                    </motion.div>
-                  );
-                })}
-              </div>
-            </ScrollArea>
-
-            <div className="border-t pt-4 flex-shrink-0 flex justify-between items-center">
-              <p className="text-sm text-slate-600">
-                {tempCompletion === 100 ? '✓ All equipment logged' : `${tempAssets.length - temperatureLogs.length} remaining`}
-              </p>
-              <Button onClick={() => setShowTempModal(false)}>
-                Close
-              </Button>
-            </div>
-          </DialogContent>
-        </Dialog>
       </div>
 
       {/* Bottom Quick Toolbar */}
