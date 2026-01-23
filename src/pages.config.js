@@ -75,6 +75,9 @@ import VisualProcedures from './pages/VisualProcedures';
 import WeeklyManagerReportDetail from './pages/WeeklyManagerReportDetail';
 import WeeklyManagerReportForm from './pages/WeeklyManagerReportForm';
 import WeeklyManagerReports from './pages/WeeklyManagerReports';
+import ChecklistLibrary from './pages/ChecklistLibrary';
+import ChecklistBuilder from './pages/ChecklistBuilder';
+import ChecklistReports from './pages/ChecklistReports';
 import __Layout from './Layout.jsx';
 
 
@@ -156,6 +159,9 @@ export const PAGES = {
     "WeeklyManagerReportDetail": WeeklyManagerReportDetail,
     "WeeklyManagerReportForm": WeeklyManagerReportForm,
     "WeeklyManagerReports": WeeklyManagerReports,
+    "ChecklistLibrary": ChecklistLibrary,
+    "ChecklistBuilder": ChecklistBuilder,
+    "ChecklistReports": ChecklistReports,
 }
 
 export const pagesConfig = {
