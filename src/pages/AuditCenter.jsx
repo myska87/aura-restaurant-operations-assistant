@@ -8,16 +8,21 @@ import { Badge } from '@/components/ui/badge';
 import PageHeader from '@/components/ui/PageHeader';
 import LoadingSpinner from '@/components/ui/LoadingSpinner';
 import { ClipboardList, Calendar, Users, BarChart3, FileText, AlertCircle } from 'lucide-react';
+import { useQueryClient } from '@tanstack/react-query';
 import AuditDashboard from '@/components/audit/AuditDashboard';
 import WeeklyReviewForm from '@/components/audit/WeeklyReviewForm';
 import MonthlyAuditForm from '@/components/audit/MonthlyAuditForm';
 import AuditFormsLibrary from '@/components/audit/AuditFormsLibrary';
 import AuditReportsView from '@/components/audit/AuditReportsView';
+import FoodSafetyChecklistForm from '@/components/food-safety/FoodSafetyChecklistForm';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 
 export default function AuditCenter() {
   const [user, setUser] = useState(null);
   const [showWeeklyForm, setShowWeeklyForm] = useState(false);
   const [showMonthlyForm, setShowMonthlyForm] = useState(false);
+  const [showFSAChecklist, setShowFSAChecklist] = useState(false);
+  const queryClient = useQueryClient();
 
   useQuery({
     queryKey: ['user'],
@@ -57,18 +62,38 @@ export default function AuditCenter() {
         description="Centralized audit hub with compliance tracking and reporting"
       />
 
-      {/* Quick Alert */}
-      {pendingIssues.length > 0 && (
-        <Card className="bg-amber-50 border-amber-300">
-          <CardContent className="pt-6 flex items-center gap-3">
-            <AlertCircle className="w-5 h-5 text-amber-600" />
-            <div>
-              <p className="font-semibold text-amber-900">{pendingIssues.length} open audit issues</p>
-              <p className="text-sm text-amber-700">Requiring action or resolution</p>
+      {/* FSA Checklist Alert & Quick Access */}
+      <div className="grid md:grid-cols-2 gap-4">
+        {pendingIssues.length > 0 && (
+          <Card className="bg-amber-50 border-amber-300">
+            <CardContent className="pt-6 flex items-center gap-3">
+              <AlertCircle className="w-5 h-5 text-amber-600" />
+              <div>
+                <p className="font-semibold text-amber-900">{pendingIssues.length} open audit issues</p>
+                <p className="text-sm text-amber-700">Requiring action or resolution</p>
+              </div>
+            </CardContent>
+          </Card>
+        )}
+
+        <Card className="bg-blue-50 border-blue-300">
+          <CardContent className="pt-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="font-semibold text-blue-900">🧼 FSA Food Safety Checklist</p>
+                <p className="text-sm text-blue-700">Monthly compliance audit required</p>
+              </div>
+              <Button
+                onClick={() => setShowFSAChecklist(true)}
+                className="bg-blue-600 hover:bg-blue-700"
+                size="sm"
+              >
+                Start
+              </Button>
             </div>
           </CardContent>
         </Card>
-      )}
+      </div>
 
       {/* Main Tabs */}
       <Tabs defaultValue="dashboard" className="space-y-4">
@@ -193,6 +218,22 @@ export default function AuditCenter() {
           <AuditReportsView completedAudits={completedAudits} user={user} />
         </TabsContent>
       </Tabs>
+
+      {/* FSA Checklist Modal */}
+      <Dialog open={showFSAChecklist} onOpenChange={setShowFSAChecklist}>
+        <DialogContent className="max-w-2xl max-h-screen overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>FSA Food Safety Checklist</DialogTitle>
+          </DialogHeader>
+          <FoodSafetyChecklistForm
+            user={user}
+            onClose={() => setShowFSAChecklist(false)}
+            onSubmitted={() => {
+              queryClient.invalidateQueries(['completed-audits']);
+            }}
+          />
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
