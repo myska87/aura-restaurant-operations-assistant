@@ -13,7 +13,6 @@ import {
 } from '@/components/ui/select';
 import { X, Tag, FileText, Link2, RefreshCw, FileSignature, CalendarClock } from 'lucide-react';
 import { Switch } from '@/components/ui/switch';
-import { Input } from '@/components/ui/input';
 import { format } from 'date-fns';
 
 const CATEGORIES = [
