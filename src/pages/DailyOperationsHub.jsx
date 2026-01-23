@@ -102,11 +102,12 @@ export default function DailyOperationsHub() {
     enabled: !!user
   });
 
-  // Fetch checklists
+  // Fetch checklists from ChecklistMaster
   const { data: openingChecklists = [] } = useQuery({
     queryKey: ['checklists', 'opening'],
     queryFn: () => base44.entities.ChecklistMaster.filter({ 
-      checklist_type: 'opening',
+      checklist_category: 'opening',
+      is_published: true,
       is_active: true 
     }),
     enabled: !!user
@@ -115,7 +116,8 @@ export default function DailyOperationsHub() {
   const { data: closingChecklists = [] } = useQuery({
     queryKey: ['checklists', 'closing'],
     queryFn: () => base44.entities.ChecklistMaster.filter({ 
-      checklist_type: 'closing',
+      checklist_category: 'closing',
+      is_published: true,
       is_active: true 
     }),
     enabled: !!user
@@ -148,73 +150,98 @@ export default function DailyOperationsHub() {
   // Checklist completion mutation
   const [completionInProgress, setCompletionInProgress] = useState(null);
 
-  const handleChecklistItemToggle = async (itemId, completed, isDishwasher, notes) => {
-    if (!completionInProgress) return;
+  const handleChecklistItemToggle = async (itemId, answer, notes) => {
+    if (!completionInProgress || !currentChecklistData) return;
 
-    const updatedItems = completionInProgress.completed_items || [];
-    const existingIndex = updatedItems.findIndex(i => i.item_id === itemId);
+    const answers = completionInProgress.answers || [];
+    const existingIndex = answers.findIndex(a => a.item_id === itemId);
+    
+    const item = currentChecklistData.items?.find(i => i.item_id === itemId);
+    if (!item) return;
+
+    const answerData = {
+      item_id: itemId,
+      question_text: item.question_text,
+      question_type: item.question_type,
+      answer: answer,
+      notes: notes || '',
+      timestamp: new Date().toISOString()
+    };
 
     if (existingIndex >= 0) {
-      updatedItems[existingIndex] = {
-        item_id: itemId,
-        completed,
-        timestamp: new Date().toISOString(),
-        notes: notes || ''
-      };
+      answers[existingIndex] = answerData;
     } else {
-      updatedItems.push({
-        item_id: itemId,
-        completed,
-        timestamp: new Date().toISOString(),
-        notes: notes || ''
-      });
+      answers.push(answerData);
     }
 
-    let dishwasherUpdate = completionInProgress.dishwasher_status;
-    if (isDishwasher) {
-      dishwasherUpdate = completed ? 'on' : 'off';
-    }
-
-    const totalRequired = currentChecklistData?.checklist_items?.filter(i => i.required).length || 1;
-    const completedRequired = updatedItems.filter(i => {
-      const item = currentChecklistData?.checklist_items?.find(ci => ci.item_id === i.item_id);
-      return i.completed && item?.required;
+    // Calculate completion
+    const totalRequired = currentChecklistData.items?.filter(i => i.required).length || 1;
+    const completedRequired = answers.filter(a => {
+      const checkItem = currentChecklistData.items?.find(i => i.item_id === a.item_id);
+      return checkItem?.required && a.answer && a.answer !== '';
     }).length;
     const percentage = (completedRequired / totalRequired) * 100;
 
+    // Check for failed items
+    const failedItems = answers
+      .filter(a => {
+        const checkItem = currentChecklistData.items?.find(i => i.item_id === a.item_id);
+        return checkItem?.auto_fail && a.answer === 'no';
+      })
+      .map(a => a.item_id);
+
     const updatedCompletion = {
       ...completionInProgress,
-      completed_items: updatedItems,
+      answers,
       completion_percentage: percentage,
-      dishwasher_status: dishwasherUpdate
+      failed_items: failedItems,
+      status: failedItems.length > 0 ? 'pending_review' : 'in_progress'
     };
 
     setCompletionInProgress(updatedCompletion);
 
     // Save to database
-    if (completionInProgress.id) {
-      await base44.entities.ChecklistCompletion.update(completionInProgress.id, updatedCompletion);
-    } else {
-      const created = await base44.entities.ChecklistCompletion.create(updatedCompletion);
-      setCompletionInProgress({ ...updatedCompletion, id: created.id });
+    try {
+      if (completionInProgress.id) {
+        await base44.entities.ChecklistCompletion.update(completionInProgress.id, updatedCompletion);
+      } else {
+        const created = await base44.entities.ChecklistCompletion.create(updatedCompletion);
+        setCompletionInProgress({ ...updatedCompletion, id: created.id });
+      }
+      queryClient.invalidateQueries(['completions']);
+    } catch (error) {
+      console.error('Error saving checklist:', error);
     }
-
-    queryClient.invalidateQueries(['completions']);
   };
 
   const handleCompleteChecklist = async () => {
     if (!completionInProgress) return;
 
-    await base44.entities.ChecklistCompletion.update(completionInProgress.id, {
-      status: 'completed',
-      completed_at: new Date().toISOString(),
-      completion_percentage: 100
-    });
+    try {
+      const status = completionInProgress.failed_items?.length > 0 ? 'failed' : 'completed';
+      
+      await base44.entities.ChecklistCompletion.update(completionInProgress.id, {
+        status,
+        completed_at: new Date().toISOString(),
+        completion_percentage: 100
+      });
 
-    queryClient.invalidateQueries(['completions']);
-    setShowOpeningChecklist(false);
-    setShowClosingChecklist(false);
-    setCompletionInProgress(null);
+      queryClient.invalidateQueries(['completions']);
+      
+      // Show success message
+      if (status === 'completed') {
+        alert(`✅ ${currentChecklistData?.checklist_name} completed successfully at ${format(new Date(), 'HH:mm')}`);
+      } else {
+        alert(`⚠️ Checklist completed with ${completionInProgress.failed_items.length} failed items. Manager review required.`);
+      }
+      
+      setShowOpeningChecklist(false);
+      setShowClosingChecklist(false);
+      setCompletionInProgress(null);
+      setCurrentChecklistData(null);
+    } catch (error) {
+      alert('Error completing checklist. Please try again.');
+    }
   };
 
   const openChecklist = (type) => {
@@ -223,40 +250,44 @@ export default function DailyOperationsHub() {
       return;
     }
 
-    const checklist = type === 'opening' ? openingChecklists[0] : closingChecklists[0];
+    const checklists = type === 'opening' ? openingChecklists : closingChecklists;
+    const checklist = checklists[0];
+    
     if (!checklist) {
-      alert(`No ${type} checklist found. Please create one first.`);
+      alert(`⚠️ No ${type} checklist linked.\n\nPlease create and publish one in:\nSettings → Checklist Library → Create New`);
       return;
     }
 
     setCurrentChecklistData(checklist);
 
     const existing = todayCompletions.find(c => 
-      c.checklist_type === type && c.user_email === user?.email
+      c.checklist_id === checklist.id && 
+      c.user_email === user?.email &&
+      c.date === today
     );
 
     if (existing) {
       setCompletionInProgress(existing);
     } else {
       setCompletionInProgress({
+        checklist_id: checklist.id,
+        checklist_name: checklist.checklist_name,
+        checklist_category: checklist.checklist_category,
         date: today,
         shift: currentShift,
-        checklist_id: checklist.id,
-        checklist_type: type,
         user_id: user?.id,
         user_name: user?.full_name || user?.email,
         user_email: user?.email,
-        completed_items: [],
+        answers: [],
         completion_percentage: 0,
         status: 'in_progress',
-        dishwasher_status: 'not_applicable'
+        failed_items: []
       });
     }
 
     if (type === 'opening') {
       setShowOpeningChecklist(true);
     } else {
-      // Check if dishwasher is still on when opening closing checklist
       if (dishwasherStatus === 'on') {
         alert('⚠️ Please confirm dishwasher has been turned OFF before closing.');
       }
@@ -283,10 +314,14 @@ export default function DailyOperationsHub() {
   const tempCompletion = tempAssets.length > 0 ? (temperatureLogs.length / tempAssets.length) * 100 : 100;
   
   const myOpeningCompletion = todayCompletions.find(c => 
-    c.user_email === user?.email && c.checklist_type === 'opening'
+    c.user_email === user?.email && 
+    c.checklist_category === 'opening' && 
+    c.date === today
   );
   const myClosingCompletion = todayCompletions.find(c => 
-    c.user_email === user?.email && c.checklist_type === 'closing'
+    c.user_email === user?.email && 
+    c.checklist_category === 'closing' && 
+    c.date === today
   );
   const checklistCompletion = myOpeningCompletion?.status === 'completed' ? 100 : 0;
 

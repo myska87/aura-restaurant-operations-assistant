@@ -17,46 +17,69 @@ export default function ChecklistModal({
   onComplete,
   loading 
 }) {
-  const [completedItems, setCompletedItems] = useState({});
+  const [answers, setAnswers] = useState({});
   const [notes, setNotes] = useState({});
 
   useEffect(() => {
-    if (existingCompletion?.completed_items) {
-      const items = {};
-      const itemNotes = {};
-      existingCompletion.completed_items.forEach(item => {
-        items[item.item_id] = item.completed;
-        if (item.notes) itemNotes[item.item_id] = item.notes;
+    if (existingCompletion?.answers) {
+      const answerMap = {};
+      const noteMap = {};
+      existingCompletion.answers.forEach(item => {
+        answerMap[item.item_id] = item.answer;
+        if (item.notes) noteMap[item.item_id] = item.notes;
       });
-      setCompletedItems(items);
-      setNotes(itemNotes);
+      setAnswers(answerMap);
+      setNotes(noteMap);
     }
   }, [existingCompletion]);
 
   if (!checklist) return null;
 
-  const items = checklist.checklist_items || [];
+  const items = checklist.items || [];
   const totalItems = items.filter(i => i.required).length;
-  const completedCount = items.filter(i => i.required && completedItems[i.item_id]).length;
+  const completedCount = items.filter(i => 
+    i.required && answers[i.item_id] && answers[i.item_id] !== ''
+  ).length;
   const progress = totalItems > 0 ? (completedCount / totalItems) * 100 : 0;
 
-  const handleToggle = (itemId, isDishwasher) => {
-    const newValue = !completedItems[itemId];
-    setCompletedItems(prev => ({ ...prev, [itemId]: newValue }));
-    onItemToggle(itemId, newValue, isDishwasher, notes[itemId]);
+  const handleToggle = (item) => {
+    if (item.question_type === 'yes_no_na') {
+      const currentAnswer = answers[item.item_id];
+      const nextAnswer = currentAnswer === 'yes' ? 'no' : 
+                        currentAnswer === 'no' ? 'na' : 'yes';
+      setAnswers(prev => ({ ...prev, [item.item_id]: nextAnswer }));
+      onItemToggle(item.item_id, nextAnswer, notes[item.item_id]);
+    } else if (item.question_type === 'section_header') {
+      return; // Don't toggle section headers
+    } else {
+      // For other types, just mark as completed
+      const newValue = !answers[item.item_id];
+      setAnswers(prev => ({ ...prev, [item.item_id]: newValue ? 'completed' : '' }));
+      onItemToggle(item.item_id, newValue ? 'completed' : '', notes[item.item_id]);
+    }
   };
 
-  // Group items by category
-  const groupedItems = items.reduce((acc, item) => {
-    const category = item.category || 'General';
-    if (!acc[category]) acc[category] = [];
-    acc[category].push(item);
-    return acc;
-  }, {});
+  // Group items by section headers
+  const groupedItems = [];
+  let currentGroup = { title: 'General', items: [] };
+  
+  items.forEach(item => {
+    if (item.question_type === 'section_header') {
+      if (currentGroup.items.length > 0) {
+        groupedItems.push(currentGroup);
+      }
+      currentGroup = { title: item.section_header || 'Section', items: [] };
+    } else {
+      currentGroup.items.push(item);
+    }
+  });
+  if (currentGroup.items.length > 0) {
+    groupedItems.push(currentGroup);
+  }
 
   const allRequiredComplete = items
-    .filter(i => i.required)
-    .every(i => completedItems[i.item_id]);
+    .filter(i => i.required && i.question_type !== 'section_header')
+    .every(i => answers[i.item_id] && answers[i.item_id] !== '');
 
   return (
     <Dialog open={open} onOpenChange={onClose}>
@@ -65,8 +88,8 @@ export default function ChecklistModal({
           <div className="flex items-center justify-between">
             <div>
               <DialogTitle className="text-2xl">{checklist.checklist_name}</DialogTitle>
-              <Badge className={checklist.checklist_type === 'opening' ? 'bg-emerald-600' : 'bg-red-600'}>
-                {checklist.checklist_type.toUpperCase()}
+              <Badge className={checklist.checklist_category === 'opening' ? 'bg-emerald-600' : 'bg-red-600'}>
+                {checklist.checklist_category?.toUpperCase()}
               </Badge>
             </div>
             <div className="text-right">
@@ -79,14 +102,16 @@ export default function ChecklistModal({
 
         <ScrollArea className="flex-1 pr-4 overflow-y-auto">
           <div className="space-y-6">
-            {Object.entries(groupedItems).map(([category, categoryItems]) => (
-              <div key={category}>
+            {groupedItems.map((group, groupIdx) => (
+              <div key={groupIdx}>
                 <h3 className="font-bold text-slate-700 mb-3 sticky top-0 bg-white py-2 border-b">
-                  {category}
+                  {group.title}
                 </h3>
                 <div className="space-y-2">
-                  {categoryItems.map((item, idx) => {
-                    const isCompleted = completedItems[item.item_id];
+                  {group.items.map((item, idx) => {
+                    const answer = answers[item.item_id];
+                    const isAnswered = answer && answer !== '';
+                    
                     return (
                       <motion.div
                         key={item.item_id}
@@ -95,42 +120,66 @@ export default function ChecklistModal({
                         transition={{ delay: idx * 0.02 }}
                       >
                         <div
-                          onClick={() => handleToggle(item.item_id, item.is_dishwasher_control)}
+                          onClick={() => handleToggle(item)}
                           className={`
                             p-4 rounded-lg border-2 cursor-pointer transition-all
-                            ${isCompleted 
-                              ? 'bg-emerald-50 border-emerald-300' 
+                            ${isAnswered 
+                              ? answer === 'no' 
+                                ? 'bg-red-50 border-red-300'
+                                : 'bg-emerald-50 border-emerald-300'
                               : 'bg-white border-slate-200 hover:border-emerald-200'
                             }
                           `}
                         >
                           <div className="flex items-start gap-3">
-                            {isCompleted ? (
-                              <CheckCircle className="w-6 h-6 text-emerald-600 flex-shrink-0 mt-0.5" />
+                            {isAnswered ? (
+                              <CheckCircle className={`w-6 h-6 flex-shrink-0 mt-0.5 ${
+                                answer === 'no' ? 'text-red-600' : 'text-emerald-600'
+                              }`} />
                             ) : (
                               <Circle className="w-6 h-6 text-slate-400 flex-shrink-0 mt-0.5" />
                             )}
                             <div className="flex-1">
-                              <p className={`font-medium ${isCompleted ? 'text-emerald-900' : 'text-slate-800'}`}>
-                                {item.description}
+                              <p className={`font-medium ${
+                                isAnswered 
+                                  ? answer === 'no' ? 'text-red-900' : 'text-emerald-900'
+                                  : 'text-slate-800'
+                              }`}>
+                                {item.question_text}
                               </p>
-                              {item.required && !isCompleted && (
+                              
+                              {item.question_type === 'yes_no_na' && isAnswered && (
+                                <Badge className={`mt-2 ${
+                                  answer === 'yes' ? 'bg-emerald-600' :
+                                  answer === 'no' ? 'bg-red-600' : 'bg-slate-600'
+                                }`}>
+                                  {answer.toUpperCase()}
+                                </Badge>
+                              )}
+                              
+                              {item.required && !isAnswered && (
                                 <Badge variant="outline" className="mt-1 text-xs border-amber-400 text-amber-700">
                                   Required
                                 </Badge>
                               )}
-                              {item.is_dishwasher_control && (
-                                <Badge className="mt-1 ml-2 text-xs bg-blue-500">
-                                  Dishwasher Control
+                              
+                              {item.auto_fail && answer === 'no' && (
+                                <Badge className="mt-1 ml-2 text-xs bg-red-600">
+                                  ⚠ Auto-Fail
                                 </Badge>
                               )}
-                              {item.required && !isCompleted && (
+                              
+                              {!isAnswered && (
                                 <Textarea
-                                  placeholder="Add note (if not completed)..."
+                                  placeholder="Add notes..."
                                   value={notes[item.item_id] || ''}
                                   onChange={(e) => {
                                     e.stopPropagation();
-                                    setNotes(prev => ({ ...prev, [item.item_id]: e.target.value }));
+                                    const newNotes = { ...notes, [item.item_id]: e.target.value };
+                                    setNotes(newNotes);
+                                    if (answers[item.item_id]) {
+                                      onItemToggle(item.item_id, answers[item.item_id], e.target.value);
+                                    }
                                   }}
                                   onClick={(e) => e.stopPropagation()}
                                   className="mt-2 text-sm"
