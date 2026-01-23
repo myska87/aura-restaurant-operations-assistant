@@ -452,8 +452,8 @@ export default function DailyOperationsHub() {
           </p>
         </div>
 
-        {/* Opening, Closing & Briefing Buttons */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        {/* Opening, Closing, Briefing & Handover Buttons */}
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
           <div className="space-y-2">
             <Button
               onClick={() => openChecklist('opening')}
@@ -519,6 +519,29 @@ export default function DailyOperationsHub() {
               >
                 <Eye className="w-4 h-4" />
                 View Report
+              </Button>
+            )}
+          </div>
+
+          <div className="space-y-2">
+            <Button
+              onClick={() => setShowHandoverChecklist(true)}
+              disabled={!myCheckIn}
+              className="h-20 w-full text-lg font-bold bg-gradient-to-r from-purple-500 to-purple-600 hover:from-purple-600 hover:to-purple-700 shadow-lg"
+              size="lg"
+            >
+              <MessageSquare className="w-6 h-6 mr-3" />
+              {handovers.filter(h => h.shift_date === today).length > 0 ? '✓ HANDOVER LOGGED' : 'SHIFT HANDOVER'}
+            </Button>
+            {handovers.filter(h => h.shift_date === today).length > 0 && (
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => navigate(createPageUrl('OperationsHistory'))}
+                className="w-full flex items-center justify-center gap-2"
+              >
+                <Eye className="w-4 h-4" />
+                View
               </Button>
             )}
           </div>
