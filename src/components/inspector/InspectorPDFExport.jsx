@@ -204,15 +204,17 @@ export default function InspectorPDFExport({ open, onClose, user, dateRange }) {
     doc.save(`Audit-Pack-${format(new Date(), 'yyyy-MM-dd')}.pdf`);
     
     // Log export action
-    await base44.entities.ComplianceLog.create({
-      user_id: user?.id,
-      user_name: user?.full_name || user?.email,
-      user_email: user?.email,
-      user_role: user?.role,
-      action_type: 'document_accessed',
-      action_description: `Full audit pack exported for period ${dateFrom} to ${dateTo}`,
-      action_timestamp: new Date().toISOString()
-    });
+    if (user?.id && user?.email) {
+      await base44.entities.ComplianceLog.create({
+        user_id: user.id,
+        user_name: user.full_name || user.email,
+        user_email: user.email,
+        user_role: user.role || 'staff',
+        action_type: 'document_accessed',
+        action_description: `Full audit pack exported for period ${dateFrom} to ${dateTo}`,
+        action_timestamp: new Date().toISOString()
+      });
+    }
 
     setGenerating(false);
     onClose();
