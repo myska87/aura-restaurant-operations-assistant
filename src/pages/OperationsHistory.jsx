@@ -10,10 +10,11 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { ClipboardCheck, Thermometer, Tag, MessageSquare, User, Clock, Calendar, Plus, Printer, Eye } from 'lucide-react';
+import { ClipboardCheck, Thermometer, Tag, MessageSquare, User, Clock, Calendar, Plus, Printer, Eye, BarChart3 } from 'lucide-react';
 import { format } from 'date-fns';
 import PageHeader from '@/components/ui/PageHeader';
 import LoadingSpinner from '@/components/ui/LoadingSpinner';
+import ReportsHub from '@/components/operations/ReportsHub';
 
 export default function OperationsHistory() {
   const [user, setUser] = useState(null);
@@ -151,7 +152,7 @@ export default function OperationsHistory() {
       </Card>
 
       <Tabs defaultValue="checklists">
-        <TabsList className="grid w-full grid-cols-5">
+        <TabsList className="grid w-full grid-cols-6">
           <TabsTrigger value="checklists">
             <ClipboardCheck className="w-4 h-4 mr-2" />
             Checklists
@@ -171,6 +172,10 @@ export default function OperationsHistory() {
           <TabsTrigger value="handovers">
             <MessageSquare className="w-4 h-4 mr-2" />
             Handovers
+          </TabsTrigger>
+          <TabsTrigger value="reports">
+            <BarChart3 className="w-4 h-4 mr-2" />
+            Reports
           </TabsTrigger>
         </TabsList>
 
@@ -528,6 +533,11 @@ export default function OperationsHistory() {
               </ScrollArea>
             </CardContent>
           </Card>
+        </TabsContent>
+
+        {/* Reports */}
+        <TabsContent value="reports">
+          <ReportsHub user={user} />
         </TabsContent>
       </Tabs>
 
