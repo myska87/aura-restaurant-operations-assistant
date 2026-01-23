@@ -35,6 +35,7 @@ export default function DocumentCreator() {
   const [showPreview, setShowPreview] = useState(false);
   const [showShare, setShowShare] = useState(false);
   const [copied, setCopied] = useState(false);
+  const [requiresReacknowledgement, setRequiresReacknowledgement] = useState(false);
 
   // Load user
   useEffect(() => {
@@ -65,6 +66,7 @@ export default function DocumentCreator() {
       setTags(existingDocument.tags || []);
       setVersion(existingDocument.version);
       setStatus(existingDocument.status);
+      setRequiresReacknowledgement(existingDocument.requires_reacknowledgement || false);
     }
   }, [existingDocument]);
 
@@ -118,8 +120,17 @@ export default function DocumentCreator() {
       version: documentId ? existingDocument?.version : '1.0',
       status,
       author_id: user.id,
-      author_name: user.full_name || user.email
+      author_name: user.full_name || user.email,
+      requires_reacknowledgement: requiresReacknowledgement
     };
+
+    // If updating and requires_reacknowledgement is enabled, flag all existing acknowledgements
+    if (documentId && requiresReacknowledgement && existingDocument?.content !== content) {
+      const existingAcks = await base44.entities.DocumentAcknowledgement.filter({ document_id: documentId });
+      for (const ack of existingAcks) {
+        await base44.entities.DocumentAcknowledgement.update(ack.id, { requires_reacknowledgement: true });
+      }
+    }
 
     saveDocumentMutation.mutate(docData);
   };
@@ -237,11 +248,13 @@ export default function DocumentCreator() {
             createdDate={existingDocument?.created_date}
             lastEditedDate={existingDocument?.updated_date}
             status={status}
+            requiresReacknowledgement={requiresReacknowledgement}
             onTitleChange={setTitle}
             onCategoryChange={setCategory}
             onVisibilityChange={setVisibility}
             onTagAdd={handleAddTag}
             onTagRemove={handleRemoveTag}
+            onRequiresReacknowledgementChange={setRequiresReacknowledgement}
           />}
         </div>
       </div>
