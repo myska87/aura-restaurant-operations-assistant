@@ -52,10 +52,13 @@ const navGroups = [
     title: 'Operations',
     items: [
       { name: 'Command Center', icon: LayoutDashboard, page: 'CommandCenter', roles: ['all'] },
-      { name: 'Flow Engine', icon: TrendingUp, page: 'FlowBoard', roles: ['all'] },
       { name: 'Daily Operations Hub', icon: ClipboardCheck, page: 'DailyOperationsHub', roles: ['all'] },
-      { name: 'Operations', icon: ClipboardCheck, page: 'Operations', roles: ['all'] },
-      { name: 'Prep Workflow', icon: ChefHat, page: 'PrepWorkflow', roles: ['all'] },
+      { name: 'Daily Check-In', icon: Users, page: 'Operations', roles: ['all'] },
+      { name: 'Shift Handover', icon: MessageSquare, page: 'ShiftHandovers', roles: ['all'] },
+      { name: 'Temperature Logs', icon: Thermometer, page: 'TemperatureLogs', roles: ['all'] },
+      { name: 'Label Printing', icon: FileText, page: 'Operations', roles: ['all'] },
+      { name: 'Equipment Status', icon: Wrench, page: 'EquipmentHealth', roles: ['all'] },
+      { name: 'Operations History', icon: History, page: 'OperationsHistory', roles: ['all'] },
       { name: 'Menu Manager', icon: ChefHat, page: 'MenuManager', roles: ['all'] },
       { name: 'Visual Dish Guides', icon: CookingPot, page: 'VisualDishGuides', roles: ['all'] },
     ]
