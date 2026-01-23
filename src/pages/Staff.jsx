@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -42,9 +42,15 @@ import {
 } from '@/components/ui/select';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import PageHeader from '@/components/ui/PageHeader';
 import EmptyState from '@/components/ui/EmptyState';
 import LoadingSpinner from '@/components/ui/LoadingSpinner';
+import StaffRoleManager from '@/components/staff/StaffRoleManager';
+import PrivateDocumentVault from '@/components/staff/PrivateDocumentVault';
+import PerformanceAppointmentManager from '@/components/staff/PerformanceAppointmentManager';
+import JobDescriptionEditor from '@/components/staff/JobDescriptionEditor';
+import VisibilityControlPanel from '@/components/staff/VisibilityControlPanel';
 
 export default function Staff() {
   const [showForm, setShowForm] = useState(false);
@@ -52,8 +58,19 @@ export default function Staff() {
   const [searchQuery, setSearchQuery] = useState('');
   const [filterRole, setFilterRole] = useState('all');
   const [filterDepartment, setFilterDepartment] = useState('all');
+  const [user, setUser] = useState(null);
 
   const queryClient = useQueryClient();
+
+  useEffect(() => {
+    const loadUser = async () => {
+      try {
+        const userData = await base44.auth.me();
+        setUser(userData);
+      } catch (e) {}
+    };
+    loadUser();
+  }, []);
 
   const { data: staffList = [], isLoading } = useQuery({
     queryKey: ['staff'],
@@ -261,7 +278,7 @@ export default function Staff() {
 
       {/* Staff Form Dialog */}
       <Dialog open={showForm} onOpenChange={setShowForm}>
-        <DialogContent className="max-w-lg max-h-[90vh] overflow-y-auto">
+        <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>{editingStaff ? 'Edit Staff Member' : 'Add Staff Member'}</DialogTitle>
           </DialogHeader>
@@ -385,6 +402,48 @@ export default function Staff() {
               </Button>
             </div>
           </form>
+
+          {editingStaff && user && (
+            <div className="pt-6 border-t">
+              <h3 className="text-lg font-semibold mb-4">Advanced Staff Management</h3>
+              <Accordion type="multiple" className="space-y-2">
+                <AccordionItem value="roles">
+                  <AccordionTrigger>Role Assignments</AccordionTrigger>
+                  <AccordionContent>
+                    <StaffRoleManager staffId={editingStaff.id} staffName={editingStaff.full_name} user={user} />
+                  </AccordionContent>
+                </AccordionItem>
+
+                <AccordionItem value="job-description">
+                  <AccordionTrigger>Job Description</AccordionTrigger>
+                  <AccordionContent>
+                    <JobDescriptionEditor staffId={editingStaff.id} staffData={editingStaff} user={user} />
+                  </AccordionContent>
+                </AccordionItem>
+
+                <AccordionItem value="appointments">
+                  <AccordionTrigger>Performance Appointments</AccordionTrigger>
+                  <AccordionContent>
+                    <PerformanceAppointmentManager staffId={editingStaff.id} staffName={editingStaff.full_name} user={user} />
+                  </AccordionContent>
+                </AccordionItem>
+
+                <AccordionItem value="private-docs">
+                  <AccordionTrigger>Private Documents (Admin Only)</AccordionTrigger>
+                  <AccordionContent>
+                    <PrivateDocumentVault staffId={editingStaff.id} staffName={editingStaff.full_name} user={user} />
+                  </AccordionContent>
+                </AccordionItem>
+
+                <AccordionItem value="visibility">
+                  <AccordionTrigger>Access Controls (Admin Only)</AccordionTrigger>
+                  <AccordionContent>
+                    <VisibilityControlPanel staffId={editingStaff.id} staffName={editingStaff.full_name} user={user} />
+                  </AccordionContent>
+                </AccordionItem>
+              </Accordion>
+            </div>
+          )}
         </DialogContent>
       </Dialog>
     </div>
