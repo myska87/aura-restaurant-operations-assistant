@@ -1336,6 +1336,29 @@ export default function OperationsReports() {
                 </div>
               </div>
 
+              {/* Filled Forms Section */}
+              {(completions.length > 0 || briefings?.length > 0) && (
+                <div>
+                  <h3 className="font-bold text-lg mb-3">📋 Filled Forms & Submissions</h3>
+                  <div className="space-y-2">
+                    {completions.slice(0, 5).map(form => (
+                      <div key={form.id} className="p-3 bg-slate-50 rounded border-l-4 border-emerald-600">
+                        <div className="flex items-center justify-between">
+                          <div>
+                            <p className="font-semibold text-slate-800">{form.checklist_name}</p>
+                            <p className="text-sm text-slate-600">{form.user_name} • {format(new Date(form.date), 'MMM d, HH:mm')}</p>
+                          </div>
+                          <Badge className={form.status === 'completed' ? 'bg-emerald-600' : form.status === 'failed' ? 'bg-red-600' : 'bg-amber-600'}>
+                            {form.status.toUpperCase()}
+                          </Badge>
+                        </div>
+                        <p className="text-xs text-slate-500 mt-2">Completion: {Math.round(form.completion_percentage)}%</p>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
               {selectedReport.summary_data && (
                 <div>
                   <h3 className="font-bold text-lg mb-3">Summary Data</h3>

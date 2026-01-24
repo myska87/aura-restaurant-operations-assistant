@@ -511,13 +511,13 @@ export default function DailyOperationsHub() {
       lastUpdate: ccpChecksToday[0]?.timestamp
     },
     {
-      title: 'Operations History',
-      description: 'View all logged operations',
-      icon: History,
-      color: 'bg-slate-600',
-      page: 'OperationsHistory',
-      status: 'complete',
-      count: 'View past logs',
+      title: 'Hot Holding Log',
+      description: 'Track food holding temperatures',
+      icon: Thermometer,
+      color: 'bg-pink-500',
+      onClick: () => alert('Hot Holding Log form opening soon'),
+      status: 'pending',
+      count: 'Log hot holding temps',
       lastUpdate: null
     }
   ];
