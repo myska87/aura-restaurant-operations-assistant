@@ -425,7 +425,7 @@ export default function SOPs() {
       </div>
 
       {/* Quiz Section */}
-      {journeyProgress && currentStep === 'skills' && (
+      {journeyProgress && journeyProgress.currentStep === 'skills' && (
         <div className="mt-12 pt-8 border-t-2 border-slate-200">
           <div className="bg-gradient-to-br from-indigo-50 to-blue-50 rounded-2xl p-6 border-2 border-indigo-200">
             <h2 className="text-2xl font-bold text-slate-900 mb-2">
