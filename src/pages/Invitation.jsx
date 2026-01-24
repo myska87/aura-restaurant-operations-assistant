@@ -144,44 +144,7 @@ export default function Invitation() {
               </p>
             </motion.div>
 
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 1 }}
-            >
-              <Button
-                onClick={() => acceptInvitationMutation.mutate()}
-                disabled={!quizPassed || acceptInvitationMutation.isPending || journeyProgress?.invitationAccepted}
-                size="lg"
-                className="bg-gradient-to-r from-amber-600 to-orange-600 hover:from-amber-700 hover:to-orange-700 text-white font-bold text-lg px-8 py-6 shadow-xl disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                {journeyProgress?.invitationAccepted ? (
-                  <>✓ Journey Started</>
-                ) : (
-                  <>
-                    Complete & Continue
-                    <ArrowRight className="w-5 h-5 ml-2" />
-                  </>
-                )}
-              </Button>
 
-              {journeyProgress?.invitationAccepted && (
-                <motion.div
-                  initial={{ opacity: 0, y: -10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  className="mt-4 p-4 bg-emerald-100 border border-emerald-300 rounded-lg"
-                >
-                  <p className="text-sm text-emerald-800 font-semibold">
-                    ✓ Module completed. Next step unlocked.
-                  </p>
-                </motion.div>
-              )}
-              {!quizPassed && (
-                <p className="mt-4 text-sm text-amber-600 font-semibold">
-                  Complete the quiz below to unlock this button
-                </p>
-              )}
-            </motion.div>
           </CardContent>
         </Card>
       </motion.div>
