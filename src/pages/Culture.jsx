@@ -302,7 +302,8 @@ export default function Culture() {
   const isComplete = assessment.raving_fans_answer.trim() && 
                      assessment.connected_value && 
                      assessment.improvement_action.trim() &&
-                     acknowledged;
+                     acknowledged &&
+                     quizPassed;
 
   const alreadyCompleted = !!acknowledgment;
   const dailyQuote = getDailyQuote();
