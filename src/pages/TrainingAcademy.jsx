@@ -266,9 +266,14 @@ export default function TrainingAcademy() {
         lastUpdated: new Date().toISOString()
       });
     },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['trainingJourney'] });
-      queryClient.invalidateQueries({ queryKey: ['cultureAck'] });
+    onSuccess: async () => {
+      // Invalidate all training-related queries
+      await queryClient.invalidateQueries({ queryKey: ['trainingJourney'] });
+      await queryClient.invalidateQueries({ queryKey: ['cultureAck'] });
+      await queryClient.invalidateQueries({ predicate: (query) => {
+        const key = query.queryKey[0];
+        return key === 'cultureAck' || key === 'trainingJourney';
+      }});
       setShowResetConfirm(false);
       setResetMode('self');
       setSelectedStaffEmail('');
