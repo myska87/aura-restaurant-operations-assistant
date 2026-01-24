@@ -324,6 +324,25 @@ export default function Culture() {
   const handleQuizPassed = (passed, score) => {
     if (passed) {
       setQuizPassed(true);
+      setQuizScore(score);
+    }
+  };
+
+  const submitQuiz = () => {
+    let correct = 0;
+    cultureQuizQuestions.forEach((q, idx) => {
+      const userAnswer = quizAnswers[idx];
+      if (userAnswer === q.correct) {
+        correct++;
+      }
+    });
+
+    const score = (correct / cultureQuizQuestions.length) * 100;
+    if (score >= 80) {
+      handleQuizPassed(true, score);
+    } else {
+      alert(`Quiz score: ${score.toFixed(0)}%. You need 80% to pass. Try again!`);
+      setQuizAnswers({});
     }
   };
 
