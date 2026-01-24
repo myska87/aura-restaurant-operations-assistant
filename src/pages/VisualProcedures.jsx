@@ -101,6 +101,14 @@ export default function VisualProcedures() {
     enabled: !!user?.email
   });
 
+  const deleteMutation = useMutation({
+    mutationFn: (id) => base44.entities.SOP.delete(id),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['visualProcedures'] });
+      setDeleteId(null);
+    }
+  });
+
   const filteredProcedures = procedures.filter(proc => {
     const matchesSearch = 
       proc.title?.toLowerCase().includes(searchQuery.toLowerCase()) ||
