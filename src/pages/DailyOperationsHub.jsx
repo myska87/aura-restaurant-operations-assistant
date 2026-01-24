@@ -43,6 +43,7 @@ import ServiceReadinessPanel from '@/components/operations/ServiceReadinessPanel
 import ResetFormsButton from '@/components/operations/ResetFormsButton';
 import CCPCheckModal from '@/components/operations/CCPCheckModal';
 import CCPEnforcement from '@/components/operations/CCPEnforcement';
+import ServiceLockdownNotice from '@/components/operations/ServiceLockdownNotice';
 
 export default function DailyOperationsHub() {
   const [user, setUser] = useState(null);
@@ -57,6 +58,7 @@ export default function DailyOperationsHub() {
   const [showCCPModal, setShowCCPModal] = useState(false);
   const [activeCCP, setActiveCCP] = useState(null);
   const [blockedMenuItems, setBlockedMenuItems] = useState([]);
+  const [failedCCPs, setFailedCCPs] = useState([]);
   const queryClient = useQueryClient();
   const navigate = useNavigate();
 
@@ -566,6 +568,11 @@ export default function DailyOperationsHub() {
             blockedItems={blockedMenuItems}
             onBlockedItemsChange={setBlockedMenuItems}
           />
+        )}
+
+        {/* Service Lockdown Notice - Global Alert */}
+        {failedCCPs.length > 0 && (
+          <ServiceLockdownNotice failedCCPs={failedCCPs} />
         )}
 
         {/* Service Readiness Panel - Prep & Hygiene Forms */}
