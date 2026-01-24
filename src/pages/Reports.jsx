@@ -5,11 +5,13 @@ import { base44 } from '@/api/base44Client';
 import { useQuery } from '@tanstack/react-query';
 import { format, subDays, startOfWeek, endOfWeek } from 'date-fns';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { TrendingUp, AlertTriangle, GraduationCap, Shield, Wrench, Trophy, BarChart3, Thermometer, CheckCircle } from 'lucide-react';
+import { TrendingUp, AlertTriangle, GraduationCap, Shield, Wrench, Trophy, BarChart3, Thermometer, CheckCircle, Sparkles } from 'lucide-react';
 import { LineChart, Line, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from 'recharts';
 import { motion } from 'framer-motion';
 import PageHeader from '@/components/ui/PageHeader';
 import LoadingSpinner from '@/components/ui/LoadingSpinner';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
+import { Badge } from '@/components/ui/badge';
 
 const reportOptions = [
   {
@@ -124,6 +126,18 @@ export default function Reports() {
     enabled: !!user && isManager
   });
 
+  const { data: operationReports = [], isLoading: reportsLoading } = useQuery({
+    queryKey: ['operationReports', weekStart],
+    queryFn: async () => {
+      const reports = await base44.entities.OperationReport.filter({
+        reportDate: { $gte: weekStart, $lte: weekEnd },
+        reportType: 'HYGIENE'
+      });
+      return reports;
+    },
+    enabled: !!user && isManager
+  });
+
   const { data: shifts = [], isLoading: shiftsLoading } = useQuery({
     queryKey: ['weekShifts', weekStart],
     queryFn: async () => {
@@ -177,7 +191,9 @@ export default function Reports() {
     );
   }
 
-  const isLoading = auditsLoading || tempLoading || hygieneLoading || shiftsLoading;
+  const [selectedHygieneReport, setSelectedHygieneReport] = useState(null);
+
+  const isLoading = auditsLoading || tempLoading || hygieneLoading || shiftsLoading || reportsLoading;
 
   if (isLoading) {
     return <LoadingSpinner message="Loading reports data..." />;
@@ -353,6 +369,48 @@ export default function Reports() {
         </motion.div>
       </div>
 
+      {/* Hygiene Reports Section */}
+      <div className="bg-gradient-to-r from-blue-50 to-emerald-50 rounded-lg p-6 border-2 border-blue-200">
+        <div className="flex items-center gap-2 mb-4">
+          <Sparkles className="w-6 h-6 text-blue-600" />
+          <h3 className="text-xl font-bold text-slate-900">Hygiene Compliance Reports</h3>
+        </div>
+        <p className="text-slate-600 mb-4">
+          {operationReports.length} hygiene reports this week • {operationReports.filter(r => r.status === 'pass').length} passed
+        </p>
+        {operationReports.length > 0 ? (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3">
+            {operationReports.map((report) => (
+              <motion.div
+                key={report.id}
+                initial={{ opacity: 0, scale: 0.95 }}
+                animate={{ opacity: 1, scale: 1 }}
+                onClick={() => setSelectedHygieneReport(report)}
+                className="cursor-pointer"
+              >
+                <Card className="hover:shadow-lg transition-all h-full">
+                  <CardContent className="pt-4">
+                    <div className="flex items-center justify-between mb-2">
+                      <p className="font-semibold text-slate-900 text-sm">{report.staffName}</p>
+                      <Badge className={report.status === 'pass' ? 'bg-emerald-500' : 'bg-red-500'}>
+                        {report.status.toUpperCase()}
+                      </Badge>
+                    </div>
+                    <p className="text-xs text-slate-600 mb-2">{report.reportDate}</p>
+                    <div className="flex items-center justify-between">
+                      <span className="text-lg font-bold text-emerald-600">{Math.round(report.completionPercentage)}%</span>
+                      <Sparkles className="w-4 h-4 text-blue-500" />
+                    </div>
+                  </CardContent>
+                </Card>
+              </motion.div>
+            ))}
+          </div>
+        ) : (
+          <p className="text-slate-600 text-center py-8">No hygiene reports yet this week</p>
+        )}
+      </div>
+
       {/* Divider */}
       <div className="border-t-2 border-slate-200 my-8" />
 
@@ -380,6 +438,93 @@ export default function Reports() {
           );
         })}
       </div>
+
+      {/* Hygiene Report Detail Modal */}
+      <Dialog open={!!selectedHygieneReport} onOpenChange={(open) => !open && setSelectedHygieneReport(null)}>
+        <DialogContent className="max-w-2xl">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <Sparkles className="w-5 h-5 text-blue-600" />
+              Hygiene Compliance Report
+            </DialogTitle>
+            <DialogDescription>
+              Detailed hygiene check results
+            </DialogDescription>
+          </DialogHeader>
+          {selectedHygieneReport && (
+            <div className="space-y-4">
+              {/* Staff & Date Info */}
+              <div className="grid grid-cols-2 gap-4">
+                <Card className="bg-slate-50">
+                  <CardContent className="pt-4">
+                    <p className="text-xs text-slate-600 mb-1">Staff Member</p>
+                    <p className="font-bold">{selectedHygieneReport.staffName}</p>
+                  </CardContent>
+                </Card>
+                <Card className="bg-slate-50">
+                  <CardContent className="pt-4">
+                    <p className="text-xs text-slate-600 mb-1">Report Date</p>
+                    <p className="font-bold">{selectedHygieneReport.reportDate}</p>
+                  </CardContent>
+                </Card>
+              </div>
+
+              {/* Completion & Status */}
+              <div className="grid grid-cols-2 gap-4">
+                <Card className="bg-emerald-50 border-emerald-200">
+                  <CardContent className="pt-4">
+                    <p className="text-xs text-emerald-700 mb-1">Completion %</p>
+                    <p className="text-2xl font-bold text-emerald-700">{Math.round(selectedHygieneReport.completionPercentage)}%</p>
+                  </CardContent>
+                </Card>
+                <Card className={selectedHygieneReport.status === 'pass' ? 'bg-emerald-50 border-emerald-200' : 'bg-red-50 border-red-200'}>
+                  <CardContent className="pt-4">
+                    <p className={`text-xs mb-1 ${selectedHygieneReport.status === 'pass' ? 'text-emerald-700' : 'text-red-700'}`}>Status</p>
+                    <Badge className={selectedHygieneReport.status === 'pass' ? 'bg-emerald-500 text-lg' : 'bg-red-500 text-lg'}>
+                      {selectedHygieneReport.status.toUpperCase()}
+                    </Badge>
+                  </CardContent>
+                </Card>
+              </div>
+
+              {/* Checklist Items */}
+              {selectedHygieneReport.checklistItems && selectedHygieneReport.checklistItems.length > 0 && (
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="text-sm">Completed Items</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="space-y-2">
+                      {selectedHygieneReport.checklistItems.map((item, idx) => (
+                        <div key={idx} className="flex items-center justify-between py-2 border-b last:border-0">
+                          <span className="text-sm text-slate-700">{item.item_name}</span>
+                          <Badge variant="outline">{item.answer}</Badge>
+                        </div>
+                      ))}
+                    </div>
+                  </CardContent>
+                </Card>
+              )}
+
+              {/* Failed Items */}
+              {selectedHygieneReport.failedItems && selectedHygieneReport.failedItems.length > 0 && (
+                <Card className="bg-red-50 border-red-200">
+                  <CardHeader>
+                    <CardTitle className="text-sm text-red-900">⚠️ Failed Items</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="space-y-1">
+                      {selectedHygieneReport.failedItems.map((item, idx) => (
+                        <p key={idx} className="text-sm text-red-700">• {item}</p>
+                      ))}
+                    </div>
+                  </CardContent>
+                </Card>
+              )}
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
