@@ -12,7 +12,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { 
   ClipboardCheck, Thermometer, Tag, MessageSquare, User, Clock, Calendar, Plus, Printer, Eye, BarChart3, 
-  Sparkles, CheckCircle, Download, AlertTriangle, Zap, AlertCircle
+  Sparkles, CheckCircle, Download, AlertTriangle, Zap, AlertCircle, Loader
 } from 'lucide-react';
 import { format, subDays } from 'date-fns';
 import PageHeader from '@/components/ui/PageHeader';
