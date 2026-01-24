@@ -40,6 +40,7 @@ import LabelPrintingModal from '@/components/operations/LabelPrintingModal';
 import InteractiveStagesDashboard from '@/components/operations/InteractiveStagesDashboard';
 import ServiceReadinessPanel from '@/components/operations/ServiceReadinessPanel';
 import ResetFormsButton from '@/components/operations/ResetFormsButton';
+import CCPCheckModal from '@/components/operations/CCPCheckModal';
 
 export default function DailyOperationsHub() {
   const [user, setUser] = useState(null);
@@ -51,6 +52,8 @@ export default function DailyOperationsHub() {
   const [showHandoverChecklist, setShowHandoverChecklist] = useState(false);
   const [savingHandover, setSavingHandover] = useState(false);
   const [showLabelPrinting, setShowLabelPrinting] = useState(false);
+  const [showCCPModal, setShowCCPModal] = useState(false);
+  const [activeCCP, setActiveCCP] = useState(null);
   const queryClient = useQueryClient();
   const navigate = useNavigate();
 
@@ -123,6 +126,18 @@ export default function DailyOperationsHub() {
   const { data: prepLogs = [] } = useQuery({
     queryKey: ['prepLogs', today],
     queryFn: () => base44.entities.PrepChecklistLog.filter({ date: today }),
+    enabled: !!user
+  });
+
+  const { data: activeCCPs = [] } = useQuery({
+    queryKey: ['activeCCPs'],
+    queryFn: () => base44.entities.CriticalControlPoint.filter({ is_active: true }),
+    enabled: !!user
+  });
+
+  const { data: ccpChecksToday = [] } = useQuery({
+    queryKey: ['ccpChecks', today],
+    queryFn: () => base44.entities.CriticalControlPointCheck.filter({ check_date: today }),
     enabled: !!user
   });
 
@@ -412,8 +427,16 @@ export default function DailyOperationsHub() {
   );
   const checklistCompletion = myOpeningCompletion?.status === 'completed' ? 100 : 0;
 
+  // CCP completion tracking
+  const pendingCCPs = activeCCPs.filter(ccp => 
+    !ccpChecksToday.some(check => check.ccp_id === ccp.id)
+  );
+  const ccpCompletion = activeCCPs.length > 0 
+    ? ((activeCCPs.length - pendingCCPs.length) / activeCCPs.length) * 100 
+    : 100;
+
   const overallCompletion = myCheckIn ? 
-    ((tempCompletion + (handovers.length > 0 ? 100 : 0) + checklistCompletion) / 3) : 0;
+    ((tempCompletion + (handovers.length > 0 ? 100 : 0) + checklistCompletion + ccpCompletion) / 4) : 0;
 
   const manager = shifts.find(s => s.position?.toLowerCase().includes('manager'));
 
@@ -470,6 +493,17 @@ export default function DailyOperationsHub() {
       status: equipmentFaults.length === 0 ? 'complete' : 'pending',
       count: `${equipmentFaults.length} faults reported`,
       lastUpdate: equipmentFaults[0]?.created_date
+    },
+    {
+      title: 'Critical Control Points',
+      description: 'Mandatory CCP compliance checks',
+      icon: Shield,
+      color: 'bg-red-600',
+      onClick: () => setShowCCPModal(true),
+      status: pendingCCPs.length === 0 ? 'complete' : 'pending',
+      count: `${pendingCCPs.length} pending`,
+      progress: ccpCompletion,
+      lastUpdate: ccpChecksToday[0]?.timestamp
     },
     {
       title: 'Operations History',
