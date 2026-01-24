@@ -233,6 +233,26 @@ export default function TrainingAcademy() {
       
       if (target.length === 0) throw new Error('Training progress not found');
       
+      // Delete Culture Acknowledgments
+      const cultureAcks = await base44.entities.CultureAcknowledgment.filter({
+        staff_email: targetEmail
+      });
+      for (const ack of cultureAcks) {
+        await base44.entities.CultureAcknowledgment.delete(ack.id);
+      }
+      
+      // Delete Raving Fans Acknowledgments if exists
+      try {
+        const ravingFansAcks = await base44.entities.RavingFansAcknowledgment.filter({
+          staff_email: targetEmail
+        });
+        for (const ack of ravingFansAcks) {
+          await base44.entities.RavingFansAcknowledgment.delete(ack.id);
+        }
+      } catch (e) {
+        // Entity might not exist, continue
+      }
+      
       return await base44.entities.TrainingJourneyProgress.update(target[0].id, {
         invitationAccepted: false,
         visionWatched: false,
@@ -248,6 +268,7 @@ export default function TrainingAcademy() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['trainingJourney'] });
+      queryClient.invalidateQueries({ queryKey: ['cultureAck'] });
       setShowResetConfirm(false);
       setResetMode('self');
       setSelectedStaffEmail('');
