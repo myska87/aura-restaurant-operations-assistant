@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -17,7 +17,9 @@ import {
   Clock,
   Archive,
   Link as LinkIcon,
-  Users
+  Users,
+  GraduationCap,
+  Video
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -47,6 +49,9 @@ import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import PageHeader from '@/components/ui/PageHeader';
 import EmptyState from '@/components/ui/EmptyState';
 import LoadingSpinner from '@/components/ui/LoadingSpinner';
+import TrainingJourneyBar from '@/components/training/TrainingJourneyBar';
+import { Card, CardContent } from '@/components/ui/card';
+import { Checkbox } from '@/components/ui/checkbox';
 
 const categories = [
   { value: 'kitchen', label: 'Kitchen', color: 'bg-orange-100 text-orange-700' },
@@ -58,7 +63,16 @@ const categories = [
   { value: 'admin', label: 'Admin', color: 'bg-slate-100 text-slate-700' }
 ];
 
+const requiredSections = [
+  { id: 'bar_chai', label: 'Bar & Chai Preparation', categories: ['kitchen', 'service'] },
+  { id: 'food_pastry', label: 'Food & Pastry Handling', categories: ['kitchen'] },
+  { id: 'customer_standards', label: 'Customer Interaction Standards', categories: ['front_of_house', 'service'] },
+  { id: 'pos_flow', label: 'POS & Order Flow', categories: ['front_of_house', 'admin'] },
+  { id: 'opening_closing', label: 'Opening & Closing Rituals', categories: ['kitchen', 'front_of_house'] }
+];
+
 export default function SOPs() {
+  const [user, setUser] = useState(null);
   const [showForm, setShowForm] = useState(false);
   const [editingSOP, setEditingSOP] = useState(null);
   const [viewingSOP, setViewingSOP] = useState(null);
@@ -68,12 +82,35 @@ export default function SOPs() {
   const [searchQuery, setSearchQuery] = useState('');
   const [filterCategory, setFilterCategory] = useState('all');
   const [filterStatus, setFilterStatus] = useState('all');
+  const [completedSections, setCompletedSections] = useState({});
 
   const queryClient = useQueryClient();
+
+  useEffect(() => {
+    base44.auth.me().then(setUser).catch(() => {});
+  }, []);
 
   const { data: sops = [], isLoading } = useQuery({
     queryKey: ['sops'],
     queryFn: () => base44.entities.SOP.list('-created_date'),
+  });
+
+  const { data: journeyProgress } = useQuery({
+    queryKey: ['trainingJourney', user?.email],
+    queryFn: async () => {
+      if (!user?.email) return null;
+      const existing = await base44.entities.TrainingJourneyProgress.filter({
+        staff_email: user.email
+      });
+      if (existing.length > 0) {
+        // Load saved section completion
+        const saved = existing[0].skillsSections || {};
+        setCompletedSections(saved);
+        return existing[0];
+      }
+      return null;
+    },
+    enabled: !!user?.email
   });
 
   const { data: acknowledgments = [] } = useQuery({
@@ -103,6 +140,27 @@ export default function SOPs() {
     mutationFn: (id) => base44.entities.SOP.delete(id),
     onSuccess: () => queryClient.invalidateQueries(['sops'])
   });
+
+  const toggleSection = async (sectionId) => {
+    const newCompleted = {
+      ...completedSections,
+      [sectionId]: !completedSections[sectionId]
+    };
+    setCompletedSections(newCompleted);
+
+    // Check if all sections are complete
+    const allComplete = requiredSections.every(s => newCompleted[s.id]);
+
+    if (journeyProgress) {
+      await base44.entities.TrainingJourneyProgress.update(journeyProgress.id, {
+        skillsSections: newCompleted,
+        skillsCompleted: allComplete,
+        currentStep: allComplete ? 'hygiene' : 'skills',
+        lastUpdated: new Date().toISOString()
+      });
+      queryClient.invalidateQueries(['trainingJourney']);
+    }
+  };
 
   const filteredSOPs = sops.filter(sop => {
     const matchesSearch = 
@@ -200,8 +258,83 @@ export default function SOPs() {
 
   if (isLoading) return <LoadingSpinner message="Loading SOPs..." />;
 
+  const allSectionsComplete = requiredSections.every(s => completedSections[s.id]);
+
   return (
     <div className="space-y-6">
+      {/* Journey Progress Bar */}
+      {journeyProgress && (
+        <TrainingJourneyBar progress={journeyProgress} compact />
+      )}
+
+      {/* Training Journey Header */}
+      {journeyProgress && (
+        <Card className="border-2 border-indigo-400 bg-gradient-to-br from-indigo-50 via-purple-50 to-blue-50">
+          <CardContent className="pt-8 pb-8 px-6 md:px-12">
+            <div className="text-center mb-6">
+              <div className="w-20 h-20 mx-auto mb-4 rounded-full bg-gradient-to-br from-indigo-500 to-blue-600 flex items-center justify-center shadow-2xl">
+                <GraduationCap className="w-10 h-10 text-white" />
+              </div>
+              <h1 className="text-4xl md:text-5xl font-bold text-slate-900 mb-2">
+                Role-Specific Training
+              </h1>
+              <p className="text-xl text-indigo-700 font-semibold mb-6">
+                Master Your Craft
+              </p>
+            </div>
+            
+            <div className="max-w-3xl mx-auto space-y-4 text-lg text-slate-700 leading-relaxed text-center">
+              <p className="font-semibold text-slate-900">
+                Mastery is built through repetition, standards, and pride.
+              </p>
+              <p>
+                Short videos + SOPs + visual guides. Complete your role training to unlock certification.
+              </p>
+            </div>
+
+            {/* Required Sections Checklist */}
+            <div className="mt-8 bg-white rounded-xl p-6 max-w-2xl mx-auto border-2 border-indigo-200">
+              <h3 className="text-xl font-bold text-slate-900 mb-4 flex items-center gap-2">
+                <CheckCircle className="w-5 h-5 text-indigo-600" />
+                Required Training Sections
+              </h3>
+              <div className="space-y-3">
+                {requiredSections.map((section) => (
+                  <label
+                    key={section.id}
+                    className="flex items-center gap-3 p-3 rounded-lg hover:bg-indigo-50 cursor-pointer transition-colors"
+                  >
+                    <Checkbox
+                      checked={completedSections[section.id] || false}
+                      onCheckedChange={() => toggleSection(section.id)}
+                    />
+                    <span className={`flex-1 ${completedSections[section.id] ? 'line-through text-slate-500' : 'text-slate-800 font-medium'}`}>
+                      {section.label}
+                    </span>
+                    {completedSections[section.id] && (
+                      <CheckCircle className="w-5 h-5 text-emerald-600" />
+                    )}
+                  </label>
+                ))}
+              </div>
+
+              {allSectionsComplete && (
+                <motion.div
+                  initial={{ opacity: 0, scale: 0.9 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  className="mt-6 p-4 bg-emerald-50 border-2 border-emerald-400 rounded-xl text-center"
+                >
+                  <CheckCircle className="w-8 h-8 text-emerald-600 mx-auto mb-2" />
+                  <p className="text-emerald-900 font-bold">
+                    ✓ Skills Training Complete! Hygiene Module Unlocked
+                  </p>
+                </motion.div>
+              )}
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
       <PageHeader
         title="Standard Operating Procedures"
         description={`${sops.length} SOPs documented`}

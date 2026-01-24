@@ -230,6 +230,9 @@ export default function TrainingAcademy() {
           } else if (option.page === 'RavingFans') {
             isUnlocked = journeyProgress?.valuesCompleted || false;
             completionStatus = journeyProgress?.ravingFansCompleted;
+          } else if (option.page === 'SOPs') {
+            isUnlocked = journeyProgress?.ravingFansCompleted || false;
+            completionStatus = journeyProgress?.skillsCompleted;
           } else if (option.page === 'Training') {
             completionStatus = journeyProgress?.hygieneCompleted;
           } else if (option.page === 'SOPs') {
