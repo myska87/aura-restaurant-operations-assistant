@@ -231,9 +231,9 @@ export default function TrainingAcademy() {
         staff_email: targetEmail
       });
       
-      if (target.length === 0) return;
+      if (target.length === 0) throw new Error('Training progress not found');
       
-      await base44.entities.TrainingJourneyProgress.update(target[0].id, {
+      return await base44.entities.TrainingJourneyProgress.update(target[0].id, {
         invitationAccepted: false,
         visionWatched: false,
         valuesCompleted: false,
@@ -247,10 +247,13 @@ export default function TrainingAcademy() {
       });
     },
     onSuccess: () => {
-      queryClient.invalidateQueries(['trainingJourney']);
+      queryClient.invalidateQueries({ queryKey: ['trainingJourney'] });
       setShowResetConfirm(false);
       setResetMode('self');
       setSelectedStaffEmail('');
+    },
+    onError: (error) => {
+      console.error('Failed to reset training:', error);
     }
   });
 
