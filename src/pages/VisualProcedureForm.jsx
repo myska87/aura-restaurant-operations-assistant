@@ -88,11 +88,11 @@ export default function VisualProcedureForm() {
         };
 
         if (isEditing && procedureId) {
-          await base44.entities.Visual_Procedures_v1.update(procedureId, autoSaveData);
+          await base44.entities.SOP.update(procedureId, autoSaveData);
         } else if (formData.id) {
-          await base44.entities.Visual_Procedures_v1.update(formData.id, autoSaveData);
+          await base44.entities.SOP.update(formData.id, autoSaveData);
         } else {
-          const created = await base44.entities.Visual_Procedures_v1.create(autoSaveData);
+          const created = await base44.entities.SOP.create(autoSaveData);
           setFormData({ ...autoSaveData, id: created.id });
         }
         
