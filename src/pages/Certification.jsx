@@ -319,6 +319,51 @@ export default function Certification() {
           </CardContent>
         </Card>
       </motion.div>
+
+      {/* Admin Bypass Confirmation Modal */}
+      <Dialog open={showBypassConfirm} onOpenChange={setShowBypassConfirm}>
+        <DialogContent className="max-w-md border-2 border-red-300 bg-red-50">
+          <DialogHeader>
+            <div className="flex items-center gap-3">
+              <div className="w-12 h-12 rounded-full bg-red-100 flex items-center justify-center">
+                <AlertTriangle className="w-6 h-6 text-red-600" />
+              </div>
+              <div>
+                <DialogTitle>Admin Override Certification</DialogTitle>
+                <DialogDescription className="mt-1 text-red-700 font-semibold">
+                  This bypasses training standards
+                </DialogDescription>
+              </div>
+            </div>
+          </DialogHeader>
+          <div className="space-y-6 py-4">
+            <p className="text-slate-700">
+              You are about to issue certification without completing all required training modules. This staff member will be granted on-site access immediately.
+            </p>
+            <div className="p-4 bg-red-100 border border-red-300 rounded-lg">
+              <p className="text-red-800 text-sm font-semibold">
+                ⚠️ This action should only be used in exceptional circumstances and will be logged.
+              </p>
+            </div>
+            <div className="flex gap-3">
+              <Button
+                onClick={() => setShowBypassConfirm(false)}
+                variant="outline"
+                className="flex-1"
+              >
+                Cancel
+              </Button>
+              <Button
+                onClick={() => bypassCertificationMutation.mutate()}
+                disabled={bypassCertificationMutation.isPending}
+                className="flex-1 bg-red-600 hover:bg-red-700"
+              >
+                {bypassCertificationMutation.isPending ? 'Issuing...' : 'Continue Override'}
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
