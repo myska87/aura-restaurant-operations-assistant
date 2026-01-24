@@ -14,7 +14,8 @@ import {
   Clock,
   TrendingUp,
   ShieldAlert,
-  AlertCircle
+  AlertCircle,
+  LayoutDashboard
 } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { format } from 'date-fns';
@@ -29,6 +30,14 @@ export default function OperateHome() {
   const operateTiles = [
     {
       id: 1,
+      title: 'Dashboard',
+      description: 'Overview and key metrics',
+      icon: LayoutDashboard,
+      color: 'bg-indigo-600',
+      page: 'AllergenDashboard'
+    },
+    {
+      id: 2,
       title: "Today's Tasks",
       description: 'Opening, closing, shift tasks',
       icon: ClipboardCheck,
@@ -36,7 +45,7 @@ export default function OperateHome() {
       page: 'DailyOperationsHub'
     },
     {
-      id: 2,
+      id: 3,
       title: 'Food Safety Logs',
       description: 'Temp checks, fridge, freezer, hot hold',
       icon: ThermometerSun,
@@ -44,7 +53,7 @@ export default function OperateHome() {
       page: 'Operations'
     },
     {
-      id: 3,
+      id: 4,
       title: 'Cleaning & Hygiene',
       description: 'Daily, weekly, deep clean, COSHH',
       icon: Sparkles,
@@ -52,7 +61,7 @@ export default function OperateHome() {
       page: 'FoodSafetyChecklist'
     },
     {
-      id: 4,
+      id: 5,
       title: 'Prep & Stock',
       description: 'Prep workflow, components, deliveries',
       icon: ChefHat,
@@ -60,7 +69,7 @@ export default function OperateHome() {
       page: 'PrepWorkflow'
     },
     {
-      id: 5,
+      id: 6,
       title: 'Dish Assembly',
       description: 'Visual guides, step-by-step build',
       icon: Box,
@@ -68,7 +77,7 @@ export default function OperateHome() {
       page: 'VisualDishGuides'
     },
     {
-      id: 6,
+      id: 7,
       title: 'Waste & Issues',
       description: 'Log waste, equipment faults, recovery',
       icon: AlertTriangle,
@@ -76,7 +85,7 @@ export default function OperateHome() {
       page: 'ServiceRecovery'
     },
     {
-      id: 7,
+      id: 8,
       title: 'Shift & Clock',
       description: 'Clock in/out, shift schedule',
       icon: Clock,
@@ -84,7 +93,7 @@ export default function OperateHome() {
       page: 'Shifts'
     },
     {
-      id: 8,
+      id: 9,
       title: 'Flow Board',
       description: 'Live orders, kitchen flow',
       icon: TrendingUp,
@@ -92,7 +101,7 @@ export default function OperateHome() {
       page: 'FlowBoard'
     },
     {
-      id: 9,
+      id: 10,
       title: 'Allergens',
       description: 'Search dishes, check allergens',
       icon: ShieldAlert,
@@ -100,7 +109,7 @@ export default function OperateHome() {
       page: 'AllergenDashboard'
     },
     {
-      id: 10,
+      id: 11,
       title: 'Emergency / Help',
       description: 'Procedures, contacts, manuals',
       icon: AlertCircle,
