@@ -14,33 +14,30 @@ import TrainingModuleQuiz from '@/components/training/TrainingModuleQuiz';
 const invitationQuizQuestions = [
   {
     question: "What is the primary reason you were chosen to join Chai Patta?",
+    type: 'multiple-choice',
     options: [
       "We see potential in you to grow and contribute to something bigger",
       "We need someone to fill a position",
       "You applied first",
       "You have the most experience"
     ],
-    correctAnswer: 0
+    correct: 0
   },
   {
-    question: "What does Chai Patta stand for beyond being a café?",
-    options: [
-      "Just a place to buy drinks",
-      "A business focused only on profits",
-      "Culture, ritual, and human connection",
-      "The cheapest option in the market"
-    ],
-    correctAnswer: 2
+    question: "Chai Patta stands for culture, ritual, and human connection.",
+    type: 'true-false',
+    correct: 0
   },
   {
-    question: "Which of these best describes your role at Chai Patta?",
+    question: "Which best describes your role at Chai Patta?",
+    type: 'multiple-choice',
     options: [
-      "Just doing a job for a paycheck",
       "Being part of a bigger purpose and representing the brand",
+      "Just doing a job for a paycheck",
       "Working while looking for something better",
       "Getting experience for another company"
     ],
-    correctAnswer: 1
+    correct: 0
   }
 ];
 
