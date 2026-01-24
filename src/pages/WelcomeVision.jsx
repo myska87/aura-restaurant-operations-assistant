@@ -14,44 +14,36 @@ import TrainingModuleQuiz from '@/components/training/TrainingModuleQuiz';
 
 const welcomeVisionQuizQuestions = [
   {
-    question: "What is the core belief Chai Patta is built on?",
-    options: [
-      "Serving the cheapest drinks possible",
-      "People don't remember what you serve — they remember how you make them feel",
-      "Speed is more important than quality",
-      "We're just another café"
-    ],
-    correctAnswer: 1
+    question: "People don't remember what you serve — they remember how you make them feel.",
+    type: 'true-false',
+    correct: 0
   },
   {
-    question: "What are the three key aspects of Chai Patta mentioned in the module?",
+    question: "What are the three key aspects of Chai Patta?",
+    type: 'multiple-choice',
     options: [
-      "Price, location, hours",
-      "Culture, ritual, human connection",
-      "Staff, customers, profit",
-      "Food, drinks, desserts"
+      "Culture, ritual, and human connection",
+      "Price, location, and hours",
+      "Staff, customers, and profit",
+      "Food, drinks, and desserts"
     ],
-    correctAnswer: 1
+    correct: 0
   },
   {
-    question: "Which is NOT mentioned as part of Chai Patta's vision?",
-    options: [
-      "Guests feel seen, safe, and welcomed",
-      "Team members feel valued, trained, and empowered",
-      "We maximize profits at all costs",
-      "Every cup carries intention"
-    ],
-    correctAnswer: 2
+    question: "Team members should feel valued, trained, and empowered.",
+    type: 'true-false',
+    correct: 0
   },
   {
     question: "What is expected from you as a Chai Patta team member?",
+    type: 'multiple-choice',
     options: [
-      "Just show up and do the minimum",
       "Presence, responsibility, pride in your work, and willingness to grow",
+      "Just show up and do the minimum",
       "Only follow orders without thinking",
       "Compete with other team members"
     ],
-    correctAnswer: 1
+    correct: 0
   }
 ];
 
