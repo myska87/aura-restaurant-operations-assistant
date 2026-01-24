@@ -19,15 +19,79 @@ import PageHeader from '@/components/ui/PageHeader';
 import TrainingJourneyBar from '@/components/training/TrainingJourneyBar';
 import LoadingSpinner from '@/components/ui/LoadingSpinner';
 
-const trainingModules = [
-  { id: 'invitation', index: 0, title: 'Invitation — You Are Chosen', description: 'Welcome to Chai Patta — start your journey', icon: Leaf, page: 'Invitation', color: 'from-amber-500 to-orange-600', roles: ['all'] },
-  { id: 'vision', index: 1, title: 'Welcome & Vision — This Is Bigger Than a Café', description: 'Understand our purpose and what we stand for', icon: Leaf, page: 'WelcomeVision', color: 'from-purple-500 to-pink-600', roles: ['all'] },
-  { id: 'values', index: 2, title: 'Culture & Values', description: 'Chai Patta culture, values & behaviour standards', icon: Leaf, page: 'Culture', color: 'from-emerald-500 to-green-600', roles: ['all'] },
-  { id: 'raving_fans', index: 3, title: 'Raving Fans — Ordinary Service Is Not Enough', description: 'Creating memorable experiences that turn guests into fans', icon: Heart, page: 'RavingFans', color: 'from-rose-500 to-pink-600', roles: ['all'] },
-  { id: 'skills', index: 4, title: 'Skills & SOPs', description: 'Kitchen skills, FOH training & SOP library', icon: ChefHat, page: 'SOPs', color: 'from-amber-500 to-orange-600', roles: ['all'] },
-  { id: 'hygiene', index: 5, title: 'Hygiene & Safety', description: 'Level 1, 2 & 3 hygiene training + certificates', icon: Shield, page: 'Training', color: 'from-blue-500 to-blue-600', roles: ['all'] },
-  { id: 'certification', index: 6, title: 'Certification — You Are Ready', description: 'Final certification and on-site work authorization', icon: CheckCircle, page: 'Certification', color: 'from-emerald-500 to-teal-600', roles: ['all'] },
-  { id: 'growth', index: 7, title: 'Growth Centre — This Is Only the Beginning', description: 'Leadership pathway, progress levels & development journal', icon: Trophy, page: 'LeadershipPathway', color: 'from-purple-500 to-pink-600', roles: ['all'] }
+const trainingOptions = [
+  {
+    title: 'Invitation — You Are Chosen',
+    description: 'Welcome to Chai Patta — start your journey',
+    icon: Leaf,
+    page: 'Invitation',
+    color: 'from-amber-500 to-orange-600',
+    roles: ['all'],
+    step: 'invitation'
+  },
+  {
+    title: 'Welcome & Vision — This Is Bigger Than a Café',
+    description: 'Understand our purpose and what we stand for',
+    icon: Leaf,
+    page: 'WelcomeVision',
+    color: 'from-purple-500 to-pink-600',
+    roles: ['all'],
+    step: 'vision'
+  },
+  {
+    title: 'Culture & Values',
+    description: 'Chai Patta culture, values & behaviour standards',
+    icon: Leaf,
+    page: 'Culture',
+    color: 'from-emerald-500 to-green-600',
+    roles: ['all'],
+    step: 'values'
+  },
+  {
+    title: 'Raving Fans — Ordinary Service Is Not Enough',
+    description: 'Creating memorable experiences that turn guests into fans',
+    icon: Heart,
+    page: 'RavingFans',
+    color: 'from-rose-500 to-pink-600',
+    roles: ['all'],
+    step: 'raving_fans'
+  },
+  {
+    title: 'Skills & SOPs',
+    description: 'Kitchen skills, FOH training & SOP library',
+    icon: ChefHat,
+    page: 'SOPs',
+    color: 'from-amber-500 to-orange-600',
+    roles: ['all'],
+    step: 'skills'
+  },
+  {
+    title: 'Hygiene & Safety',
+    description: 'Level 1, 2 & 3 hygiene training + certificates',
+    icon: Shield,
+    page: 'Training',
+    color: 'from-blue-500 to-blue-600',
+    roles: ['all'],
+    step: 'hygiene'
+  },
+  {
+    title: 'Certification — You Are Ready',
+    description: 'Final certification and on-site work authorization',
+    icon: CheckCircle,
+    page: 'Certification',
+    color: 'from-emerald-500 to-teal-600',
+    roles: ['all'],
+    step: 'certification'
+  },
+  {
+    title: 'Growth Centre — This Is Only the Beginning',
+    description: 'Leadership pathway, progress levels & development journal',
+    icon: Trophy,
+    page: 'LeadershipPathway',
+    color: 'from-purple-500 to-pink-600',
+    roles: ['all'],
+    step: 'growth'
+  }
 ];
 
 export default function TrainingAcademy() {
@@ -169,26 +233,6 @@ export default function TrainingAcademy() {
       
       if (target.length === 0) throw new Error('Training progress not found');
       
-      // Delete Culture Acknowledgments
-      const cultureAcks = await base44.entities.CultureAcknowledgment.filter({
-        staff_email: targetEmail
-      });
-      for (const ack of cultureAcks) {
-        await base44.entities.CultureAcknowledgment.delete(ack.id);
-      }
-      
-      // Delete Raving Fans Acknowledgments if exists
-      try {
-        const ravingFansAcks = await base44.entities.RavingFansAcknowledgment.filter({
-          staff_email: targetEmail
-        });
-        for (const ack of ravingFansAcks) {
-          await base44.entities.RavingFansAcknowledgment.delete(ack.id);
-        }
-      } catch (e) {
-        // Entity might not exist, continue
-      }
-      
       return await base44.entities.TrainingJourneyProgress.update(target[0].id, {
         invitationAccepted: false,
         visionWatched: false,
@@ -202,14 +246,8 @@ export default function TrainingAcademy() {
         lastUpdated: new Date().toISOString()
       });
     },
-    onSuccess: async () => {
-      // Invalidate all training-related queries
-      await queryClient.invalidateQueries({ queryKey: ['trainingJourney'] });
-      await queryClient.invalidateQueries({ queryKey: ['cultureAck'] });
-      await queryClient.invalidateQueries({ predicate: (query) => {
-        const key = query.queryKey[0];
-        return key === 'cultureAck' || key === 'trainingJourney';
-      }});
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['trainingJourney'] });
       setShowResetConfirm(false);
       setResetMode('self');
       setSelectedStaffEmail('');
@@ -261,68 +299,90 @@ export default function TrainingAcademy() {
 
 
       <div className="grid md:grid-cols-2 gap-6">
-         {trainingModules.map((module) => {
-           const Icon = module.icon;
-           const currentModuleIndex = journeyProgress?.currentModuleIndex ?? 0;
-
-           // Strict sequential: only module matching currentModuleIndex is unlocked
-           const isCurrentModule = module.index === currentModuleIndex;
-           const isCompleted = journeyProgress?.moduleStatuses?.[module.id] === 'completed';
-           const isLocked = !isCurrentModule && !isCompleted;
-           const isInProgress = isCurrentModule && !isCompleted;
-
-           const completionStatus = isCompleted;
+        {trainingOptions.map((option, index) => {
+          const Icon = option.icon;
+          const currentStep = journeyProgress?.currentStep || 'invitation';
+          
+          // Strict sequential logic: only current step is unlocked
+          const isCurrentStep = option.step === currentStep;
+          
+          // For certification (index 6), require ALL previous modules completed
+          let isUnlocked = isCurrentStep;
+          if (option.step === 'certification') {
+            isUnlocked = 
+              journeyProgress?.invitationAccepted &&
+              journeyProgress?.visionWatched &&
+              journeyProgress?.valuesCompleted &&
+              journeyProgress?.ravingFansCompleted &&
+              journeyProgress?.skillsCompleted &&
+              journeyProgress?.hygieneCompleted;
+          }
+          
+          // Check completion status
+          const stepCompletionMap = {
+            'invitation': journeyProgress?.invitationAccepted,
+            'vision': journeyProgress?.visionWatched,
+            'values': journeyProgress?.valuesCompleted,
+            'raving_fans': journeyProgress?.ravingFansCompleted,
+            'skills': journeyProgress?.skillsCompleted,
+            'hygiene': journeyProgress?.hygieneCompleted,
+            'certification': journeyProgress?.certified,
+            'growth': journeyProgress?.onsiteAccessEnabled
+          };
+          
+          const completionStatus = stepCompletionMap[option.step];
           
           const CardContent_ = (
             <Card className={`
               transition-all duration-300 border-2 h-full relative
-              ${isLocked ? 'opacity-50 bg-slate-50 border-slate-300' : ''}
-              ${isCompleted ? 'border-emerald-500 bg-emerald-50' : ''}
-              ${isInProgress ? 'border-blue-400 bg-blue-50 hover:shadow-lg hover:border-blue-500' : ''}
-              ${isCurrentModule || isCompleted ? 'cursor-pointer' : 'cursor-not-allowed'}
+              ${!isUnlocked && !completionStatus ? 'opacity-50 bg-slate-50 border-slate-300' : ''}
+              ${completionStatus ? 'border-emerald-500 bg-emerald-50' : ''}
+              ${isCurrentStep && !completionStatus ? 'border-blue-400 bg-blue-50 hover:shadow-lg hover:border-blue-500' : ''}
+              ${isUnlocked && !completionStatus && !isCurrentStep ? 'hover:shadow-xl hover:border-slate-400 cursor-pointer' : ''}
+              ${isUnlocked ? 'cursor-pointer' : 'cursor-not-allowed'}
             `}>
               <CardContent className="pt-6">
                 <div className="flex items-start justify-between mb-4">
-                  <div className={`w-20 h-20 rounded-2xl bg-gradient-to-br ${module.color} flex items-center justify-center shadow-lg ${isLocked ? 'opacity-70' : ''}`}>
+                  <div className={`w-20 h-20 rounded-2xl bg-gradient-to-br ${option.color} flex items-center justify-center shadow-lg ${!isUnlocked && !completionStatus ? 'opacity-70' : ''}`}>
                     <Icon className="w-10 h-10 text-white" />
                   </div>
-                  {isLocked && (
+                  {!isUnlocked && !completionStatus && (
                     <Lock className="w-6 h-6 text-slate-400" />
                   )}
-                  {isCompleted && (
+                  {completionStatus && (
                     <CheckCircle className="w-6 h-6 text-emerald-600" />
                   )}
-                  {isInProgress && (
+                  {isCurrentStep && !completionStatus && (
                     <Badge className="bg-blue-600">In Progress</Badge>
                   )}
                 </div>
-                <h3 className="text-2xl font-bold mb-3">{module.title}</h3>
-                <p className="text-slate-600 text-lg">{module.description}</p>
-                {isLocked && (
+                <h3 className="text-2xl font-bold mb-3">{option.title}</h3>
+                <p className="text-slate-600 text-lg">{option.description}</p>
+                {!isUnlocked && !completionStatus && (
                   <p className="text-sm text-slate-500 mt-3 font-semibold">
-                    🔒 Complete the current module to unlock
+                    🔒 Complete the previous module to unlock
                   </p>
                 )}
-                {isCompleted && (
+                {completionStatus && (
                   <p className="text-sm text-emerald-600 mt-3 font-semibold">
                     ✓ Completed
                   </p>
                 )}
-                {isInProgress && (
+                {isCurrentStep && !completionStatus && (
                   <p className="text-sm text-blue-600 mt-3 font-semibold">
-                    → Continue: Pass the quiz to progress
+                    → In Progress — Click to continue
                   </p>
                 )}
               </CardContent>
             </Card>
           );
-
+          
           return (
-            <TooltipProvider key={module.id}>
+            <TooltipProvider key={option.page}>
               <Tooltip>
                 <TooltipTrigger asChild>
-                  {(isCurrentModule || isCompleted) ? (
-                    <Link to={createPageUrl(module.page)}>
+                  {isUnlocked ? (
+                    <Link to={createPageUrl(option.page)}>
                       {CardContent_}
                     </Link>
                   ) : (
@@ -331,8 +391,8 @@ export default function TrainingAcademy() {
                     </div>
                   )}
                 </TooltipTrigger>
-                {isLocked && (
-                  <TooltipContent>Complete the current module to unlock</TooltipContent>
+                {!isUnlocked && !completionStatus && (
+                  <TooltipContent>Complete the previous module to unlock</TooltipContent>
                 )}
               </Tooltip>
             </TooltipProvider>

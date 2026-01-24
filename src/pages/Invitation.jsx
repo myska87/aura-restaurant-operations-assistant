@@ -2,16 +2,14 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
 import { base44 } from '@/api/base44Client';
-import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { motion } from 'framer-motion';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Sparkles, ArrowRight } from 'lucide-react';
 import LoadingSpinner from '@/components/ui/LoadingSpinner';
 import TrainingJourneyBar from '@/components/training/TrainingJourneyBar';
-import ModuleQuizSubmission from '@/components/training/ModuleQuizSubmission';
-import NextModuleButton from '@/components/training/NextModuleButton';
-import DebugTrainingState from '@/components/training/DebugTrainingState';
+import TrainingModuleQuiz from '@/components/training/TrainingModuleQuiz';
 
 const invitationQuizQuestions = [
   {
@@ -47,7 +45,6 @@ export default function Invitation() {
   const [user, setUser] = useState(null);
   const [showQuiz, setShowQuiz] = useState(false);
   const [quizPassed, setQuizPassed] = useState(false);
-  const [quizAnswers, setQuizAnswers] = useState({});
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const pageRef = useRef(null);
@@ -80,8 +77,29 @@ export default function Invitation() {
     enabled: !!user
   });
 
-  const handleQuizPassed = () => {
-    setQuizPassed(true);
+  const acceptInvitationMutation = useMutation({
+    mutationFn: async () => {
+      if (!quizPassed) {
+        throw new Error('Quiz must be passed first');
+      }
+      await base44.entities.TrainingJourneyProgress.update(journeyProgress.id, {
+        invitationAccepted: true,
+        currentStep: 'vision',
+        lastUpdated: new Date().toISOString()
+      });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries(['trainingJourney']);
+    },
+    onError: (error) => {
+      alert(error.message);
+    }
+  });
+
+  const handleQuizPassed = (passed, score) => {
+    if (passed) {
+      setQuizPassed(true);
+    }
   };
 
   if (isLoading) {
@@ -145,82 +163,57 @@ export default function Invitation() {
               </p>
             </motion.div>
 
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 1 }}
+            >
+              <Button
+                onClick={() => acceptInvitationMutation.mutate()}
+                disabled={!quizPassed || acceptInvitationMutation.isPending || journeyProgress?.invitationAccepted}
+                size="lg"
+                className="bg-gradient-to-r from-amber-600 to-orange-600 hover:from-amber-700 hover:to-orange-700 text-white font-bold text-lg px-8 py-6 shadow-xl disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {journeyProgress?.invitationAccepted ? (
+                  <>✓ Journey Started</>
+                ) : (
+                  <>
+                    Complete & Continue
+                    <ArrowRight className="w-5 h-5 ml-2" />
+                  </>
+                )}
+              </Button>
 
+              {journeyProgress?.invitationAccepted && (
+                <motion.div
+                  initial={{ opacity: 0, y: -10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  className="mt-4 p-4 bg-emerald-100 border border-emerald-300 rounded-lg"
+                >
+                  <p className="text-sm text-emerald-800 font-semibold">
+                    ✓ Module completed. Next step unlocked.
+                  </p>
+                </motion.div>
+              )}
+              {!quizPassed && (
+                <p className="mt-4 text-sm text-amber-600 font-semibold">
+                  Complete the quiz below to unlock this button
+                </p>
+              )}
+            </motion.div>
           </CardContent>
         </Card>
       </motion.div>
 
       {/* Quiz Section */}
       {showQuiz && (
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="space-y-4"
-        >
-          <Card className="border-2 border-amber-400 bg-amber-50">
-            <CardContent className="pt-6 space-y-4">
-              <div className="space-y-4">
-                {invitationQuizQuestions.map((q, idx) => (
-                  <div key={idx} className="p-4 bg-white rounded border border-amber-200">
-                    <p className="font-semibold text-slate-800 mb-3">{idx + 1}. {q.question}</p>
-                    {q.type === 'true-false' ? (
-                      <div className="flex gap-2">
-                        <button 
-                          onClick={() => setQuizAnswers({...quizAnswers, [idx]: 0})}
-                          className={`px-4 py-2 rounded text-sm font-medium transition-all ${quizAnswers[idx] === 0 ? 'bg-amber-600 text-white' : 'bg-slate-200 hover:bg-slate-300'}`}
-                        >
-                          True
-                        </button>
-                        <button 
-                          onClick={() => setQuizAnswers({...quizAnswers, [idx]: 1})}
-                          className={`px-4 py-2 rounded text-sm font-medium transition-all ${quizAnswers[idx] === 1 ? 'bg-amber-600 text-white' : 'bg-slate-200 hover:bg-slate-300'}`}
-                        >
-                          False
-                        </button>
-                      </div>
-                    ) : (
-                      <div className="space-y-2">
-                        {q.options?.map((opt, i) => (
-                          <button 
-                            key={i} 
-                            onClick={() => setQuizAnswers({...quizAnswers, [idx]: i})}
-                            className={`block w-full text-left px-4 py-2 rounded text-sm font-medium transition-all ${quizAnswers[idx] === i ? 'bg-amber-600 text-white' : 'bg-slate-200 hover:bg-slate-300'}`}
-                          >
-                            {opt}
-                          </button>
-                        ))}
-                      </div>
-                    )}
-                  </div>
-                ))}
-              </div>
-
-              <ModuleQuizSubmission
-                moduleId="invitation"
-                moduleName="Invitation"
-                questions={invitationQuizQuestions}
-                userAnswers={quizAnswers}
-                user={user}
-                journeyProgress={journeyProgress}
-                onQuizPassed={handleQuizPassed}
-                disabled={Object.keys(quizAnswers).length < invitationQuizQuestions.length}
-              />
-            </CardContent>
-          </Card>
-
-          {quizPassed && journeyProgress && (
-            <NextModuleButton
-              currentModuleId="invitation"
-              journeyProgress={journeyProgress}
-              user={user}
-              onComplete={() => setTimeout(() => navigate(createPageUrl('WelcomeVision')), 500)}
-            />
-          )}
-        </motion.div>
+        <TrainingModuleQuiz
+          questions={invitationQuizQuestions}
+          onQuizPassed={handleQuizPassed}
+          moduleName="Invitation"
+          passPercentage={80}
+        />
       )}
-
-      {/* DEBUG OUTPUT */}
-      <DebugTrainingState journeyProgress={journeyProgress} currentModuleId="invitation" />
     </div>
   );
 }

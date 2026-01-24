@@ -4,15 +4,13 @@ import { createPageUrl } from '@/utils';
 import { base44 } from '@/api/base44Client';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { motion } from 'framer-motion';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import ModuleQuizSubmission from '@/components/training/ModuleQuizSubmission';
-import NextModuleButton from '@/components/training/NextModuleButton';
-import DebugTrainingState from '@/components/training/DebugTrainingState';
 import { Video, CheckCircle, Sparkles, Heart, Users, Eye } from 'lucide-react';
 import LoadingSpinner from '@/components/ui/LoadingSpinner';
 import TrainingJourneyBar from '@/components/training/TrainingJourneyBar';
+import TrainingModuleQuiz from '@/components/training/TrainingModuleQuiz';
 
 const ravingFansQuizQuestions = [
   {
@@ -50,14 +48,13 @@ const ravingFansQuizQuestions = [
 ];
 
 export default function RavingFans() {
-   const [user, setUser] = useState(null);
-   const [videoUrl, setVideoUrl] = useState('');
-   const [showQuiz, setShowQuiz] = useState(false);
-   const [quizPassed, setQuizPassed] = useState(false);
-   const [quizAnswers, setQuizAnswers] = useState({});
-   const navigate = useNavigate();
-   const queryClient = useQueryClient();
-   const pageRef = useRef(null);
+  const [user, setUser] = useState(null);
+  const [videoUrl, setVideoUrl] = useState('');
+  const [showQuiz, setShowQuiz] = useState(false);
+  const [quizPassed, setQuizPassed] = useState(false);
+  const navigate = useNavigate();
+  const queryClient = useQueryClient();
+  const pageRef = useRef(null);
 
   useEffect(() => {
     base44.auth.me().then(setUser).catch(() => {});
@@ -114,10 +111,36 @@ export default function RavingFans() {
     }
   });
 
+  const markCompletedMutation = useMutation({
+    mutationFn: async () => {
+      if (!quizPassed) {
+        throw new Error('Quiz must be passed first');
+      }
+      await base44.entities.TrainingJourneyProgress.update(journeyProgress.id, {
+        ravingFansCompleted: true,
+        currentStep: 'skills',
+        lastUpdated: new Date().toISOString()
+      });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries(['trainingJourney']);
+    },
+    onError: (error) => {
+      alert(error.message);
+    }
+  });
 
+  const handleQuizPassed = (passed, score) => {
+    if (passed) {
+      setQuizPassed(true);
+    }
+  };
 
-  const handleQuizPassed = () => {
-    setQuizPassed(true);
+  const handleNextModule = async () => {
+    await markCompletedMutation.mutate();
+    setTimeout(() => {
+      navigate(createPageUrl('SOPs'));
+    }, 500);
   };
 
   if (isLoading) {
@@ -266,7 +289,45 @@ export default function RavingFans() {
             </motion.div>
 
             {/* CTA Button */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.5 }}
+              className="text-center mt-10"
+            >
+              <Button
+                onClick={() => markCompletedMutation.mutate()}
+                disabled={!quizPassed || markCompletedMutation.isPending || journeyProgress?.ravingFansCompleted}
+                size="lg"
+                className="bg-gradient-to-r from-rose-600 to-pink-600 hover:from-rose-700 hover:to-pink-700 text-white font-bold text-lg px-10 py-6 shadow-xl disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {journeyProgress?.ravingFansCompleted ? (
+                  <>
+                    <CheckCircle className="w-5 h-5 mr-2" />
+                    Completed
+                  </>
+                ) : (
+                  "Complete & Continue"
+                )}
+              </Button>
 
+              {journeyProgress?.ravingFansCompleted && (
+                <motion.div
+                  initial={{ opacity: 0, y: -10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  className="mt-4 p-4 bg-emerald-100 border border-emerald-300 rounded-lg"
+                >
+                  <p className="text-sm text-emerald-800 font-semibold">
+                    ✓ Module completed. Next step unlocked.
+                  </p>
+                </motion.div>
+              )}
+              {!quizPassed && (
+                <p className="mt-4 text-sm text-amber-600 font-semibold">
+                  Complete the quiz below to unlock this button
+                </p>
+              )}
+            </motion.div>
           </CardContent>
         </Card>
       </motion.div>
@@ -278,70 +339,36 @@ export default function RavingFans() {
           animate={{ opacity: 1, y: 0 }}
           className="space-y-4"
         >
-          <Card className="border-2 border-rose-400 bg-rose-50">
-            <CardContent className="pt-6 space-y-4">
-              <div className="space-y-4">
-                {ravingFansQuizQuestions.map((q, idx) => (
-                  <div key={idx} className="p-4 bg-white rounded border border-rose-200">
-                    <p className="font-semibold text-slate-800 mb-3">{idx + 1}. {q.question}</p>
-                    {q.type === 'true-false' ? (
-                      <div className="flex gap-2">
-                        <button 
-                          onClick={() => setQuizAnswers({...quizAnswers, [idx]: 0})}
-                          className={`px-4 py-2 rounded text-sm font-medium transition-all ${quizAnswers[idx] === 0 ? 'bg-rose-600 text-white' : 'bg-slate-200 hover:bg-slate-300'}`}
-                        >
-                          True
-                        </button>
-                        <button 
-                          onClick={() => setQuizAnswers({...quizAnswers, [idx]: 1})}
-                          className={`px-4 py-2 rounded text-sm font-medium transition-all ${quizAnswers[idx] === 1 ? 'bg-rose-600 text-white' : 'bg-slate-200 hover:bg-slate-300'}`}
-                        >
-                          False
-                        </button>
-                      </div>
-                    ) : (
-                      <div className="space-y-2">
-                        {q.options?.map((opt, i) => (
-                          <button 
-                            key={i} 
-                            onClick={() => setQuizAnswers({...quizAnswers, [idx]: i})}
-                            className={`block w-full text-left px-4 py-2 rounded text-sm font-medium transition-all ${quizAnswers[idx] === i ? 'bg-rose-600 text-white' : 'bg-slate-200 hover:bg-slate-300'}`}
-                          >
-                            {opt}
-                          </button>
-                        ))}
-                      </div>
-                    )}
-                  </div>
-                ))}
-              </div>
+          <TrainingModuleQuiz
+            questions={ravingFansQuizQuestions}
+            onQuizPassed={handleQuizPassed}
+            moduleName="Raving Fans Philosophy"
+            passPercentage={80}
+          />
 
-              <ModuleQuizSubmission
-                moduleId="raving_fans"
-                moduleName="Raving Fans Philosophy"
-                questions={ravingFansQuizQuestions}
-                userAnswers={quizAnswers}
-                user={user}
-                journeyProgress={journeyProgress}
-                onQuizPassed={handleQuizPassed}
-                disabled={Object.keys(quizAnswers).length < ravingFansQuizQuestions.length}
-              />
-            </CardContent>
-          </Card>
-
-          {quizPassed && journeyProgress && (
-            <NextModuleButton
-              currentModuleId="raving_fans"
-              journeyProgress={journeyProgress}
-              user={user}
-              onComplete={() => setTimeout(() => navigate(createPageUrl('SOPs')), 500)}
-            />
+          {quizPassed && (
+            <motion.div
+              initial={{ opacity: 0, scale: 0.9 }}
+              animate={{ opacity: 1, scale: 1 }}
+              className="flex justify-center gap-3"
+            >
+              <Button
+                onClick={() => navigate(createPageUrl('TrainingAcademy'))}
+                variant="outline"
+              >
+                Back to Academy
+              </Button>
+              <Button
+                onClick={handleNextModule}
+                disabled={markCompletedMutation.isPending}
+                className="bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700"
+              >
+                {markCompletedMutation.isPending ? 'Moving...' : 'Next Module →'}
+              </Button>
+            </motion.div>
           )}
         </motion.div>
       )}
-
-      {/* DEBUG OUTPUT */}
-      <DebugTrainingState journeyProgress={journeyProgress} currentModuleId="raving_fans" />
     </div>
   );
 }

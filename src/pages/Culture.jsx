@@ -14,9 +14,6 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import PageHeader from '@/components/ui/PageHeader';
 import TrainingJourneyBar from '@/components/training/TrainingJourneyBar';
 import TrainingModuleQuiz from '@/components/training/TrainingModuleQuiz';
-import ModuleQuizSubmission from '@/components/training/ModuleQuizSubmission';
-import NextModuleButton from '@/components/training/NextModuleButton';
-import StrictModuleWrapper from '@/components/training/StrictModuleWrapper';
 import { format } from 'date-fns';
 import confetti from 'canvas-confetti';
 
@@ -200,33 +197,30 @@ const cultureQuizQuestions = [
 ];
 
 export default function Culture() {
-   const [user, setUser] = useState(null);
-   const [showAssessment, setShowAssessment] = useState(false);
-   const [assessment, setAssessment] = useState({
-     raving_fans_answer: '',
-     connected_value: '',
-     connected_value_why: '',
-     improvement_action: ''
-   });
-   const [acknowledged, setAcknowledged] = useState(false);
-   const [showQuiz, setShowQuiz] = useState(false);
-   const [quizPassed, setQuizPassed] = useState(false);
-   const [quizAnswers, setQuizAnswers] = useState({});
-   const [quizScore, setQuizScore] = useState(0);
-   const pageRef = useRef(null);
-   const navigate = useNavigate();
+  const [user, setUser] = useState(null);
+  const [showAssessment, setShowAssessment] = useState(false);
+  const [assessment, setAssessment] = useState({
+    raving_fans_answer: '',
+    connected_value: '',
+    connected_value_why: '',
+    improvement_action: ''
+  });
+  const [acknowledged, setAcknowledged] = useState(false);
+  const [showQuiz, setShowQuiz] = useState(false);
+  const [quizPassed, setQuizPassed] = useState(false);
+  const pageRef = useRef(null);
+  const navigate = useNavigate();
 
   const queryClient = useQueryClient();
 
-  const { data: acknowledgment, refetch: refetchAck } = useQuery({
+  const { data: acknowledgment } = useQuery({
     queryKey: ['cultureAck', user?.email],
     queryFn: async () => {
       if (!user?.email) return null;
       const acks = await base44.entities.CultureAcknowledgment.filter({ staff_email: user.email });
       return acks[0] || null;
     },
-    enabled: !!user?.email,
-    refetchInterval: 2000
+    enabled: !!user?.email
   });
 
   const alreadyCompleted = !!acknowledgment;
@@ -327,25 +321,6 @@ export default function Culture() {
   const handleQuizPassed = (passed, score) => {
     if (passed) {
       setQuizPassed(true);
-      setQuizScore(score);
-    }
-  };
-
-  const submitQuiz = () => {
-    let correct = 0;
-    cultureQuizQuestions.forEach((q, idx) => {
-      const userAnswer = quizAnswers[idx];
-      if (userAnswer === q.correct) {
-        correct++;
-      }
-    });
-
-    const score = (correct / cultureQuizQuestions.length) * 100;
-    if (score >= 80) {
-      handleQuizPassed(true, score);
-    } else {
-      alert(`Quiz score: ${score.toFixed(0)}%. You need 80% to pass. Try again!`);
-      setQuizAnswers({});
     }
   };
 
@@ -598,55 +573,12 @@ export default function Culture() {
               Test your understanding of Chai Patta's core values. You need 80% to pass.
             </p>
           </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="space-y-4">
-              {cultureQuizQuestions.map((q, idx) => (
-                <div key={idx} className="p-4 bg-white rounded border border-blue-200">
-                  <p className="font-semibold text-slate-800 mb-3">{idx + 1}. {q.question}</p>
-                  {q.type === 'true-false' ? (
-                    <div className="flex gap-2">
-                      <button 
-                        onClick={() => setQuizAnswers({...quizAnswers, [idx]: 0})}
-                        className={`px-4 py-2 rounded text-sm font-medium transition-all ${quizAnswers[idx] === 0 ? 'bg-blue-600 text-white' : 'bg-slate-200 hover:bg-slate-300'}`}
-                      >
-                        True
-                      </button>
-                      <button 
-                        onClick={() => setQuizAnswers({...quizAnswers, [idx]: 1})}
-                        className={`px-4 py-2 rounded text-sm font-medium transition-all ${quizAnswers[idx] === 1 ? 'bg-blue-600 text-white' : 'bg-slate-200 hover:bg-slate-300'}`}
-                      >
-                        False
-                      </button>
-                    </div>
-                  ) : (
-                    <div className="space-y-2">
-                      {q.options?.map((opt, i) => (
-                        <button 
-                          key={i} 
-                          onClick={() => setQuizAnswers({...quizAnswers, [idx]: i})}
-                          className={`block w-full text-left px-4 py-2 rounded text-sm font-medium transition-all ${quizAnswers[idx] === i ? 'bg-blue-600 text-white' : 'bg-slate-200 hover:bg-slate-300'}`}
-                        >
-                          {opt}
-                        </button>
-                      ))}
-                    </div>
-                  )}
-                </div>
-              ))}
-            </div>
-            <ModuleQuizSubmission
-              moduleId="values"
-              moduleName="Culture & Values"
+          <CardContent>
+            <TrainingModuleQuiz
               questions={cultureQuizQuestions}
-              userAnswers={quizAnswers}
-              user={user}
-              journeyProgress={journeyProgress}
-              onQuizPassed={() => {
-                setQuizPassed(true);
-                setShowAssessment(false);
-                confetti({ particleCount: 100, spread: 70, origin: { y: 0.6 } });
-              }}
-              disabled={Object.keys(quizAnswers).length < cultureQuizQuestions.length}
+              onQuizPassed={handleQuizPassed}
+              moduleName="Culture & Values"
+              passPercentage={80}
             />
           </CardContent>
         </Card>
@@ -773,21 +705,12 @@ export default function Culture() {
                      onClick={handleNextModule}
                      disabled={!isComplete || !quizPassed || createAckMutation.isPending}
                      size="lg"
-                     className="flex-1 bg-blue-600 hover:bg-blue-700 text-lg h-12 disabled:opacity-50 disabled:cursor-not-allowed"
+                     className="flex-1 bg-gradient-to-r from-emerald-600 to-teal-600 text-lg h-12 disabled:opacity-50 disabled:cursor-not-allowed"
                    >
                      <CheckCircle className="w-5 h-5 mr-2" />
-                     {createAckMutation.isPending ? 'Continuing...' : 'Save Assessment'}
+                     {createAckMutation.isPending ? 'Continuing...' : 'Complete & Continue'}
                    </Button>
                  </div>
-
-                 {quizPassed && journeyProgress && (
-                   <NextModuleButton
-                     currentModuleId="values"
-                     journeyProgress={journeyProgress}
-                     user={user}
-                     onComplete={() => setTimeout(() => navigate(createPageUrl('RavingFans')), 500)}
-                   />
-                 )}
 
                 {!isComplete && (
                   <p className="text-sm text-amber-700 text-center">
