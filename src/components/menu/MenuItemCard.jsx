@@ -26,6 +26,7 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { Progress } from '@/components/ui/progress';
 import LinkVisualGuideButton from './LinkVisualGuideButton';
+import MenuSafetyStatus from './MenuSafetyStatus';
 import { base44 } from '@/api/base44Client';
 import { useQuery } from '@tanstack/react-query';
 
@@ -136,26 +137,27 @@ export default function MenuItemCard({ item, onEdit, onDuplicate, onDelete, onVi
         </div>
         
         {/* Status badges */}
-        <div className="absolute top-2 left-2 flex flex-wrap gap-1">
-          {!item.is_active && (
-            <Badge className="bg-slate-600 text-white text-xs">Inactive</Badge>
-          )}
-          {!item.is_available && (
-            <Badge className="bg-red-600 text-white text-xs">Unavailable</Badge>
-          )}
-          {stockStatus.status !== 'unknown' && stockStatus.status !== 'good' && (
-            <Badge className={`${stockStatus.color} text-white text-xs`}>
-              <stockStatus.icon className="w-3 h-3 mr-1" />
-              {stockStatus.text}
-            </Badge>
-          )}
-          {visualLink && (
-            <Badge className="bg-orange-600 text-white text-xs">
-              <Video className="w-3 h-3 mr-1" />
-              Visual Guide
-            </Badge>
-          )}
-        </div>
+         <div className="absolute top-2 left-2 flex flex-wrap gap-1">
+           {!item.is_active && (
+             <Badge className="bg-slate-600 text-white text-xs">Inactive</Badge>
+           )}
+           {!item.is_available && (
+             <Badge className="bg-red-600 text-white text-xs">Unavailable</Badge>
+           )}
+           <MenuSafetyStatus menuItem={item} size="sm" showLabel={false} />
+           {stockStatus.status !== 'unknown' && stockStatus.status !== 'good' && (
+             <Badge className={`${stockStatus.color} text-white text-xs`}>
+               <stockStatus.icon className="w-3 h-3 mr-1" />
+               {stockStatus.text}
+             </Badge>
+           )}
+           {visualLink && (
+             <Badge className="bg-orange-600 text-white text-xs">
+               <Video className="w-3 h-3 mr-1" />
+               Visual Guide
+             </Badge>
+           )}
+         </div>
 
         {/* Actions */}
         <div className="absolute top-2 right-2">
@@ -210,22 +212,27 @@ export default function MenuItemCard({ item, onEdit, onDuplicate, onDelete, onVi
           </div>
         </div>
 
+        {/* Safety Status */}
+         <div className="mb-3">
+           <MenuSafetyStatus menuItem={item} size="md" showLabel={true} />
+         </div>
+
         {/* Info badges */}
-        <div className="flex flex-wrap gap-2 mb-3">
-          <Badge variant="outline" className="text-xs">
-            {item.category?.replace('_', ' ')}
-          </Badge>
-          <Badge className={locationColors[item.preparation_location] || 'bg-slate-100'}>
-            <ChefHat className="w-3 h-3 mr-1" />
-            {item.preparation_location?.replace('_', ' ')}
-          </Badge>
-          {item.prep_time_minutes && (
-            <Badge variant="outline" className="text-xs">
-              <Clock className="w-3 h-3 mr-1" />
-              {item.prep_time_minutes}m
-            </Badge>
-          )}
-        </div>
+         <div className="flex flex-wrap gap-2 mb-3">
+           <Badge variant="outline" className="text-xs">
+             {item.category?.replace('_', ' ')}
+           </Badge>
+           <Badge className={locationColors[item.preparation_location] || 'bg-slate-100'}>
+             <ChefHat className="w-3 h-3 mr-1" />
+             {item.preparation_location?.replace('_', ' ')}
+           </Badge>
+           {item.prep_time_minutes && (
+             <Badge variant="outline" className="text-xs">
+               <Clock className="w-3 h-3 mr-1" />
+               {item.prep_time_minutes}m
+             </Badge>
+           )}
+         </div>
 
         {/* Ingredients count */}
         <div className="flex items-center justify-between text-sm text-slate-500 pt-3 border-t border-slate-100">
