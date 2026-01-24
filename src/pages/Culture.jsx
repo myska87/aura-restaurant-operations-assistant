@@ -156,54 +156,41 @@ const pillars = [
 
 const cultureQuizQuestions = [
   {
-    question: "What can be trained at Chai Patta, but attitude cannot?",
-    options: [
-      "Skills",
-      "Systems",
-      "Nothing - everything can be trained",
-      "Customer service"
-    ],
-    correctAnswer: 0
+    question: "At Chai Patta, skills can be trained but attitude is non-negotiable.",
+    type: 'true-false',
+    correct: 0
   },
   {
-    question: "Which of these is NOT a core value at Chai Patta?",
-    options: [
-      "Respect for all",
-      "Hygiene is non-negotiable",
-      "Cutting corners to save money",
-      "Create raving fans"
-    ],
-    correctAnswer: 2
+    question: "Cutting corners to save money is a core value at Chai Patta.",
+    type: 'true-false',
+    correct: 1
   },
   {
-    question: "What should you do if you see a mess at your station?",
+    question: "If you see a mess at your station, what should you do?",
+    type: 'multiple-choice',
     options: [
+      "Clean it immediately",
       "Let someone else clean it",
       "Tell your manager",
-      "Clean it immediately",
       "Ignore it if you're busy"
     ],
-    correctAnswer: 2
+    correct: 0
   },
   {
-    question: "What does 'Excellence Over Speed' mean?",
-    options: [
-      "Always work slowly",
-      "Never serve customers quickly",
-      "Quality matters more than speed",
-      "Speed is everything"
-    ],
-    correctAnswer: 2
+    question: "Excellence Over Speed means quality matters more than speed.",
+    type: 'true-false',
+    correct: 0
   },
   {
-    question: "How should you treat a guest complaint?",
+    question: "How should you handle a guest complaint?",
+    type: 'multiple-choice',
     options: [
+      "Fix mistakes with grace and learn from it",
       "Defend yourself",
       "Make excuses",
-      "Fix mistakes with grace and learn from it",
       "Blame the team"
     ],
-    correctAnswer: 2
+    correct: 0
   }
 ];
 
