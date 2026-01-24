@@ -208,10 +208,17 @@ export default function AuditCenter() {
                 </Button>
               </div>
               {showMonthlyForm && (
-                <MonthlyAuditForm
-                  user={user}
-                  onClose={() => setShowMonthlyForm(false)}
-                />
+                <Dialog open={showMonthlyForm} onOpenChange={setShowMonthlyForm}>
+                  <DialogContent className="max-w-2xl max-h-screen overflow-y-auto">
+                    <DialogHeader>
+                      <DialogTitle>Monthly Compliance Audit</DialogTitle>
+                    </DialogHeader>
+                    <MonthlyAuditForm
+                      user={user}
+                      onClose={() => setShowMonthlyForm(false)}
+                    />
+                  </DialogContent>
+                </Dialog>
               )}
               <Card>
                 <CardHeader>
