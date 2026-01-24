@@ -209,9 +209,18 @@ export default function PersonalHygieneDeclarationForm({ user, shiftDate, onSucc
 }
 
 function IllnessReportingForm({ user, failedQuestions, onClose, onSuccess }) {
-  const [illnessType, setIllnessType] = useState('');
-  const [description, setDescription] = useState('');
-  const [canWorkAlternative, setCanWorkAlternative] = useState(false);
+  const [symptoms, setSymptoms] = useState({
+    diarrhoea: false,
+    vomiting: false,
+    fever: false,
+    skin_infection: false,
+    other: false,
+  });
+  const [otherSymptoms, setOtherSymptoms] = useState('');
+  const [dateStarted, setDateStarted] = useState('');
+  const [lastShiftWorked, setLastShiftWorked] = useState('');
+  const [doctorAdvised, setDoctorAdvised] = useState(false);
+  const [managerNotified, setManagerNotified] = useState(false);
   const [loading, setLoading] = useState(false);
 
   const queryClient = useQueryClient();
@@ -220,30 +229,83 @@ function IllnessReportingForm({ user, failedQuestions, onClose, onSuccess }) {
     mutationFn: async () => {
       const today = format(new Date(), 'yyyy-MM-dd');
       const now = new Date();
+      
+      const selectedSymptoms = Object.entries(symptoms)
+        .filter(([_, isSelected]) => isSelected)
+        .map(([key]) => key);
+      
+      if (symptoms.other && otherSymptoms) {
+        selectedSymptoms.push(otherSymptoms);
+      }
 
-      await base44.entities.IllnessReport.create({
+      // Create illness report
+      const illnessReport = await base44.entities.IllnessReport.create({
         staff_id: user.id,
         staff_name: user.full_name,
         staff_email: user.email,
         report_date: today,
         report_time: now.toISOString(),
         failed_questions: failedQuestions,
-        illness_type: illnessType,
-        description,
-        can_work_alternative_duties: canWorkAlternative,
+        symptoms: selectedSymptoms,
+        date_symptoms_started: dateStarted,
+        last_shift_worked: lastShiftWorked,
+        doctor_advised: doctorAdvised,
+        manager_notified: managerNotified,
         status: 'pending',
       });
+
+      // Flag staff member with illness alert
+      if (user.id) {
+        try {
+          await base44.entities.Staff.update(user.id, {
+            is_illness_flagged: true,
+            illness_flag_reason: selectedSymptoms.join(', '),
+            illness_flag_date: today,
+            illness_flag_cleared: false,
+            food_handling_restricted: true
+          });
+        } catch (e) {
+          console.log('Could not update staff profile (may not have ID)');
+        }
+      }
+
+      // Notify managers
+      if (managerNotified) {
+        try {
+          const managers = await base44.entities.Staff.filter({ role: 'manager' });
+          managers.forEach(manager => {
+            base44.entities.Notification.create({
+              recipient_email: manager.email,
+              recipient_name: manager.full_name,
+              title: '🚨 Staff Illness Report',
+              message: `${user.full_name} has reported an illness (${selectedSymptoms.join(', ')}). Food handling is restricted pending manager approval.`,
+              type: 'alert',
+              priority: 'high',
+              is_read: false,
+              related_entity: 'IllnessReport',
+              source_user_email: user.email,
+              source_user_name: user.full_name
+            }).catch(() => {});
+          });
+        } catch (e) {
+          console.log('Could not notify managers');
+        }
+      }
+
+      return illnessReport;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['illnessReports'] });
+      queryClient.invalidateQueries({ queryKey: ['staff'] });
       onSuccess?.();
     },
   });
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    if (!illnessType || !description) {
-      alert('Please fill all fields');
+    const hasSymptoms = Object.values(symptoms).some(v => v);
+    if (!hasSymptoms || !dateStarted) {
+      alert('Please select at least one symptom and date');
       return;
     }
     setLoading(true);
@@ -256,54 +318,104 @@ function IllnessReportingForm({ user, failedQuestions, onClose, onSuccess }) {
       <CardHeader className="bg-gradient-to-r from-red-100 to-orange-100">
         <CardTitle className="text-red-900 flex items-center gap-2">
           <AlertCircle className="w-5 h-5" />
-          Health Issue Report
+          Illness Report
         </CardTitle>
       </CardHeader>
       <CardContent className="pt-6">
         <form onSubmit={handleSubmit} className="space-y-4">
-          <p className="text-sm text-slate-700 font-medium">
-            Please provide details about your health concern:
-          </p>
-
-          <div>
-            <label className="text-sm font-semibold text-slate-700 block mb-2">
-              Issue Type <span className="text-red-600">*</span>
-            </label>
-            <select
-              value={illnessType}
-              onChange={(e) => setIllnessType(e.target.value)}
-              className="w-full p-2 border border-slate-300 rounded-lg"
-            >
-              <option value="">Select...</option>
-              <option value="sickness">Sickness</option>
-              <option value="diarrhoea">Diarrhoea</option>
-              <option value="open_wound">Open Wound</option>
-              <option value="other">Other</option>
-            </select>
+          <div className="bg-white p-3 rounded border-l-4 border-red-600">
+            <p className="text-sm text-red-900 font-medium">
+              ⚠️ Food handling is automatically restricted until manager clearance.
+            </p>
           </div>
 
+          {/* Symptoms Checklist */}
           <div>
-            <label className="text-sm font-semibold text-slate-700 block mb-2">
-              Description <span className="text-red-600">*</span>
+            <label className="text-sm font-semibold text-slate-700 block mb-3">
+              Symptoms <span className="text-red-600">*</span>
             </label>
-            <textarea
-              value={description}
-              onChange={(e) => setDescription(e.target.value)}
-              placeholder="Please describe the issue..."
-              className="w-full p-2 border border-slate-300 rounded-lg"
-              rows="3"
-            />
+            <div className="space-y-2">
+              {[
+                { id: 'diarrhoea', label: 'Diarrhoea' },
+                { id: 'vomiting', label: 'Vomiting' },
+                { id: 'fever', label: 'Fever (≥38°C)' },
+                { id: 'skin_infection', label: 'Skin Infection / Rash' },
+                { id: 'other', label: 'Other' },
+              ].map(s => (
+                <label key={s.id} className="flex items-center gap-3 p-2 hover:bg-white rounded cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={symptoms[s.id]}
+                    onChange={(e) => setSymptoms({ ...symptoms, [s.id]: e.target.checked })}
+                    className="w-4 h-4"
+                  />
+                  <span className="text-sm text-slate-700">{s.label}</span>
+                </label>
+              ))}
+            </div>
           </div>
 
-          <label className="flex items-center gap-3">
+          {/* Other Symptoms Description */}
+          {symptoms.other && (
+            <div>
+              <input
+                type="text"
+                value={otherSymptoms}
+                onChange={(e) => setOtherSymptoms(e.target.value)}
+                placeholder="Describe other symptoms..."
+                className="w-full p-2 border border-slate-300 rounded-lg text-sm"
+              />
+            </div>
+          )}
+
+          {/* Date Symptoms Started */}
+          <div>
+            <label className="text-sm font-semibold text-slate-700 block mb-2">
+              Date Symptoms Started <span className="text-red-600">*</span>
+            </label>
             <input
-              type="checkbox"
-              checked={canWorkAlternative}
-              onChange={(e) => setCanWorkAlternative(e.target.checked)}
-              className="w-4 h-4"
+              type="date"
+              value={dateStarted}
+              onChange={(e) => setDateStarted(e.target.value)}
+              className="w-full p-2 border border-slate-300 rounded-lg"
             />
-            <span className="text-sm text-slate-700">I can perform alternative duties (non-food handling)</span>
-          </label>
+          </div>
+
+          {/* Last Shift Worked */}
+          <div>
+            <label className="text-sm font-semibold text-slate-700 block mb-2">
+              Last Shift Worked
+            </label>
+            <input
+              type="date"
+              value={lastShiftWorked}
+              onChange={(e) => setLastShiftWorked(e.target.value)}
+              className="w-full p-2 border border-slate-300 rounded-lg"
+            />
+          </div>
+
+          {/* Doctor Questions */}
+          <div className="space-y-3 p-3 bg-white rounded border border-slate-200">
+            <label className="flex items-center gap-3 cursor-pointer">
+              <input
+                type="checkbox"
+                checked={doctorAdvised}
+                onChange={(e) => setDoctorAdvised(e.target.checked)}
+                className="w-4 h-4"
+              />
+              <span className="text-sm text-slate-700">Doctor advised to stay away from work</span>
+            </label>
+
+            <label className="flex items-center gap-3 cursor-pointer">
+              <input
+                type="checkbox"
+                checked={managerNotified}
+                onChange={(e) => setManagerNotified(e.target.checked)}
+                className="w-4 h-4"
+              />
+              <span className="text-sm text-slate-700">Notify manager immediately</span>
+            </label>
+          </div>
 
           <div className="flex gap-3">
             <Button
@@ -316,10 +428,10 @@ function IllnessReportingForm({ user, failedQuestions, onClose, onSuccess }) {
             </Button>
             <Button
               type="submit"
-              disabled={!illnessType || !description || loading}
+              disabled={!Object.values(symptoms).some(v => v) || !dateStarted || loading}
               className="flex-1 bg-red-600 hover:bg-red-700"
             >
-              {loading ? 'Submitting...' : 'Report & Await Manager Decision'}
+              {loading ? 'Submitting...' : 'Submit Illness Report'}
             </Button>
           </div>
         </form>
