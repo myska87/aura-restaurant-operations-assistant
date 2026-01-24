@@ -19,11 +19,18 @@ export default function TrainingModuleQuiz({
   const [quizPassed, setQuizPassed] = useState(false);
 
   const handleSelectAnswer = (questionIndex, answerIndex) => {
-    if (showResults) return; // Prevent changes during results view
+    if (showResults) return;
     setSelectedAnswers({
       ...selectedAnswers,
       [questionIndex]: answerIndex
     });
+  };
+
+  const getQuestionOptions = (question) => {
+    if (question.type === 'true-false') {
+      return ['True', 'False'];
+    }
+    return question.options || [];
   };
 
   const handleSubmit = () => {
@@ -35,7 +42,7 @@ export default function TrainingModuleQuiz({
     // Calculate score
     let correctCount = 0;
     questions.forEach((q, idx) => {
-      if (selectedAnswers[idx] === q.correctAnswer) {
+      if (selectedAnswers[idx] === q.correct) {
         correctCount++;
       }
     });
@@ -196,7 +203,7 @@ export default function TrainingModuleQuiz({
           </h3>
 
           <div className="space-y-3 mb-8">
-            {question.options.map((option, idx) => (
+            {getQuestionOptions(question).map((option, idx) => (
               <motion.button
                 key={idx}
                 onClick={() => handleSelectAnswer(currentQuestion, idx)}
