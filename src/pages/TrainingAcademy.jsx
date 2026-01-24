@@ -5,7 +5,7 @@ import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Leaf, Shield, ChefHat, Trophy, CheckCircle, Lock } from 'lucide-react';
+import { Leaf, Shield, ChefHat, Trophy, CheckCircle, Lock, Heart } from 'lucide-react';
 import PageHeader from '@/components/ui/PageHeader';
 import TrainingJourneyBar from '@/components/training/TrainingJourneyBar';
 import LoadingSpinner from '@/components/ui/LoadingSpinner';
@@ -35,6 +35,14 @@ const trainingOptions = [
     icon: Leaf,
     page: 'Culture',
     color: 'from-emerald-500 to-green-600',
+    roles: ['all']
+  },
+  {
+    title: 'Raving Fans — Ordinary Service Is Not Enough',
+    description: 'Creating memorable experiences that turn guests into fans',
+    icon: Heart,
+    page: 'RavingFans',
+    color: 'from-rose-500 to-pink-600',
     roles: ['all']
   },
   {
@@ -219,6 +227,9 @@ export default function TrainingAcademy() {
             completionStatus = journeyProgress?.visionWatched;
           } else if (option.page === 'Culture') {
             completionStatus = journeyProgress?.valuesCompleted;
+          } else if (option.page === 'RavingFans') {
+            isUnlocked = journeyProgress?.valuesCompleted || false;
+            completionStatus = journeyProgress?.ravingFansCompleted;
           } else if (option.page === 'Training') {
             completionStatus = journeyProgress?.hygieneCompleted;
           } else if (option.page === 'SOPs') {
