@@ -161,9 +161,23 @@ export default function CCPCheckModal({ open, onClose, ccp, user, onSuccess }) {
                 <p className="text-xs text-red-600 mt-1">Corrective actions triggered. Menu items blocked.</p>
               </>
             )}
-          </motion.div>
-        ) : (
-          <div className="space-y-4">
+            </motion.div>
+            ) : showCorrectiveAction && checkResult ? (
+            <CorrectiveActionForm
+            ccpCheck={checkResult}
+            user={user}
+            onActionSubmitted={() => {
+             setRecordedValue('');
+             setNotes('');
+             setCheckResult(null);
+             setShowCorrectiveAction(false);
+             if (onSuccess) onSuccess();
+             onClose();
+            }}
+            onCancel={() => setShowCorrectiveAction(false)}
+            />
+            ) : (
+            <div className="space-y-4">
             {/* CCP Info Card */}
             <Card className="bg-slate-50">
               <CardContent className="pt-4">
