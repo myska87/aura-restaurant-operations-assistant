@@ -76,6 +76,14 @@ export default function TrainingModuleQuiz({
   const handleSubmit = () => {
     if (!quizStarted) {
       setQuizStarted(true);
+      saveState({
+        currentQuestion,
+        selectedAnswers,
+        showResults,
+        score,
+        quizStarted: true,
+        quizPassed
+      });
       return;
     }
 
@@ -91,9 +99,23 @@ export default function TrainingModuleQuiz({
     setScore(calculatedScore);
     setShowResults(true);
 
+    const newState = {
+      currentQuestion,
+      selectedAnswers,
+      showResults: true,
+      score: calculatedScore,
+      quizStarted,
+      quizPassed: calculatedScore >= passPercentage
+    };
+    
+    saveState(newState);
+
     if (calculatedScore >= passPercentage) {
       setQuizPassed(true);
       onQuizPassed(true, calculatedScore);
+    } else {
+      // Fail-safe: Do NOT unlock if score < 80%
+      onQuizPassed(false, calculatedScore);
     }
   };
 
