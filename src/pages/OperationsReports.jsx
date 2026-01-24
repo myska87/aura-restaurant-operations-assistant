@@ -1010,7 +1010,7 @@ export default function OperationsReports() {
               >
                 {reportGenerating ? (
                   <>
-                    <AlertCircle className="w-4 h-4 mr-2 animate-spin" />
+                    <Loader className="w-4 h-4 mr-2 animate-spin" />
                     Generating...
                   </>
                 ) : (
@@ -1107,7 +1107,7 @@ export default function OperationsReports() {
               >
                 {reportGenerating ? (
                   <>
-                    <AlertCircle className="w-4 h-4 mr-2 animate-spin" />
+                    <Loader className="w-4 h-4 mr-2 animate-spin" />
                     Generating...
                   </>
                 ) : (
