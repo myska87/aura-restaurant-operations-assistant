@@ -58,7 +58,7 @@ const navGroups = [
       { name: 'Live Food Safety', icon: Shield, page: 'LiveFoodSafety', roles: ['all'], modes: ['operate'] },
       { name: 'Shift Handover', icon: MessageSquare, page: 'ShiftHandovers', roles: ['all'], modes: ['operate'] },
       { name: 'Equipment Status', icon: Wrench, page: 'EquipmentHealth', roles: ['all'], modes: ['operate'] },
-      { name: 'Operations History', icon: History, page: 'OperationsHistory', roles: ['all'], modes: ['operate'] },
+
       { name: 'Menu Manager', icon: ChefHat, page: 'MenuManager', roles: ['all'], modes: ['operate'] },
       { name: 'Checklist Library', icon: ClipboardCheck, page: 'ChecklistLibrary', roles: ['all'], modes: ['operate'] },
       { name: 'Checklist Reports', icon: FileText, page: 'ChecklistReports', roles: ['all'], modes: ['operate'] },
