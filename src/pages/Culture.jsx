@@ -14,6 +14,9 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import PageHeader from '@/components/ui/PageHeader';
 import TrainingJourneyBar from '@/components/training/TrainingJourneyBar';
 import TrainingModuleQuiz from '@/components/training/TrainingModuleQuiz';
+import ModuleQuizSubmission from '@/components/training/ModuleQuizSubmission';
+import NextModuleButton from '@/components/training/NextModuleButton';
+import StrictModuleWrapper from '@/components/training/StrictModuleWrapper';
 import { format } from 'date-fns';
 import confetti from 'canvas-confetti';
 
