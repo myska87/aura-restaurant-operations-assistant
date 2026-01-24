@@ -59,6 +59,15 @@ export default function PrepStageChecklist({ user, shift, date }) {
   const [notes, setNotes] = useState('');
   const queryClient = useQueryClient();
 
+  // Fetch manager info
+  const { data: globalInfo } = useQuery({
+    queryKey: ['globalInfo'],
+    queryFn: async () => {
+      const infos = await base44.entities.GlobalInfo.list();
+      return infos[0] || null;
+    }
+  });
+
   // Initialize tasks from template
   useEffect(() => {
     const initialTasks = PREP_CHECKLIST_TEMPLATE.flatMap((category) =>
@@ -177,11 +186,18 @@ export default function PrepStageChecklist({ user, shift, date }) {
       }
 
       // Notify manager
-      await base44.integrations.Core.SendEmail({
-        to: 'manager@restaurant.com',
-        subject: `✅ Prep Completed - ${shift} Shift`,
-        body: `${user?.full_name} has completed all prep tasks for ${shift} shift on ${date}.\n\nAll items are ready for service.`
-      });
+      const managerEmail = globalInfo?.manager_email;
+      if (managerEmail) {
+        try {
+          await base44.integrations.Core.SendEmail({
+            to: managerEmail,
+            subject: `✅ Prep Completed - ${shift} Shift`,
+            body: `${user?.full_name} has completed all prep tasks for ${shift} shift on ${date}.\n\nAll items are ready for service.`
+          });
+        } catch (error) {
+          console.error('Failed to send email:', error);
+        }
+      }
 
       toast.success('🎉 Prep completed! Manager notified.');
       queryClient.invalidateQueries({ queryKey: ['prepChecklistLog'] });
