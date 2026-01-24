@@ -102,6 +102,7 @@ export default function InteractiveStagesDashboard({
               transition={{ delay: idx * 0.1 }}
               whileHover={{ scale: 1.02, y: -4 }}
               whileTap={{ scale: 0.98 }}
+              className="h-full"
             >
               <Card
                 onClick={isShiftActive ? stage.onClick : undefined}
@@ -110,7 +111,7 @@ export default function InteractiveStagesDashboard({
                   border-2 cursor-pointer overflow-hidden
                   transition-all duration-300 hover:shadow-2xl
                   ${!isShiftActive ? 'opacity-60 cursor-not-allowed' : ''}
-                  relative group
+                  relative group h-full flex flex-col
                 `}
               >
                 {/* Header */}
@@ -156,7 +157,7 @@ export default function InteractiveStagesDashboard({
                 </div>
 
                 {/* Checklist Items */}
-                <div className="p-4 space-y-2">
+                <div className="p-4 space-y-2 flex-1">
                   {stage.items.map((item, itemIdx) => (
                     <motion.div
                       key={itemIdx}
