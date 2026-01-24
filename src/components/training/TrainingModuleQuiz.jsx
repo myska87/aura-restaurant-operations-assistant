@@ -9,14 +9,41 @@ export default function TrainingModuleQuiz({
   questions, 
   onQuizPassed, 
   moduleName = 'Training Module',
-  passPercentage = 80 
+  passPercentage = 80,
+  quizId = 'default-quiz'
 }) {
-  const [currentQuestion, setCurrentQuestion] = useState(0);
-  const [selectedAnswers, setSelectedAnswers] = useState({});
-  const [showResults, setShowResults] = useState(false);
-  const [score, setScore] = useState(0);
-  const [quizStarted, setQuizStarted] = useState(false);
-  const [quizPassed, setQuizPassed] = useState(false);
+  // Persist quiz state in localStorage to survive page refresh
+  const storageKey = `quiz-state-${quizId}`;
+  
+  const [currentQuestion, setCurrentQuestion] = useState(() => {
+    const saved = localStorage.getItem(storageKey);
+    return saved ? JSON.parse(saved).currentQuestion : 0;
+  });
+  
+  const [selectedAnswers, setSelectedAnswers] = useState(() => {
+    const saved = localStorage.getItem(storageKey);
+    return saved ? JSON.parse(saved).selectedAnswers : {};
+  });
+  
+  const [showResults, setShowResults] = useState(() => {
+    const saved = localStorage.getItem(storageKey);
+    return saved ? JSON.parse(saved).showResults : false;
+  });
+  
+  const [score, setScore] = useState(() => {
+    const saved = localStorage.getItem(storageKey);
+    return saved ? JSON.parse(saved).score : 0;
+  });
+  
+  const [quizStarted, setQuizStarted] = useState(() => {
+    const saved = localStorage.getItem(storageKey);
+    return saved ? JSON.parse(saved).quizStarted : false;
+  });
+  
+  const [quizPassed, setQuizPassed] = useState(() => {
+    const saved = localStorage.getItem(storageKey);
+    return saved ? JSON.parse(saved).quizPassed : false;
+  });
 
   const handleSelectAnswer = (questionIndex, answerIndex) => {
     if (showResults) return;
