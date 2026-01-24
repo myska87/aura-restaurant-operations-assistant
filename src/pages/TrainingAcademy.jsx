@@ -6,7 +6,14 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Leaf, Shield, ChefHat, Trophy, CheckCircle, Lock, Heart } from 'lucide-react';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+} from '@/components/ui/dialog';
+import { Leaf, Shield, ChefHat, Trophy, CheckCircle, Lock, Heart, RotateCcw, AlertTriangle } from 'lucide-react';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import PageHeader from '@/components/ui/PageHeader';
 import TrainingJourneyBar from '@/components/training/TrainingJourneyBar';

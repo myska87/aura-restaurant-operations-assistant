@@ -4,6 +4,7 @@ import Announcements from './pages/Announcements';
 import AssetDetail from './pages/AssetDetail';
 import Assets from './pages/Assets';
 import AuditCenter from './pages/AuditCenter';
+import Certification from './pages/Certification';
 import ChangeRequests from './pages/ChangeRequests';
 import ChecklistBuilder from './pages/ChecklistBuilder';
 import ChecklistLibrary from './pages/ChecklistLibrary';
@@ -30,6 +31,7 @@ import HygieneReports from './pages/HygieneReports';
 import InspectorMode from './pages/InspectorMode';
 import Inventory from './pages/Inventory';
 import InventoryAdjustment from './pages/InventoryAdjustment';
+import Invitation from './pages/Invitation';
 import Invitations from './pages/Invitations';
 import LeadershipPathway from './pages/LeadershipPathway';
 import ManageHome from './pages/ManageHome';
@@ -55,6 +57,7 @@ import Profile from './pages/Profile';
 import Quality from './pages/Quality';
 import QualityControl from './pages/QualityControl';
 import QualitySafety from './pages/QualitySafety';
+import RavingFans from './pages/RavingFans';
 import RecipeDetail from './pages/RecipeDetail';
 import Reports from './pages/Reports';
 import SOPLibrary from './pages/SOPLibrary';
@@ -81,10 +84,7 @@ import VisualProcedures from './pages/VisualProcedures';
 import WeeklyManagerReportDetail from './pages/WeeklyManagerReportDetail';
 import WeeklyManagerReportForm from './pages/WeeklyManagerReportForm';
 import WeeklyManagerReports from './pages/WeeklyManagerReports';
-import Invitation from './pages/Invitation';
 import WelcomeVision from './pages/WelcomeVision';
-import RavingFans from './pages/RavingFans';
-import Certification from './pages/Certification';
 import __Layout from './Layout.jsx';
 
 
@@ -95,6 +95,7 @@ export const PAGES = {
     "AssetDetail": AssetDetail,
     "Assets": Assets,
     "AuditCenter": AuditCenter,
+    "Certification": Certification,
     "ChangeRequests": ChangeRequests,
     "ChecklistBuilder": ChecklistBuilder,
     "ChecklistLibrary": ChecklistLibrary,
@@ -121,6 +122,7 @@ export const PAGES = {
     "InspectorMode": InspectorMode,
     "Inventory": Inventory,
     "InventoryAdjustment": InventoryAdjustment,
+    "Invitation": Invitation,
     "Invitations": Invitations,
     "LeadershipPathway": LeadershipPathway,
     "ManageHome": ManageHome,
@@ -146,6 +148,7 @@ export const PAGES = {
     "Quality": Quality,
     "QualityControl": QualityControl,
     "QualitySafety": QualitySafety,
+    "RavingFans": RavingFans,
     "RecipeDetail": RecipeDetail,
     "Reports": Reports,
     "SOPLibrary": SOPLibrary,
@@ -172,10 +175,7 @@ export const PAGES = {
     "WeeklyManagerReportDetail": WeeklyManagerReportDetail,
     "WeeklyManagerReportForm": WeeklyManagerReportForm,
     "WeeklyManagerReports": WeeklyManagerReports,
-    "Invitation": Invitation,
     "WelcomeVision": WelcomeVision,
-    "RavingFans": RavingFans,
-    "Certification": Certification,
 }
 
 export const pagesConfig = {
