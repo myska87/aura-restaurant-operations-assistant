@@ -345,11 +345,11 @@ export default function TrainingAcademy() {
           const CardContent_ = (
             <Card className={`
               transition-all duration-300 border-2 h-full relative
-              ${!isUnlocked && !completionStatus ? 'opacity-50 bg-slate-50 border-slate-300' : ''}
+              ${!isUnlocked && !completionStatus ? 'opacity-50 bg-slate-50 border-slate-300 pointer-events-none' : ''}
               ${completionStatus ? 'border-emerald-500 bg-emerald-50' : ''}
               ${isCurrentStep && !completionStatus ? 'border-blue-400 bg-blue-50 hover:shadow-lg hover:border-blue-500' : ''}
               ${isUnlocked && !completionStatus && !isCurrentStep ? 'hover:shadow-xl hover:border-slate-400 cursor-pointer' : ''}
-              ${isUnlocked ? 'cursor-pointer' : 'cursor-not-allowed'}
+              ${isUnlocked ? 'cursor-pointer pointer-events-auto' : 'cursor-not-allowed pointer-events-none'}
             `}>
               <CardContent className="pt-6">
                 <div className="flex items-start justify-between mb-4">
