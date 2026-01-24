@@ -209,6 +209,7 @@ export default function Culture() {
   const [showQuiz, setShowQuiz] = useState(false);
   const [quizPassed, setQuizPassed] = useState(false);
   const pageRef = useRef(null);
+  const navigate = useNavigate();
 
   const queryClient = useQueryClient();
 
