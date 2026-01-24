@@ -15,7 +15,8 @@ import {
   CheckCircle,
   XCircle,
   Filter,
-  Search
+  Search,
+  Sparkles
 } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -24,14 +25,25 @@ import { Badge } from '@/components/ui/badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import PageHeader from '@/components/ui/PageHeader';
 import LoadingSpinner from '@/components/ui/LoadingSpinner';
+import AIChecklistGenerator from '@/components/checklists/AIChecklistGenerator';
+import ChecklistViewToggle from '@/components/checklists/ChecklistViewToggle';
 
 export default function ChecklistLibrary() {
   const [user, setUser] = useState(null);
   const [searchQuery, setSearchQuery] = useState('');
   const [categoryFilter, setCategoryFilter] = useState('all');
   const [statusFilter, setStatusFilter] = useState('all');
+  const [showAIGenerator, setShowAIGenerator] = useState(false);
+  const [viewMode, setViewMode] = useState(() => {
+    return localStorage.getItem('checklist-view-mode') || 'tile';
+  });
   const navigate = useNavigate();
   const queryClient = useQueryClient();
+
+  const handleViewModeChange = (mode) => {
+    setViewMode(mode);
+    localStorage.setItem('checklist-view-mode', mode);
+  };
 
   useEffect(() => {
     base44.auth.me().then(setUser).catch(() => {});
@@ -90,6 +102,20 @@ export default function ChecklistLibrary() {
     a.href = url;
     a.download = `checklists-${format(new Date(), 'yyyy-MM-dd')}.csv`;
     a.click();
+  };
+
+  const getChecklistIcon = (category) => {
+    const icons = {
+      opening: '🌅',
+      closing: '🌙',
+      hygiene: '🧼',
+      audit: '📋',
+      ccp: '⚠️',
+      equipment: '⚙️',
+      safety: '🛡️',
+      custom: '✨'
+    };
+    return icons[category] || '📝';
   };
 
   if (!user) return <LoadingSpinner />;
@@ -195,6 +221,14 @@ export default function ChecklistLibrary() {
               <Download className="w-4 h-4 mr-2" />
               Export
             </Button>
+            <ChecklistViewToggle view={viewMode} onChange={handleViewModeChange} />
+            <Button
+              onClick={() => setShowAIGenerator(true)}
+              className="bg-blue-600 hover:bg-blue-700"
+            >
+              <Sparkles className="w-4 h-4 mr-2" />
+              Create with AI
+            </Button>
             <Button
               onClick={() => navigate(createPageUrl('ChecklistBuilder'))}
               className="bg-emerald-600 hover:bg-emerald-700"
@@ -206,8 +240,8 @@ export default function ChecklistLibrary() {
         </CardContent>
       </Card>
 
-      {/* Checklists Grid */}
-      <div className="grid gap-4">
+      {/* Checklists View */}
+      <div className={viewMode === 'list' ? 'space-y-4' : 'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4'}>
         {filteredChecklists.map((checklist, idx) => (
           <motion.div
             key={checklist.id}
@@ -215,84 +249,161 @@ export default function ChecklistLibrary() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: idx * 0.03 }}
           >
-            <Card className="hover:shadow-lg transition-shadow">
-              <CardContent className="pt-6">
-                <div className="flex items-start justify-between gap-4">
-                  <div className="flex-1">
-                    <div className="flex items-center gap-3 mb-2">
-                      <h3 className="text-xl font-bold text-slate-900">{checklist.checklist_name}</h3>
-                      {checklist.is_published ? (
-                        <Badge className="bg-emerald-600">
-                          <CheckCircle className="w-3 h-3 mr-1" />
-                          Published
-                        </Badge>
-                      ) : (
-                        <Badge variant="outline" className="border-amber-400 text-amber-700">
-                          Draft
-                        </Badge>
-                      )}
-                      <Badge className="capitalize">{checklist.checklist_category}</Badge>
+            {viewMode === 'list' ? (
+              // LIST VIEW
+              <Card className="hover:shadow-lg transition-shadow">
+                <CardContent className="pt-6">
+                  <div className="flex items-start justify-between gap-4">
+                    <div className="flex-1">
+                      <div className="flex items-center gap-3 mb-2">
+                        <h3 className="text-xl font-bold text-slate-900">{checklist.checklist_name}</h3>
+                        {checklist.is_published ? (
+                          <Badge className="bg-emerald-600">
+                            <CheckCircle className="w-3 h-3 mr-1" />
+                            Published
+                          </Badge>
+                        ) : (
+                          <Badge variant="outline" className="border-amber-400 text-amber-700">
+                            Draft
+                          </Badge>
+                        )}
+                        <Badge className="capitalize">{checklist.checklist_category}</Badge>
+                      </div>
+                      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm text-slate-600">
+                        <div>
+                          <p className="font-medium">Version</p>
+                          <p>v{checklist.version}</p>
+                        </div>
+                        <div>
+                          <p className="font-medium">Station</p>
+                          <p className="capitalize">{checklist.assigned_station}</p>
+                        </div>
+                        <div>
+                          <p className="font-medium">Questions</p>
+                          <p>{checklist.items?.length || 0} items</p>
+                        </div>
+                        <div>
+                          <p className="font-medium">Created</p>
+                          <p>{format(new Date(checklist.created_date), 'MMM d, yyyy')}</p>
+                        </div>
+                      </div>
+                      <p className="text-xs text-slate-500 mt-2">
+                        By {checklist.created_by_name} {checklist.created_by_ai && '(AI)'}
+                      </p>
                     </div>
-                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm text-slate-600">
-                      <div>
-                        <p className="font-medium">Version</p>
-                        <p>v{checklist.version}</p>
-                      </div>
-                      <div>
-                        <p className="font-medium">Station</p>
-                        <p className="capitalize">{checklist.assigned_station}</p>
-                      </div>
-                      <div>
-                        <p className="font-medium">Questions</p>
-                        <p>{checklist.items?.length || 0} items</p>
-                      </div>
-                      <div>
-                        <p className="font-medium">Created</p>
-                        <p>{format(new Date(checklist.created_date), 'MMM d, yyyy')}</p>
-                      </div>
+
+                    <div className="flex gap-2">
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={() => navigate(createPageUrl('ChecklistBuilder') + `?id=${checklist.id}`)}
+                      >
+                        <Edit className="w-4 h-4" />
+                      </Button>
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={() => duplicateMutation.mutate(checklist)}
+                        disabled={duplicateMutation.isPending}
+                      >
+                        <Copy className="w-4 h-4" />
+                      </Button>
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        className="text-red-600 hover:text-red-700"
+                        onClick={() => {
+                          if (confirm(`Delete "${checklist.checklist_name}"?`)) {
+                            deleteMutation.mutate(checklist.id);
+                          }
+                        }}
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </Button>
                     </div>
-                    <p className="text-xs text-slate-500 mt-2">
-                      By {checklist.created_by_name}
-                    </p>
+                  </div>
+                </CardContent>
+              </Card>
+            ) : (
+              // TILE VIEW
+              <Card className="hover:shadow-lg transition-shadow h-full flex flex-col">
+                <CardContent className="pt-6 flex-1 flex flex-col">
+                  <div className="flex items-start justify-between mb-4">
+                    <div className="text-3xl">{getChecklistIcon(checklist.checklist_category)}</div>
+                    {checklist.is_published ? (
+                      <Badge className="bg-emerald-600">
+                        <CheckCircle className="w-3 h-3 mr-1" />
+                        Published
+                      </Badge>
+                    ) : (
+                      <Badge variant="outline" className="border-amber-400 text-amber-700">
+                        Draft
+                      </Badge>
+                    )}
+                  </div>
+                  
+                  <h3 className="text-lg font-bold text-slate-900 mb-3 line-clamp-2">{checklist.checklist_name}</h3>
+                  
+                  <div className="space-y-2 text-sm text-slate-600 mb-4 flex-1">
+                    <div className="flex justify-between">
+                      <span className="font-medium">Station:</span>
+                      <span className="capitalize">{checklist.assigned_station}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="font-medium">Questions:</span>
+                      <span>{checklist.items?.length || 0} items</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="font-medium">Version:</span>
+                      <span>v{checklist.version}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="font-medium">Created:</span>
+                      <span>{format(new Date(checklist.created_date), 'MMM d')}</span>
+                    </div>
                   </div>
 
-                  <div className="flex gap-2">
+                  <div className="flex gap-2 pt-4 border-t">
                     <Button
                       size="sm"
                       variant="outline"
+                      className="flex-1 h-8"
                       onClick={() => navigate(createPageUrl('ChecklistBuilder') + `?id=${checklist.id}`)}
                     >
-                      <Edit className="w-4 h-4" />
+                      <Edit className="w-3 h-3 mr-1" />
+                      Edit
                     </Button>
                     <Button
                       size="sm"
                       variant="outline"
+                      className="flex-1 h-8"
                       onClick={() => duplicateMutation.mutate(checklist)}
                       disabled={duplicateMutation.isPending}
                     >
-                      <Copy className="w-4 h-4" />
+                      <Copy className="w-3 h-3 mr-1" />
+                      Copy
                     </Button>
                     <Button
                       size="sm"
                       variant="outline"
-                      className="text-red-600 hover:text-red-700"
+                      className="text-red-600 hover:text-red-700 px-2 h-8"
                       onClick={() => {
                         if (confirm(`Delete "${checklist.checklist_name}"?`)) {
                           deleteMutation.mutate(checklist.id);
                         }
                       }}
                     >
-                      <Trash2 className="w-4 h-4" />
+                      <Trash2 className="w-3 h-3" />
                     </Button>
                   </div>
-                </div>
-              </CardContent>
-            </Card>
+                </CardContent>
+              </Card>
+            )}
           </motion.div>
         ))}
 
         {filteredChecklists.length === 0 && (
-          <Card>
+          <Card className={viewMode === 'tile' ? 'md:col-span-2 lg:col-span-3' : ''}>
             <CardContent className="pt-12 pb-12 text-center">
               <p className="text-slate-500 mb-4">No checklists found</p>
               <Button
@@ -306,6 +417,16 @@ export default function ChecklistLibrary() {
           </Card>
         )}
       </div>
+
+      {/* AI Generator Modal */}
+      <AIChecklistGenerator 
+        open={showAIGenerator}
+        onClose={() => setShowAIGenerator(false)}
+        onGenerated={() => {
+          queryClient.invalidateQueries(['checklists-library']);
+        }}
+        user={user}
+      />
     </div>
   );
 }
