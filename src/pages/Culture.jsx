@@ -220,6 +220,18 @@ export default function Culture() {
     loadUser();
   }, []);
 
+  useEffect(() => {
+    const handleScroll = () => {
+      if (!pageRef.current || showQuiz || alreadyCompleted) return;
+      const { scrollTop, scrollHeight, clientHeight } = document.documentElement;
+      if (scrollTop + clientHeight >= scrollHeight - 300) {
+        setShowQuiz(true);
+      }
+    };
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, [showQuiz, alreadyCompleted]);
+
   const { data: acknowledgment } = useQuery({
     queryKey: ['cultureAck', user?.email],
     queryFn: async () => {
