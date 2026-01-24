@@ -634,14 +634,20 @@ export default function Culture() {
                 </div>
               ))}
             </div>
-            <Button 
-              onClick={submitQuiz}
-              size="lg"
+            <ModuleQuizSubmission
+              moduleId="values"
+              moduleName="Culture & Values"
+              questions={cultureQuizQuestions}
+              userAnswers={quizAnswers}
+              user={user}
+              journeyProgress={journeyProgress}
+              onQuizPassed={() => {
+                setQuizPassed(true);
+                setShowAssessment(false);
+                confetti({ particleCount: 100, spread: 70, origin: { y: 0.6 } });
+              }}
               disabled={Object.keys(quizAnswers).length < cultureQuizQuestions.length}
-              className="w-full bg-emerald-600 hover:bg-emerald-700 text-white disabled:opacity-50"
-            >
-              Submit Quiz & Continue
-            </Button>
+            />
           </CardContent>
         </Card>
       )}
