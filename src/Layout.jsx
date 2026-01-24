@@ -64,6 +64,7 @@ const navGroups = [
       { name: 'Visual Procedures', icon: FileText, page: 'VisualProcedures', roles: ['all'], modes: ['operate'] },
       { name: 'Visual Dish Guides', icon: CookingPot, page: 'VisualDishGuides', roles: ['all'], modes: ['operate'] },
       { name: 'Quality & Safety', icon: Shield, page: 'QualitySafety', roles: ['all'], modes: ['operate'] },
+      { name: 'Incident Records', icon: AlertCircle, page: 'IncidentCenter', roles: ['manager', 'owner', 'admin'], modes: ['manage'] },
       { name: 'Chemical Safety', icon: Wrench, page: 'ChemicalDashboard', roles: ['all'], modes: ['operate'] },
     ]
   },
