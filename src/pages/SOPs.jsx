@@ -74,27 +74,18 @@ const requiredSections = [
 
 const skillsQuizQuestions = [
   {
-    question: 'What are the key components of proper bar and chai preparation?',
-    options: [
-      'Temperature control, ingredient freshness, and presentation standards',
-      'Only speed and quantity',
-      'Color and taste preferences',
-      'Customer feedback alone'
-    ],
+    question: 'Bar and chai preparation requires temperature control, ingredient freshness, and presentation standards.',
+    type: 'true-false',
     correct: 0
   },
   {
-    question: 'How should food and pastries be handled to maintain quality?',
-    options: [
-      'Follow storage guidelines, respect expiry dates, and maintain hygiene standards',
-      'Store anywhere that fits',
-      'Thaw at room temperature',
-      'Ignore temperature requirements'
-    ],
+    question: 'Food and pastries should be handled by following storage guidelines and respecting expiry dates.',
+    type: 'true-false',
     correct: 0
   },
   {
     question: 'What defines excellent customer interaction standards?',
+    type: 'multiple-choice',
     options: [
       'Greeting customers warmly, listening actively, and resolving issues promptly',
       'Ignoring customer needs',
@@ -104,22 +95,18 @@ const skillsQuizQuestions = [
     correct: 0
   },
   {
-    question: 'What is the purpose of standardized POS and order flow?',
+    question: 'Opening and closing rituals help establish consistency and ensure food safety.',
+    type: 'true-false',
+    correct: 0
+  },
+  {
+    question: 'What is the main purpose of standardized POS and order flow?',
+    type: 'multiple-choice',
     options: [
       'Ensure accuracy, reduce errors, and maintain consistent service speed',
       'Complicate the process',
       'Slow down operations',
       'Confuse staff members'
-    ],
-    correct: 0
-  },
-  {
-    question: 'Why are opening and closing rituals important?',
-    options: [
-      'They establish consistency, prepare/secure the premises, and ensure food safety',
-      'They are optional',
-      'They waste time',
-      'They serve no purpose'
     ],
     correct: 0
   }
