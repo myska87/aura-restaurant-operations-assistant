@@ -266,6 +266,26 @@ export default function VisualProcedures() {
             <SelectItem value="general">General</SelectItem>
           </SelectContent>
         </Select>
+
+        {/* View Mode Toggle */}
+        <div className="flex gap-2 ml-auto">
+          <Button
+            variant={viewMode === 'grid' ? 'default' : 'outline'}
+            size="icon"
+            onClick={() => setViewMode('grid')}
+            title="Grid view"
+          >
+            <LayoutGrid className="w-4 h-4" />
+          </Button>
+          <Button
+            variant={viewMode === 'list' ? 'default' : 'outline'}
+            size="icon"
+            onClick={() => setViewMode('list')}
+            title="List view"
+          >
+            <List className="w-4 h-4" />
+          </Button>
+        </div>
       </div>
 
       {/* Procedures Grid */}
