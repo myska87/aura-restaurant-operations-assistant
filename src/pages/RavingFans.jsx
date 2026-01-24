@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
 import { base44 } from '@/api/base44Client';
@@ -10,16 +10,75 @@ import { Input } from '@/components/ui/input';
 import { Video, CheckCircle, Sparkles, Heart, Users, Eye } from 'lucide-react';
 import LoadingSpinner from '@/components/ui/LoadingSpinner';
 import TrainingJourneyBar from '@/components/training/TrainingJourneyBar';
+import TrainingModuleQuiz from '@/components/training/TrainingModuleQuiz';
+
+const ravingFansQuizQuestions = [
+  {
+    question: "What is the difference between a satisfied customer and a raving fan?",
+    options: [
+      "Raving fans cost more money",
+      "A satisfied customer might return. A raving fan will bring others with them.",
+      "There is no difference",
+      "Raving fans are less loyal"
+    ],
+    correctAnswer: 1
+  },
+  {
+    question: "Which of these is a way to create raving fans?",
+    options: [
+      "Serve food as fast as possible",
+      "Treat every guest like they're less important",
+      "Remember faces and use guests' names, anticipate their needs",
+      "Ignore guests unless they complain"
+    ],
+    correctAnswer: 2
+  },
+  {
+    question: "What is your mission according to the Raving Fans philosophy?",
+    options: [
+      "Just serve food",
+      "Make the most money possible",
+      "Turn moments into memories",
+      "Work as fast as you can"
+    ],
+    correctAnswer: 2
+  },
+  {
+    question: "What does it mean to treat every guest like a guest in your home?",
+    options: [
+      "Invite them to your personal home",
+      "Show genuine care and hospitality even when it's busy",
+      "Ignore them unless they're your family",
+      "Charge them less money"
+    ],
+    correctAnswer: 1
+  }
+];
 
 export default function RavingFans() {
   const [user, setUser] = useState(null);
   const [videoUrl, setVideoUrl] = useState('');
+  const [showQuiz, setShowQuiz] = useState(false);
+  const [quizPassed, setQuizPassed] = useState(false);
   const navigate = useNavigate();
   const queryClient = useQueryClient();
+  const pageRef = useRef(null);
 
   useEffect(() => {
     base44.auth.me().then(setUser).catch(() => {});
   }, []);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      if (!pageRef.current || showQuiz) return;
+      const { scrollTop, scrollHeight, clientHeight } = document.documentElement;
+      if (scrollTop + clientHeight >= scrollHeight - 300) {
+        setShowQuiz(true);
+      }
+    };
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, [showQuiz]);
 
   const { data: journeyProgress, isLoading } = useQuery({
     queryKey: ['trainingJourney', user?.email],
@@ -74,6 +133,12 @@ export default function RavingFans() {
     }
   });
 
+  const handleQuizPassed = (passed, score) => {
+    if (passed) {
+      setQuizPassed(true);
+    }
+  };
+
   if (isLoading) {
     return <LoadingSpinner message="Loading..." />;
   }
@@ -106,7 +171,7 @@ export default function RavingFans() {
   }
 
   return (
-    <div className="max-w-5xl mx-auto space-y-6">
+    <div className="max-w-5xl mx-auto space-y-6" ref={pageRef}>
       <TrainingJourneyBar progress={journeyProgress} compact />
 
       <motion.div
@@ -228,9 +293,9 @@ export default function RavingFans() {
             >
               <Button
                 onClick={() => markCompletedMutation.mutate()}
-                disabled={markCompletedMutation.isPending || journeyProgress?.ravingFansCompleted}
+                disabled={!quizPassed || markCompletedMutation.isPending || journeyProgress?.ravingFansCompleted}
                 size="lg"
-                className="bg-gradient-to-r from-rose-600 to-pink-600 hover:from-rose-700 hover:to-pink-700 text-white font-bold text-lg px-10 py-6 shadow-xl"
+                className="bg-gradient-to-r from-rose-600 to-pink-600 hover:from-rose-700 hover:to-pink-700 text-white font-bold text-lg px-10 py-6 shadow-xl disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {journeyProgress?.ravingFansCompleted ? (
                   <>
@@ -247,10 +312,25 @@ export default function RavingFans() {
                   ✓ Next: Continue to Skills & SOPs
                 </p>
               )}
+              {!quizPassed && (
+                <p className="mt-4 text-sm text-amber-600 font-semibold">
+                  Complete the quiz below to unlock this button
+                </p>
+              )}
             </motion.div>
           </CardContent>
         </Card>
       </motion.div>
+
+      {/* Quiz Section */}
+      {showQuiz && (
+        <TrainingModuleQuiz
+          questions={ravingFansQuizQuestions}
+          onQuizPassed={handleQuizPassed}
+          moduleName="Raving Fans Philosophy"
+          passPercentage={80}
+        />
+      )}
     </div>
   );
 }
