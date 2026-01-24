@@ -120,6 +120,12 @@ export default function OperationsReports() {
     enabled: !!user
   });
 
+  const { data: reports = [] } = useQuery({
+    queryKey: ['reports'],
+    queryFn: () => base44.entities.Report.list('-generated_at', 100),
+    enabled: !!user
+  });
+
 
 
   if (!user) return <LoadingSpinner />;
@@ -471,7 +477,7 @@ export default function OperationsReports() {
       <FilterBar />
 
       <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-        <TabsList className="grid w-full grid-cols-8">
+        <TabsList className="grid w-full grid-cols-9">
           <TabsTrigger value="overview">📊 Overview</TabsTrigger>
           <TabsTrigger value="checklists">✓ Checklists</TabsTrigger>
           <TabsTrigger value="hygiene">🧼 Hygiene</TabsTrigger>
@@ -480,6 +486,7 @@ export default function OperationsReports() {
           <TabsTrigger value="labels">🏷️ Labels</TabsTrigger>
           <TabsTrigger value="ccps">⚠️ CCPs</TabsTrigger>
           <TabsTrigger value="handovers">📝 Handovers</TabsTrigger>
+          <TabsTrigger value="reports">📄 Reports ({reports.length})</TabsTrigger>
         </TabsList>
 
         {/* OVERVIEW TAB */}
@@ -900,6 +907,94 @@ export default function OperationsReports() {
                   ))}
                   {filteredHandovers.length === 0 && (
                     <p className="text-center text-slate-500 py-8">No handovers found</p>
+                  )}
+                </div>
+              </ScrollArea>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        {/* REPORTS TAB */}
+        <TabsContent value="reports">
+          <Card>
+            <CardHeader>
+              <CardTitle>Generated Reports ({reports.length})</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <ScrollArea className="h-[600px]">
+                <div className="space-y-3">
+                  {reports.length === 0 ? (
+                    <p className="text-center text-slate-500 py-8">No reports generated yet</p>
+                  ) : (
+                    reports.map(report => (
+                      <Card key={report.id} className={
+                        report.compliance_status === 'red' ? 'border-red-300 bg-red-50' :
+                        report.compliance_status === 'amber' ? 'border-amber-300 bg-amber-50' :
+                        'border-emerald-300 bg-emerald-50'
+                      }>
+                        <CardContent className="pt-4">
+                          <div className="flex items-start justify-between mb-3">
+                            <div className="flex-1">
+                              <div className="flex items-center gap-2 mb-1">
+                                <h3 className="font-bold text-lg">{report.title}</h3>
+                                <Badge className={
+                                  report.report_type === 'summary' ? 'bg-blue-600' : 'bg-purple-600'
+                                }>
+                                  {report.report_type === 'summary' ? '📋 Summary' : '📄 Full'}
+                                </Badge>
+                                <Badge className={
+                                  report.compliance_status === 'green' ? 'bg-emerald-600' :
+                                  report.compliance_status === 'amber' ? 'bg-amber-600' :
+                                  'bg-red-600'
+                                }>
+                                  {report.compliance_status.toUpperCase()}
+                                </Badge>
+                              </div>
+                              <p className="text-sm text-slate-600 mb-2">{report.description}</p>
+                              <div className="grid grid-cols-2 gap-3 text-sm">
+                                <div>
+                                  <p className="text-slate-600">Period:</p>
+                                  <p className="font-medium">{report.date_range_start} to {report.date_range_end}</p>
+                                </div>
+                                <div>
+                                  <p className="text-slate-600">Generated:</p>
+                                  <p className="font-medium">{format(new Date(report.generated_at), 'MMM d, HH:mm')}</p>
+                                </div>
+                                <div>
+                                  <p className="text-slate-600">By:</p>
+                                  <p className="font-medium">{report.generated_by_name}</p>
+                                </div>
+                                <div>
+                                  <p className="text-slate-600">Location:</p>
+                                  <p className="font-medium">{report.business_name}</p>
+                                </div>
+                              </div>
+
+                              {report.summary_data && (
+                                <div className="mt-3 p-3 bg-white rounded grid grid-cols-4 gap-2 text-xs">
+                                  <div>
+                                    <p className="text-slate-600">Staff Checked In</p>
+                                    <p className="font-bold text-emerald-600">{report.summary_data.total_staff_checked_in}</p>
+                                  </div>
+                                  <div>
+                                    <p className="text-slate-600">Checklists</p>
+                                    <p className="font-bold text-emerald-600">{report.summary_data.total_checklists_completed}</p>
+                                  </div>
+                                  <div>
+                                    <p className="text-slate-600">Temps Logged</p>
+                                    <p className="font-bold text-orange-600">{report.summary_data.temps_logged}</p>
+                                  </div>
+                                  <div>
+                                    <p className="text-slate-600">CCPs</p>
+                                    <p className="font-bold"><span className="text-emerald-600">{report.summary_data.ccps_passed}</span> / <span className="text-red-600">{report.summary_data.ccps_failed}</span></p>
+                                  </div>
+                                </div>
+                              )}
+                            </div>
+                          </div>
+                        </CardContent>
+                      </Card>
+                    ))
                   )}
                 </div>
               </ScrollArea>
