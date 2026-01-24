@@ -16,7 +16,8 @@ import {
   Shield,
   FileText,
   Heart,
-  Sparkles
+  Sparkles,
+  Star
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -30,6 +31,7 @@ import {
 } from '@/components/ui/dialog';
 import PageHeader from '@/components/ui/PageHeader';
 import LoadingSpinner from '@/components/ui/LoadingSpinner';
+import TrainingJourneyBar from '@/components/training/TrainingJourneyBar';
 import confetti from 'canvas-confetti';
 import jsPDF from 'jspdf';
 import ValuesSection from '../components/training/ValuesSection';
@@ -86,6 +88,18 @@ export default function Training() {
     enabled: !!user?.email,
   });
 
+  const { data: journeyProgress } = useQuery({
+    queryKey: ['trainingJourney', user?.email],
+    queryFn: async () => {
+      if (!user?.email) return null;
+      const existing = await base44.entities.TrainingJourneyProgress.filter({
+        staff_email: user.email
+      });
+      return existing.length > 0 ? existing[0] : null;
+    },
+    enabled: !!user?.email
+  });
+
   const updateProgressMutation = useMutation({
     mutationFn: async ({ courseId, data }) => {
       const existing = progress.find(p => p.course_id === courseId);
@@ -105,8 +119,25 @@ export default function Training() {
 
   const createCertificateMutation = useMutation({
     mutationFn: (data) => base44.entities.Certificate.create(data),
-    onSuccess: () => {
+    onSuccess: async () => {
       queryClient.invalidateQueries(['certificates']);
+      
+      // Check if all hygiene levels are certified
+      const allCerts = await base44.entities.Certificate.filter({ staff_email: user.email });
+      const hasL1 = allCerts.some(c => c.level === 'L1');
+      const hasL2 = allCerts.some(c => c.level === 'L2');
+      const hasL3 = allCerts.some(c => c.level === 'L3');
+      
+      // Update journey progress if any hygiene cert exists
+      if ((hasL1 || hasL2 || hasL3) && journeyProgress) {
+        await base44.entities.TrainingJourneyProgress.update(journeyProgress.id, {
+          hygieneCompleted: true,
+          currentStep: 'certification',
+          lastUpdated: new Date().toISOString()
+        });
+        queryClient.invalidateQueries(['trainingJourney']);
+      }
+      
       confetti({
         particleCount: 150,
         spread: 100,
@@ -433,6 +464,92 @@ export default function Training() {
 
   return (
     <div className="space-y-6">
+      {/* Journey Progress Bar */}
+      {journeyProgress && (
+        <TrainingJourneyBar progress={journeyProgress} compact />
+      )}
+
+      {/* Training Journey Header */}
+      {journeyProgress && (
+        <Card className="border-2 border-blue-400 bg-gradient-to-br from-blue-50 via-cyan-50 to-teal-50">
+          <CardContent className="pt-8 pb-8 px-6 md:px-12">
+            <div className="text-center mb-6">
+              <div className="w-20 h-20 mx-auto mb-4 rounded-full bg-gradient-to-br from-blue-500 to-cyan-600 flex items-center justify-center shadow-2xl">
+                <Shield className="w-10 h-10 text-white" />
+              </div>
+              <h1 className="text-4xl md:text-5xl font-bold text-slate-900 mb-2">
+                Hygiene & Safety
+              </h1>
+              <p className="text-xl text-blue-700 font-semibold mb-6">
+                Excellence Is Also Invisible
+              </p>
+            </div>
+            
+            <div className="max-w-3xl mx-auto space-y-4 text-lg text-slate-700 leading-relaxed text-center">
+              <p className="font-semibold text-slate-900">
+                Cleanliness is respect. Hygiene is trust. Safety is non-negotiable.
+              </p>
+              <p>
+                This protects guests, team, and brand.
+              </p>
+            </div>
+
+            {/* Certificate Status */}
+            {certificates.length > 0 && (
+              <div className="mt-8 bg-white rounded-xl p-6 max-w-2xl mx-auto border-2 border-blue-200">
+                <h3 className="text-xl font-bold text-slate-900 mb-4 flex items-center gap-2">
+                  <Award className="w-5 h-5 text-blue-600" />
+                  Your Hygiene Certifications
+                </h3>
+                <div className="grid md:grid-cols-3 gap-3">
+                  {['L1', 'L2', 'L3'].map((level) => {
+                    const cert = certificates.find(c => c.level === level);
+                    const isExpired = cert && new Date(cert.expiry_date) < new Date();
+                    return (
+                      <div
+                        key={level}
+                        className={`p-3 rounded-lg border-2 ${
+                          cert
+                            ? isExpired
+                              ? 'border-red-400 bg-red-50'
+                              : 'border-emerald-400 bg-emerald-50'
+                            : 'border-slate-200 bg-slate-50'
+                        }`}
+                      >
+                        <p className="font-semibold text-sm mb-1">
+                          {levels.find(l => l.id === level)?.name}
+                        </p>
+                        {cert ? (
+                          isExpired ? (
+                            <p className="text-xs text-red-700 font-semibold">❌ Expired</p>
+                          ) : (
+                            <p className="text-xs text-emerald-700 font-semibold">✓ Certified</p>
+                          )
+                        ) : (
+                          <p className="text-xs text-slate-500">Not certified</p>
+                        )}
+                      </div>
+                    );
+                  })}
+                </div>
+                {journeyProgress?.hygieneCompleted && (
+                  <motion.div
+                    initial={{ opacity: 0, scale: 0.9 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    className="mt-6 p-4 bg-emerald-50 border-2 border-emerald-400 rounded-xl text-center"
+                  >
+                    <CheckCircle className="w-8 h-8 text-emerald-600 mx-auto mb-2" />
+                    <p className="text-emerald-900 font-bold">
+                      ✓ Hygiene Training Complete! Certification Step Unlocked
+                    </p>
+                  </motion.div>
+                )}
+              </div>
+            )}
+          </CardContent>
+        </Card>
+      )}
+
       {/* Hero Section */}
       <motion.div
         initial={{ opacity: 0, y: -20 }}

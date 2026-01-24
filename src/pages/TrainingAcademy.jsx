@@ -234,6 +234,7 @@ export default function TrainingAcademy() {
             isUnlocked = journeyProgress?.ravingFansCompleted || false;
             completionStatus = journeyProgress?.skillsCompleted;
           } else if (option.page === 'Training') {
+            isUnlocked = journeyProgress?.skillsCompleted || false;
             completionStatus = journeyProgress?.hygieneCompleted;
           } else if (option.page === 'SOPs') {
             completionStatus = journeyProgress?.skillsCompleted;
