@@ -261,38 +261,17 @@ export default function TrainingAcademy() {
 
 
       <div className="grid md:grid-cols-2 gap-6">
-        {trainingOptions.map((option, index) => {
-          const Icon = option.icon;
-          const currentStep = journeyProgress?.currentStep || 'invitation';
-          
-          // Strict sequential logic: only current step is unlocked
-          const isCurrentStep = option.step === currentStep;
-          
-          // For certification (index 6), require ALL previous modules completed
-          let isUnlocked = isCurrentStep;
-          if (option.step === 'certification') {
-            isUnlocked = 
-              journeyProgress?.invitationAccepted &&
-              journeyProgress?.visionWatched &&
-              journeyProgress?.valuesCompleted &&
-              journeyProgress?.ravingFansCompleted &&
-              journeyProgress?.skillsCompleted &&
-              journeyProgress?.hygieneCompleted;
-          }
-          
-          // Check completion status
-          const stepCompletionMap = {
-            'invitation': journeyProgress?.invitationAccepted,
-            'vision': journeyProgress?.visionWatched,
-            'values': journeyProgress?.valuesCompleted,
-            'raving_fans': journeyProgress?.ravingFansCompleted,
-            'skills': journeyProgress?.skillsCompleted,
-            'hygiene': journeyProgress?.hygieneCompleted,
-            'certification': journeyProgress?.certified,
-            'growth': journeyProgress?.onsiteAccessEnabled
-          };
-          
-          const completionStatus = stepCompletionMap[option.step];
+         {trainingModules.map((module) => {
+           const Icon = module.icon;
+           const currentModuleIndex = journeyProgress?.currentModuleIndex ?? 0;
+
+           // Strict sequential: only module matching currentModuleIndex is unlocked
+           const isCurrentModule = module.index === currentModuleIndex;
+           const isCompleted = journeyProgress?.moduleStatuses?.[module.id] === 'completed';
+           const isLocked = !isCurrentModule && !isCompleted;
+           const isInProgress = isCurrentModule && !isCompleted;
+
+           const completionStatus = isCompleted;
           
           const CardContent_ = (
             <Card className={`
