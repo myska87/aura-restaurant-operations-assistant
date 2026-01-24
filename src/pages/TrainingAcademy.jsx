@@ -252,52 +252,70 @@ export default function TrainingAcademy() {
           
           const completionStatus = stepCompletionMap[option.step];
           
-          const CardWrapper = isUnlocked ? Link : 'div';
-          const cardProps = isUnlocked ? { to: createPageUrl(option.page) } : {};
-          
-          return (
-            <CardWrapper key={option.page} {...cardProps}>
-              <Card className={`
-                transition-all duration-300 border-2 h-full relative
-                ${isUnlocked ? 'hover:shadow-xl hover:border-emerald-400 cursor-pointer' : 'opacity-60 cursor-not-allowed'}
-                ${completionStatus ? 'border-emerald-500 bg-emerald-50' : ''}
-                ${isCurrentStep && !completionStatus ? 'border-blue-400 bg-blue-50' : ''}
-              `}>
-                <CardContent className="pt-6">
-                  <div className="flex items-start justify-between mb-4">
-                    <div className={`w-20 h-20 rounded-2xl bg-gradient-to-br ${option.color} flex items-center justify-center shadow-lg`}>
-                      <Icon className="w-10 h-10 text-white" />
-                    </div>
-                    {!isUnlocked && (
-                      <Lock className="w-6 h-6 text-slate-400" />
-                    )}
-                    {completionStatus && (
-                      <CheckCircle className="w-6 h-6 text-emerald-600" />
-                    )}
-                    {isCurrentStep && !completionStatus && (
-                      <Badge className="bg-blue-600">Current</Badge>
-                    )}
+          const CardContent_ = (
+            <Card className={`
+              transition-all duration-300 border-2 h-full relative
+              ${!isUnlocked && !completionStatus ? 'opacity-50 bg-slate-50 border-slate-300' : ''}
+              ${completionStatus ? 'border-emerald-500 bg-emerald-50' : ''}
+              ${isCurrentStep && !completionStatus ? 'border-blue-400 bg-blue-50 hover:shadow-lg hover:border-blue-500' : ''}
+              ${isUnlocked && !completionStatus && !isCurrentStep ? 'hover:shadow-xl hover:border-slate-400 cursor-pointer' : ''}
+              ${isUnlocked ? 'cursor-pointer' : 'cursor-not-allowed'}
+            `}>
+              <CardContent className="pt-6">
+                <div className="flex items-start justify-between mb-4">
+                  <div className={`w-20 h-20 rounded-2xl bg-gradient-to-br ${option.color} flex items-center justify-center shadow-lg ${!isUnlocked && !completionStatus ? 'opacity-70' : ''}`}>
+                    <Icon className="w-10 h-10 text-white" />
                   </div>
-                  <h3 className="text-2xl font-bold mb-3">{option.title}</h3>
-                  <p className="text-slate-600 text-lg">{option.description}</p>
-                  {!isUnlocked && (
-                    <p className="text-sm text-amber-600 mt-3 font-semibold">
-                      🔒 Complete the previous module to unlock
-                    </p>
+                  {!isUnlocked && !completionStatus && (
+                    <Lock className="w-6 h-6 text-slate-400" />
                   )}
                   {completionStatus && (
-                    <p className="text-sm text-emerald-600 mt-3 font-semibold">
-                      ✓ Completed
-                    </p>
+                    <CheckCircle className="w-6 h-6 text-emerald-600" />
                   )}
                   {isCurrentStep && !completionStatus && (
-                    <p className="text-sm text-blue-600 mt-3 font-semibold">
-                      → Start here
-                    </p>
+                    <Badge className="bg-blue-600">In Progress</Badge>
                   )}
-                </CardContent>
-              </Card>
-            </CardWrapper>
+                </div>
+                <h3 className="text-2xl font-bold mb-3">{option.title}</h3>
+                <p className="text-slate-600 text-lg">{option.description}</p>
+                {!isUnlocked && !completionStatus && (
+                  <p className="text-sm text-slate-500 mt-3 font-semibold">
+                    🔒 Complete the previous module to unlock
+                  </p>
+                )}
+                {completionStatus && (
+                  <p className="text-sm text-emerald-600 mt-3 font-semibold">
+                    ✓ Completed
+                  </p>
+                )}
+                {isCurrentStep && !completionStatus && (
+                  <p className="text-sm text-blue-600 mt-3 font-semibold">
+                    → In Progress — Click to continue
+                  </p>
+                )}
+              </CardContent>
+            </Card>
+          );
+          
+          return (
+            <TooltipProvider key={option.page}>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  {isUnlocked ? (
+                    <Link to={createPageUrl(option.page)}>
+                      {CardContent_}
+                    </Link>
+                  ) : (
+                    <div>
+                      {CardContent_}
+                    </div>
+                  )}
+                </TooltipTrigger>
+                {!isUnlocked && !completionStatus && (
+                  <TooltipContent>Complete the previous module to unlock</TooltipContent>
+                )}
+              </Tooltip>
+            </TooltipProvider>
           );
         })}
       </div>
