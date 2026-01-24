@@ -50,13 +50,14 @@ const ravingFansQuizQuestions = [
 ];
 
 export default function RavingFans() {
-  const [user, setUser] = useState(null);
-  const [videoUrl, setVideoUrl] = useState('');
-  const [showQuiz, setShowQuiz] = useState(false);
-  const [quizPassed, setQuizPassed] = useState(false);
-  const navigate = useNavigate();
-  const queryClient = useQueryClient();
-  const pageRef = useRef(null);
+   const [user, setUser] = useState(null);
+   const [videoUrl, setVideoUrl] = useState('');
+   const [showQuiz, setShowQuiz] = useState(false);
+   const [quizPassed, setQuizPassed] = useState(false);
+   const [quizAnswers, setQuizAnswers] = useState({});
+   const navigate = useNavigate();
+   const queryClient = useQueryClient();
+   const pageRef = useRef(null);
 
   useEffect(() => {
     base44.auth.me().then(setUser).catch(() => {});
