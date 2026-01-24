@@ -11,6 +11,8 @@ import { Video, CheckCircle, Sparkles, Heart, Users, Eye } from 'lucide-react';
 import LoadingSpinner from '@/components/ui/LoadingSpinner';
 import TrainingJourneyBar from '@/components/training/TrainingJourneyBar';
 import TrainingModuleQuiz from '@/components/training/TrainingModuleQuiz';
+import ModuleQuizSubmission from '@/components/training/ModuleQuizSubmission';
+import NextModuleButton from '@/components/training/NextModuleButton';
 
 const ravingFansQuizQuestions = [
   {
