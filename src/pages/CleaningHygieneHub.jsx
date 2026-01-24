@@ -1,22 +1,34 @@
 import React, { useState, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { format, addDays } from 'date-fns';
 import { motion } from 'framer-motion';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
-import { Droplet, CheckCircle, AlertCircle, Clock, TrendingUp, AlertTriangle, Users } from 'lucide-react';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Droplet, CheckCircle, AlertCircle, Clock, TrendingUp, AlertTriangle, Users, Plus } from 'lucide-react';
 import LoadingSpinner from '@/components/ui/LoadingSpinner';
+import DailyCleaningScheduleForm from '@/components/cleaning/DailyCleaningScheduleForm';
 
 export default function CleaningHygieneHub() {
   const [user, setUser] = useState(null);
+  const [showCleaningForm, setShowCleaningForm] = useState(false);
   const today = format(new Date(), 'yyyy-MM-dd');
 
   useEffect(() => {
     base44.auth.me().then(setUser).catch(() => {});
   }, []);
+
+  const queryClient = useQueryClient();
+
+  // Fetch daily cleaning logs
+  const { data: cleaningLogs = [] } = useQuery({
+    queryKey: ['cleaningLogs', today],
+    queryFn: () => base44.entities.DailyCleaningLog?.filter?.({ date: today }) || [],
+    enabled: !!user
+  });
 
   // Fetch cleaning & hygiene related data
   const { data: cleaningRecords = [] } = useQuery({
@@ -41,9 +53,16 @@ export default function CleaningHygieneHub() {
 
   if (!user) return <LoadingSpinner />;
 
+  // Required cleaning areas
+  const REQUIRED_AREAS = ['front_counter', 'chai_station', 'kitchen_prep', 'cooking_area', 'toilets'];
+
   // Calculate metrics
-  const dailyCleaningCompleted = cleaningRecords.some(r => 
-    r.checklist_category === 'cleaning' && r.status === 'completed'
+  const completedAreas = cleaningLogs
+    .filter(log => log.status === 'approved')
+    .map(log => log.area);
+  
+  const allRequiredCleaningDone = REQUIRED_AREAS.every(area => 
+    completedAreas.includes(area)
   );
   
   const deepCleaningDue = addDays(new Date(), 7); // Placeholder: due in 7 days
@@ -54,7 +73,7 @@ export default function CleaningHygieneHub() {
 
   // Status indicators
   const getDailyCleaningStatus = () => {
-    if (dailyCleaningCompleted) return { status: 'completed', color: 'bg-emerald-100 border-emerald-400', textColor: 'text-emerald-700' };
+    if (allRequiredCleaningDone) return { status: 'completed', color: 'bg-emerald-100 border-emerald-400', textColor: 'text-emerald-700' };
     return { status: 'pending', color: 'bg-amber-100 border-amber-400', textColor: 'text-amber-700' };
   };
 
@@ -93,15 +112,16 @@ export default function CleaningHygieneHub() {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
           {/* Daily Cleaning */}
           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0 }}>
-            <Card className={`border-2 hover:shadow-lg transition-all ${getDailyCleaningStatus().color}`}>
+            <Card className={`border-2 hover:shadow-lg transition-all cursor-pointer ${getDailyCleaningStatus().color}`}>
               <CardContent className="pt-6">
                 <div className="flex items-center justify-between mb-2">
                   <h3 className="font-semibold text-slate-800">Daily Cleaning</h3>
-                  {dailyCleaningCompleted ? <CheckCircle className="w-5 h-5 text-emerald-600" /> : <AlertCircle className="w-5 h-5 text-amber-600" />}
+                  {allRequiredCleaningDone ? <CheckCircle className="w-5 h-5 text-emerald-600" /> : <AlertCircle className="w-5 h-5 text-amber-600" />}
                 </div>
                 <p className={`text-sm font-bold ${getDailyCleaningStatus().textColor}`}>
-                  {dailyCleaningCompleted ? '✓ COMPLETED' : '⚠ PENDING'}
+                  {allRequiredCleaningDone ? '✓ COMPLETED' : `⚠ ${completedAreas.length}/${REQUIRED_AREAS.length} Areas`}
                 </p>
+                <p className="text-xs text-slate-600 mt-2">Click to view or add logs</p>
               </CardContent>
             </Card>
           </motion.div>
@@ -200,40 +220,100 @@ export default function CleaningHygieneHub() {
 
         {/* LOGS & VERIFICATION */}
         <Card>
-          <CardHeader>
+          <CardHeader className="flex flex-row items-center justify-between">
             <CardTitle className="flex items-center gap-2">
               <CheckCircle className="w-5 h-5 text-emerald-600" />
-              Logs & Verification
+              Daily Cleaning Logs
             </CardTitle>
+            <Button 
+              onClick={() => setShowCleaningForm(true)}
+              className="bg-blue-600 hover:bg-blue-700 gap-2"
+              size="sm"
+            >
+              <Plus className="w-4 h-4" />
+              Add Log
+            </Button>
           </CardHeader>
           <CardContent>
-            {cleaningRecords.length === 0 ? (
-              <p className="text-slate-600 text-center py-4">No cleaning logs recorded yet</p>
+            {cleaningLogs.length === 0 ? (
+              <div className="text-center py-8">
+                <p className="text-slate-600 mb-4">No cleaning logs recorded yet today</p>
+                <Button 
+                  onClick={() => setShowCleaningForm(true)}
+                  className="bg-blue-600 hover:bg-blue-700"
+                >
+                  Record First Cleaning
+                </Button>
+              </div>
             ) : (
               <div className="space-y-3">
-                {cleaningRecords.slice(0, 5).map((record, idx) => (
-                  <div key={record.id} className="flex items-start justify-between p-3 bg-slate-50 rounded-lg border-l-4 border-slate-300">
+                {cleaningLogs.map((log, idx) => (
+                  <div key={log.id} className={`flex items-start justify-between p-4 rounded-lg border-l-4 ${log.status === 'approved' ? 'bg-emerald-50 border-emerald-400' : 'bg-amber-50 border-amber-400'}`}>
                     <div className="flex-1">
-                      <p className="font-medium text-slate-800">{record.checklist_name}</p>
-                      <p className="text-xs text-slate-500">{record.user_name} • {format(new Date(record.created_date), 'HH:mm')}</p>
+                      <p className="font-bold text-slate-800">{log.area_name}</p>
+                      <p className="text-sm text-slate-600 mb-1">{log.cleaning_task}</p>
+                      <p className="text-xs text-slate-500">
+                        {log.completed_by_name} • {format(new Date(log.time_completed), 'HH:mm')} • {log.chemical_used}
+                      </p>
                     </div>
-                    <Badge 
-                      className={
-                        record.status === 'completed' 
-                          ? 'bg-emerald-600' 
-                          : record.status === 'failed'
-                          ? 'bg-red-600'
-                          : 'bg-amber-600'
-                      }
-                    >
-                      {record.status === 'completed' ? '✓' : record.status === 'failed' ? '✗' : '⏳'}
-                    </Badge>
+                    <div className="text-right">
+                      <Badge className={log.status === 'approved' ? 'bg-emerald-600' : 'bg-amber-600'}>
+                        {log.status === 'approved' ? '✓ Approved' : log.supervisor_sign_off ? '✓ Signed' : '⏳ Pending'}
+                      </Badge>
+                      {log.supervisor_sign_off && (
+                        <p className="text-xs text-slate-500 mt-1">{log.supervisor_name}</p>
+                      )}
+                    </div>
                   </div>
                 ))}
               </div>
             )}
+            
+            {/* Required Areas Checklist */}
+            {cleaningLogs.length > 0 && (
+              <div className="mt-6 pt-6 border-t border-slate-300">
+                <h4 className="font-semibold text-slate-800 mb-3">Required Areas Status</h4>
+                <div className="space-y-2">
+                  {REQUIRED_AREAS.map((area) => {
+                    const completed = completedAreas.includes(area);
+                    const areaNames = {
+                      front_counter: 'Front Counter',
+                      chai_station: 'Chai Station',
+                      kitchen_prep: 'Kitchen Prep',
+                      cooking_area: 'Cooking Area',
+                      toilets: 'Toilets',
+                    };
+                    return (
+                      <div key={area} className="flex items-center gap-3">
+                        <div className={`w-5 h-5 rounded-full flex items-center justify-center text-xs font-bold text-white ${completed ? 'bg-emerald-600' : 'bg-slate-300'}`}>
+                          {completed ? '✓' : '○'}
+                        </div>
+                        <span className={completed ? 'text-emerald-700 font-medium' : 'text-slate-600'}>
+                          {areaNames[area]}
+                        </span>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
           </CardContent>
         </Card>
+
+        {/* Cleaning Form Dialog */}
+        <Dialog open={showCleaningForm} onOpenChange={setShowCleaningForm}>
+          <DialogContent className="max-w-2xl max-h-96 overflow-y-auto">
+            <DialogHeader>
+              <DialogTitle>Add Daily Cleaning Log</DialogTitle>
+            </DialogHeader>
+            {user && (
+              <DailyCleaningScheduleForm 
+                user={user} 
+                onSuccess={() => setShowCleaningForm(false)}
+              />
+            )}
+          </DialogContent>
+        </Dialog>
       </div>
     </div>
   );
