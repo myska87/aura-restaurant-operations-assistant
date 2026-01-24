@@ -6,6 +6,7 @@ import { Input } from '@/components/ui/input';
 import { Card, CardContent } from '@/components/ui/card';
 import { AlertCircle, CheckCircle, XCircle } from 'lucide-react';
 import { motion } from 'framer-motion';
+import CorrectiveActionForm from './CorrectiveActionForm';
 
 export default function CCPCheckModal({ open, onClose, ccp, user, onSuccess }) {
   const [recordedValue, setRecordedValue] = useState('');
@@ -13,6 +14,7 @@ export default function CCPCheckModal({ open, onClose, ccp, user, onSuccess }) {
   const [loading, setLoading] = useState(false);
   const [checkResult, setCheckResult] = useState(null);
   const [error, setError] = useState(null);
+  const [showCorrectiveAction, setShowCorrectiveAction] = useState(false);
 
   if (!ccp) return null;
 
