@@ -51,7 +51,7 @@ import ModeSelector from '@/components/modes/ModeSelector';
 
 const navGroups = [
   {
-    title: 'Operations',
+    title: 'Live Operations',
     items: [
       { name: 'Command Center', icon: LayoutDashboard, page: 'CommandCenter', roles: ['all'], modes: ['manage'] },
       { name: 'Daily Operations Hub', icon: ClipboardCheck, page: 'DailyOperationsHub', roles: ['all'], modes: ['operate'] },
@@ -59,45 +59,39 @@ const navGroups = [
       { name: 'Equipment Status', icon: Wrench, page: 'EquipmentHealth', roles: ['all'], modes: ['operate'] },
       { name: 'Operations History', icon: History, page: 'OperationsHistory', roles: ['all'], modes: ['operate'] },
       { name: 'Menu Manager', icon: ChefHat, page: 'MenuManager', roles: ['all'], modes: ['operate'] },
+      { name: 'Checklist Library', icon: ClipboardCheck, page: 'ChecklistLibrary', roles: ['all'], modes: ['operate'] },
+      { name: 'Checklist Reports', icon: FileText, page: 'ChecklistReports', roles: ['all'], modes: ['operate'] },
+      { name: 'Visual Procedures', icon: FileText, page: 'VisualProcedures', roles: ['all'], modes: ['operate'] },
       { name: 'Visual Dish Guides', icon: CookingPot, page: 'VisualDishGuides', roles: ['all'], modes: ['operate'] },
-    ]
-  },
-  {
-    title: 'Compliance & Safety',
-    items: [
       { name: 'Quality & Safety', icon: Shield, page: 'QualitySafety', roles: ['all'], modes: ['operate'] },
-      { name: 'Checklist Library', icon: ClipboardCheck, page: 'ChecklistLibrary', roles: ['all'], modes: ['train'] },
-      { name: 'Checklist Reports', icon: FileText, page: 'ChecklistReports', roles: ['all'], modes: ['train'] },
       { name: 'Chemical Safety', icon: Wrench, page: 'ChemicalDashboard', roles: ['all'], modes: ['operate'] },
-      { name: 'Visual Procedures', icon: FileText, page: 'VisualProcedures', roles: ['all'], modes: ['train'] },
-      { name: 'Assets & Equipment', icon: Package, page: 'Assets', roles: ['all'], modes: ['manage'] },
-      { name: 'Equipment Health', icon: Wrench, page: 'EquipmentHealth', roles: ['all'], modes: ['manage'] },
     ]
   },
   {
-    title: 'Team & Training',
+    title: 'Team Development',
     items: [
       { name: 'Training Academy', icon: GraduationCap, page: 'TrainingAcademy', roles: ['all'], modes: ['train'] },
       { name: 'Leadership Path', icon: Trophy, page: 'LeadershipPathway', roles: ['all'], modes: ['train'] },
       { name: 'Culture', icon: Heart, page: 'Culture', roles: ['all'], modes: ['train'] },
       { name: 'People', icon: Users, page: 'People', roles: ['all'], modes: ['train'] },
-      { name: 'Shifts', icon: Calendar, page: 'Shifts', roles: ['all'], modes: ['manage'] },
-      { name: 'Performance', icon: TrendingUp, page: 'Performance', roles: ['manager', 'owner', 'admin'], modes: ['manage'] },
     ]
   },
   {
-    title: 'Admin & Reports',
+    title: 'Management & Control',
     items: [
+      { name: 'Reports', icon: TrendingUp, page: 'Reports', roles: ['manager', 'owner', 'admin'], modes: ['manage'] },
       { name: 'Audit Center', icon: FileText, page: 'AuditCenter', roles: ['all'], modes: ['manage'] },
       { name: 'Inspector Mode', icon: Shield, page: 'InspectorMode', roles: ['manager', 'owner', 'admin'], modes: ['manage'] },
-      { name: 'Reports', icon: TrendingUp, page: 'Reports', roles: ['manager', 'owner', 'admin'], modes: ['manage'] },
-      { name: 'Weekly Manager Reports', icon: FileText, page: 'WeeklyManagerReports', roles: ['manager', 'owner', 'admin'], modes: ['manage'] },
       { name: 'Compliance Hub', icon: Shield, page: 'ComplianceHub', roles: ['manager', 'owner', 'admin'], modes: ['manage'] },
       { name: 'Data Management', icon: Shield, page: 'DataManagement', roles: ['manager', 'owner', 'admin'], modes: ['manage'] },
       { name: 'Restaurant Info', icon: Settings, page: 'GlobalInfo', roles: ['manager', 'owner', 'admin'], modes: ['manage'] },
+      { name: 'Meetings', icon: Calendar, page: 'Meetings', roles: ['all'], modes: ['manage'] },
+      { name: 'Shifts', icon: Calendar, page: 'Shifts', roles: ['all'], modes: ['manage'] },
+      { name: 'Performance', icon: TrendingUp, page: 'Performance', roles: ['manager', 'owner', 'admin'], modes: ['manage'] },
+      { name: 'Assets & Equipment', icon: Package, page: 'Assets', roles: ['all'], modes: ['manage'] },
+      { name: 'Weekly Manager Reports', icon: FileText, page: 'WeeklyManagerReports', roles: ['manager', 'owner', 'admin'], modes: ['manage'] },
       { name: 'Documents', icon: FolderOpen, page: 'Documents', roles: ['all'], modes: ['manage'] },
       { name: 'Announcements', icon: Bell, page: 'Announcements', roles: ['all'], modes: ['manage'] },
-      { name: 'Meetings', icon: Calendar, page: 'Meetings', roles: ['all'], modes: ['train'] },
       { name: 'Change Requests', icon: MessageSquare, page: 'ChangeRequests', roles: ['all'], modes: ['manage'] },
     ]
   }

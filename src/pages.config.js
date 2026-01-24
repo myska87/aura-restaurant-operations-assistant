@@ -26,6 +26,7 @@ import FlowBoard from './pages/FlowBoard';
 import FoodSafetyChecklist from './pages/FoodSafetyChecklist';
 import Forms from './pages/Forms';
 import GlobalInfo from './pages/GlobalInfo';
+import HygieneReports from './pages/HygieneReports';
 import InspectorMode from './pages/InspectorMode';
 import Inventory from './pages/Inventory';
 import InventoryAdjustment from './pages/InventoryAdjustment';
@@ -80,7 +81,6 @@ import VisualProcedures from './pages/VisualProcedures';
 import WeeklyManagerReportDetail from './pages/WeeklyManagerReportDetail';
 import WeeklyManagerReportForm from './pages/WeeklyManagerReportForm';
 import WeeklyManagerReports from './pages/WeeklyManagerReports';
-import HygieneReports from './pages/HygieneReports';
 import __Layout from './Layout.jsx';
 
 
@@ -113,6 +113,7 @@ export const PAGES = {
     "FoodSafetyChecklist": FoodSafetyChecklist,
     "Forms": Forms,
     "GlobalInfo": GlobalInfo,
+    "HygieneReports": HygieneReports,
     "InspectorMode": InspectorMode,
     "Inventory": Inventory,
     "InventoryAdjustment": InventoryAdjustment,
@@ -167,7 +168,6 @@ export const PAGES = {
     "WeeklyManagerReportDetail": WeeklyManagerReportDetail,
     "WeeklyManagerReportForm": WeeklyManagerReportForm,
     "WeeklyManagerReports": WeeklyManagerReports,
-    "HygieneReports": HygieneReports,
 }
 
 export const pagesConfig = {
