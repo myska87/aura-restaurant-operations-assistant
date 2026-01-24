@@ -184,8 +184,24 @@ export default function VisualProcedureForm() {
       published_date: !saveAsDraft ? new Date().toISOString() : formData.published_date,
       last_updated_by_id: user?.id,
       last_updated_by_name: user?.full_name || user?.email,
-      version: formData.version || '1.0'
+      version: formData.version || '1.0',
+      notify_staff_on_update: notifyStaff && !saveAsDraft
     };
+
+    // Send staff notifications if enabled
+    if (!saveAsDraft && notifyStaff) {
+      base44.entities.Notification.bulkCreate([
+        {
+          recipient_email: '*',
+          title: isEditing ? 'Procedure Updated' : 'New Procedure Available',
+          message: `${formData.title} has been ${isEditing ? 'updated and requires review' : 'published'}. Please review it at your earliest convenience.`,
+          type: 'alert',
+          category: 'sop',
+          priority: 'high',
+          action_url: createPageUrl(`VisualProcedureDetail?id=${formData.id || saveData.id}`)
+        }
+      ]).catch(err => console.log('Notification send failed:', err));
+    }
 
     // Add version history if editing
     if (isEditing && procedure?.[0]) {
