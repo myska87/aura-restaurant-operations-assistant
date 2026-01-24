@@ -368,6 +368,14 @@ export default function TrainingAcademy() {
                 </div>
                 <h3 className="text-2xl font-bold mb-3">{option.title}</h3>
                 <p className="text-slate-600 text-lg">{option.description}</p>
+                {/* DEBUG INFO */}
+                <div className="text-xs text-slate-400 mt-4 p-2 bg-slate-100 rounded font-mono">
+                  <div>step: {option.step}</div>
+                  <div>currentStep: {currentStep}</div>
+                  <div>isUnlocked: {String(isUnlocked)}</div>
+                  <div>isClickable: {String(isUnlocked && !(!isUnlocked && !completionStatus))}</div>
+                </div>
+
                 {!isUnlocked && !completionStatus && (
                   <p className="text-sm text-slate-500 mt-3 font-semibold">
                     🔒 Complete the previous module to unlock
