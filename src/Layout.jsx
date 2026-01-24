@@ -33,7 +33,8 @@ import {
         ArrowLeft,
         Thermometer,
         History,
-        BarChart3
+        BarChart3,
+        Droplet
       } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
