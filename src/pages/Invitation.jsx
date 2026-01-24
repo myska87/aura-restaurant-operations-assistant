@@ -218,6 +218,9 @@ export default function Invitation() {
           )}
         </motion.div>
       )}
+
+      {/* DEBUG OUTPUT */}
+      <DebugTrainingState journeyProgress={journeyProgress} currentModuleId="invitation" />
     </div>
   );
 }
