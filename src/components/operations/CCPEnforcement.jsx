@@ -48,16 +48,37 @@ export default function CCPEnforcement({ user, blockedItems, onBlockedItemsChang
     return null;
   }
 
-  return (
-    <div className="space-y-3">
-      {/* Failed CCPs Alert */}
-      {failedChecks.length > 0 && (
+  const hasServiceLockdown = failedChecks.length > 0;
+
+  if (hasServiceLockdown) {
+    return (
+      <div className="space-y-3">
+        {/* Service Lockdown Banner */}
+        <motion.div
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="bg-gradient-to-r from-red-600 to-red-700 text-white rounded-xl shadow-2xl overflow-hidden"
+        >
+          <div className="p-4 flex items-center gap-4">
+            <div className="w-12 h-12 rounded-full bg-red-400 flex items-center justify-center flex-shrink-0">
+              <AlertCircle className="w-7 h-7 text-white" />
+            </div>
+            <div className="flex-1">
+              <h3 className="text-xl font-bold">🔒 FOOD SAFETY HOLD</h3>
+              <p className="text-red-100 text-sm mt-1">
+                Service is locked due to failed Critical Control Point(s). Corrective action required before resuming operations.
+              </p>
+            </div>
+          </div>
+        </motion.div>
+
+        {/* Failed CCPs Details */}
         <Card className="bg-red-50 border-2 border-red-300">
           <CardContent className="pt-4">
             <div className="flex gap-3">
               <AlertCircle className="w-5 h-5 text-red-600 flex-shrink-0 mt-0.5" />
               <div className="flex-1">
-                <h4 className="font-bold text-red-900 mb-2">🚨 CCP FAILURES - Menu Items Blocked</h4>
+                <h4 className="font-bold text-red-900 mb-2">Failed CCP Checks</h4>
                 <div className="space-y-2">
                   {failedChecks.map(check => (
                     <div key={check.id} className="bg-white rounded p-2 text-sm">
@@ -99,6 +120,48 @@ export default function CCPEnforcement({ user, blockedItems, onBlockedItemsChang
         </Card>
       )}
 
+      {/* Pending CCPs Warning */}
+      {pendingCCPs.length > 0 && (
+        <Card className="bg-amber-50 border-2 border-amber-300">
+          <CardContent className="pt-4">
+            <div className="flex gap-3">
+              <AlertCircle className="w-5 h-5 text-amber-600 flex-shrink-0 mt-0.5" />
+              <div className="flex-1">
+                <h4 className="font-bold text-amber-900 mb-2">⚠️ Mandatory CCP Checks Pending</h4>
+                <p className="text-sm text-amber-700 mb-2">
+                  {pendingCCPs.length} Critical Control Point(s) must be checked before continuing operations.
+                </p>
+                <div className="flex gap-1 flex-wrap">
+                  {pendingCCPs.map(ccp => (
+                    <Badge key={ccp.id} variant="outline" className="border-amber-300 text-amber-700 bg-white text-xs">
+                      {ccp.name}
+                    </Badge>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
+      {/* CCP Status Summary */}
+      {passedChecks.length > 0 && (
+        <Card className="bg-emerald-50 border-emerald-300">
+          <CardContent className="pt-3 pb-3">
+            <div className="flex items-center gap-2">
+              <p className="text-sm font-semibold text-emerald-700">
+                ✓ {passedChecks.length} CCP check(s) passed
+              </p>
+            </div>
+          </CardContent>
+        </Card>
+      )}
+      </div>
+    );
+  }
+
+  return (
+    <div className="space-y-3">
       {/* Pending CCPs Warning */}
       {pendingCCPs.length > 0 && (
         <Card className="bg-amber-50 border-2 border-amber-300">
