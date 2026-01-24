@@ -408,7 +408,7 @@ export default function Culture() {
       </motion.div>
 
       {/* Completion Status */}
-      {alreadyCompleted && (
+      {alreadyCompleted && acknowledgment && (
         <Card className="bg-emerald-50 border-emerald-300">
           <CardContent className="pt-4">
             <div className="flex items-center gap-3">
