@@ -673,15 +673,23 @@ export default function Culture() {
                   </CardContent>
                 </Card>
 
-                <Button 
-                  onClick={handleSubmit}
-                  disabled={!isComplete || !quizPassed}
-                  size="lg"
-                  className="w-full bg-gradient-to-r from-emerald-600 to-teal-600 text-lg h-14 disabled:opacity-50 disabled:cursor-not-allowed"
-                >
-                  <CheckCircle className="w-5 h-5 mr-2" />
-                  Complete & Continue
-                </Button>
+                <div className="flex gap-3">
+                   <Button 
+                     onClick={() => setShowAssessment(false)}
+                     variant="outline"
+                   >
+                     Back
+                   </Button>
+                   <Button 
+                     onClick={handleNextModule}
+                     disabled={!isComplete || !quizPassed || createAckMutation.isPending}
+                     size="lg"
+                     className="flex-1 bg-gradient-to-r from-emerald-600 to-teal-600 text-lg h-12 disabled:opacity-50 disabled:cursor-not-allowed"
+                   >
+                     <CheckCircle className="w-5 h-5 mr-2" />
+                     {createAckMutation.isPending ? 'Continuing...' : 'Complete & Continue'}
+                   </Button>
+                 </div>
 
                 {!isComplete && (
                   <p className="text-sm text-amber-700 text-center">
