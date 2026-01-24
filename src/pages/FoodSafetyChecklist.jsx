@@ -16,6 +16,61 @@ import { format } from 'date-fns';
 import { motion, AnimatePresence } from 'framer-motion';
 import PageHeader from '@/components/ui/PageHeader';
 import LoadingSpinner from '@/components/ui/LoadingSpinner';
+import TrainingModuleQuiz from '@/components/training/TrainingModuleQuiz';
+import TrainingJourneyBar from '@/components/training/TrainingJourneyBar';
+
+const hygieneQuizQuestions = [
+  {
+    question: 'What is the main objective of food safety checks and record keeping?',
+    options: [
+      'To ensure food safety compliance and prevent contamination',
+      'To complete paperwork only',
+      'To waste time',
+      'None of the above'
+    ],
+    correct: 0
+  },
+  {
+    question: 'Why is proper food storage important?',
+    options: [
+      'To prevent cross-contamination between raw and ready-to-eat foods',
+      'To make storage look neat',
+      'To save space',
+      'To reduce costs only'
+    ],
+    correct: 0
+  },
+  {
+    question: 'What should be checked regarding equipment and food rooms?',
+    options: [
+      'Cleanliness, maintenance, and proper functionality',
+      'Just the appearance',
+      'Nothing specific',
+      'Only once a month'
+    ],
+    correct: 0
+  },
+  {
+    question: 'How should staff handle ready-to-eat foods?',
+    options: [
+      'In separate clean areas using separate utensils',
+      'The same way as raw food',
+      'With bare hands for speed',
+      'Without any special precautions'
+    ],
+    correct: 0
+  },
+  {
+    question: 'What is essential for personal hygiene in food areas?',
+    options: [
+      'Clean clothing, handwashing, and fitness to work',
+      'Just wearing a uniform',
+      'Eating near food areas',
+      'No specific requirements'
+    ],
+    correct: 0
+  }
+];
 
 const checklistSections = {
   hygiene_equipment: {
@@ -124,6 +179,8 @@ export default function FoodSafetyChecklist() {
   const [answers, setAnswers] = useState({});
   const [showSubmitDialog, setShowSubmitDialog] = useState(false);
   const [signature, setSignature] = useState('');
+  const [quizPassed, setQuizPassed] = useState(false);
+  const [journeyProgress, setJourneyProgress] = useState(null);
 
   const queryClient = useQueryClient();
   const sectionKeys = Object.keys(checklistSections);
@@ -140,6 +197,22 @@ export default function FoodSafetyChecklist() {
     };
     loadUser();
   }, []);
+
+  const { data: journeyProgressData } = useQuery({
+    queryKey: ['trainingJourney', user?.email],
+    queryFn: async () => {
+      if (!user?.email) return null;
+      const existing = await base44.entities.TrainingJourneyProgress.filter({
+        staff_email: user.email
+      });
+      if (existing.length > 0) {
+        setJourneyProgress(existing[0]);
+        return existing[0];
+      }
+      return null;
+    },
+    enabled: !!user?.email
+  });
 
   const { data: recentChecklists = [] } = useQuery({
     queryKey: ['foodSafetyChecklists'],
@@ -239,6 +312,10 @@ export default function FoodSafetyChecklist() {
 
   return (
     <div className="max-w-4xl mx-auto space-y-6">
+      {journeyProgress && (
+        <TrainingJourneyBar progress={journeyProgress} compact />
+      )}
+
       <PageHeader
         title="Food Safety Inspection Checklist"
         description="UK Food Safety Standards Compliance"
@@ -450,6 +527,25 @@ export default function FoodSafetyChecklist() {
             </div>
           </CardContent>
         </Card>
+      )}
+
+      {/* Hygiene & Safety Quiz */}
+      {journeyProgress && journeyProgress.currentStep === 'hygiene' && (
+        <div className="mt-12 pt-8 border-t-2 border-slate-200">
+          <div className="bg-gradient-to-br from-emerald-50 to-green-50 rounded-2xl p-6 border-2 border-emerald-200">
+            <h2 className="text-2xl font-bold text-slate-900 mb-2">
+              Hygiene & Safety Knowledge Check
+            </h2>
+            <p className="text-slate-600 mb-6">
+              Test your understanding of food safety practices and standards.
+            </p>
+            <TrainingModuleQuiz
+              questions={hygieneQuizQuestions}
+              passMarkPercent={80}
+              onQuizPassed={(passed) => setQuizPassed(passed)}
+            />
+          </div>
+        </div>
       )}
 
       {/* Submit Dialog */}
