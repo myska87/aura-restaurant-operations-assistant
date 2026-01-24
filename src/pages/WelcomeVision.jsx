@@ -121,6 +121,9 @@ export default function WelcomeVision() {
 
   const markCompletedMutation = useMutation({
     mutationFn: async () => {
+      if (!quizPassed) {
+        throw new Error('Quiz must be passed first');
+      }
       await base44.entities.TrainingJourneyProgress.update(journeyProgress.id, {
         visionWatched: true,
         currentStep: 'values',
@@ -129,7 +132,9 @@ export default function WelcomeVision() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries(['trainingJourney']);
-      navigate(createPageUrl('TrainingAcademy'));
+    },
+    onError: (error) => {
+      alert(error.message);
     }
   });
 
@@ -312,14 +317,20 @@ export default function WelcomeVision() {
                     Completed
                   </>
                 ) : (
-                  "I've Watched This"
+                  "Complete & Continue"
                 )}
               </Button>
 
               {journeyProgress?.visionWatched && (
-                <p className="mt-4 text-sm text-emerald-600 font-semibold">
-                  ✓ Next: Continue to Culture & Values
-                </p>
+                <motion.div
+                  initial={{ opacity: 0, y: -10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  className="mt-4 p-4 bg-emerald-100 border border-emerald-300 rounded-lg"
+                >
+                  <p className="text-sm text-emerald-800 font-semibold">
+                    ✓ Module completed. Next step unlocked.
+                  </p>
+                </motion.div>
               )}
               {!quizPassed && (
                 <p className="mt-4 text-sm text-amber-600 font-semibold">
