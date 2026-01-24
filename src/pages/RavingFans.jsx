@@ -132,17 +132,8 @@ export default function RavingFans() {
     }
   });
 
-  const handleQuizPassed = (passed, score) => {
-    if (passed) {
-      setQuizPassed(true);
-    }
-  };
-
-  const handleNextModule = async () => {
-    await markCompletedMutation.mutate();
-    setTimeout(() => {
-      navigate(createPageUrl('SOPs'));
-    }, 500);
+  const handleQuizPassed = () => {
+    setQuizPassed(true);
   };
 
   if (isLoading) {
