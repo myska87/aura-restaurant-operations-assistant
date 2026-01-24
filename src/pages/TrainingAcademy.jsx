@@ -21,6 +21,15 @@ const trainingOptions = [
     isInvitation: true
   },
   {
+    title: 'Welcome & Vision — This Is Bigger Than a Café',
+    description: 'Understand our purpose and what we stand for',
+    icon: Leaf,
+    page: 'WelcomeVision',
+    color: 'from-purple-500 to-pink-600',
+    roles: ['all'],
+    requiresInvitation: true
+  },
+  {
     title: 'Culture & Values',
     description: 'Chai Patta culture, values & behaviour standards',
     icon: Leaf,
@@ -206,6 +215,8 @@ export default function TrainingAcademy() {
           
           if (option.isInvitation) {
             completionStatus = journeyProgress?.invitationAccepted;
+          } else if (option.page === 'WelcomeVision') {
+            completionStatus = journeyProgress?.visionWatched;
           } else if (option.page === 'Culture') {
             completionStatus = journeyProgress?.valuesCompleted;
           } else if (option.page === 'Training') {
