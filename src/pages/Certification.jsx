@@ -71,6 +71,28 @@ export default function Certification() {
     }
   });
 
+  const bypassCertificationMutation = useMutation({
+    mutationFn: async () => {
+      await base44.entities.TrainingJourneyProgress.update(journeyProgress.id, {
+        certified: true,
+        certificateIssuedAt: new Date().toISOString(),
+        onsiteAccessEnabled: true,
+        currentStep: 'growth',
+        lastUpdated: new Date().toISOString()
+      });
+    },
+    onSuccess: () => {
+      setShowBypassConfirm(false);
+      queryClient.invalidateQueries(['trainingJourney']);
+      confetti({
+        particleCount: 200,
+        spread: 120,
+        origin: { y: 0.6 },
+        colors: ['#ff6b6b', '#ffa94d', '#ffd93d', '#ff922b']
+      });
+    }
+  });
+
   if (isLoading) {
     return <LoadingSpinner message="Loading..." />;
   }
