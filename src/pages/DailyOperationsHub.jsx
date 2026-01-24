@@ -37,6 +37,7 @@ import TemperatureLog from '@/components/operations/TemperatureLog';
 import DailyBriefingForm from '@/components/operations/DailyBriefingForm';
 import ShiftHandoverChecklist from '@/components/operations/ShiftHandoverChecklist';
 import LabelPrintingModal from '@/components/operations/LabelPrintingModal';
+import InteractiveStagesDashboard from '@/components/operations/InteractiveStagesDashboard';
 
 export default function DailyOperationsHub() {
   const [user, setUser] = useState(null);
@@ -486,6 +487,17 @@ export default function DailyOperationsHub() {
             All essential tools to run your shift — fast, simple, live.
           </p>
         </div>
+
+        {/* Interactive Stages Dashboard */}
+        <InteractiveStagesDashboard
+          onOpeningClick={() => openChecklist('opening')}
+          onServiceClick={() => setShowTempAssets(true)}
+          onClosingClick={() => openChecklist('closing')}
+          openingCompletion={myOpeningCompletion?.completion_percentage || 0}
+          serviceCompletion={tempCompletion}
+          closingCompletion={myClosingCompletion?.completion_percentage || 0}
+          isShiftActive={!!myCheckIn}
+        />
 
         {/* Opening, Closing, Briefing & Handover Buttons */}
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
