@@ -59,6 +59,7 @@ import AIMenuAssistant from '@/components/menu/AIMenuAssistant';
 import OrderByDishDialog from '@/components/menu/OrderByDishDialog';
 import PortionOrderingDialog from '@/components/menu/PortionOrderingDialog';
 import LinkVisualGuideButton from '@/components/menu/LinkVisualGuideButton';
+import MenuSafetyStatus from '@/components/menu/MenuSafetyStatus';
 import { Link } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
 
@@ -417,6 +418,7 @@ export default function Menu() {
               <TableHeader>
                 <TableRow>
                   <TableHead>Name</TableHead>
+                  <TableHead>Safety Status</TableHead>
                   <TableHead>Category</TableHead>
                   <TableHead>Price</TableHead>
                   <TableHead>Cost</TableHead>
@@ -433,10 +435,13 @@ export default function Menu() {
                   
                   return (
                     <TableRow key={item.id}>
-                      <TableCell className="font-medium">{item.name}</TableCell>
-                      <TableCell>
-                        <Badge variant="outline">{item.category?.replace('_', ' ')}</Badge>
-                      </TableCell>
+                       <TableCell className="font-medium">{item.name}</TableCell>
+                       <TableCell>
+                         <MenuSafetyStatus menuItem={item} size="sm" showLabel={true} />
+                       </TableCell>
+                       <TableCell>
+                         <Badge variant="outline">{item.category?.replace('_', ' ')}</Badge>
+                       </TableCell>
                       <TableCell>£{item.price?.toFixed(2)}</TableCell>
                       <TableCell>£{item.cost?.toFixed(2) || '0.00'}</TableCell>
                       <TableCell>
