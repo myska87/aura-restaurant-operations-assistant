@@ -38,7 +38,7 @@ import DailyBriefingForm from '@/components/operations/DailyBriefingForm';
 import ShiftHandoverChecklist from '@/components/operations/ShiftHandoverChecklist';
 import LabelPrintingModal from '@/components/operations/LabelPrintingModal';
 import InteractiveStagesDashboard from '@/components/operations/InteractiveStagesDashboard';
-import PrepStageChecklist from '@/components/operations/PrepStageChecklist';
+import ServiceReadinessPanel from '@/components/operations/ServiceReadinessPanel';
 
 export default function DailyOperationsHub() {
   const [user, setUser] = useState(null);
@@ -506,9 +506,9 @@ export default function DailyOperationsHub() {
           isShiftActive={!!myCheckIn}
         />
 
-        {/* Prep Stage Checklist - Only show during Service Period */}
-        {myCheckIn && currentShift !== 'Closing' && (
-          <PrepStageChecklist 
+        {/* Service Readiness Panel - Prep & Hygiene Forms */}
+        {myCheckIn && (
+          <ServiceReadinessPanel 
             user={user} 
             shift={currentShift} 
             date={today} 
