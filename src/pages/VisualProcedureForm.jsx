@@ -590,7 +590,6 @@ export default function VisualProcedureForm() {
           </CardHeader>
           <CardContent className="space-y-4">
             {formData.tips_warnings.map((tip, index) => (
-            {formData.tips_warnings.map((tip, index) => (
               <div key={index} className="flex gap-3">
                 <Select value={tip.type} onValueChange={(value) => updateTipWarning(index, 'type', value)}>
                   <SelectTrigger className="w-40">
