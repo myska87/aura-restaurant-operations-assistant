@@ -596,19 +596,33 @@ export default function Culture() {
             </p>
           </CardHeader>
           <CardContent className="space-y-4">
-            <div className="space-y-3 max-h-96 overflow-y-auto">
+            <div className="space-y-4">
               {cultureQuizQuestions.map((q, idx) => (
-                <div key={idx} className="p-3 bg-white rounded border border-blue-200">
-                  <p className="font-semibold text-slate-800 mb-2">{idx + 1}. {q.question}</p>
+                <div key={idx} className="p-4 bg-white rounded border border-blue-200">
+                  <p className="font-semibold text-slate-800 mb-3">{idx + 1}. {q.question}</p>
                   {q.type === 'true-false' ? (
                     <div className="flex gap-2">
-                      <button className="px-3 py-1 bg-slate-100 rounded text-sm">True</button>
-                      <button className="px-3 py-1 bg-slate-100 rounded text-sm">False</button>
+                      <button 
+                        onClick={() => setQuizAnswers({...quizAnswers, [idx]: 0})}
+                        className={`px-4 py-2 rounded text-sm font-medium transition-all ${quizAnswers[idx] === 0 ? 'bg-blue-600 text-white' : 'bg-slate-200 hover:bg-slate-300'}`}
+                      >
+                        True
+                      </button>
+                      <button 
+                        onClick={() => setQuizAnswers({...quizAnswers, [idx]: 1})}
+                        className={`px-4 py-2 rounded text-sm font-medium transition-all ${quizAnswers[idx] === 1 ? 'bg-blue-600 text-white' : 'bg-slate-200 hover:bg-slate-300'}`}
+                      >
+                        False
+                      </button>
                     </div>
                   ) : (
-                    <div className="space-y-1">
+                    <div className="space-y-2">
                       {q.options?.map((opt, i) => (
-                        <button key={i} className="block w-full text-left px-3 py-2 bg-slate-100 rounded text-sm hover:bg-slate-200">
+                        <button 
+                          key={i} 
+                          onClick={() => setQuizAnswers({...quizAnswers, [idx]: i})}
+                          className={`block w-full text-left px-4 py-2 rounded text-sm font-medium transition-all ${quizAnswers[idx] === i ? 'bg-blue-600 text-white' : 'bg-slate-200 hover:bg-slate-300'}`}
+                        >
                           {opt}
                         </button>
                       ))}
@@ -618,11 +632,12 @@ export default function Culture() {
               ))}
             </div>
             <Button 
-              onClick={() => handleQuizPassed(true, 100)}
+              onClick={submitQuiz}
               size="lg"
-              className="w-full bg-emerald-600 text-white"
+              disabled={Object.keys(quizAnswers).length < cultureQuizQuestions.length}
+              className="w-full bg-emerald-600 hover:bg-emerald-700 text-white disabled:opacity-50"
             >
-              Complete Quiz & Continue
+              Submit Quiz & Continue
             </Button>
           </CardContent>
         </Card>
