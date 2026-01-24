@@ -1,9 +1,9 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { motion } from 'framer-motion';
 import { format } from 'date-fns';
-import { Thermometer, AlertTriangle, CheckCircle, Plus, Settings, Edit, Trash2 } from 'lucide-react';
+import { Thermometer, AlertTriangle, CheckCircle, Plus, Settings, Edit, Trash2, Save, Download, FileText } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -12,6 +12,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Badge } from '@/components/ui/badge';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import { Label } from '@/components/ui/label';
+import { toast } from 'sonner';
+import { v4 as uuidv4 } from 'uuid';
 
 export default function TemperatureLog({ user }) {
   const [showBulkForm, setShowBulkForm] = useState(false);
@@ -19,11 +21,15 @@ export default function TemperatureLog({ user }) {
   const [showEquipmentForm, setShowEquipmentForm] = useState(false);
   const [editingEquipment, setEditingEquipment] = useState(null);
   const [bulkTemperatures, setBulkTemperatures] = useState({});
+  const [bulkNotes, setBulkNotes] = useState({});
+  const [isDraft, setIsDraft] = useState(false);
+  const [lastAutoSave, setLastAutoSave] = useState(null);
   const [equipmentFormData, setEquipmentFormData] = useState({
     name: '',
     location: '',
     min_temp: '',
-    max_temp: ''
+    max_temp: '',
+    temperature_tracking: true
   });
 
   const queryClient = useQueryClient();
@@ -38,20 +44,44 @@ export default function TemperatureLog({ user }) {
   };
   
   const currentShift = getCurrentShift();
+  const batchId = uuidv4();
 
+  // Fetch today's temperature logs
   const { data: todayLogs = [] } = useQuery({
     queryKey: ['temperatureLogs', today],
-    queryFn: () => base44.entities.TemperatureLog.filter({ log_date: today }, '-created_date', 100)
+    queryFn: () => base44.entities.TemperatureLog.filter({ log_date: today }, '-created_date', 200)
   });
 
+  // Fetch only temperature-tracked equipment from Assets
   const { data: equipmentList = [] } = useQuery({
     queryKey: ['temperature-equipment'],
-    queryFn: () => base44.entities.Asset.filter({ category: 'refrigeration' }, 'name', 100)
+    queryFn: async () => {
+      const allAssets = await base44.entities.Asset.filter({ category: 'refrigeration' }, 'name', 100);
+      return allAssets.filter(asset => asset.temperature_tracking === true);
+    }
   });
 
+  // Auto-save every 5 seconds
+  useEffect(() => {
+    if (!showBulkForm || Object.keys(bulkTemperatures).length === 0) return;
+
+    const autoSaveInterval = setInterval(() => {
+      handleAutoSave();
+    }, 5000);
+
+    return () => clearInterval(autoSaveInterval);
+  }, [bulkTemperatures, bulkNotes, showBulkForm]);
+
+  const handleAutoSave = useCallback(() => {
+    if (Object.keys(bulkTemperatures).length === 0) return;
+    
+    setLastAutoSave(new Date());
+    toast.success('Draft auto-saved', { duration: 1000 });
+  }, [bulkTemperatures]);
+
+  // Bulk create mutation
   const bulkCreateLogMutation = useMutation({
     mutationFn: async (logsData) => {
-      // Create all logs in parallel
       await Promise.all(
         logsData.map(log => base44.entities.TemperatureLog.create(log))
       );
@@ -60,9 +90,16 @@ export default function TemperatureLog({ user }) {
       queryClient.invalidateQueries(['temperatureLogs']);
       setShowBulkForm(false);
       setBulkTemperatures({});
+      setBulkNotes({});
+      setIsDraft(false);
+      toast.success('✅ All temperatures logged successfully!');
+    },
+    onError: (error) => {
+      toast.error('Failed to save temperatures. Please try again.');
     }
   });
 
+  // Equipment CRUD mutations
   const equipmentMutation = useMutation({
     mutationFn: ({ id, data }) => id 
       ? base44.entities.Asset.update(id, data)
@@ -71,44 +108,62 @@ export default function TemperatureLog({ user }) {
       queryClient.invalidateQueries(['temperature-equipment']);
       setShowEquipmentForm(false);
       setEditingEquipment(null);
-      setEquipmentFormData({ name: '', location: '', min_temp: '', max_temp: '' });
+      setEquipmentFormData({ name: '', location: '', min_temp: '', max_temp: '', temperature_tracking: true });
+      toast.success('Equipment saved successfully');
     }
   });
 
   const deleteEquipmentMutation = useMutation({
     mutationFn: (id) => base44.entities.Asset.delete(id),
-    onSuccess: () => queryClient.invalidateQueries(['temperature-equipment'])
+    onSuccess: () => {
+      queryClient.invalidateQueries(['temperature-equipment']);
+      toast.success('Equipment deleted');
+    }
   });
 
-  const handleBulkSubmit = () => {
+  const handleBulkSubmit = (saveAsDraft = false) => {
     // Validate all equipment has temperature
     const missingTemps = equipmentList.filter(e => !bulkTemperatures[e.id]);
-    if (missingTemps.length > 0) {
-      alert(`Please enter temperatures for all equipment. Missing: ${missingTemps.map(e => e.name).join(', ')}`);
+    if (!saveAsDraft && missingTemps.length > 0) {
+      toast.error(`Missing temperatures for: ${missingTemps.map(e => e.name).join(', ')}`);
       return;
     }
 
     // Build all log entries
-    const logsData = equipmentList.map(equip => {
-      const temp = parseFloat(bulkTemperatures[equip.id]);
-      const minTemp = equip.min_temp ?? 0;
-      const maxTemp = equip.max_temp ?? 5;
-      const isInRange = temp >= minTemp && temp <= maxTemp;
+    const logsData = equipmentList
+      .filter(equip => bulkTemperatures[equip.id]) // Only include those with temps
+      .map(equip => {
+        const temp = parseFloat(bulkTemperatures[equip.id]);
+        const minTemp = equip.min_temp ?? 0;
+        const maxTemp = equip.max_temp ?? 5;
+        const isInRange = temp >= minTemp && temp <= maxTemp;
 
-      return {
-        equipment_name: equip.name,
-        temperature: temp,
-        check_time: currentShift,
-        location: equip.location || '',
-        min_temp: minTemp,
-        max_temp: maxTemp,
-        is_in_range: isInRange,
-        logged_by: user.email,
-        logged_by_name: user.full_name || user.email,
-        log_date: today,
-        manager_notified: !isInRange
-      };
-    });
+        return {
+          asset_id: equip.id,
+          equipment_name: equip.name,
+          temperature: temp,
+          check_time: currentShift,
+          location: equip.location || '',
+          min_temp: minTemp,
+          max_temp: maxTemp,
+          is_in_range: isInRange,
+          logged_by: user.email,
+          logged_by_name: user.full_name || user.email,
+          log_date: today,
+          notes: bulkNotes[equip.id] || '',
+          manager_notified: !isInRange,
+          batch_id: batchId,
+          is_draft: saveAsDraft,
+          auto_saved: false,
+          last_edited_by: user.email,
+          last_edited_at: new Date().toISOString()
+        };
+      });
+
+    if (logsData.length === 0) {
+      toast.error('Please enter at least one temperature');
+      return;
+    }
 
     bulkCreateLogMutation.mutate(logsData);
   };
@@ -120,6 +175,8 @@ export default function TemperatureLog({ user }) {
       category: 'refrigeration',
       min_temp: parseFloat(equipmentFormData.min_temp),
       max_temp: parseFloat(equipmentFormData.max_temp),
+      temperature_tracking: true,
+      temp_check_frequency: 'all_shifts',
       status: 'active'
     };
 
@@ -130,38 +187,77 @@ export default function TemperatureLog({ user }) {
   };
 
   const getCheckTimeStatus = (checkTime) => {
-    const logsForShift = todayLogs.filter(log => log.check_time === checkTime);
+    const logsForShift = todayLogs.filter(log => log.check_time === checkTime && !log.is_draft);
     return logsForShift.length >= equipmentList.length ? 'complete' : 'pending';
   };
   
   const getTempStatus = (temp, minTemp, maxTemp) => {
     if (temp < minTemp || temp > maxTemp) {
-      return { color: 'bg-red-100 border-red-400 text-red-800', label: 'Critical' };
+      return { color: 'bg-red-100 border-red-400 text-red-800', label: 'Critical', icon: AlertTriangle };
     }
-    return { color: 'bg-emerald-100 border-emerald-400 text-emerald-800', label: 'OK' };
+    return { color: 'bg-emerald-100 border-emerald-400 text-emerald-800', label: 'OK', icon: CheckCircle };
   };
   
   const groupLogsByShift = () => {
+    const nonDraftLogs = todayLogs.filter(log => !log.is_draft);
     return {
-      opening: todayLogs.filter(log => log.check_time === 'opening'),
-      mid_shift: todayLogs.filter(log => log.check_time === 'mid_shift'),
-      closing: todayLogs.filter(log => log.check_time === 'closing')
+      opening: nonDraftLogs.filter(log => log.check_time === 'opening'),
+      mid_shift: nonDraftLogs.filter(log => log.check_time === 'mid_shift'),
+      closing: nonDraftLogs.filter(log => log.check_time === 'closing')
     };
+  };
+
+  const exportToPDF = () => {
+    toast.info('PDF export feature coming soon');
+  };
+
+  const exportToExcel = () => {
+    // Simple CSV export
+    const csvContent = [
+      ['Equipment', 'Temperature', 'Min', 'Max', 'Status', 'Shift', 'Date', 'Logged By', 'Time'],
+      ...todayLogs.filter(l => !l.is_draft).map(log => [
+        log.equipment_name,
+        log.temperature,
+        log.min_temp,
+        log.max_temp,
+        log.is_in_range ? 'OK' : 'Out of Range',
+        log.check_time,
+        log.log_date,
+        log.logged_by_name,
+        format(new Date(log.created_date), 'HH:mm')
+      ])
+    ].map(row => row.join(',')).join('\n');
+
+    const blob = new Blob([csvContent], { type: 'text/csv' });
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `temperature-logs-${today}.csv`;
+    a.click();
+    toast.success('Exported to CSV');
   };
 
   return (
     <div className="space-y-4">
       <Card>
         <CardHeader>
-          <div className="flex items-center justify-between">
+          <div className="flex items-center justify-between flex-wrap gap-3">
             <CardTitle>Temperature Monitoring</CardTitle>
-            <div className="flex gap-2">
+            <div className="flex gap-2 flex-wrap">
+              <Button onClick={exportToPDF} size="sm" variant="outline">
+                <FileText className="w-4 h-4 mr-2" />
+                Export PDF
+              </Button>
+              <Button onClick={exportToExcel} size="sm" variant="outline">
+                <Download className="w-4 h-4 mr-2" />
+                Export Excel
+              </Button>
               <Button onClick={() => setShowEquipmentManager(true)} size="sm" variant="outline">
                 <Settings className="w-4 h-4 mr-2" />
                 Manage Equipment
               </Button>
               <Button onClick={() => setShowBulkForm(true)} size="sm" className="bg-emerald-600 hover:bg-emerald-700">
-                <Plus className="w-4 h-4 mr-2" />
+                <Thermometer className="w-4 h-4 mr-2" />
                 Log Temperature
               </Button>
             </div>
@@ -170,25 +266,28 @@ export default function TemperatureLog({ user }) {
         <CardContent className="space-y-4">
           {/* Check Time Status */}
           <div className="grid grid-cols-3 gap-3">
-            {['opening', 'mid_shift', 'closing'].map(time => (
-              <Card key={time} className={
-                getCheckTimeStatus(time) === 'complete' 
-                  ? 'bg-emerald-50 border-emerald-300'
-                  : 'bg-amber-50 border-amber-300'
-              }>
-                <CardContent className="pt-4 text-center">
-                  {getCheckTimeStatus(time) === 'complete' ? (
-                    <CheckCircle className="w-6 h-6 mx-auto mb-2 text-emerald-600" />
-                  ) : (
-                    <AlertTriangle className="w-6 h-6 mx-auto mb-2 text-amber-600" />
-                  )}
-                  <p className="text-sm font-semibold capitalize">{time.replace('_', ' ')}</p>
-                  <p className="text-xs text-slate-600">
-                    {getCheckTimeStatus(time) === 'complete' ? 'Logged' : 'Pending'}
-                  </p>
-                </CardContent>
-              </Card>
-            ))}
+            {['opening', 'mid_shift', 'closing'].map(time => {
+              const status = getCheckTimeStatus(time);
+              return (
+                <Card key={time} className={
+                  status === 'complete' 
+                    ? 'bg-emerald-50 border-emerald-300'
+                    : 'bg-amber-50 border-amber-300'
+                }>
+                  <CardContent className="pt-4 text-center">
+                    {status === 'complete' ? (
+                      <CheckCircle className="w-6 h-6 mx-auto mb-2 text-emerald-600" />
+                    ) : (
+                      <AlertTriangle className="w-6 h-6 mx-auto mb-2 text-amber-600" />
+                    )}
+                    <p className="text-sm font-semibold capitalize">{time.replace('_', ' ')}</p>
+                    <p className="text-xs text-slate-600">
+                      {status === 'complete' ? 'Logged' : 'Pending'}
+                    </p>
+                  </CardContent>
+                </Card>
+              );
+            })}
           </div>
 
           {/* Bulk Temperature Entry Table */}
@@ -196,9 +295,9 @@ export default function TemperatureLog({ user }) {
             <motion.div
               initial={{ opacity: 0, y: -10 }}
               animate={{ opacity: 1, y: 0 }}
-              className="space-y-4 p-4 bg-slate-50 rounded-xl"
+              className="space-y-4 p-4 bg-slate-50 rounded-xl border-2 border-blue-200"
             >
-              <div className="flex items-center justify-between">
+              <div className="flex items-center justify-between flex-wrap gap-3">
                 <div>
                   <h3 className="font-bold text-lg text-slate-900">
                     {currentShift === 'opening' ? '🌅 Opening Check' : 
@@ -208,6 +307,11 @@ export default function TemperatureLog({ user }) {
                   <p className="text-sm text-slate-600">
                     {format(new Date(), 'EEEE, MMMM d, yyyy • h:mm a')}
                   </p>
+                  {lastAutoSave && (
+                    <p className="text-xs text-emerald-600 mt-1">
+                      ✓ Last auto-saved: {format(lastAutoSave, 'HH:mm:ss')}
+                    </p>
+                  )}
                 </div>
                 <Badge className="bg-blue-100 text-blue-700">
                   Logged by: {user?.full_name || user?.email}
@@ -220,10 +324,10 @@ export default function TemperatureLog({ user }) {
                     <tr>
                       <th className="text-left p-3 font-semibold text-slate-700">Equipment</th>
                       <th className="text-left p-3 font-semibold text-slate-700">Location</th>
-                      <th className="text-center p-3 font-semibold text-slate-700">Min Temp</th>
-                      <th className="text-center p-3 font-semibold text-slate-700">Max Temp</th>
+                      <th className="text-center p-3 font-semibold text-slate-700">Safe Range</th>
                       <th className="text-center p-3 font-semibold text-slate-700">Current Temp (°C)</th>
                       <th className="text-center p-3 font-semibold text-slate-700">Status</th>
+                      <th className="text-left p-3 font-semibold text-slate-700">Notes</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -234,18 +338,20 @@ export default function TemperatureLog({ user }) {
                         equip.min_temp ?? 0, 
                         equip.max_temp ?? 5
                       ) : null;
+                      const StatusIcon = status?.icon;
 
                       return (
                         <tr key={equip.id} className="border-b hover:bg-slate-50">
                           <td className="p-3 font-medium">{equip.name}</td>
                           <td className="p-3 text-slate-600">{equip.location}</td>
-                          <td className="p-3 text-center text-slate-600">{equip.min_temp ?? 0}°C</td>
-                          <td className="p-3 text-center text-slate-600">{equip.max_temp ?? 5}°C</td>
+                          <td className="p-3 text-center text-slate-600">
+                            {equip.min_temp ?? 0}°C to {equip.max_temp ?? 5}°C
+                          </td>
                           <td className="p-3">
                             <Input
                               type="number"
                               step="0.1"
-                              placeholder="Enter temp"
+                              placeholder="Enter"
                               value={bulkTemperatures[equip.id] || ''}
                               onChange={(e) => setBulkTemperatures({
                                 ...bulkTemperatures,
@@ -255,12 +361,24 @@ export default function TemperatureLog({ user }) {
                               autoFocus={idx === 0}
                             />
                           </td>
-                          <td className="p-3">
+                          <td className="p-3 text-center">
                             {status && (
-                              <Badge className={status.color}>
+                              <Badge className={`${status.color} flex items-center gap-1 justify-center`}>
+                                {StatusIcon && <StatusIcon className="w-3 h-3" />}
                                 {status.label}
                               </Badge>
                             )}
+                          </td>
+                          <td className="p-3">
+                            <Input
+                              placeholder="Notes..."
+                              value={bulkNotes[equip.id] || ''}
+                              onChange={(e) => setBulkNotes({
+                                ...bulkNotes,
+                                [equip.id]: e.target.value
+                              })}
+                              className="text-sm"
+                            />
                           </td>
                         </tr>
                       );
@@ -269,26 +387,35 @@ export default function TemperatureLog({ user }) {
                 </table>
               </div>
 
-              <div className="flex items-center justify-between pt-4 border-t">
+              <div className="flex items-center justify-between pt-4 border-t flex-wrap gap-3">
                 <p className="text-sm text-slate-600">
                   {Object.keys(bulkTemperatures).length} of {equipmentList.length} equipment logged
                 </p>
-                <div className="flex gap-3">
+                <div className="flex gap-3 flex-wrap">
                   <Button 
                     variant="outline" 
                     onClick={() => {
                       setShowBulkForm(false);
                       setBulkTemperatures({});
+                      setBulkNotes({});
                     }}
                   >
                     Cancel
                   </Button>
                   <Button
-                    onClick={handleBulkSubmit}
+                    variant="outline"
+                    onClick={() => handleBulkSubmit(true)}
+                    disabled={bulkCreateLogMutation.isPending}
+                  >
+                    <Save className="w-4 h-4 mr-2" />
+                    Save Draft
+                  </Button>
+                  <Button
+                    onClick={() => handleBulkSubmit(false)}
                     disabled={bulkCreateLogMutation.isPending}
                     className="bg-emerald-600 hover:bg-emerald-700"
                   >
-                    {bulkCreateLogMutation.isPending ? 'Saving...' : '💾 Save All Temperatures'}
+                    {bulkCreateLogMutation.isPending ? 'Saving...' : '✅ Submit All'}
                   </Button>
                 </div>
               </div>
@@ -324,6 +451,7 @@ export default function TemperatureLog({ user }) {
                             <th className="text-center p-2 font-medium">Status</th>
                             <th className="text-left p-2 font-medium">User</th>
                             <th className="text-left p-2 font-medium">Time</th>
+                            <th className="text-left p-2 font-medium">Notes</th>
                           </tr>
                         </thead>
                         <tbody>
@@ -349,6 +477,7 @@ export default function TemperatureLog({ user }) {
                               <td className="p-2 text-slate-600">
                                 {format(new Date(log.created_date), 'h:mm a')}
                               </td>
+                              <td className="p-2 text-slate-600 text-xs">{log.notes || '-'}</td>
                             </tr>
                           ))}
                         </tbody>
@@ -368,7 +497,7 @@ export default function TemperatureLog({ user }) {
 
       {/* Equipment Manager Dialog */}
       <Dialog open={showEquipmentManager} onOpenChange={setShowEquipmentManager}>
-        <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
+        <DialogContent className="max-w-3xl max-h-[80vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>Manage Temperature Equipment</DialogTitle>
           </DialogHeader>
@@ -376,7 +505,7 @@ export default function TemperatureLog({ user }) {
             <Button 
               onClick={() => {
                 setEditingEquipment(null);
-                setEquipmentFormData({ name: '', location: '', min_temp: '', max_temp: '' });
+                setEquipmentFormData({ name: '', location: '', min_temp: '', max_temp: '', temperature_tracking: true });
                 setShowEquipmentForm(true);
               }} 
               className="w-full"
@@ -393,8 +522,11 @@ export default function TemperatureLog({ user }) {
                       <p className="font-semibold">{equip.name}</p>
                       <p className="text-sm text-slate-600">{equip.location}</p>
                       <p className="text-xs text-slate-500 mt-1">
-                        Range: {equip.min_temp}°C to {equip.max_temp}°C
+                        Safe Range: {equip.min_temp}°C to {equip.max_temp}°C
                       </p>
+                      <Badge className="mt-1 text-xs">
+                        {equip.temp_check_frequency || 'all_shifts'}
+                      </Badge>
                     </div>
                     <div className="flex gap-2">
                       <Button
@@ -406,7 +538,8 @@ export default function TemperatureLog({ user }) {
                             name: equip.name,
                             location: equip.location || '',
                             min_temp: equip.min_temp?.toString() || '',
-                            max_temp: equip.max_temp?.toString() || ''
+                            max_temp: equip.max_temp?.toString() || '',
+                            temperature_tracking: true
                           });
                           setShowEquipmentForm(true);
                         }}
@@ -430,7 +563,7 @@ export default function TemperatureLog({ user }) {
                 </Card>
               ))}
               {equipmentList.length === 0 && (
-                <p className="text-center text-slate-500 py-8">No equipment added yet</p>
+                <p className="text-center text-slate-500 py-8">No temperature-tracked equipment added yet</p>
               )}
             </div>
           </div>
@@ -441,7 +574,7 @@ export default function TemperatureLog({ user }) {
       <Dialog open={showEquipmentForm} onOpenChange={setShowEquipmentForm}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>{editingEquipment ? 'Edit Equipment' : 'Add Equipment'}</DialogTitle>
+            <DialogTitle>{editingEquipment ? 'Edit Equipment' : 'Add Temperature Equipment'}</DialogTitle>
           </DialogHeader>
           <div className="space-y-4">
             <div>
@@ -449,7 +582,7 @@ export default function TemperatureLog({ user }) {
               <Input
                 value={equipmentFormData.name}
                 onChange={(e) => setEquipmentFormData({...equipmentFormData, name: e.target.value})}
-                placeholder="e.g., Fridge 1"
+                placeholder="e.g., Walk-in Fridge"
               />
             </div>
             <div>
@@ -462,7 +595,7 @@ export default function TemperatureLog({ user }) {
             </div>
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <Label>Min Temp (°C) *</Label>
+                <Label>Min Safe Temp (°C) *</Label>
                 <Input
                   type="number"
                   step="0.1"
@@ -472,7 +605,7 @@ export default function TemperatureLog({ user }) {
                 />
               </div>
               <div>
-                <Label>Max Temp (°C) *</Label>
+                <Label>Max Safe Temp (°C) *</Label>
                 <Input
                   type="number"
                   step="0.1"
