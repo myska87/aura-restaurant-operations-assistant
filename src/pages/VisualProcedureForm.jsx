@@ -70,7 +70,13 @@ export default function VisualProcedureForm() {
 
   useEffect(() => {
     if (procedure && procedure[0]) {
-      setFormData(procedure[0]);
+      setFormData({
+        ...formData,
+        ...procedure[0],
+        steps: procedure[0].steps || [{ step_number: 1, step_title: '', instruction_text: '', photo_url: '', video_url: '', duration_seconds: 30 }],
+        tips_warnings: procedure[0].tips_warnings || [],
+        ingredients_tools: procedure[0].ingredients_tools || []
+      });
     }
   }, [procedure]);
 
