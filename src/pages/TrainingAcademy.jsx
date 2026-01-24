@@ -276,54 +276,53 @@ export default function TrainingAcademy() {
           const CardContent_ = (
             <Card className={`
               transition-all duration-300 border-2 h-full relative
-              ${!isUnlocked && !completionStatus ? 'opacity-50 bg-slate-50 border-slate-300' : ''}
-              ${completionStatus ? 'border-emerald-500 bg-emerald-50' : ''}
-              ${isCurrentStep && !completionStatus ? 'border-blue-400 bg-blue-50 hover:shadow-lg hover:border-blue-500' : ''}
-              ${isUnlocked && !completionStatus && !isCurrentStep ? 'hover:shadow-xl hover:border-slate-400 cursor-pointer' : ''}
-              ${isUnlocked ? 'cursor-pointer' : 'cursor-not-allowed'}
+              ${isLocked ? 'opacity-50 bg-slate-50 border-slate-300' : ''}
+              ${isCompleted ? 'border-emerald-500 bg-emerald-50' : ''}
+              ${isInProgress ? 'border-blue-400 bg-blue-50 hover:shadow-lg hover:border-blue-500' : ''}
+              ${isCurrentModule || isCompleted ? 'cursor-pointer' : 'cursor-not-allowed'}
             `}>
               <CardContent className="pt-6">
                 <div className="flex items-start justify-between mb-4">
-                  <div className={`w-20 h-20 rounded-2xl bg-gradient-to-br ${option.color} flex items-center justify-center shadow-lg ${!isUnlocked && !completionStatus ? 'opacity-70' : ''}`}>
+                  <div className={`w-20 h-20 rounded-2xl bg-gradient-to-br ${module.color} flex items-center justify-center shadow-lg ${isLocked ? 'opacity-70' : ''}`}>
                     <Icon className="w-10 h-10 text-white" />
                   </div>
-                  {!isUnlocked && !completionStatus && (
+                  {isLocked && (
                     <Lock className="w-6 h-6 text-slate-400" />
                   )}
-                  {completionStatus && (
+                  {isCompleted && (
                     <CheckCircle className="w-6 h-6 text-emerald-600" />
                   )}
-                  {isCurrentStep && !completionStatus && (
+                  {isInProgress && (
                     <Badge className="bg-blue-600">In Progress</Badge>
                   )}
                 </div>
-                <h3 className="text-2xl font-bold mb-3">{option.title}</h3>
-                <p className="text-slate-600 text-lg">{option.description}</p>
-                {!isUnlocked && !completionStatus && (
+                <h3 className="text-2xl font-bold mb-3">{module.title}</h3>
+                <p className="text-slate-600 text-lg">{module.description}</p>
+                {isLocked && (
                   <p className="text-sm text-slate-500 mt-3 font-semibold">
-                    🔒 Complete the previous module to unlock
+                    🔒 Complete the current module to unlock
                   </p>
                 )}
-                {completionStatus && (
+                {isCompleted && (
                   <p className="text-sm text-emerald-600 mt-3 font-semibold">
                     ✓ Completed
                   </p>
                 )}
-                {isCurrentStep && !completionStatus && (
+                {isInProgress && (
                   <p className="text-sm text-blue-600 mt-3 font-semibold">
-                    → In Progress — Click to continue
+                    → Continue: Pass the quiz to progress
                   </p>
                 )}
               </CardContent>
             </Card>
           );
-          
+
           return (
-            <TooltipProvider key={option.page}>
+            <TooltipProvider key={module.id}>
               <Tooltip>
                 <TooltipTrigger asChild>
-                  {isUnlocked ? (
-                    <Link to={createPageUrl(option.page)}>
+                  {(isCurrentModule || isCompleted) ? (
+                    <Link to={createPageUrl(module.page)}>
                       {CardContent_}
                     </Link>
                   ) : (
@@ -332,8 +331,8 @@ export default function TrainingAcademy() {
                     </div>
                   )}
                 </TooltipTrigger>
-                {!isUnlocked && !completionStatus && (
-                  <TooltipContent>Complete the previous module to unlock</TooltipContent>
+                {isLocked && (
+                  <TooltipContent>Complete the current module to unlock</TooltipContent>
                 )}
               </Tooltip>
             </TooltipProvider>
