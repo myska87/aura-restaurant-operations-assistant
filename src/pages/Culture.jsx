@@ -213,14 +213,15 @@ export default function Culture() {
 
   const queryClient = useQueryClient();
 
-  const { data: acknowledgment } = useQuery({
+  const { data: acknowledgment, refetch: refetchAck } = useQuery({
     queryKey: ['cultureAck', user?.email],
     queryFn: async () => {
       if (!user?.email) return null;
       const acks = await base44.entities.CultureAcknowledgment.filter({ staff_email: user.email });
       return acks[0] || null;
     },
-    enabled: !!user?.email
+    enabled: !!user?.email,
+    refetchInterval: 2000
   });
 
   const alreadyCompleted = !!acknowledgment;
