@@ -121,6 +121,9 @@ export default function RavingFans() {
 
   const markCompletedMutation = useMutation({
     mutationFn: async () => {
+      if (!quizPassed) {
+        throw new Error('Quiz must be passed first');
+      }
       await base44.entities.TrainingJourneyProgress.update(journeyProgress.id, {
         ravingFansCompleted: true,
         currentStep: 'skills',
@@ -129,7 +132,9 @@ export default function RavingFans() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries(['trainingJourney']);
-      navigate(createPageUrl('TrainingAcademy'));
+    },
+    onError: (error) => {
+      alert(error.message);
     }
   });
 
@@ -303,14 +308,20 @@ export default function RavingFans() {
                     Completed
                   </>
                 ) : (
-                  "Raving Fans Complete"
+                  "Complete & Continue"
                 )}
               </Button>
 
               {journeyProgress?.ravingFansCompleted && (
-                <p className="mt-4 text-sm text-emerald-600 font-semibold">
-                  ✓ Next: Continue to Skills & SOPs
-                </p>
+                <motion.div
+                  initial={{ opacity: 0, y: -10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  className="mt-4 p-4 bg-emerald-100 border border-emerald-300 rounded-lg"
+                >
+                  <p className="text-sm text-emerald-800 font-semibold">
+                    ✓ Module completed. Next step unlocked.
+                  </p>
+                </motion.div>
               )}
               {!quizPassed && (
                 <p className="mt-4 text-sm text-amber-600 font-semibold">
