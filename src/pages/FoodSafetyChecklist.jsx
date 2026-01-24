@@ -21,27 +21,18 @@ import TrainingJourneyBar from '@/components/training/TrainingJourneyBar';
 
 const hygieneQuizQuestions = [
   {
-    question: 'What is the main objective of food safety checks and record keeping?',
-    options: [
-      'To ensure food safety compliance and prevent contamination',
-      'To complete paperwork only',
-      'To waste time',
-      'None of the above'
-    ],
+    question: 'Food safety checks and record keeping help ensure compliance and prevent contamination.',
+    type: 'true-false',
     correct: 0
   },
   {
-    question: 'Why is proper food storage important?',
-    options: [
-      'To prevent cross-contamination between raw and ready-to-eat foods',
-      'To make storage look neat',
-      'To save space',
-      'To reduce costs only'
-    ],
+    question: 'Proper food storage prevents cross-contamination between raw and ready-to-eat foods.',
+    type: 'true-false',
     correct: 0
   },
   {
     question: 'What should be checked regarding equipment and food rooms?',
+    type: 'multiple-choice',
     options: [
       'Cleanliness, maintenance, and proper functionality',
       'Just the appearance',
@@ -51,17 +42,13 @@ const hygieneQuizQuestions = [
     correct: 0
   },
   {
-    question: 'How should staff handle ready-to-eat foods?',
-    options: [
-      'In separate clean areas using separate utensils',
-      'The same way as raw food',
-      'With bare hands for speed',
-      'Without any special precautions'
-    ],
+    question: 'Ready-to-eat foods must be handled in separate clean areas using separate utensils.',
+    type: 'true-false',
     correct: 0
   },
   {
     question: 'What is essential for personal hygiene in food areas?',
+    type: 'multiple-choice',
     options: [
       'Clean clothing, handwashing, and fitness to work',
       'Just wearing a uniform',
