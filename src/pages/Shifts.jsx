@@ -181,6 +181,13 @@ export default function Shifts() {
   };
 
   const handleClockIn = async (shift) => {
+    const staffProgress = trainingProgress.find(t => t.staff_id === shift.staff_id);
+    
+    if (!staffProgress?.onsiteAccessEnabled) {
+      alert('⛔ Training not completed — access restricted.\n\nThis staff member must complete their full training journey and obtain certification before clocking in.');
+      return;
+    }
+
     const now = new Date().toISOString();
     await updateMutation.mutateAsync({
       id: shift.id,
