@@ -62,7 +62,7 @@ const navGroups = [
 
       { name: 'Menu Manager', icon: ChefHat, page: 'MenuManager', roles: ['all'], modes: ['operate'] },
       { name: 'Checklist Library', icon: ClipboardCheck, page: 'ChecklistLibrary', roles: ['all'], modes: ['operate'] },
-      { name: 'Operational Reports', icon: BarChart3, page: 'OperateReports', roles: ['all'], modes: ['operate', 'manage'] },
+      { name: 'Operations Reports', icon: BarChart3, page: 'OperationsReports', roles: ['all'], modes: ['operate', 'manage'] },
       { name: 'Visual Procedures', icon: FileText, page: 'VisualProcedures', roles: ['all'], modes: ['operate'] },
       { name: 'Visual Dish Guides', icon: CookingPot, page: 'VisualDishGuides', roles: ['all'], modes: ['operate'] },
       { name: 'Quality & Safety', icon: Shield, page: 'QualitySafety', roles: ['all'], modes: ['operate'] },

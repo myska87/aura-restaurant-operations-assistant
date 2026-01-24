@@ -46,7 +46,6 @@ import MorningPrep from './pages/MorningPrep';
 import OnboardingFlow from './pages/OnboardingFlow';
 import OperateHome from './pages/OperateHome';
 import Operations from './pages/Operations';
-import OperationsHistory from './pages/OperationsHistory';
 import POSSystem from './pages/POSSystem';
 import People from './pages/People';
 import Performance from './pages/Performance';
@@ -87,7 +86,6 @@ import WeeklyManagerReports from './pages/WeeklyManagerReports';
 import WelcomeVision from './pages/WelcomeVision';
 import IncidentCenter from './pages/IncidentCenter';
 import LiveFoodSafety from './pages/LiveFoodSafety';
-import OperateReports from './pages/OperateReports';
 import OperationsReports from './pages/OperationsReports';
 import __Layout from './Layout.jsx';
 
@@ -141,7 +139,6 @@ export const PAGES = {
     "OnboardingFlow": OnboardingFlow,
     "OperateHome": OperateHome,
     "Operations": Operations,
-    "OperationsHistory": OperationsHistory,
     "POSSystem": POSSystem,
     "People": People,
     "Performance": Performance,
@@ -182,7 +179,6 @@ export const PAGES = {
     "WelcomeVision": WelcomeVision,
     "IncidentCenter": IncidentCenter,
     "LiveFoodSafety": LiveFoodSafety,
-    "OperateReports": OperateReports,
     "OperationsReports": OperationsReports,
 }
 
