@@ -396,6 +396,112 @@ export default function TrainingAcademy() {
           );
         })}
       </div>
+
+      {/* Reset Training Modal */}
+      <Dialog open={showResetConfirm} onOpenChange={setShowResetConfirm}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <div className="flex items-center gap-3">
+              <div className="w-12 h-12 rounded-full bg-amber-100 flex items-center justify-center">
+                <AlertTriangle className="w-6 h-6 text-amber-600" />
+              </div>
+              <div>
+                <DialogTitle>Reset Training Progress</DialogTitle>
+                <DialogDescription>Start training from the beginning</DialogDescription>
+              </div>
+            </div>
+          </DialogHeader>
+
+          <div className="space-y-4 py-4">
+            {/* Mode Selection */}
+            <div className="space-y-2">
+              <label className="text-sm font-semibold">Reset whose training?</label>
+              <div className="space-y-2">
+                <button
+                  onClick={() => {
+                    setResetMode('self');
+                    setSelectedStaffEmail('');
+                  }}
+                  className={`w-full p-3 text-left rounded-lg border-2 transition-all ${
+                    resetMode === 'self'
+                      ? 'border-blue-500 bg-blue-50'
+                      : 'border-slate-200 hover:border-slate-300'
+                  }`}
+                >
+                  <p className="font-semibold text-slate-900">My Training</p>
+                  <p className="text-sm text-slate-500">Reset your own training</p>
+                </button>
+
+                {user?.role === 'admin' && (
+                  <button
+                    onClick={() => setResetMode('other')}
+                    className={`w-full p-3 text-left rounded-lg border-2 transition-all ${
+                      resetMode === 'other'
+                        ? 'border-blue-500 bg-blue-50'
+                        : 'border-slate-200 hover:border-slate-300'
+                    }`}
+                  >
+                    <p className="font-semibold text-slate-900">Staff Member</p>
+                    <p className="text-sm text-slate-500">Reset another staff member's training</p>
+                  </button>
+                )}
+              </div>
+            </div>
+
+            {/* Staff Selection for Admin */}
+            {resetMode === 'other' && user?.role === 'admin' && (
+              <div className="space-y-2">
+                <label className="text-sm font-semibold">Select staff member:</label>
+                <select
+                  value={selectedStaffEmail}
+                  onChange={(e) => setSelectedStaffEmail(e.target.value)}
+                  className="w-full px-3 py-2 border rounded-lg"
+                >
+                  <option value="">Choose a staff member...</option>
+                  {staffList.map((staff) => (
+                    <option key={staff.id} value={staff.email}>
+                      {staff.full_name} ({staff.email})
+                    </option>
+                  ))}
+                </select>
+              </div>
+            )}
+
+            {/* Warning Message */}
+            <div className="p-4 bg-amber-100 border border-amber-300 rounded-lg">
+              <p className="text-sm text-amber-900 font-semibold">
+                ⚠️ This will reset all training progress and they'll need to start from the beginning.
+              </p>
+            </div>
+
+            {/* Action Buttons */}
+            <div className="flex gap-3 pt-4">
+              <Button
+                onClick={() => setShowResetConfirm(false)}
+                variant="outline"
+                className="flex-1"
+              >
+                Cancel
+              </Button>
+              <Button
+                onClick={() => {
+                  const email = resetMode === 'self' ? user.email : selectedStaffEmail;
+                  if (email) {
+                    resetTrainingMutation.mutate(email);
+                  }
+                }}
+                disabled={
+                  resetTrainingMutation.isPending ||
+                  (resetMode === 'other' && !selectedStaffEmail)
+                }
+                className="flex-1 bg-amber-600 hover:bg-amber-700"
+              >
+                {resetTrainingMutation.isPending ? 'Resetting...' : 'Reset Training'}
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
