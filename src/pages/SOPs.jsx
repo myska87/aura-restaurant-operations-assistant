@@ -50,6 +50,7 @@ import PageHeader from '@/components/ui/PageHeader';
 import EmptyState from '@/components/ui/EmptyState';
 import LoadingSpinner from '@/components/ui/LoadingSpinner';
 import TrainingJourneyBar from '@/components/training/TrainingJourneyBar';
+import TrainingModuleQuiz from '@/components/training/TrainingModuleQuiz';
 import { Card, CardContent } from '@/components/ui/card';
 import { Checkbox } from '@/components/ui/checkbox';
 
@@ -71,6 +72,59 @@ const requiredSections = [
   { id: 'opening_closing', label: 'Opening & Closing Rituals', categories: ['kitchen', 'front_of_house'] }
 ];
 
+const skillsQuizQuestions = [
+  {
+    question: 'What are the key components of proper bar and chai preparation?',
+    options: [
+      'Temperature control, ingredient freshness, and presentation standards',
+      'Only speed and quantity',
+      'Color and taste preferences',
+      'Customer feedback alone'
+    ],
+    correct: 0
+  },
+  {
+    question: 'How should food and pastries be handled to maintain quality?',
+    options: [
+      'Follow storage guidelines, respect expiry dates, and maintain hygiene standards',
+      'Store anywhere that fits',
+      'Thaw at room temperature',
+      'Ignore temperature requirements'
+    ],
+    correct: 0
+  },
+  {
+    question: 'What defines excellent customer interaction standards?',
+    options: [
+      'Greeting customers warmly, listening actively, and resolving issues promptly',
+      'Ignoring customer needs',
+      'Speaking only when spoken to',
+      'Rushing through transactions'
+    ],
+    correct: 0
+  },
+  {
+    question: 'What is the purpose of standardized POS and order flow?',
+    options: [
+      'Ensure accuracy, reduce errors, and maintain consistent service speed',
+      'Complicate the process',
+      'Slow down operations',
+      'Confuse staff members'
+    ],
+    correct: 0
+  },
+  {
+    question: 'Why are opening and closing rituals important?',
+    options: [
+      'They establish consistency, prepare/secure the premises, and ensure food safety',
+      'They are optional',
+      'They waste time',
+      'They serve no purpose'
+    ],
+    correct: 0
+  }
+];
+
 export default function SOPs() {
   const [user, setUser] = useState(null);
   const [showForm, setShowForm] = useState(false);
@@ -83,6 +137,7 @@ export default function SOPs() {
   const [filterCategory, setFilterCategory] = useState('all');
   const [filterStatus, setFilterStatus] = useState('all');
   const [completedSections, setCompletedSections] = useState({});
+  const [quizPassed, setQuizPassed] = useState(false);
 
   const queryClient = useQueryClient();
 
