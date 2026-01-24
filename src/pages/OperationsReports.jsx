@@ -12,12 +12,13 @@ import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { 
   ClipboardCheck, Thermometer, Tag, MessageSquare, User, Clock, Calendar, Plus, Printer, Eye, BarChart3, 
-  Sparkles, CheckCircle, Download, AlertTriangle, Zap, AlertCircle, Loader
+  Sparkles, CheckCircle, Download, AlertTriangle, Zap, AlertCircle, Loader, FileText
 } from 'lucide-react';
 import { format, subDays } from 'date-fns';
 import PageHeader from '@/components/ui/PageHeader';
 import LoadingSpinner from '@/components/ui/LoadingSpinner';
 import { motion } from 'framer-motion';
+import DetailedDailyReportGenerator from '@/components/reports/DetailedDailyReportGenerator';
 
 export default function OperationsReports() {
   const [user, setUser] = useState(null);
@@ -35,6 +36,7 @@ export default function OperationsReports() {
   const [reportGenerating, setReportGenerating] = useState(false);
   const [selectedReport, setSelectedReport] = useState(null);
   const [showReportDetail, setShowReportDetail] = useState(false);
+  const [showDetailedDailyDialog, setShowDetailedDailyDialog] = useState(false);
 
   const queryClient = useQueryClient();
 
@@ -468,6 +470,10 @@ export default function OperationsReports() {
           <Button onClick={() => setShowFullReportDialog(true)} className="bg-purple-600 hover:bg-purple-700">
             <BarChart3 className="w-4 h-4 mr-2" />
             Full Report
+          </Button>
+          <Button onClick={() => setShowDetailedDailyDialog(true)} className="bg-indigo-600 hover:bg-indigo-700">
+            <FileText className="w-4 h-4 mr-2" />
+            Daily Report
           </Button>
           <Button onClick={() => setShowHACCPDialog(true)} className="bg-emerald-600 hover:bg-emerald-700">
             <Zap className="w-4 h-4 mr-2" />
@@ -1269,6 +1275,23 @@ export default function OperationsReports() {
           )}
         </DialogContent>
       </Dialog>
+
+      {/* DETAILED DAILY REPORT DIALOG */}
+      {showDetailedDailyDialog && (
+        <DetailedDailyReportGenerator
+          user={user}
+          startDate={startDate}
+          endDate={endDate}
+          completions={filteredCompletions}
+          checkIns={filteredCheckIns}
+          temperatures={filteredTemps}
+          labels={filteredLabels}
+          ccpChecks={filteredCCPChecks}
+          handovers={filteredHandovers}
+          staff={staff}
+          onClose={() => setShowDetailedDailyDialog(false)}
+        />
+      )}
 
       {/* REPORT DETAIL DIALOG */}
       <Dialog open={showReportDetail} onOpenChange={setShowReportDetail}>
