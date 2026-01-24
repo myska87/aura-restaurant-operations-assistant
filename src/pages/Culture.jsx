@@ -330,7 +330,6 @@ export default function Culture() {
                      acknowledged &&
                      quizPassed;
 
-  const alreadyCompleted = !!acknowledgment;
   const dailyQuote = getDailyQuote();
 
   return (
