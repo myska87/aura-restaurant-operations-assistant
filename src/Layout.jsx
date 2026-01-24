@@ -56,6 +56,7 @@ const navGroups = [
     items: [
       { name: 'Command Center', icon: LayoutDashboard, page: 'CommandCenter', roles: ['all'], modes: ['manage'] },
       { name: 'Daily Operations Hub', icon: ClipboardCheck, page: 'DailyOperationsHub', roles: ['all'], modes: ['operate'] },
+      { name: 'Cleaning & Hygiene', icon: Droplet, page: 'CleaningHygieneHub', roles: ['all'], modes: ['operate'] },
       { name: 'Live Food Safety', icon: Shield, page: 'LiveFoodSafety', roles: ['all'], modes: ['operate'] },
       { name: 'Shift Handover', icon: MessageSquare, page: 'ShiftHandovers', roles: ['all'], modes: ['operate'] },
       { name: 'Equipment Status', icon: Wrench, page: 'EquipmentHealth', roles: ['all'], modes: ['operate'] },
