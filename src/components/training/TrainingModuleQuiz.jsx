@@ -124,6 +124,15 @@ export default function TrainingModuleQuiz({
     setShowResults(false);
     setCurrentQuestion(0);
     setScore(0);
+    setQuizPassed(false);
+    saveState({
+      currentQuestion: 0,
+      selectedAnswers: {},
+      showResults: false,
+      score: 0,
+      quizStarted,
+      quizPassed: false
+    });
   };
 
   if (!quizStarted) {
