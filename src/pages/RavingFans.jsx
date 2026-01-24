@@ -342,6 +342,9 @@ export default function RavingFans() {
           )}
         </motion.div>
       )}
+
+      {/* DEBUG OUTPUT */}
+      <DebugTrainingState journeyProgress={journeyProgress} currentModuleId="raving_fans" />
     </div>
   );
 }
