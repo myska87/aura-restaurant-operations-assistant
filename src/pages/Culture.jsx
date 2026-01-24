@@ -564,8 +564,28 @@ export default function Culture() {
         </CardContent>
       </Card>
 
-      {/* Assessment Section */}
-      {!alreadyCompleted && (
+      {/* Quiz Section - Show First */}
+      {!alreadyCompleted && !quizPassed && (
+        <Card className="border-2 border-blue-400 bg-blue-50">
+          <CardHeader>
+            <CardTitle className="text-2xl">🎯 Culture & Values Quiz</CardTitle>
+            <p className="text-slate-600 text-sm">
+              Test your understanding of Chai Patta's core values. You need 80% to pass.
+            </p>
+          </CardHeader>
+          <CardContent>
+            <TrainingModuleQuiz
+              questions={cultureQuizQuestions}
+              onQuizPassed={handleQuizPassed}
+              moduleName="Culture & Values"
+              passPercentage={80}
+            />
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Assessment Section - Show After Quiz Passes */}
+      {!alreadyCompleted && quizPassed && (
         <Card className="border-2 border-amber-300 bg-amber-50">
           <CardHeader>
             <CardTitle className="text-2xl">📝 Mini Assessment (Mandatory)</CardTitle>
