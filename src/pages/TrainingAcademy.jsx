@@ -12,6 +12,15 @@ import LoadingSpinner from '@/components/ui/LoadingSpinner';
 
 const trainingOptions = [
   {
+    title: 'Invitation — You Are Chosen',
+    description: 'Welcome to Chai Patta — start your journey',
+    icon: Leaf,
+    page: 'Invitation',
+    color: 'from-amber-500 to-orange-600',
+    roles: ['all'],
+    isInvitation: true
+  },
+  {
     title: 'Culture & Values',
     description: 'Chai Patta culture, values & behaviour standards',
     icon: Leaf,
@@ -185,38 +194,19 @@ export default function TrainingAcademy() {
       {/* Training Journey Progress */}
       <TrainingJourneyBar progress={journeyProgress} />
 
-      {/* Invitation Step */}
-      {!journeyProgress?.invitationAccepted && (
-        <Card className="border-2 border-amber-400 bg-gradient-to-br from-amber-50 to-yellow-50">
-          <CardContent className="pt-6">
-            <h3 className="text-2xl font-bold text-amber-900 mb-3">
-              🎉 Welcome to Your Training Journey!
-            </h3>
-            <p className="text-slate-700 mb-4">
-              You've been invited to join our team. Accept this invitation to start your learning path 
-              and unlock all training modules.
-            </p>
-            <Button
-              onClick={() => acceptInvitationMutation.mutate()}
-              disabled={acceptInvitationMutation.isPending}
-              className="bg-amber-600 hover:bg-amber-700 text-white font-bold"
-              size="lg"
-            >
-              Accept Invitation & Start Journey
-            </Button>
-          </CardContent>
-        </Card>
-      )}
+
 
       <div className="grid md:grid-cols-2 gap-6">
         {trainingOptions.map((option) => {
           const Icon = option.icon;
           
-          // Determine if module is unlocked
-          let isUnlocked = journeyProgress?.invitationAccepted || false;
+          // Invitation is always unlocked
+          let isUnlocked = option.isInvitation ? true : (journeyProgress?.invitationAccepted || false);
           let completionStatus = null;
           
-          if (option.page === 'Culture') {
+          if (option.isInvitation) {
+            completionStatus = journeyProgress?.invitationAccepted;
+          } else if (option.page === 'Culture') {
             completionStatus = journeyProgress?.valuesCompleted;
           } else if (option.page === 'Training') {
             completionStatus = journeyProgress?.hygieneCompleted;
