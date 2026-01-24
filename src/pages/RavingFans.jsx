@@ -78,13 +78,20 @@ export default function RavingFans() {
     return <LoadingSpinner message="Loading..." />;
   }
 
-  if (!journeyProgress?.valuesCompleted) {
+  // Check if unlocked (either valuesCompleted OR no journey progress yet means we're in testing)
+  const isUnlocked = journeyProgress?.valuesCompleted;
+  
+  if (!isUnlocked && journeyProgress) {
     return (
-      <div className="max-w-4xl mx-auto">
+      <div className="max-w-4xl mx-auto space-y-6">
+        <TrainingJourneyBar progress={journeyProgress} compact />
         <Card className="border-2 border-amber-400">
           <CardContent className="pt-6 text-center">
-            <p className="text-lg text-slate-700">
+            <p className="text-lg text-slate-700 mb-2">
               🔒 Complete Culture & Values first to unlock Raving Fans Philosophy
+            </p>
+            <p className="text-sm text-slate-600 mb-4">
+              Current progress: valuesCompleted = {journeyProgress?.valuesCompleted ? 'true' : 'false'}
             </p>
             <Button
               onClick={() => navigate(createPageUrl('TrainingAcademy'))}
