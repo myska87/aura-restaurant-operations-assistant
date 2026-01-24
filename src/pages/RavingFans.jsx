@@ -14,44 +14,36 @@ import TrainingModuleQuiz from '@/components/training/TrainingModuleQuiz';
 
 const ravingFansQuizQuestions = [
   {
-    question: "What is the difference between a satisfied customer and a raving fan?",
-    options: [
-      "Raving fans cost more money",
-      "A satisfied customer might return. A raving fan will bring others with them.",
-      "There is no difference",
-      "Raving fans are less loyal"
-    ],
-    correctAnswer: 1
+    question: "A satisfied customer might return, but a raving fan will bring others with them.",
+    type: 'true-false',
+    correct: 0
   },
   {
-    question: "Which of these is a way to create raving fans?",
+    question: "How do you create raving fans?",
+    type: 'multiple-choice',
     options: [
+      "Remember faces, use names, anticipate needs, and care even when busy",
       "Serve food as fast as possible",
       "Treat every guest like they're less important",
-      "Remember faces and use guests' names, anticipate their needs",
       "Ignore guests unless they complain"
     ],
-    correctAnswer: 2
+    correct: 0
   },
   {
-    question: "What is your mission according to the Raving Fans philosophy?",
-    options: [
-      "Just serve food",
-      "Make the most money possible",
-      "Turn moments into memories",
-      "Work as fast as you can"
-    ],
-    correctAnswer: 2
+    question: "Your mission is to turn moments into memories.",
+    type: 'true-false',
+    correct: 0
   },
   {
-    question: "What does it mean to treat every guest like a guest in your home?",
+    question: "What does treating every guest like a guest in your home mean?",
+    type: 'multiple-choice',
     options: [
-      "Invite them to your personal home",
       "Show genuine care and hospitality even when it's busy",
+      "Invite them to your personal home",
       "Ignore them unless they're your family",
       "Charge them less money"
     ],
-    correctAnswer: 1
+    correct: 0
   }
 ];
 
