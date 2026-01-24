@@ -190,6 +190,7 @@ export default function OperationsReports() {
   const handleGenerateSummaryReport = async () => {
     setReportGenerating(true);
     try {
+      console.log('[Report] Starting summary report generation...');
       const reportId = `SUMMARY-${Date.now()}`;
       const summaryData = {
         total_staff_checked_in: filteredCheckIns.length,
@@ -204,15 +205,17 @@ export default function OperationsReports() {
 
       const complianceStatus = filteredCCPChecks.filter(c => c.status === 'fail').length === 0 ? 'green' : 'amber';
 
-      await base44.entities.Report.create({
+      console.log('[Report] Report data:', { reportId, summaryData, user });
+
+      const result = await base44.entities.Report.create({
         report_id: reportId,
         report_type: 'summary',
         title: `Operations Summary Report - ${format(new Date(), 'MMM d, yyyy')}`,
         description: `Summary report for period ${startDate} to ${endDate}`,
         date_range_start: startDate,
         date_range_end: endDate,
-        generated_by_id: user.id,
-        generated_by_name: user.full_name,
+        generated_by_id: user.id || user.email,
+        generated_by_name: user.full_name || 'Unknown',
         generated_by_email: user.email,
         generated_at: new Date().toISOString(),
         business_name: user.location_name || 'Main Location',
@@ -224,14 +227,15 @@ export default function OperationsReports() {
           staff_filter: staffFilter,
           status_filter: statusFilter
         },
-        status: 'generated',
-        notes: `Summary report with ${Object.values(summaryData).reduce((a, b) => a + (typeof b === 'number' ? b : 0), 0)} total items`
+        status: 'generated'
       });
 
+      console.log('[Report] Report created:', result);
+      queryClient.invalidateQueries(['reports']);
       setShowSummaryReportDialog(false);
       alert('✓ Summary report generated successfully!');
     } catch (error) {
-      console.error('Report generation error:', error);
+      console.error('[Report] Error:', error);
       alert(`❌ Error: ${error.message}`);
     } finally {
       setReportGenerating(false);
@@ -241,6 +245,7 @@ export default function OperationsReports() {
   const handleGenerateFullReport = async () => {
     setReportGenerating(true);
     try {
+      console.log('[Report] Starting full report generation...');
       const reportId = `FULL-${Date.now()}`;
       const sections = ['staff_checkins', 'daily_checklists', 'hygiene_reports', 'temperature_logs', 'labels', 'ccp_records', 'handovers', 'audit_trail'];
       
@@ -252,15 +257,17 @@ export default function OperationsReports() {
             ? 'red' 
             : 'amber';
 
-      await base44.entities.Report.create({
+      console.log('[Report] Report data:', { reportId, sections, complianceStatus, user });
+
+      const result = await base44.entities.Report.create({
         report_id: reportId,
         report_type: 'full_operations',
         title: `Full Operations Report - ${format(new Date(), 'MMM d, yyyy')}`,
         description: `Comprehensive operations report for period ${startDate} to ${endDate}`,
         date_range_start: startDate,
         date_range_end: endDate,
-        generated_by_id: user.id,
-        generated_by_name: user.full_name,
+        generated_by_id: user.id || user.email,
+        generated_by_name: user.full_name || 'Unknown',
         generated_by_email: user.email,
         generated_at: new Date().toISOString(),
         business_name: user.location_name || 'Main Location',
@@ -282,14 +289,15 @@ export default function OperationsReports() {
           staff_filter: staffFilter,
           status_filter: statusFilter
         },
-        status: 'generated',
-        notes: `Full report with ${sections.length} sections and ${filteredCompletions.length + filteredCheckIns.length + filteredTemps.length + filteredLabels.length + filteredCCPChecks.length + filteredHandovers.length} total records`
+        status: 'generated'
       });
 
+      console.log('[Report] Report created:', result);
+      queryClient.invalidateQueries(['reports']);
       setShowFullReportDialog(false);
       alert('✓ Full operations report generated successfully!');
     } catch (error) {
-      console.error('Report generation error:', error);
+      console.error('[Report] Error:', error);
       alert(`❌ Error: ${error.message}`);
     } finally {
       setReportGenerating(false);

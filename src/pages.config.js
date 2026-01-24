@@ -2,6 +2,7 @@ import AllergenDashboard from './pages/AllergenDashboard';
 import AllergenReport from './pages/AllergenReport';
 import Announcements from './pages/Announcements';
 import AssetDetail from './pages/AssetDetail';
+import AssetRegister from './pages/AssetRegister';
 import Assets from './pages/Assets';
 import AuditCenter from './pages/AuditCenter';
 import Certification from './pages/Certification';
@@ -28,12 +29,14 @@ import FoodSafetyChecklist from './pages/FoodSafetyChecklist';
 import Forms from './pages/Forms';
 import GlobalInfo from './pages/GlobalInfo';
 import HygieneReports from './pages/HygieneReports';
+import IncidentCenter from './pages/IncidentCenter';
 import InspectorMode from './pages/InspectorMode';
 import Inventory from './pages/Inventory';
 import InventoryAdjustment from './pages/InventoryAdjustment';
 import Invitation from './pages/Invitation';
 import Invitations from './pages/Invitations';
 import LeadershipPathway from './pages/LeadershipPathway';
+import LiveFoodSafety from './pages/LiveFoodSafety';
 import ManageHome from './pages/ManageHome';
 import Meetings from './pages/Meetings';
 import Menu from './pages/Menu';
@@ -46,6 +49,7 @@ import MorningPrep from './pages/MorningPrep';
 import OnboardingFlow from './pages/OnboardingFlow';
 import OperateHome from './pages/OperateHome';
 import Operations from './pages/Operations';
+import OperationsReports from './pages/OperationsReports';
 import POSSystem from './pages/POSSystem';
 import People from './pages/People';
 import Performance from './pages/Performance';
@@ -84,10 +88,6 @@ import WeeklyManagerReportDetail from './pages/WeeklyManagerReportDetail';
 import WeeklyManagerReportForm from './pages/WeeklyManagerReportForm';
 import WeeklyManagerReports from './pages/WeeklyManagerReports';
 import WelcomeVision from './pages/WelcomeVision';
-import IncidentCenter from './pages/IncidentCenter';
-import LiveFoodSafety from './pages/LiveFoodSafety';
-import OperationsReports from './pages/OperationsReports';
-import AssetRegister from './pages/AssetRegister';
 import __Layout from './Layout.jsx';
 
 
@@ -96,6 +96,7 @@ export const PAGES = {
     "AllergenReport": AllergenReport,
     "Announcements": Announcements,
     "AssetDetail": AssetDetail,
+    "AssetRegister": AssetRegister,
     "Assets": Assets,
     "AuditCenter": AuditCenter,
     "Certification": Certification,
@@ -122,12 +123,14 @@ export const PAGES = {
     "Forms": Forms,
     "GlobalInfo": GlobalInfo,
     "HygieneReports": HygieneReports,
+    "IncidentCenter": IncidentCenter,
     "InspectorMode": InspectorMode,
     "Inventory": Inventory,
     "InventoryAdjustment": InventoryAdjustment,
     "Invitation": Invitation,
     "Invitations": Invitations,
     "LeadershipPathway": LeadershipPathway,
+    "LiveFoodSafety": LiveFoodSafety,
     "ManageHome": ManageHome,
     "Meetings": Meetings,
     "Menu": Menu,
@@ -140,6 +143,7 @@ export const PAGES = {
     "OnboardingFlow": OnboardingFlow,
     "OperateHome": OperateHome,
     "Operations": Operations,
+    "OperationsReports": OperationsReports,
     "POSSystem": POSSystem,
     "People": People,
     "Performance": Performance,
@@ -178,10 +182,6 @@ export const PAGES = {
     "WeeklyManagerReportForm": WeeklyManagerReportForm,
     "WeeklyManagerReports": WeeklyManagerReports,
     "WelcomeVision": WelcomeVision,
-    "IncidentCenter": IncidentCenter,
-    "LiveFoodSafety": LiveFoodSafety,
-    "OperationsReports": OperationsReports,
-    "AssetRegister": AssetRegister,
 }
 
 export const pagesConfig = {
