@@ -296,7 +296,7 @@ export default function RavingFans() {
               className="text-center mt-10"
             >
               <Button
-                onClick={() => markCompletedMutation.mutate()}
+                onClick={handleNextModule}
                 disabled={!quizPassed || markCompletedMutation.isPending || journeyProgress?.ravingFansCompleted}
                 size="lg"
                 className="bg-gradient-to-r from-rose-600 to-pink-600 hover:from-rose-700 hover:to-pink-700 text-white font-bold text-lg px-10 py-6 shadow-xl disabled:opacity-50 disabled:cursor-not-allowed"
