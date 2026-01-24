@@ -224,6 +224,50 @@ export default function TrainingAcademy() {
     }
   });
 
+  // Reset training mutation
+  const resetTrainingMutation = useMutation({
+    mutationFn: async (targetEmail) => {
+      const target = await base44.entities.TrainingJourneyProgress.filter({
+        staff_email: targetEmail
+      });
+      
+      if (target.length === 0) return;
+      
+      await base44.entities.TrainingJourneyProgress.update(target[0].id, {
+        invitationAccepted: false,
+        visionWatched: false,
+        valuesCompleted: false,
+        ravingFansCompleted: false,
+        skillsCompleted: false,
+        hygieneCompleted: false,
+        certified: false,
+        onsiteAccessEnabled: false,
+        currentStep: 'invitation',
+        lastUpdated: new Date().toISOString()
+      });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries(['trainingJourney']);
+      setShowResetConfirm(false);
+      setResetMode('self');
+      setSelectedStaffEmail('');
+    }
+  });
+
+  // Fetch staff list for admin reset
+  useEffect(() => {
+    const loadStaff = async () => {
+      if (!user || user.role !== 'admin') return;
+      try {
+        const staff = await base44.entities.Staff.list('-created_date', 100);
+        setStaffList(staff);
+      } catch (e) {
+        console.error('Failed to load staff', e);
+      }
+    };
+    loadStaff();
+  }, [user]);
+
   if (isLoading) {
     return <LoadingSpinner message="Loading your training journey..." />;
   }
