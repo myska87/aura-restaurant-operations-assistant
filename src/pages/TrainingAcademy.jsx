@@ -13,7 +13,7 @@ import {
   DialogTitle,
   DialogDescription,
 } from '@/components/ui/dialog';
-import { Leaf, Shield, ChefHat, Trophy, CheckCircle, Lock, Heart, RotateCcw, AlertTriangle } from 'lucide-react';
+import { Leaf, Shield, ChefHat, Trophy, CheckCircle, Lock, Heart, RotateCcw, AlertTriangle, FileText } from 'lucide-react';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import PageHeader from '@/components/ui/PageHeader';
 import TrainingJourneyBar from '@/components/training/TrainingJourneyBar';
