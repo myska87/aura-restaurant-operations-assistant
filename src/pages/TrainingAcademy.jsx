@@ -316,8 +316,8 @@ export default function TrainingAcademy() {
           // Strict sequential logic: only current step is unlocked
           const isCurrentStep = option.step === currentStep;
           
-          // For certification (index 6), require ALL previous modules completed
-          let isUnlocked = isCurrentStep;
+          // Supplemental modules (like Visual Procedures) are always accessible
+          let isUnlocked = option.isSupplemental ? true : isCurrentStep;
           if (option.step === 'certification') {
             isUnlocked = 
               journeyProgress?.invitationAccepted &&
