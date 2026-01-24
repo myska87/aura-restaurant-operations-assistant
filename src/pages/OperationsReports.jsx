@@ -117,17 +117,7 @@ export default function OperationsReports() {
     enabled: !!user
   });
 
-  const createHACCPMutation = useMutation({
-    mutationFn: async (data) => {
-      const newHACCP = await base44.entities.HACCPPlan.create(data);
-      return newHACCP;
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries(['haccpPlans']);
-      setShowHACCPDialog(false);
-      setHACCPGenerating(false);
-    }
-  });
+
 
   if (!user) return <LoadingSpinner />;
 
