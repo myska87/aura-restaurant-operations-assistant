@@ -33,6 +33,8 @@ export default function OperationsReports() {
   const [showSummaryReportDialog, setShowSummaryReportDialog] = useState(false);
   const [showFullReportDialog, setShowFullReportDialog] = useState(false);
   const [reportGenerating, setReportGenerating] = useState(false);
+  const [selectedReport, setSelectedReport] = useState(null);
+  const [showReportDetail, setShowReportDetail] = useState(false);
 
   const queryClient = useQueryClient();
 
@@ -927,11 +929,18 @@ export default function OperationsReports() {
                     <p className="text-center text-slate-500 py-8">No reports generated yet</p>
                   ) : (
                     reports.map(report => (
-                      <Card key={report.id} className={
-                        report.compliance_status === 'red' ? 'border-red-300 bg-red-50' :
-                        report.compliance_status === 'amber' ? 'border-amber-300 bg-amber-50' :
-                        'border-emerald-300 bg-emerald-50'
-                      }>
+                      <Card 
+                        key={report.id} 
+                        className={`cursor-pointer transition-all hover:shadow-lg ${
+                          report.compliance_status === 'red' ? 'border-red-300 bg-red-50' :
+                          report.compliance_status === 'amber' ? 'border-amber-300 bg-amber-50' :
+                          'border-emerald-300 bg-emerald-50'
+                        }`}
+                        onClick={() => {
+                          setSelectedReport(report);
+                          setShowReportDetail(true);
+                        }}
+                      >
                         <CardContent className="pt-4">
                           <div className="flex items-start justify-between mb-3">
                             <div className="flex-1">
