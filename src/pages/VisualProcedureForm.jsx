@@ -60,7 +60,10 @@ export default function VisualProcedureForm() {
 
   const { data: procedure, isLoading } = useQuery({
     queryKey: ['visual-procedure', procedureId],
-    queryFn: () => base44.entities.Visual_Procedures_v1.filter({ id: procedureId }),
+    queryFn: async () => {
+      const results = await base44.entities.SOP.filter({ id: procedureId });
+      return results;
+    },
     enabled: isEditing,
   });
 
