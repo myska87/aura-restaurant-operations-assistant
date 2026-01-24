@@ -773,12 +773,21 @@ export default function Culture() {
                      onClick={handleNextModule}
                      disabled={!isComplete || !quizPassed || createAckMutation.isPending}
                      size="lg"
-                     className="flex-1 bg-gradient-to-r from-emerald-600 to-teal-600 text-lg h-12 disabled:opacity-50 disabled:cursor-not-allowed"
+                     className="flex-1 bg-blue-600 hover:bg-blue-700 text-lg h-12 disabled:opacity-50 disabled:cursor-not-allowed"
                    >
                      <CheckCircle className="w-5 h-5 mr-2" />
-                     {createAckMutation.isPending ? 'Continuing...' : 'Complete & Continue'}
+                     {createAckMutation.isPending ? 'Continuing...' : 'Save Assessment'}
                    </Button>
                  </div>
+
+                 {quizPassed && journeyProgress && (
+                   <NextModuleButton
+                     currentModuleId="values"
+                     journeyProgress={journeyProgress}
+                     user={user}
+                     onComplete={() => setTimeout(() => navigate(createPageUrl('RavingFans')), 500)}
+                   />
+                 )}
 
                 {!isComplete && (
                   <p className="text-sm text-amber-700 text-center">
