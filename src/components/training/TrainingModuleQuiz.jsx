@@ -45,11 +45,24 @@ export default function TrainingModuleQuiz({
     return saved ? JSON.parse(saved).quizPassed : false;
   });
 
+  const saveState = (newState) => {
+    localStorage.setItem(storageKey, JSON.stringify(newState));
+  };
+
   const handleSelectAnswer = (questionIndex, answerIndex) => {
     if (showResults) return;
-    setSelectedAnswers({
+    const newAnswers = {
       ...selectedAnswers,
       [questionIndex]: answerIndex
+    };
+    setSelectedAnswers(newAnswers);
+    saveState({
+      currentQuestion,
+      selectedAnswers: newAnswers,
+      showResults,
+      score,
+      quizStarted,
+      quizPassed
     });
   };
 
