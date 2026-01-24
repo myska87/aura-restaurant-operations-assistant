@@ -39,6 +39,7 @@ import ShiftHandoverChecklist from '@/components/operations/ShiftHandoverCheckli
 import LabelPrintingModal from '@/components/operations/LabelPrintingModal';
 import InteractiveStagesDashboard from '@/components/operations/InteractiveStagesDashboard';
 import ServiceReadinessPanel from '@/components/operations/ServiceReadinessPanel';
+import ResetFormsButton from '@/components/operations/ResetFormsButton';
 
 export default function DailyOperationsHub() {
   const [user, setUser] = useState(null);
@@ -494,6 +495,21 @@ export default function DailyOperationsHub() {
             All essential tools to run your shift — fast, simple, live.
           </p>
         </div>
+
+        {/* Admin Tools Section */}
+        {user?.role === 'admin' && (
+          <Card className="bg-gradient-to-r from-amber-50 to-orange-50 border-2 border-amber-300">
+            <CardContent className="pt-6">
+              <div className="flex items-center justify-between">
+                <div>
+                  <h3 className="text-lg font-bold text-slate-900 mb-1">🛠️ Admin Tools</h3>
+                  <p className="text-sm text-slate-600">Reset active forms for testing or training</p>
+                </div>
+                <ResetFormsButton user={user} />
+              </div>
+            </CardContent>
+          </Card>
+        )}
 
         {/* Interactive Stages Dashboard */}
         <InteractiveStagesDashboard
