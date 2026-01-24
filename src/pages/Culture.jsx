@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { motion } from 'framer-motion';
-import { Heart, Users, Award, Leaf, Sparkles, Target, TrendingUp, Shield, CheckCircle } from 'lucide-react';
+import { Heart, Users, Award, Leaf, Sparkles, Target, TrendingUp, Shield, CheckCircle, Star } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -10,6 +10,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import PageHeader from '@/components/ui/PageHeader';
+import TrainingJourneyBar from '@/components/training/TrainingJourneyBar';
 import { format } from 'date-fns';
 import confetti from 'canvas-confetti';
 
@@ -185,10 +186,33 @@ export default function Culture() {
     enabled: !!user?.email
   });
 
+  const { data: journeyProgress } = useQuery({
+    queryKey: ['trainingJourney', user?.email],
+    queryFn: async () => {
+      if (!user?.email) return null;
+      const existing = await base44.entities.TrainingJourneyProgress.filter({
+        staff_email: user.email
+      });
+      return existing.length > 0 ? existing[0] : null;
+    },
+    enabled: !!user?.email
+  });
+
   const createAckMutation = useMutation({
     mutationFn: (data) => base44.entities.CultureAcknowledgment.create(data),
-    onSuccess: () => {
+    onSuccess: async () => {
       queryClient.invalidateQueries(['cultureAck']);
+      
+      // Update training journey progress
+      if (journeyProgress) {
+        await base44.entities.TrainingJourneyProgress.update(journeyProgress.id, {
+          valuesCompleted: true,
+          currentStep: 'raving_fans',
+          lastUpdated: new Date().toISOString()
+        });
+        queryClient.invalidateQueries(['trainingJourney']);
+      }
+      
       confetti({
         particleCount: 150,
         spread: 100,
@@ -218,6 +242,40 @@ export default function Culture() {
 
   return (
     <div className="space-y-8">
+      {/* Journey Progress Bar */}
+      {journeyProgress && (
+        <TrainingJourneyBar progress={journeyProgress} compact />
+      )}
+
+      {/* Training Journey Header */}
+      <Card className="border-2 border-indigo-400 bg-gradient-to-br from-indigo-50 via-purple-50 to-pink-50">
+        <CardContent className="pt-8 pb-8 px-6 md:px-12">
+          <div className="text-center mb-6">
+            <div className="w-20 h-20 mx-auto mb-4 rounded-full bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center shadow-2xl">
+              <Star className="w-10 h-10 text-white" />
+            </div>
+            <h1 className="text-4xl md:text-5xl font-bold text-slate-900 mb-2">
+              Values & Identity
+            </h1>
+            <p className="text-xl text-indigo-700 font-semibold mb-6">
+              Who You Must Become
+            </p>
+          </div>
+          
+          <div className="max-w-3xl mx-auto space-y-4 text-lg text-slate-700 leading-relaxed">
+            <p className="text-center font-semibold text-slate-900">
+              At Chai Patta, skills can be trained. Attitude is non-negotiable.
+            </p>
+            <p className="text-center">
+              You are not here to 'do a shift.' You are here to represent the brand.
+            </p>
+            <p className="text-center font-semibold text-indigo-900">
+              Every action answers one question: Would this create a raving fan?
+            </p>
+          </div>
+        </CardContent>
+      </Card>
+
       {/* Daily Quote */}
       <motion.div
         initial={{ opacity: 0, y: -10 }}
