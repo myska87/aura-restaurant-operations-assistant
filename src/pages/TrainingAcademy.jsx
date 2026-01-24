@@ -62,6 +62,14 @@ const trainingOptions = [
     roles: ['all']
   },
   {
+    title: 'Certification — You Are Ready',
+    description: 'Final certification and on-site work authorization',
+    icon: CheckCircle,
+    page: 'Certification',
+    color: 'from-emerald-500 to-teal-600',
+    roles: ['all']
+  },
+  {
     title: 'Leadership Pathway',
     description: 'Progress levels, requirements & leadership journal',
     icon: Trophy,
@@ -238,6 +246,16 @@ export default function TrainingAcademy() {
             completionStatus = journeyProgress?.hygieneCompleted;
           } else if (option.page === 'SOPs') {
             completionStatus = journeyProgress?.skillsCompleted;
+          } else if (option.page === 'Certification') {
+            const allPrereqsComplete = 
+              journeyProgress?.invitationAccepted &&
+              journeyProgress?.visionWatched &&
+              journeyProgress?.valuesCompleted &&
+              journeyProgress?.ravingFansCompleted &&
+              journeyProgress?.skillsCompleted &&
+              journeyProgress?.hygieneCompleted;
+            isUnlocked = allPrereqsComplete || false;
+            completionStatus = journeyProgress?.certified;
           } else if (option.page === 'LeadershipPathway') {
             isUnlocked = journeyProgress?.certified || false;
             completionStatus = journeyProgress?.onsiteAccessEnabled;

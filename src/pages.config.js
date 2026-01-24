@@ -84,6 +84,7 @@ import WeeklyManagerReports from './pages/WeeklyManagerReports';
 import Invitation from './pages/Invitation';
 import WelcomeVision from './pages/WelcomeVision';
 import RavingFans from './pages/RavingFans';
+import Certification from './pages/Certification';
 import __Layout from './Layout.jsx';
 
 
@@ -174,6 +175,7 @@ export const PAGES = {
     "Invitation": Invitation,
     "WelcomeVision": WelcomeVision,
     "RavingFans": RavingFans,
+    "Certification": Certification,
 }
 
 export const pagesConfig = {
