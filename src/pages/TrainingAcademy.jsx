@@ -2,9 +2,13 @@ import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { createPageUrl } from '../utils';
 import { base44 } from '@/api/base44Client';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Card, CardContent } from '@/components/ui/card';
-import { Leaf, Shield, ChefHat, Trophy } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Leaf, Shield, ChefHat, Trophy, CheckCircle, Lock } from 'lucide-react';
 import PageHeader from '@/components/ui/PageHeader';
+import TrainingJourneyBar from '@/components/training/TrainingJourneyBar';
+import LoadingSpinner from '@/components/ui/LoadingSpinner';
 
 const trainingOptions = [
   {
@@ -43,6 +47,7 @@ const trainingOptions = [
 
 export default function TrainingAcademy() {
   const [user, setUser] = useState(null);
+  const queryClient = useQueryClient();
 
   useEffect(() => {
     const loadUser = async () => {
@@ -54,28 +59,211 @@ export default function TrainingAcademy() {
     loadUser();
   }, []);
 
+  // Fetch or create journey progress
+  const { data: journeyProgress, isLoading } = useQuery({
+    queryKey: ['trainingJourney', user?.email],
+    queryFn: async () => {
+      if (!user?.email) return null;
+      
+      const existing = await base44.entities.TrainingJourneyProgress.filter({
+        staff_email: user.email
+      });
+      
+      if (existing.length > 0) {
+        return existing[0];
+      }
+      
+      // Create initial progress
+      const newProgress = await base44.entities.TrainingJourneyProgress.create({
+        staff_id: user.id,
+        staff_email: user.email,
+        staff_name: user.full_name || user.email,
+        invitationAccepted: false,
+        visionWatched: false,
+        valuesCompleted: false,
+        ravingFansCompleted: false,
+        skillsCompleted: false,
+        hygieneCompleted: false,
+        certified: false,
+        onsiteAccessEnabled: false,
+        currentStep: 'invitation',
+        lastUpdated: new Date().toISOString()
+      });
+      
+      return newProgress;
+    },
+    enabled: !!user
+  });
+
+  // Auto-sync with existing training completions
+  useEffect(() => {
+    if (!user || !journeyProgress) return;
+
+    const syncProgress = async () => {
+      // Check Culture & Values completion
+      const cultureAck = await base44.entities.CultureAcknowledgment.filter({
+        staff_email: user.email,
+        acknowledged: true
+      });
+
+      // Check Hygiene training completion
+      const trainingProgress = await base44.entities.TrainingProgress.filter({
+        staff_email: user.email,
+        status: 'completed'
+      });
+      const hygieneCompleted = trainingProgress.some(t => 
+        t.course_id && (t.course_id.includes('hygiene') || t.course_id.includes('safety'))
+      );
+
+      // Check SOP acknowledgments
+      const sopAcks = await base44.entities.SOPAcknowledgment.filter({
+        staff_email: user.email,
+        acknowledged: true
+      });
+
+      // Calculate certification gate
+      const allGatesPassed = 
+        journeyProgress.invitationAccepted &&
+        journeyProgress.visionWatched &&
+        (cultureAck.length > 0 || journeyProgress.valuesCompleted) &&
+        journeyProgress.ravingFansCompleted &&
+        (sopAcks.length >= 3 || journeyProgress.skillsCompleted) &&
+        (hygieneCompleted || journeyProgress.hygieneCompleted);
+
+      // Update if needed
+      const updates = {};
+      if (cultureAck.length > 0 && !journeyProgress.valuesCompleted) {
+        updates.valuesCompleted = true;
+      }
+      if (hygieneCompleted && !journeyProgress.hygieneCompleted) {
+        updates.hygieneCompleted = true;
+      }
+      if (sopAcks.length >= 3 && !journeyProgress.skillsCompleted) {
+        updates.skillsCompleted = true;
+      }
+      if (allGatesPassed && !journeyProgress.certified) {
+        updates.certified = true;
+        updates.certificateIssuedAt = new Date().toISOString();
+      }
+
+      if (Object.keys(updates).length > 0) {
+        await base44.entities.TrainingJourneyProgress.update(journeyProgress.id, {
+          ...updates,
+          lastUpdated: new Date().toISOString()
+        });
+        queryClient.invalidateQueries(['trainingJourney']);
+      }
+    };
+
+    syncProgress();
+  }, [user, journeyProgress, queryClient]);
+
+  const acceptInvitationMutation = useMutation({
+    mutationFn: async () => {
+      await base44.entities.TrainingJourneyProgress.update(journeyProgress.id, {
+        invitationAccepted: true,
+        currentStep: 'vision',
+        lastUpdated: new Date().toISOString()
+      });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries(['trainingJourney']);
+    }
+  });
+
+  if (isLoading) {
+    return <LoadingSpinner message="Loading your training journey..." />;
+  }
+
   return (
     <div className="space-y-6">
       <PageHeader
         title="Training Academy"
-        description="Learning, culture & leadership development"
+        description="Your complete learning journey from invitation to certification"
       />
+
+      {/* Training Journey Progress */}
+      <TrainingJourneyBar progress={journeyProgress} />
+
+      {/* Invitation Step */}
+      {!journeyProgress?.invitationAccepted && (
+        <Card className="border-2 border-amber-400 bg-gradient-to-br from-amber-50 to-yellow-50">
+          <CardContent className="pt-6">
+            <h3 className="text-2xl font-bold text-amber-900 mb-3">
+              🎉 Welcome to Your Training Journey!
+            </h3>
+            <p className="text-slate-700 mb-4">
+              You've been invited to join our team. Accept this invitation to start your learning path 
+              and unlock all training modules.
+            </p>
+            <Button
+              onClick={() => acceptInvitationMutation.mutate()}
+              disabled={acceptInvitationMutation.isPending}
+              className="bg-amber-600 hover:bg-amber-700 text-white font-bold"
+              size="lg"
+            >
+              Accept Invitation & Start Journey
+            </Button>
+          </CardContent>
+        </Card>
+      )}
 
       <div className="grid md:grid-cols-2 gap-6">
         {trainingOptions.map((option) => {
           const Icon = option.icon;
+          
+          // Determine if module is unlocked
+          let isUnlocked = journeyProgress?.invitationAccepted || false;
+          let completionStatus = null;
+          
+          if (option.page === 'Culture') {
+            completionStatus = journeyProgress?.valuesCompleted;
+          } else if (option.page === 'Training') {
+            completionStatus = journeyProgress?.hygieneCompleted;
+          } else if (option.page === 'SOPs') {
+            completionStatus = journeyProgress?.skillsCompleted;
+          } else if (option.page === 'LeadershipPathway') {
+            isUnlocked = journeyProgress?.certified || false;
+            completionStatus = journeyProgress?.onsiteAccessEnabled;
+          }
+          
+          const CardWrapper = isUnlocked ? Link : 'div';
+          const cardProps = isUnlocked ? { to: createPageUrl(option.page) } : {};
+          
           return (
-            <Link key={option.page} to={createPageUrl(option.page)}>
-              <Card className="hover:shadow-xl transition-all duration-300 border-2 hover:border-emerald-400 h-full">
+            <CardWrapper key={option.page} {...cardProps}>
+              <Card className={`
+                transition-all duration-300 border-2 h-full relative
+                ${isUnlocked ? 'hover:shadow-xl hover:border-emerald-400 cursor-pointer' : 'opacity-60 cursor-not-allowed'}
+                ${completionStatus ? 'border-emerald-500 bg-emerald-50' : ''}
+              `}>
                 <CardContent className="pt-6">
-                  <div className={`w-20 h-20 rounded-2xl bg-gradient-to-br ${option.color} flex items-center justify-center mb-4 shadow-lg`}>
-                    <Icon className="w-10 h-10 text-white" />
+                  <div className="flex items-start justify-between mb-4">
+                    <div className={`w-20 h-20 rounded-2xl bg-gradient-to-br ${option.color} flex items-center justify-center shadow-lg`}>
+                      <Icon className="w-10 h-10 text-white" />
+                    </div>
+                    {!isUnlocked && (
+                      <Lock className="w-6 h-6 text-slate-400" />
+                    )}
+                    {completionStatus && (
+                      <CheckCircle className="w-6 h-6 text-emerald-600" />
+                    )}
                   </div>
                   <h3 className="text-2xl font-bold mb-3">{option.title}</h3>
                   <p className="text-slate-600 text-lg">{option.description}</p>
+                  {!isUnlocked && (
+                    <p className="text-sm text-amber-600 mt-3 font-semibold">
+                      🔒 Accept invitation to unlock
+                    </p>
+                  )}
+                  {completionStatus && (
+                    <p className="text-sm text-emerald-600 mt-3 font-semibold">
+                      ✓ Completed
+                    </p>
+                  )}
                 </CardContent>
               </Card>
-            </Link>
+            </CardWrapper>
           );
         })}
       </div>
