@@ -29,6 +29,13 @@ const reportOptions = [
     color: 'from-red-500 to-red-600'
   },
   {
+    title: 'Hygiene Compliance',
+    description: 'Daily hygiene checks & compliance tracking',
+    icon: Shield,
+    page: 'HygieneReports',
+    color: 'from-blue-500 to-blue-600'
+  },
+  {
     title: 'Chemical Safety',
     description: 'COSHH compliance dashboard',
     icon: AlertTriangle,
