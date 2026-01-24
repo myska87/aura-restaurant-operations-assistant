@@ -2,9 +2,14 @@ import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { createPageUrl } from '../utils';
 import { base44 } from '@/api/base44Client';
-import { Card, CardContent } from '@/components/ui/card';
-import { TrendingUp, AlertTriangle, GraduationCap, Shield, Wrench, Trophy, BarChart3 } from 'lucide-react';
+import { useQuery } from '@tanstack/react-query';
+import { format, subDays, startOfWeek, endOfWeek } from 'date-fns';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { TrendingUp, AlertTriangle, GraduationCap, Shield, Wrench, Trophy, BarChart3, Thermometer, CheckCircle } from 'lucide-react';
+import { LineChart, Line, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from 'recharts';
+import { motion } from 'framer-motion';
 import PageHeader from '@/components/ui/PageHeader';
+import LoadingSpinner from '@/components/ui/LoadingSpinner';
 
 const reportOptions = [
   {
@@ -78,7 +83,89 @@ export default function Reports() {
     loadUser();
   }, []);
 
+  const today = format(new Date(), 'yyyy-MM-dd');
+  const weekStart = format(startOfWeek(new Date(), { weekStartsOn: 1 }), 'yyyy-MM-dd');
+  const weekEnd = format(endOfWeek(new Date(), { weekStartsOn: 1 }), 'yyyy-MM-dd');
+
   const isManager = ['admin', 'manager', 'owner'].includes(user?.role);
+
+  // Fetch weekly KPI data
+  const { data: weeklyAudits = [], isLoading: auditsLoading } = useQuery({
+    queryKey: ['weeklyAudits', weekStart],
+    queryFn: async () => {
+      const audits = await base44.entities.WeeklyAudit.filter({
+        submission_date: { $gte: weekStart }
+      });
+      return audits;
+    },
+    enabled: !!user && isManager
+  });
+
+  const { data: temperatureLogs = [], isLoading: tempLoading } = useQuery({
+    queryKey: ['weekTemps', weekStart],
+    queryFn: async () => {
+      const logs = await base44.entities.TemperatureLog.filter({
+        log_date: { $gte: weekStart, $lte: weekEnd }
+      });
+      return logs;
+    },
+    enabled: !!user && isManager
+  });
+
+  const { data: hygieneChecks = [], isLoading: hygieneLoading } = useQuery({
+    queryKey: ['weekHygiene', weekStart],
+    queryFn: async () => {
+      const checks = await base44.entities.ChecklistCompletion.filter({
+        date: { $gte: weekStart, $lte: weekEnd },
+        checklist_category: 'hygiene'
+      });
+      return checks;
+    },
+    enabled: !!user && isManager
+  });
+
+  const { data: shifts = [], isLoading: shiftsLoading } = useQuery({
+    queryKey: ['weekShifts', weekStart],
+    queryFn: async () => {
+      const shifts = await base44.entities.Shift.filter({
+        date: { $gte: weekStart, $lte: weekEnd }
+      });
+      return shifts;
+    },
+    enabled: !!user && isManager
+  });
+
+  // Calculate KPIs
+  const avgAuditScore = weeklyAudits.length > 0 
+    ? weeklyAudits.reduce((sum, a) => sum + (a.audit_score || 0), 0) / weeklyAudits.length 
+    : 0;
+
+  const hygieneComplianceRate = hygieneChecks.length > 0
+    ? (hygieneChecks.filter(c => c.status === 'completed').length / hygieneChecks.length) * 100
+    : 0;
+
+  const tempLogCompletionRate = temperatureLogs.length > 0
+    ? (temperatureLogs.filter(t => t.is_in_range !== false).length / temperatureLogs.length) * 100
+    : 0;
+
+  const shiftCompletionRate = shifts.length > 0
+    ? (shifts.filter(s => s.status === 'approved').length / shifts.length) * 100
+    : 0;
+
+  // Generate weekly trend data (last 7 days)
+  const weeklyTrendData = Array.from({ length: 7 }, (_, i) => {
+    const date = format(subDays(new Date(), 6 - i), 'yyyy-MM-dd');
+    const dayName = format(subDays(new Date(), 6 - i), 'EEE');
+    
+    const dayHygiene = hygieneChecks.filter(h => h.date === date);
+    const dayTemps = temperatureLogs.filter(t => t.log_date === date);
+    
+    return {
+      day: dayName,
+      hygiene: dayHygiene.length > 0 ? (dayHygiene.filter(h => h.status === 'completed').length / dayHygiene.length) * 100 : 0,
+      temperature: dayTemps.length > 0 ? (dayTemps.filter(t => t.is_in_range !== false).length / dayTemps.length) * 100 : 0,
+    };
+  });
 
   if (!isManager) {
     return (
@@ -90,12 +177,190 @@ export default function Reports() {
     );
   }
 
+  const isLoading = auditsLoading || tempLoading || hygieneLoading || shiftsLoading;
+
+  if (isLoading) {
+    return <LoadingSpinner message="Loading reports data..." />;
+  }
+
   return (
-    <div className="space-y-6">
+    <div className="space-y-8">
       <PageHeader
-        title="Reports"
-        description="Insights, analytics & performance tracking"
+        title="Reports Dashboard"
+        description="Live KPI analytics and comprehensive performance reports"
       />
+
+      {/* Weekly KPI Summary Cards */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        <motion.div
+          initial={{ opacity: 0, scale: 0.95 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ delay: 0.1 }}
+        >
+          <Card className="border-2 border-emerald-200 bg-gradient-to-br from-emerald-50 to-white">
+            <CardHeader className="pb-3">
+              <CardTitle className="text-sm font-medium text-slate-600 flex items-center gap-2">
+                <Shield className="w-4 h-4 text-emerald-600" />
+                Hygiene Compliance
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="text-3xl font-bold text-emerald-700">
+                {Math.round(hygieneComplianceRate)}%
+              </div>
+              <p className="text-xs text-slate-500 mt-1">This week</p>
+            </CardContent>
+          </Card>
+        </motion.div>
+
+        <motion.div
+          initial={{ opacity: 0, scale: 0.95 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ delay: 0.2 }}
+        >
+          <Card className="border-2 border-blue-200 bg-gradient-to-br from-blue-50 to-white">
+            <CardHeader className="pb-3">
+              <CardTitle className="text-sm font-medium text-slate-600 flex items-center gap-2">
+                <Thermometer className="w-4 h-4 text-blue-600" />
+                Temperature Logs
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="text-3xl font-bold text-blue-700">
+                {Math.round(tempLogCompletionRate)}%
+              </div>
+              <p className="text-xs text-slate-500 mt-1">{temperatureLogs.length} logs this week</p>
+            </CardContent>
+          </Card>
+        </motion.div>
+
+        <motion.div
+          initial={{ opacity: 0, scale: 0.95 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ delay: 0.3 }}
+        >
+          <Card className="border-2 border-amber-200 bg-gradient-to-br from-amber-50 to-white">
+            <CardHeader className="pb-3">
+              <CardTitle className="text-sm font-medium text-slate-600 flex items-center gap-2">
+                <CheckCircle className="w-4 h-4 text-amber-600" />
+                Staff Shift Completion
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="text-3xl font-bold text-amber-700">
+                {Math.round(shiftCompletionRate)}%
+              </div>
+              <p className="text-xs text-slate-500 mt-1">{shifts.length} shifts this week</p>
+            </CardContent>
+          </Card>
+        </motion.div>
+
+        <motion.div
+          initial={{ opacity: 0, scale: 0.95 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ delay: 0.4 }}
+        >
+          <Card className="border-2 border-purple-200 bg-gradient-to-br from-purple-50 to-white">
+            <CardHeader className="pb-3">
+              <CardTitle className="text-sm font-medium text-slate-600 flex items-center gap-2">
+                <BarChart3 className="w-4 h-4 text-purple-600" />
+                Audit Score
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="text-3xl font-bold text-purple-700">
+                {Math.round(avgAuditScore)}/100
+              </div>
+              <p className="text-xs text-slate-500 mt-1">Average this week</p>
+            </CardContent>
+          </Card>
+        </motion.div>
+      </div>
+
+      {/* Weekly Trend Charts */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.5 }}
+        >
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <TrendingUp className="w-5 h-5 text-emerald-600" />
+                Weekly Compliance Trend
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <ResponsiveContainer width="100%" height={250}>
+                <LineChart data={weeklyTrendData}>
+                  <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
+                  <XAxis dataKey="day" stroke="#64748b" />
+                  <YAxis stroke="#64748b" />
+                  <Tooltip />
+                  <Legend />
+                  <Line 
+                    type="monotone" 
+                    dataKey="hygiene" 
+                    stroke="#10b981" 
+                    strokeWidth={3}
+                    name="Hygiene %"
+                    dot={{ fill: '#10b981', r: 4 }}
+                  />
+                  <Line 
+                    type="monotone" 
+                    dataKey="temperature" 
+                    stroke="#3b82f6" 
+                    strokeWidth={3}
+                    name="Temperature %"
+                    dot={{ fill: '#3b82f6', r: 4 }}
+                  />
+                </LineChart>
+              </ResponsiveContainer>
+            </CardContent>
+          </Card>
+        </motion.div>
+
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.6 }}
+        >
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <BarChart3 className="w-5 h-5 text-purple-600" />
+                Weekly Performance Summary
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <ResponsiveContainer width="100%" height={250}>
+                <BarChart data={[
+                  { category: 'Hygiene', value: hygieneComplianceRate, fill: '#10b981' },
+                  { category: 'Temperature', value: tempLogCompletionRate, fill: '#3b82f6' },
+                  { category: 'Shifts', value: shiftCompletionRate, fill: '#f59e0b' },
+                  { category: 'Audit', value: avgAuditScore, fill: '#a855f7' },
+                ]}>
+                  <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
+                  <XAxis dataKey="category" stroke="#64748b" />
+                  <YAxis stroke="#64748b" domain={[0, 100]} />
+                  <Tooltip />
+                  <Bar dataKey="value" radius={[8, 8, 0, 0]} />
+                </BarChart>
+              </ResponsiveContainer>
+            </CardContent>
+          </Card>
+        </motion.div>
+      </div>
+
+      {/* Divider */}
+      <div className="border-t-2 border-slate-200 my-8" />
+
+      {/* Original Report Options */}
+      <div>
+        <h2 className="text-2xl font-bold text-slate-900 mb-4">Detailed Reports</h2>
+        <p className="text-slate-600 mb-6">Access comprehensive data tables and export options</p>
+      </div>
 
       <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
         {reportOptions.map((option) => {
