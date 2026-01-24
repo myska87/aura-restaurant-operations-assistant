@@ -232,46 +232,45 @@ function LayoutContent({ children, currentPageName }) {
             ))}
           </motion.nav>
         </ScrollArea>
+
+        {/* User Section */}
+        {user && (
+          <div className="p-4 border-t border-emerald-800/30">
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <button className="w-full flex items-center gap-3 px-3 py-2 rounded-xl hover:bg-white/5 transition-colors">
+                  <div className="w-9 h-9 rounded-full bg-gradient-to-br from-amber-400 to-emerald-500 flex items-center justify-center text-white font-semibold text-sm">
+                    {user.full_name?.charAt(0) || user.email?.charAt(0)?.toUpperCase()}
+                  </div>
+                  <div className="flex-1 text-left">
+                    <p className="text-sm font-medium text-white truncate">{user.full_name || 'User'}</p>
+                    <p className="text-xs text-emerald-300/60 capitalize">{user.role || 'Staff'}</p>
+                  </div>
+                  <ChevronDown className="w-4 h-4 text-emerald-300/60" />
+                </button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-56">
+                <DropdownMenuItem asChild>
+                  <Link to={createPageUrl('Profile')} className="flex items-center gap-2">
+                    <User className="w-4 h-4" /> Profile
+                  </Link>
+                </DropdownMenuItem>
+                <DropdownMenuItem asChild>
+                  <Link to={createPageUrl('Settings')} className="flex items-center gap-2">
+                    <Settings className="w-4 h-4" /> Settings
+                  </Link>
+                </DropdownMenuItem>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem onClick={handleLogout} className="text-red-600">
+                  <LogOut className="w-4 h-4 mr-2" /> Sign Out
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </div>
+        )}
+      </div>
     );
   };
-
-      {/* User Section */}
-      {user && (
-        <div className="p-4 border-t border-emerald-800/30">
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <button className="w-full flex items-center gap-3 px-3 py-2 rounded-xl hover:bg-white/5 transition-colors">
-                <div className="w-9 h-9 rounded-full bg-gradient-to-br from-amber-400 to-emerald-500 flex items-center justify-center text-white font-semibold text-sm">
-                  {user.full_name?.charAt(0) || user.email?.charAt(0)?.toUpperCase()}
-                </div>
-                <div className="flex-1 text-left">
-                  <p className="text-sm font-medium text-white truncate">{user.full_name || 'User'}</p>
-                  <p className="text-xs text-emerald-300/60 capitalize">{user.role || 'Staff'}</p>
-                </div>
-                <ChevronDown className="w-4 h-4 text-emerald-300/60" />
-              </button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="w-56">
-              <DropdownMenuItem asChild>
-                <Link to={createPageUrl('Profile')} className="flex items-center gap-2">
-                  <User className="w-4 h-4" /> Profile
-                </Link>
-              </DropdownMenuItem>
-              <DropdownMenuItem asChild>
-                <Link to={createPageUrl('Settings')} className="flex items-center gap-2">
-                  <Settings className="w-4 h-4" /> Settings
-                </Link>
-              </DropdownMenuItem>
-              <DropdownMenuSeparator />
-              <DropdownMenuItem onClick={handleLogout} className="text-red-600">
-                <LogOut className="w-4 h-4 mr-2" /> Sign Out
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
-        </div>
-      )}
-    </div>
-  );
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-emerald-50/30">
