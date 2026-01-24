@@ -437,6 +437,25 @@ export default function SOPs() {
         </Tabs>
       </div>
 
+      {/* Quiz Section */}
+      {journeyProgress && currentStep === 'skills' && (
+        <div className="mt-12 pt-8 border-t-2 border-slate-200">
+          <div className="bg-gradient-to-br from-indigo-50 to-blue-50 rounded-2xl p-6 border-2 border-indigo-200">
+            <h2 className="text-2xl font-bold text-slate-900 mb-2">
+              Skills & SOPs Knowledge Check
+            </h2>
+            <p className="text-slate-600 mb-6">
+              Test your understanding of the role-specific training you've reviewed above.
+            </p>
+            <TrainingModuleQuiz
+              questions={skillsQuizQuestions}
+              passMarkPercent={80}
+              onQuizPassed={(passed) => setQuizPassed(passed)}
+            />
+          </div>
+        </div>
+      )}
+
       {/* SOP Grid */}
       {filteredSOPs.length === 0 ? (
         <EmptyState
