@@ -269,23 +269,33 @@ export default function TemperatureLog({ user }) {
             {['opening', 'mid_shift', 'closing'].map(time => {
               const status = getCheckTimeStatus(time);
               return (
-                <Card key={time} className={
-                  status === 'complete' 
-                    ? 'bg-emerald-50 border-emerald-300'
-                    : 'bg-amber-50 border-amber-300'
-                }>
-                  <CardContent className="pt-4 text-center">
-                    {status === 'complete' ? (
-                      <CheckCircle className="w-6 h-6 mx-auto mb-2 text-emerald-600" />
-                    ) : (
-                      <AlertTriangle className="w-6 h-6 mx-auto mb-2 text-amber-600" />
-                    )}
-                    <p className="text-sm font-semibold capitalize">{time.replace('_', ' ')}</p>
-                    <p className="text-xs text-slate-600">
-                      {status === 'complete' ? 'Logged' : 'Pending'}
-                    </p>
-                  </CardContent>
-                </Card>
+                <button
+                  key={time}
+                  onClick={() => {
+                    if (status !== 'complete') {
+                      setShowBulkForm(true);
+                    }
+                  }}
+                  className="text-left"
+                >
+                  <Card className={`cursor-pointer transition-all hover:shadow-md ${
+                    status === 'complete' 
+                      ? 'bg-emerald-50 border-emerald-300' 
+                      : 'bg-amber-50 border-amber-300 hover:border-amber-400'
+                  }`}>
+                    <CardContent className="pt-4 text-center">
+                      {status === 'complete' ? (
+                        <CheckCircle className="w-6 h-6 mx-auto mb-2 text-emerald-600" />
+                      ) : (
+                        <AlertTriangle className="w-6 h-6 mx-auto mb-2 text-amber-600" />
+                      )}
+                      <p className="text-sm font-semibold capitalize">{time.replace('_', ' ')}</p>
+                      <p className="text-xs text-slate-600">
+                        {status === 'complete' ? 'Logged' : 'Pending'}
+                      </p>
+                    </CardContent>
+                  </Card>
+                </button>
               );
             })}
           </div>
