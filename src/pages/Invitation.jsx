@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
 import { base44 } from '@/api/base44Client';
@@ -9,15 +9,64 @@ import { Button } from '@/components/ui/button';
 import { Sparkles, ArrowRight } from 'lucide-react';
 import LoadingSpinner from '@/components/ui/LoadingSpinner';
 import TrainingJourneyBar from '@/components/training/TrainingJourneyBar';
+import TrainingModuleQuiz from '@/components/training/TrainingModuleQuiz';
+
+const invitationQuizQuestions = [
+  {
+    question: "What is the primary reason you were chosen to join Chai Patta?",
+    options: [
+      "We see potential in you to grow and contribute to something bigger",
+      "We need someone to fill a position",
+      "You applied first",
+      "You have the most experience"
+    ],
+    correctAnswer: 0
+  },
+  {
+    question: "What does Chai Patta stand for beyond being a café?",
+    options: [
+      "Just a place to buy drinks",
+      "A business focused only on profits",
+      "Culture, ritual, and human connection",
+      "The cheapest option in the market"
+    ],
+    correctAnswer: 2
+  },
+  {
+    question: "Which of these best describes your role at Chai Patta?",
+    options: [
+      "Just doing a job for a paycheck",
+      "Being part of a bigger purpose and representing the brand",
+      "Working while looking for something better",
+      "Getting experience for another company"
+    ],
+    correctAnswer: 1
+  }
+];
 
 export default function Invitation() {
   const [user, setUser] = useState(null);
+  const [showQuiz, setShowQuiz] = useState(false);
+  const [quizPassed, setQuizPassed] = useState(false);
   const navigate = useNavigate();
   const queryClient = useQueryClient();
+  const pageRef = useRef(null);
 
   useEffect(() => {
     base44.auth.me().then(setUser).catch(() => {});
   }, []);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      if (!pageRef.current || showQuiz) return;
+      const { scrollTop, scrollHeight, clientHeight } = document.documentElement;
+      if (scrollTop + clientHeight >= scrollHeight - 300) {
+        setShowQuiz(true);
+      }
+    };
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, [showQuiz]);
 
   const { data: journeyProgress, isLoading } = useQuery({
     queryKey: ['trainingJourney', user?.email],
@@ -45,12 +94,18 @@ export default function Invitation() {
     }
   });
 
+  const handleQuizPassed = (passed, score) => {
+    if (passed) {
+      setQuizPassed(true);
+    }
+  };
+
   if (isLoading) {
     return <LoadingSpinner message="Loading..." />;
   }
 
   return (
-    <div className="max-w-4xl mx-auto space-y-6">
+    <div className="max-w-4xl mx-auto space-y-6" ref={pageRef}>
       <TrainingJourneyBar progress={journeyProgress} compact />
 
       <motion.div
@@ -113,9 +168,9 @@ export default function Invitation() {
             >
               <Button
                 onClick={() => acceptInvitationMutation.mutate()}
-                disabled={acceptInvitationMutation.isPending || journeyProgress?.invitationAccepted}
+                disabled={!quizPassed || acceptInvitationMutation.isPending || journeyProgress?.invitationAccepted}
                 size="lg"
-                className="bg-gradient-to-r from-amber-600 to-orange-600 hover:from-amber-700 hover:to-orange-700 text-white font-bold text-lg px-8 py-6 shadow-xl"
+                className="bg-gradient-to-r from-amber-600 to-orange-600 hover:from-amber-700 hover:to-orange-700 text-white font-bold text-lg px-8 py-6 shadow-xl disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {journeyProgress?.invitationAccepted ? (
                   <>✓ Journey Started</>
@@ -132,10 +187,25 @@ export default function Invitation() {
                   Welcome aboard! Return to Training Academy to continue.
                 </p>
               )}
+              {!quizPassed && (
+                <p className="mt-4 text-sm text-amber-600 font-semibold">
+                  Complete the quiz below to unlock this button
+                </p>
+              )}
             </motion.div>
           </CardContent>
         </Card>
       </motion.div>
+
+      {/* Quiz Section */}
+      {showQuiz && (
+        <TrainingModuleQuiz
+          questions={invitationQuizQuestions}
+          onQuizPassed={handleQuizPassed}
+          moduleName="Invitation"
+          passPercentage={80}
+        />
+      )}
     </div>
   );
 }
