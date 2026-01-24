@@ -47,6 +47,7 @@ export default function VisualProcedureForm() {
   const [user, setUser] = useState(null);
   const [autoSaving, setAutoSaving] = useState(false);
   const [lastSaved, setLastSaved] = useState(null);
+  const [notifyStaff, setNotifyStaff] = useState(false);
 
   // Load user
   useEffect(() => {
