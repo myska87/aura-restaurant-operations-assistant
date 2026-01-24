@@ -151,12 +151,71 @@ export default function Invitation() {
 
       {/* Quiz Section */}
       {showQuiz && (
-        <TrainingModuleQuiz
-          questions={invitationQuizQuestions}
-          onQuizPassed={handleQuizPassed}
-          moduleName="Invitation"
-          passPercentage={80}
-        />
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="space-y-4"
+        >
+          <Card className="border-2 border-amber-400 bg-amber-50">
+            <CardContent className="pt-6 space-y-4">
+              <div className="space-y-4">
+                {invitationQuizQuestions.map((q, idx) => (
+                  <div key={idx} className="p-4 bg-white rounded border border-amber-200">
+                    <p className="font-semibold text-slate-800 mb-3">{idx + 1}. {q.question}</p>
+                    {q.type === 'true-false' ? (
+                      <div className="flex gap-2">
+                        <button 
+                          onClick={() => setQuizAnswers({...quizAnswers, [idx]: 0})}
+                          className={`px-4 py-2 rounded text-sm font-medium transition-all ${quizAnswers[idx] === 0 ? 'bg-amber-600 text-white' : 'bg-slate-200 hover:bg-slate-300'}`}
+                        >
+                          True
+                        </button>
+                        <button 
+                          onClick={() => setQuizAnswers({...quizAnswers, [idx]: 1})}
+                          className={`px-4 py-2 rounded text-sm font-medium transition-all ${quizAnswers[idx] === 1 ? 'bg-amber-600 text-white' : 'bg-slate-200 hover:bg-slate-300'}`}
+                        >
+                          False
+                        </button>
+                      </div>
+                    ) : (
+                      <div className="space-y-2">
+                        {q.options?.map((opt, i) => (
+                          <button 
+                            key={i} 
+                            onClick={() => setQuizAnswers({...quizAnswers, [idx]: i})}
+                            className={`block w-full text-left px-4 py-2 rounded text-sm font-medium transition-all ${quizAnswers[idx] === i ? 'bg-amber-600 text-white' : 'bg-slate-200 hover:bg-slate-300'}`}
+                          >
+                            {opt}
+                          </button>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                ))}
+              </div>
+
+              <ModuleQuizSubmission
+                moduleId="invitation"
+                moduleName="Invitation"
+                questions={invitationQuizQuestions}
+                userAnswers={quizAnswers}
+                user={user}
+                journeyProgress={journeyProgress}
+                onQuizPassed={handleQuizPassed}
+                disabled={Object.keys(quizAnswers).length < invitationQuizQuestions.length}
+              />
+            </CardContent>
+          </Card>
+
+          {quizPassed && journeyProgress && (
+            <NextModuleButton
+              currentModuleId="invitation"
+              journeyProgress={journeyProgress}
+              user={user}
+              onComplete={() => setTimeout(() => navigate(createPageUrl('WelcomeVision')), 500)}
+            />
+          )}
+        </motion.div>
       )}
     </div>
   );
