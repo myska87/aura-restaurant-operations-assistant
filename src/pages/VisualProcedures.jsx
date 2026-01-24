@@ -73,10 +73,7 @@ export default function VisualProcedures() {
 
   const { data: procedures = [], isLoading } = useQuery({
     queryKey: ['visualProcedures'],
-    queryFn: () => base44.entities.Visual_Procedures_v1.filter(
-      isAdmin ? {} : { status: 'published' },
-      '-created_date'
-    ),
+    queryFn: () => base44.entities.SOP.list('-created_date', 500),
     enabled: !!user
   });
 
