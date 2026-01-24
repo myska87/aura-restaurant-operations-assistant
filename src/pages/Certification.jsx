@@ -70,27 +70,68 @@ export default function Certification() {
   const allPrerequisitesComplete = prerequisites.every(p => journeyProgress?.[p.id]);
 
   if (!allPrerequisitesComplete) {
-    return (
-      <div className="max-w-4xl mx-auto space-y-6">
-        <TrainingJourneyBar progress={journeyProgress} compact />
-        
-        <Card className="border-2 border-amber-400">
-          <CardContent className="pt-6 text-center">
-            <Lock className="w-16 h-16 mx-auto mb-4 text-amber-600" />
-            <h2 className="text-2xl font-bold text-slate-900 mb-2">Certification Locked</h2>
-            <p className="text-lg text-slate-700 mb-6">
-              Complete required steps to unlock certification.
-            </p>
-            <Button
-              onClick={() => navigate(createPageUrl('TrainingAcademy'))}
-              className="bg-amber-600 hover:bg-amber-700"
-            >
-              Back to Training Academy
-            </Button>
-          </CardContent>
-        </Card>
-      </div>
-    );
+   const incompletePrereqs = prerequisites.filter(p => !journeyProgress?.[p.id]);
+
+   return (
+     <div className="max-w-4xl mx-auto space-y-6">
+       <TrainingJourneyBar progress={journeyProgress} compact />
+
+       <Card className="border-2 border-amber-400 bg-gradient-to-br from-amber-50 to-orange-50">
+         <CardContent className="pt-8 pb-8 px-6 md:px-12">
+           <div className="text-center mb-8">
+             <Lock className="w-16 h-16 mx-auto mb-4 text-amber-600" />
+             <h2 className="text-3xl font-bold text-slate-900 mb-2">Certification Locked</h2>
+             <p className="text-lg text-amber-700 font-semibold">
+               Complete all required modules to unlock
+             </p>
+           </div>
+
+           {/* Incomplete Prerequisites Checklist */}
+           <div className="bg-white rounded-xl p-6 mb-8 max-w-2xl mx-auto border-2 border-amber-200">
+             <h3 className="text-xl font-bold text-slate-900 mb-4">Required Modules</h3>
+             <div className="space-y-3">
+               {prerequisites.map((prereq) => {
+                 const isComplete = journeyProgress?.[prereq.id];
+                 return (
+                   <div
+                     key={prereq.id}
+                     className={`flex items-center gap-3 p-3 rounded-lg transition-colors ${
+                       isComplete 
+                         ? 'bg-emerald-50 border border-emerald-200' 
+                         : 'bg-amber-50 border border-amber-200'
+                     }`}
+                   >
+                     <div className={`w-5 h-5 rounded-full flex items-center justify-center flex-shrink-0 ${
+                       isComplete ? 'bg-emerald-600' : 'bg-amber-600'
+                     }`}>
+                       {isComplete && <span className="text-white text-sm">✓</span>}
+                       {!isComplete && <span className="text-white text-sm">!</span>}
+                     </div>
+                     <span className={`font-medium ${isComplete ? 'text-emerald-700 line-through' : 'text-amber-900'}`}>
+                       {prereq.label}
+                     </span>
+                   </div>
+                 );
+               })}
+             </div>
+           </div>
+
+           <div className="text-center">
+             <p className="text-amber-700 font-semibold mb-6">
+               {incompletePrereqs.length} of {prerequisites.length} modules remaining
+             </p>
+             <Button
+               onClick={() => navigate(createPageUrl('TrainingAcademy'))}
+               className="bg-amber-600 hover:bg-amber-700"
+               size="lg"
+             >
+               Back to Training Academy
+             </Button>
+           </div>
+         </CardContent>
+       </Card>
+     </div>
+   );
   }
 
   return (
