@@ -91,6 +91,16 @@ const trainingOptions = [
     color: 'from-purple-500 to-pink-600',
     roles: ['all'],
     step: 'growth'
+  },
+  {
+    title: 'Visual Procedures',
+    description: 'Step-by-step visual guides for all procedures',
+    icon: FileText,
+    page: 'VisualProcedures',
+    color: 'from-cyan-500 to-blue-600',
+    roles: ['all'],
+    step: 'visual_procedures',
+    isSupplemental: true
   }
 ];
 
