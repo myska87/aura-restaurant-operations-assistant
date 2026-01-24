@@ -868,6 +868,79 @@ export default function DailyOperationsHub() {
           user={user}
           today={today}
         />
+
+        {/* CCP Selection Modal */}
+        {showCCPModal && activeCCPs.length > 0 && (
+          <Dialog open={showCCPModal} onOpenChange={setShowCCPModal}>
+            <DialogContent className="max-w-2xl">
+              <DialogHeader>
+                <DialogTitle>Select CCP to Check</DialogTitle>
+                <DialogDescription>
+                  Mandatory Critical Control Point checks for today ({ccpChecksToday.length} completed)
+                </DialogDescription>
+              </DialogHeader>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 max-h-96 overflow-y-auto">
+                {activeCCPs.map((ccp) => {
+                  const checked = ccpChecksToday.some(c => c.ccp_id === ccp.id);
+                  const latestCheck = ccpChecksToday.find(c => c.ccp_id === ccp.id);
+                  return (
+                    <Card 
+                      key={ccp.id}
+                      className={`cursor-pointer transition-all ${
+                        checked 
+                          ? 'border-emerald-400 bg-emerald-50' 
+                          : 'border-slate-300 hover:border-amber-400'
+                      }`}
+                      onClick={() => {
+                        if (!checked) {
+                          setActiveCCP(ccp);
+                          setShowCCPModal(false);
+                        }
+                      }}
+                    >
+                      <CardContent className="pt-4">
+                        <div className="flex items-start justify-between mb-2">
+                          <h4 className="font-bold text-slate-900">{ccp.name}</h4>
+                          {checked && <CheckCircle className="w-5 h-5 text-emerald-600" />}
+                        </div>
+                        <p className="text-xs text-slate-600 mb-2">{ccp.stage} • {ccp.monitoring_parameter}</p>
+                        <Badge className="text-xs bg-amber-100 text-amber-800">
+                          Limit: {ccp.critical_limit}
+                        </Badge>
+                        {latestCheck && (
+                          <p className={`text-xs mt-2 font-semibold ${
+                            latestCheck.status === 'pass' ? 'text-emerald-700' : 'text-red-700'
+                          }`}>
+                            Result: {latestCheck.status.toUpperCase()} ({latestCheck.recorded_value})
+                          </p>
+                        )}
+                      </CardContent>
+                    </Card>
+                  );
+                })}
+              </div>
+              <Button 
+                variant="outline" 
+                onClick={() => setShowCCPModal(false)}
+                className="w-full"
+              >
+                Close
+              </Button>
+            </DialogContent>
+          </Dialog>
+        )}
+
+        {/* CCP Check Modal */}
+        <CCPCheckModal
+          open={!!activeCCP && !showCCPModal}
+          onClose={() => setActiveCCP(null)}
+          ccp={activeCCP}
+          user={user}
+          onSuccess={() => {
+            queryClient.invalidateQueries(['ccpChecks']);
+            queryClient.invalidateQueries(['activeCCPs']);
+          }}
+        />
       </div>
 
       {/* Bottom Quick Toolbar */}
