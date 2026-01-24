@@ -89,6 +89,7 @@ import WeeklyManagerReportForm from './pages/WeeklyManagerReportForm';
 import WeeklyManagerReports from './pages/WeeklyManagerReports';
 import WelcomeVision from './pages/WelcomeVision';
 import CleaningHygieneHub from './pages/CleaningHygieneHub';
+import CleaningSignOffLog from './pages/CleaningSignOffLog';
 import __Layout from './Layout.jsx';
 
 
@@ -184,6 +185,7 @@ export const PAGES = {
     "WeeklyManagerReports": WeeklyManagerReports,
     "WelcomeVision": WelcomeVision,
     "CleaningHygieneHub": CleaningHygieneHub,
+    "CleaningSignOffLog": CleaningSignOffLog,
 }
 
 export const pagesConfig = {
