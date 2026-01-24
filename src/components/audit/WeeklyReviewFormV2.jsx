@@ -147,21 +147,29 @@ export default function WeeklyReviewFormV2({ user, onClose }) {
 
       const result = await base44.entities.WeeklyAudit.create(auditData);
 
-      // Log to operations history
+      // Update KPI Summary
       try {
-        await base44.entities.OperationsHistory?.create?.({
-          entry_type: 'weekly_audit',
-          entry_date: new Date().toISOString(),
-          title: `Weekly Audit Submitted - Score: ${auditData.audit_score}%`,
-          description: `Sales: £${formData.total_sales}, Hygiene: ${formData.hygiene_checklist_percent}%`,
-          severity: 'info'
+        const weekId = format(weekStart, 'yyyy-\\W\\W');
+        await base44.entities.AuditKPISummary.create({
+          period_type: 'weekly',
+          period_identifier: weekId,
+          total_sales: formData.total_sales,
+          avg_order_value: formData.aov,
+          total_incidents: formData.incidents_logged,
+          audit_score_avg: auditData.audit_score,
+          equipment_health_score: 100 - (formData.equipment_issues_open * 10),
+          hygiene_percent: formData.hygiene_checklist_percent,
+          waste_percent: formData.wastage_percent,
+          staff_score: formData.attendance_compliance,
+          customer_rating: formData.average_rating
         });
       } catch (e) {
-        console.log('Operations history logging skipped');
+        console.log('KPI summary update skipped');
       }
 
-      toast.success(`Weekly audit submitted - Score: ${auditData.audit_score}%`);
+      toast.success(`✅ Weekly Review logged successfully. KPI Dashboard updated.`);
       queryClient.invalidateQueries(['weekly-audits']);
+      queryClient.invalidateQueries(['audit-kpi-summary']);
       onClose();
     } catch (error) {
       console.error('Error submitting audit:', error);

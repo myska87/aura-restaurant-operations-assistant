@@ -15,6 +15,7 @@ import MonthlyAuditForm from '@/components/audit/MonthlyAuditForm';
 import AuditFormsLibrary from '@/components/audit/AuditFormsLibrary';
 import AuditReportsView from '@/components/audit/AuditReportsView';
 import KPIDashboardWidget from '@/components/audit/KPIDashboardWidget';
+import AuditPDFExport from '@/components/audit/AuditPDFExport';
 import FoodSafetyChecklistForm from '@/components/food-safety/FoodSafetyChecklistForm';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 
@@ -202,17 +203,20 @@ export default function AuditCenter() {
                     <div className="space-y-2">
                       {weeklyAudits.slice(0, 5).map((audit) => (
                         <div key={audit.id} className="flex items-center justify-between p-3 bg-slate-50 rounded-lg">
-                          <div>
+                          <div className="flex-1">
                             <p className="font-semibold text-sm">{audit.audit_week}</p>
                             <p className="text-xs text-slate-600">by {audit.submitted_by_name}</p>
                           </div>
-                          <Badge className={
-                            audit.audit_score >= 90 ? 'bg-emerald-600' : 
-                            audit.audit_score >= 75 ? 'bg-amber-600' : 
-                            'bg-red-600'
-                          }>
-                            {audit.audit_score}%
-                          </Badge>
+                          <div className="flex items-center gap-2">
+                            <Badge className={
+                              audit.audit_score >= 90 ? 'bg-emerald-600' : 
+                              audit.audit_score >= 75 ? 'bg-amber-600' : 
+                              'bg-red-600'
+                            }>
+                              {audit.audit_score}%
+                            </Badge>
+                            <AuditPDFExport audit={audit} type="weekly" />
+                          </div>
                         </div>
                       ))}
                     </div>
@@ -261,20 +265,30 @@ export default function AuditCenter() {
                   {monthlyAudits.length === 0 ? (
                     <p className="text-sm text-slate-600 text-center py-4">No monthly audits yet - start your first one above</p>
                   ) : (
-                    <div className="space-y-2">
+                    <div className="space-y-3">
                       {monthlyAudits.slice(0, 5).map((audit) => (
-                        <div key={audit.id} className="flex items-center justify-between p-3 bg-slate-50 rounded-lg">
-                          <div>
-                            <p className="font-semibold text-sm">{audit.audit_month}</p>
-                            <p className="text-xs text-slate-600">by {audit.submitted_by_name}</p>
+                        <div key={audit.id} className="p-3 bg-slate-50 rounded-lg">
+                          <div className="flex items-center justify-between mb-2">
+                            <div className="flex-1">
+                              <p className="font-semibold text-sm">{audit.audit_month}</p>
+                              <p className="text-xs text-slate-600">by {audit.submitted_by_name}</p>
+                            </div>
+                            <div className="flex items-center gap-2">
+                              <Badge className={
+                                audit.overall_score >= 90 ? 'bg-emerald-600' : 
+                                audit.overall_score >= 75 ? 'bg-amber-600' : 
+                                'bg-red-600'
+                              }>
+                                {audit.overall_score}%
+                              </Badge>
+                              <AuditPDFExport audit={audit} type="monthly" />
+                            </div>
                           </div>
-                          <Badge className={
-                            audit.overall_score >= 90 ? 'bg-emerald-600' : 
-                            audit.overall_score >= 75 ? 'bg-amber-600' : 
-                            'bg-red-600'
-                          }>
-                            {audit.overall_score}%
-                          </Badge>
+                          {audit.ai_summary && (
+                            <p className="text-xs text-slate-600 italic border-l-2 border-emerald-500 pl-2">
+                              {audit.ai_summary}
+                            </p>
+                          )}
                         </div>
                       ))}
                     </div>

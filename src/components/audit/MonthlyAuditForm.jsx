@@ -78,6 +78,20 @@ export default function MonthlyAuditForm({ user, onClose }) {
         photo_evidence: photoUrl
       };
 
+      // Generate AI Summary
+      const aiSummary = await base44.integrations.Core.InvokeLLM({
+        prompt: `Generate a brief audit summary (2-3 sentences) based on these scores:
+Equipment: ${formData.equipment_condition}
+Hygiene: ${formData.hygiene_rating}
+Health & Safety: ${formData.health_safety_rating}
+Training: ${formData.training_compliance}
+Inventory: ${formData.inventory_labeling}
+Documentation: ${formData.documentation}
+Overall Score: ${score}%
+Focus on key strengths and improvement areas.`,
+        add_context_from_internet: false
+      });
+
       // Save to MonthlyAudit entity
       const monthlyAuditData = {
         audit_month: format(new Date(), 'yyyy-MM'),
@@ -114,6 +128,7 @@ export default function MonthlyAuditForm({ user, onClose }) {
           pending_percent: 0,
           corrective_actions: 0
         },
+        ai_summary: aiSummary,
         overall_score: score,
         manager_signature: 'Signed',
         owner_verification: formData.manager_sign_off,
@@ -122,12 +137,28 @@ export default function MonthlyAuditForm({ user, onClose }) {
 
       await base44.entities.MonthlyAudit.create(monthlyAuditData);
 
+      // Update KPI Summary
+      try {
+        const monthId = format(new Date(), 'yyyy-MM');
+        await base44.entities.AuditKPISummary.create({
+          period_type: 'monthly',
+          period_identifier: monthId,
+          audit_score_avg: score,
+          equipment_health_score: monthlyAuditData.compliance_hygiene.equipment_health_score,
+          hygiene_percent: monthlyAuditData.compliance_hygiene.fsa_hygiene_score,
+          staff_score: monthlyAuditData.team_metrics.training_compliance_percent
+        });
+      } catch (e) {
+        console.log('KPI summary update skipped');
+      }
+
       // Also save to AuditLog for backward compatibility
       await base44.entities.AuditLog.create(auditData);
       
-      toast.success(`Monthly audit completed - Score: ${score}%`);
+      toast.success(`✅ Monthly Audit completed - Score: ${score}%. AI Summary generated.`);
       queryClient.invalidateQueries(['completed-audits']);
       queryClient.invalidateQueries(['monthly-audits']);
+      queryClient.invalidateQueries(['audit-kpi-summary']);
       onClose();
     } catch (error) {
       console.error('Error submitting audit:', error);
