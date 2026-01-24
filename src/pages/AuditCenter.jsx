@@ -49,9 +49,28 @@ export default function AuditCenter() {
     queryFn: () => base44.entities.AuditIssue.filter({ status: 'open' }, '-created_date', 50)
   });
 
-  const { data: weeklyAudits = [] } = useQuery({
+  const { data: weeklyAudits = [], error: weeklyAuditsError } = useQuery({
     queryKey: ['weekly-audits'],
-    queryFn: () => base44.entities.WeeklyAudit.list('-submission_date', 20)
+    queryFn: async () => {
+      try {
+        return await base44.entities.WeeklyAudit.list('-submission_date', 20);
+      } catch (e) {
+        console.error('WeeklyAudit entity error:', e);
+        return [];
+      }
+    }
+  });
+
+  const { data: monthlyAudits = [], error: monthlyAuditsError } = useQuery({
+    queryKey: ['monthly-audits'],
+    queryFn: async () => {
+      try {
+        return await base44.entities.MonthlyAudit.list('-submission_date', 20);
+      } catch (e) {
+        console.error('MonthlyAudit entity error:', e);
+        return [];
+      }
+    }
   });
 
   if (!user) {
@@ -151,6 +170,15 @@ export default function AuditCenter() {
 
         {/* Weekly Reviews Tab */}
         <TabsContent value="weekly">
+          {weeklyAuditsError && (
+            <Card className="bg-amber-50 border-amber-300 mb-4">
+              <CardContent className="pt-6">
+                <AlertCircle className="w-5 h-5 text-amber-600 mb-2" />
+                <p className="text-sm text-amber-900 font-semibold">⚠️ WeeklyAudit entity not found</p>
+                <p className="text-xs text-amber-700 mt-1">Entity exists but may need refresh. Try reloading the page.</p>
+              </CardContent>
+            </Card>
+          )}
           {isManager ? (
             <div className="space-y-4">
               <div className="flex justify-end">
@@ -162,25 +190,33 @@ export default function AuditCenter() {
                   Start Weekly Review
                 </Button>
               </div>
-              {showWeeklyForm && (
-                <Dialog open={showWeeklyForm} onOpenChange={setShowWeeklyForm}>
-                  <DialogContent className="max-w-xl max-h-screen overflow-y-auto">
-                    <DialogHeader>
-                      <DialogTitle>Weekly Audit & KPI Review</DialogTitle>
-                    </DialogHeader>
-                    <WeeklyReviewFormV2
-                      user={user}
-                      onClose={() => setShowWeeklyForm(false)}
-                    />
-                  </DialogContent>
-                </Dialog>
-              )}
+              
               <Card>
                 <CardHeader>
-                  <CardTitle>Recent Weekly Reviews</CardTitle>
+                  <CardTitle>📋 Recent Weekly Reviews</CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <p className="text-sm text-slate-600">Reviews from the last 4 weeks will appear here</p>
+                  {weeklyAudits.length === 0 ? (
+                    <p className="text-sm text-slate-600 text-center py-4">No weekly reviews yet - start your first one above</p>
+                  ) : (
+                    <div className="space-y-2">
+                      {weeklyAudits.slice(0, 5).map((audit) => (
+                        <div key={audit.id} className="flex items-center justify-between p-3 bg-slate-50 rounded-lg">
+                          <div>
+                            <p className="font-semibold text-sm">{audit.audit_week}</p>
+                            <p className="text-xs text-slate-600">by {audit.submitted_by_name}</p>
+                          </div>
+                          <Badge className={
+                            audit.audit_score >= 90 ? 'bg-emerald-600' : 
+                            audit.audit_score >= 75 ? 'bg-amber-600' : 
+                            'bg-red-600'
+                          }>
+                            {audit.audit_score}%
+                          </Badge>
+                        </div>
+                      ))}
+                    </div>
+                  )}
                 </CardContent>
               </Card>
             </div>
@@ -196,6 +232,15 @@ export default function AuditCenter() {
 
         {/* Monthly Audits Tab */}
         <TabsContent value="monthly">
+          {monthlyAuditsError && (
+            <Card className="bg-amber-50 border-amber-300 mb-4">
+              <CardContent className="pt-6">
+                <AlertCircle className="w-5 h-5 text-amber-600 mb-2" />
+                <p className="text-sm text-amber-900 font-semibold">⚠️ MonthlyAudit entity not found</p>
+                <p className="text-xs text-amber-700 mt-1">Entity exists but may need refresh. Try reloading the page.</p>
+              </CardContent>
+            </Card>
+          )}
           {isOwner ? (
             <div className="space-y-4">
               <div className="flex justify-end">
@@ -207,25 +252,33 @@ export default function AuditCenter() {
                   Start Monthly Audit
                 </Button>
               </div>
-              {showMonthlyForm && (
-                <Dialog open={showMonthlyForm} onOpenChange={setShowMonthlyForm}>
-                  <DialogContent className="max-w-2xl max-h-screen overflow-y-auto">
-                    <DialogHeader>
-                      <DialogTitle>Monthly Compliance Audit</DialogTitle>
-                    </DialogHeader>
-                    <MonthlyAuditForm
-                      user={user}
-                      onClose={() => setShowMonthlyForm(false)}
-                    />
-                  </DialogContent>
-                </Dialog>
-              )}
+              
               <Card>
                 <CardHeader>
-                  <CardTitle>Monthly Audit Records</CardTitle>
+                  <CardTitle>📊 Monthly Audit Records</CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <p className="text-sm text-slate-600">Monthly audits for this year will appear here</p>
+                  {monthlyAudits.length === 0 ? (
+                    <p className="text-sm text-slate-600 text-center py-4">No monthly audits yet - start your first one above</p>
+                  ) : (
+                    <div className="space-y-2">
+                      {monthlyAudits.slice(0, 5).map((audit) => (
+                        <div key={audit.id} className="flex items-center justify-between p-3 bg-slate-50 rounded-lg">
+                          <div>
+                            <p className="font-semibold text-sm">{audit.audit_month}</p>
+                            <p className="text-xs text-slate-600">by {audit.submitted_by_name}</p>
+                          </div>
+                          <Badge className={
+                            audit.overall_score >= 90 ? 'bg-emerald-600' : 
+                            audit.overall_score >= 75 ? 'bg-amber-600' : 
+                            'bg-red-600'
+                          }>
+                            {audit.overall_score}%
+                          </Badge>
+                        </div>
+                      ))}
+                    </div>
+                  )}
                 </CardContent>
               </Card>
             </div>
@@ -249,6 +302,32 @@ export default function AuditCenter() {
           <AuditReportsView completedAudits={completedAudits} user={user} />
         </TabsContent>
       </Tabs>
+
+      {/* Weekly Review Modal */}
+      <Dialog open={showWeeklyForm} onOpenChange={setShowWeeklyForm}>
+        <DialogContent className="max-w-xl max-h-screen overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>📊 Weekly Audit & KPI Review</DialogTitle>
+          </DialogHeader>
+          <WeeklyReviewFormV2
+            user={user}
+            onClose={() => setShowWeeklyForm(false)}
+          />
+        </DialogContent>
+      </Dialog>
+
+      {/* Monthly Audit Modal */}
+      <Dialog open={showMonthlyForm} onOpenChange={setShowMonthlyForm}>
+        <DialogContent className="max-w-2xl max-h-screen overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>📅 Monthly Compliance Audit</DialogTitle>
+          </DialogHeader>
+          <MonthlyAuditForm
+            user={user}
+            onClose={() => setShowMonthlyForm(false)}
+          />
+        </DialogContent>
+      </Dialog>
 
       {/* FSA Checklist Modal */}
       <Dialog open={showFSAChecklist} onOpenChange={setShowFSAChecklist}>

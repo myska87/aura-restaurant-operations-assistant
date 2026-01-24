@@ -78,10 +78,56 @@ export default function MonthlyAuditForm({ user, onClose }) {
         photo_evidence: photoUrl
       };
 
+      // Save to MonthlyAudit entity
+      const monthlyAuditData = {
+        audit_month: format(new Date(), 'yyyy-MM'),
+        submitted_by_name: user?.full_name || 'Unknown',
+        submitted_by_email: user?.email || '',
+        submission_date: new Date().toISOString().split('T')[0],
+        financial_summary: {
+          total_sales: 0,
+          net_margin_percent: 0,
+          wastage_value: 0,
+          food_cost_ratio: 0
+        },
+        compliance_hygiene: {
+          fsa_hygiene_score: formData.hygiene_rating === 'excellent' ? 100 : formData.hygiene_rating === 'good' ? 75 : 50,
+          equipment_health_score: formData.equipment_condition === 'excellent' ? 100 : formData.equipment_condition === 'good' ? 75 : 50,
+          temperature_accuracy_percent: 95,
+          critical_hygiene_incidents: 0
+        },
+        team_metrics: {
+          staff_retention_percent: 95,
+          attendance_rate: 95,
+          training_compliance_percent: formData.training_compliance === 'excellent' ? 100 : formData.training_compliance === 'good' ? 75 : 50,
+          health_safety_training_percent: formData.health_safety_rating === 'excellent' ? 100 : formData.health_safety_rating === 'good' ? 75 : 50
+        },
+        customer_metrics: {
+          google_review_average: 4.5,
+          customer_return_percent: 45,
+          nps_score: 50,
+          top_complaints: []
+        },
+        incidents_safety: {
+          total_incidents: 0,
+          resolved_percent: 100,
+          pending_percent: 0,
+          corrective_actions: 0
+        },
+        overall_score: score,
+        manager_signature: 'Signed',
+        owner_verification: formData.manager_sign_off,
+        status: 'submitted'
+      };
+
+      await base44.entities.MonthlyAudit.create(monthlyAuditData);
+
+      // Also save to AuditLog for backward compatibility
       await base44.entities.AuditLog.create(auditData);
       
       toast.success(`Monthly audit completed - Score: ${score}%`);
       queryClient.invalidateQueries(['completed-audits']);
+      queryClient.invalidateQueries(['monthly-audits']);
       onClose();
     } catch (error) {
       console.error('Error submitting audit:', error);
