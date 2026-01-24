@@ -6,36 +6,95 @@ const { base44 } = require("@base44/sdk");
  * Generates inspector-ready documentation
  */
 exports.generateHACCPPlan = async (event) => {
-  const { user_email, location_id, location_name } = event.body;
-
-  if (!user_email) {
+  console.log("[HACCP] Generation request received:", { event });
+  
+  // Parse request body
+  let requestData = {};
+  try {
+    requestData = typeof event.body === 'string' ? JSON.parse(event.body) : event.body;
+  } catch (parseErr) {
+    console.error("[HACCP] Request parse error:", parseErr);
     return {
       statusCode: 400,
-      body: JSON.stringify({ error: "Missing user_email" })
+      body: JSON.stringify({ success: false, error: "Invalid request format" })
+    };
+  }
+
+  const { user_email, location_id, location_name } = requestData;
+
+  // Validate required inputs
+  if (!user_email) {
+    console.error("[HACCP] Missing user_email");
+    return {
+      statusCode: 400,
+      body: JSON.stringify({ success: false, error: "Missing user_email" })
     };
   }
 
   try {
-    // Fetch all required data
-    const [menuItems, ccpData, hazards, assets] = await Promise.all([
-      base44.entities.MenuItem.list("-created_date", 500),
-      base44.entities.CriticalControlPoint.list("-created_date", 200),
-      base44.entities.Hazard.list("-created_date", 100),
-      base44.entities.Asset.list("-created_date", 100)
-    ]);
+    console.log("[HACCP] Fetching data...");
+    
+    // Fetch all required data with null safety
+    let menuItems = [];
+    let ccpData = [];
+    let hazards = [];
+    let assets = [];
+
+    try {
+      menuItems = await base44.entities.MenuItem.list("-created_date", 500) || [];
+    } catch (e) {
+      console.warn("[HACCP] MenuItem fetch failed:", e.message);
+      menuItems = [];
+    }
+
+    try {
+      ccpData = await base44.entities.CriticalControlPoint.list("-created_date", 200) || [];
+    } catch (e) {
+      console.warn("[HACCP] CCP fetch failed:", e.message);
+      ccpData = [];
+    }
+
+    try {
+      hazards = await base44.entities.Hazard.list("-created_date", 100) || [];
+    } catch (e) {
+      console.warn("[HACCP] Hazard fetch failed:", e.message);
+      hazards = [];
+    }
+
+    try {
+      assets = await base44.entities.Asset.list("-created_date", 100) || [];
+    } catch (e) {
+      console.warn("[HACCP] Asset fetch failed:", e.message);
+      assets = [];
+    }
+
+    console.log("[HACCP] Data fetched:", {
+      menuItems: menuItems.length,
+      ccpData: ccpData.length,
+      hazards: hazards.length,
+      assets: assets.length
+    });
 
     // Get latest version
-    const existingPlans = await base44.entities.HACCPPlan.filter({
-      location_id: location_id || "default"
-    }, "-created_date", 10);
+    let existingPlans = [];
+    try {
+      existingPlans = await base44.entities.HACCPPlan.filter({
+        location_id: location_id || "default"
+      }, "-created_date", 10) || [];
+    } catch (e) {
+      console.warn("[HACCP] Existing plans fetch failed:", e.message);
+      existingPlans = [];
+    }
 
     const latestVersion = existingPlans[0]?.version || "1.0";
     const [major, minor] = latestVersion.split(".").map(Number);
     const newVersion = `${major}.${minor + 1}`;
 
+    console.log("[HACCP] Generated new version:", newVersion);
+
     // Build comprehensive HACCP content
     const haccpContent = generateHACCPContent({
-      location_name,
+      location_name: location_name || "Main",
       menuItems,
       ccpData,
       hazards,
@@ -45,15 +104,21 @@ exports.generateHACCPPlan = async (event) => {
     });
 
     // Archive old versions (mark is_active = false but don't delete)
-    if (existingPlans.length > 0) {
+    if (existingPlans && existingPlans.length > 0) {
+      console.log("[HACCP] Archiving", existingPlans.length, "previous versions");
       for (const plan of existingPlans) {
-        await base44.entities.HACCPPlan.update(plan.id, {
-          is_active: false
-        });
+        try {
+          await base44.entities.HACCPPlan.update(plan.id, {
+            is_active: false
+          });
+        } catch (archiveErr) {
+          console.warn("[HACCP] Archive failed for plan", plan.id, archiveErr.message);
+        }
       }
     }
 
     // Create new HACCP plan record
+    console.log("[HACCP] Creating HACCP plan record...");
     const haccpRecord = await base44.entities.HACCPPlan.create({
       location_id: location_id || "default",
       location_name: location_name || "Main",
@@ -65,18 +130,15 @@ exports.generateHACCPPlan = async (event) => {
       scope: `${menuItems.length} menu items, ${ccpData.length} CCPs, ${hazards.length} identified hazards`,
       hazard_analysis_complete: true,
       ccps_identified: ccpData.length,
-      linked_menu_items: menuItems.slice(0, 50).map(m => m.id),
+      linked_menu_items: (menuItems && menuItems.length > 0) ? menuItems.slice(0, 50).map(m => m.id).filter(Boolean) : [],
       compliance_status: "implemented",
-      notes: haccpContent,
-      content_summary: {
-        menu_items_count: menuItems.length,
-        ccp_count: ccpData.length,
-        hazard_count: hazards.length,
-        asset_count: assets.length
-      }
+      notes: haccpContent
     });
 
+    console.log("[HACCP] HACCP plan created:", haccpRecord.id);
+
     // Create report entry so it appears in reports dashboard
+    console.log("[HACCP] Creating operation report...");
     const reportRecord = await base44.entities.OperationReport.create({
       reportId: `HACCP-${newVersion}-${Date.now()}`,
       reportType: "HACCP",
@@ -109,24 +171,39 @@ exports.generateHACCPPlan = async (event) => {
       ]
     });
 
+    console.log("[HACCP] Report created:", reportRecord.id);
+
+    const responseBody = JSON.stringify({
+      success: true,
+      haccpPlanId: haccpRecord.id,
+      reportId: reportRecord.id,
+      version: newVersion,
+      message: "HACCP plan generated successfully"
+    });
+
+    console.log("[HACCP] Returning success response");
+
     return {
       statusCode: 200,
-      body: JSON.stringify({
-        success: true,
-        haccpPlanId: haccpRecord.id,
-        reportId: reportRecord.id,
-        version: newVersion,
-        message: "HACCP plan generated successfully"
-      })
+      headers: { "Content-Type": "application/json" },
+      body: responseBody
     };
   } catch (error) {
-    console.error("HACCP generation error:", error);
+    console.error("[HACCP] CRITICAL ERROR:", error);
+    console.error("[HACCP] Error stack:", error.stack);
+    
+    const errorResponse = JSON.stringify({
+      success: false,
+      error: "Failed to generate HACCP plan",
+      details: error.message || "Unknown error"
+    });
+
+    console.log("[HACCP] Returning error response:", errorResponse);
+
     return {
       statusCode: 500,
-      body: JSON.stringify({
-        error: "Failed to generate HACCP plan",
-        details: error.message
-      })
+      headers: { "Content-Type": "application/json" },
+      body: errorResponse
     };
   }
 };

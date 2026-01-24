@@ -188,6 +188,8 @@ export default function OperationsReports() {
     setHACCPGenerating(true);
     
     try {
+      console.log('[Frontend] Initiating HACCP generation...');
+      
       // Call backend function to generate HACCP
       const response = await fetch('/.netlify/functions/generateHACCPPlan', {
         method: 'POST',
@@ -199,23 +201,36 @@ export default function OperationsReports() {
         })
       });
 
-      if (!response.ok) {
-        const error = await response.json();
-        throw new Error(error.details || 'Failed to generate HACCP plan');
+      console.log('[Frontend] Response status:', response.status);
+
+      // Validate response has body
+      if (!response.body) {
+        throw new Error('Server returned empty response');
       }
 
-      const result = await response.json();
-      
-      if (result.success) {
-        // Refresh data
-        queryClient.invalidateQueries(['haccpPlans']);
-        setShowHACCPDialog(false);
-        alert(`✓ HACCP Plan v${result.version} generated successfully!`);
-      } else {
-        throw new Error('Generation failed');
+      // Parse JSON response
+      let result;
+      try {
+        result = await response.json();
+        console.log('[Frontend] Parsed response:', result);
+      } catch (parseErr) {
+        console.error('[Frontend] JSON parse error:', parseErr);
+        throw new Error('Invalid response from server: ' + parseErr.message);
       }
+
+      // Check if response indicates error
+      if (!response.ok || !result.success) {
+        const errorMsg = result.error || result.details || 'Unknown error';
+        throw new Error(errorMsg);
+      }
+
+      // Success
+      console.log('[Frontend] Generation successful, refreshing data...');
+      queryClient.invalidateQueries(['haccpPlans']);
+      setShowHACCPDialog(false);
+      alert(`✓ HACCP Plan v${result.version} generated successfully!`);
     } catch (error) {
-      console.error('HACCP generation error:', error);
+      console.error('[Frontend] HACCP generation error:', error);
       alert(`❌ Error: ${error.message}`);
     } finally {
       setHACCPGenerating(false);
