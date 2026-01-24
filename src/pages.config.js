@@ -15,6 +15,7 @@ import ChemicalRegister from './pages/ChemicalRegister';
 import ChemicalStockList from './pages/ChemicalStockList';
 import CommandCenter from './pages/CommandCenter';
 import ComplianceHub from './pages/ComplianceHub';
+import Culture from './pages/Culture';
 import DailyCheckIn from './pages/DailyCheckIn';
 import DailyOperationsHub from './pages/DailyOperationsHub';
 import Dashboard from './pages/Dashboard';
@@ -30,6 +31,7 @@ import HygieneReports from './pages/HygieneReports';
 import InspectorMode from './pages/InspectorMode';
 import Inventory from './pages/Inventory';
 import InventoryAdjustment from './pages/InventoryAdjustment';
+import Invitation from './pages/Invitation';
 import Invitations from './pages/Invitations';
 import LeadershipPathway from './pages/LeadershipPathway';
 import ManageHome from './pages/ManageHome';
@@ -55,6 +57,7 @@ import Profile from './pages/Profile';
 import Quality from './pages/Quality';
 import QualityControl from './pages/QualityControl';
 import QualitySafety from './pages/QualitySafety';
+import RavingFans from './pages/RavingFans';
 import RecipeDetail from './pages/RecipeDetail';
 import Reports from './pages/Reports';
 import SOPLibrary from './pages/SOPLibrary';
@@ -69,6 +72,7 @@ import Staff from './pages/Staff';
 import StockDashboard from './pages/StockDashboard';
 import TrainHome from './pages/TrainHome';
 import Training from './pages/Training';
+import TrainingAcademy from './pages/TrainingAcademy';
 import TrainingInsights from './pages/TrainingInsights';
 import VisualDishGuideDetail from './pages/VisualDishGuideDetail';
 import VisualDishGuideForm from './pages/VisualDishGuideForm';
@@ -81,10 +85,6 @@ import WeeklyManagerReportDetail from './pages/WeeklyManagerReportDetail';
 import WeeklyManagerReportForm from './pages/WeeklyManagerReportForm';
 import WeeklyManagerReports from './pages/WeeklyManagerReports';
 import WelcomeVision from './pages/WelcomeVision';
-import Invitation from './pages/Invitation';
-import RavingFans from './pages/RavingFans';
-import TrainingAcademy from './pages/TrainingAcademy';
-import Culture from './pages/Culture';
 import __Layout from './Layout.jsx';
 
 
@@ -106,6 +106,7 @@ export const PAGES = {
     "ChemicalStockList": ChemicalStockList,
     "CommandCenter": CommandCenter,
     "ComplianceHub": ComplianceHub,
+    "Culture": Culture,
     "DailyCheckIn": DailyCheckIn,
     "DailyOperationsHub": DailyOperationsHub,
     "Dashboard": Dashboard,
@@ -121,6 +122,7 @@ export const PAGES = {
     "InspectorMode": InspectorMode,
     "Inventory": Inventory,
     "InventoryAdjustment": InventoryAdjustment,
+    "Invitation": Invitation,
     "Invitations": Invitations,
     "LeadershipPathway": LeadershipPathway,
     "ManageHome": ManageHome,
@@ -146,6 +148,7 @@ export const PAGES = {
     "Quality": Quality,
     "QualityControl": QualityControl,
     "QualitySafety": QualitySafety,
+    "RavingFans": RavingFans,
     "RecipeDetail": RecipeDetail,
     "Reports": Reports,
     "SOPLibrary": SOPLibrary,
@@ -160,6 +163,7 @@ export const PAGES = {
     "StockDashboard": StockDashboard,
     "TrainHome": TrainHome,
     "Training": Training,
+    "TrainingAcademy": TrainingAcademy,
     "TrainingInsights": TrainingInsights,
     "VisualDishGuideDetail": VisualDishGuideDetail,
     "VisualDishGuideForm": VisualDishGuideForm,
@@ -172,10 +176,6 @@ export const PAGES = {
     "WeeklyManagerReportForm": WeeklyManagerReportForm,
     "WeeklyManagerReports": WeeklyManagerReports,
     "WelcomeVision": WelcomeVision,
-    "Invitation": Invitation,
-    "RavingFans": RavingFans,
-    "TrainingAcademy": TrainingAcademy,
-    "Culture": Culture,
 }
 
 export const pagesConfig = {

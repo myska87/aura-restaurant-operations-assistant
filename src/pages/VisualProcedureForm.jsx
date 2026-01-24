@@ -371,9 +371,7 @@ export default function VisualProcedureForm() {
 
       <form onSubmit={handleSubmit} className="space-y-6">
         {/* AI Assistant */}
-        {!isEditing && (
-          <AIProcedureAssistant onProcedureGenerated={handleAIGenerated} />
-        )}
+        <AIProcedureAssistant onProcedureGenerated={handleAIGenerated} />
 
         {/* Basic Info */}
         <Card>
