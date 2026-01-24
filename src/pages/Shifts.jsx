@@ -219,6 +219,12 @@ export default function Shifts() {
     }
     
     const selectedStaff = staff.find(s => s.id === formData.staff_id);
+    const staffProgress = trainingProgress.find(t => t.staff_id === formData.staff_id);
+    
+    if (!staffProgress?.onsiteAccessEnabled) {
+      alert('⛔ Training not completed — access restricted.\n\nThis staff member must complete their full training journey and obtain certification before being scheduled.');
+      return;
+    }
     const startTime = formData.scheduled_start;
     const endTime = formData.scheduled_end;
     const hourlyRate = parseFloat(formData.hourly_rate);
