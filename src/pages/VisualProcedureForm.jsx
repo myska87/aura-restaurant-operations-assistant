@@ -640,30 +640,30 @@ export default function VisualProcedureForm() {
 
           {/* Actions */}
           <div className="flex gap-3 justify-between">
-          <Button type="button" variant="outline" onClick={() => navigate(createPageUrl('VisualProcedures'))}>
-            Cancel
-          </Button>
-          <div className="flex gap-3">
-            <Button 
-              type="button"
-              variant="outline"
-              onClick={(e) => handleSubmit(e, true)}
-              disabled={saveMutation.isPending}
-            >
-              <Save className="w-4 h-4 mr-2" />
-              {saveMutation.isPending ? 'Saving...' : 'Save Draft'}
+            <Button type="button" variant="outline" onClick={() => navigate(createPageUrl('VisualProcedures'))}>
+              Cancel
             </Button>
-            <Button 
-              type="submit"
-              disabled={saveMutation.isPending}
-              className="bg-emerald-600 hover:bg-emerald-700"
-            >
-              <CheckCircle className="w-4 h-4 mr-2" />
-              {saveMutation.isPending ? 'Publishing...' : 'Publish Procedure'}
-            </Button>
+            <div className="flex gap-3">
+              <Button 
+                type="button"
+                variant="outline"
+                onClick={(e) => handleSubmit(e, true)}
+                disabled={saveMutation.isPending}
+              >
+                <Save className="w-4 h-4 mr-2" />
+                {saveMutation.isPending ? 'Saving...' : 'Save Draft'}
+              </Button>
+              <Button 
+                type="submit"
+                disabled={saveMutation.isPending}
+                className="bg-emerald-600 hover:bg-emerald-700"
+              >
+                <CheckCircle className="w-4 h-4 mr-2" />
+                {saveMutation.isPending ? 'Publishing...' : 'Publish Procedure'}
+              </Button>
+            </div>
           </div>
-        </div>
-      </form>
+          </form>
     </div>
   );
 }
