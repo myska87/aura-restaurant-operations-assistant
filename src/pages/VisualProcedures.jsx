@@ -12,7 +12,10 @@ import {
   Wrench,
   Trash2,
   Clock,
-  Users
+  Users,
+  LayoutGrid,
+  List,
+  Edit2
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
