@@ -613,12 +613,12 @@ export default function VisualProcedureForm() {
                 </Button>
               </div>
             ))}
-          </CardContent>
-          </Card>
+            </CardContent>
+            </Card>
 
-          {/* Staff Notification Option */}
-          {isEditing && (
-          <Card>
+            {/* Staff Notification Option */}
+            {isEditing && (
+            <Card>
             <CardHeader>
               <CardTitle>Staff Notification</CardTitle>
             </CardHeader>
