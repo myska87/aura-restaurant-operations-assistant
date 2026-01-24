@@ -1,7 +1,6 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import { Card } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 import { Sunrise, ChefHat, Moon, CheckCircle } from 'lucide-react';
 
@@ -176,11 +175,11 @@ export default function InteractiveStagesDashboard({
 
                 {/* Call to Action Badge */}
                 <div className="px-4 pb-4">
-                  <Badge className={`w-full justify-center text-sm py-2 font-bold bg-gradient-to-r ${stage.color} text-white hover:opacity-90 transition-opacity`}>
+                  <div className={`w-full flex items-center justify-center text-sm py-2 font-bold bg-gradient-to-r ${stage.color} text-white hover:opacity-90 transition-opacity rounded-md`}>
                     {stage.id === 'pre-opening' && 'Ready to Serve!'}
                     {stage.id === 'service' && 'Live Operations'}
                     {stage.id === 'closing' && 'Secure & Clean!'}
-                  </Badge>
+                  </div>
                 </div>
 
                 {/* Hover Overlay */}
@@ -197,9 +196,9 @@ export default function InteractiveStagesDashboard({
           animate={{ opacity: 1 }}
           className="text-center"
         >
-          <Badge variant="outline" className="text-amber-700 border-amber-300 bg-amber-50 px-4 py-2">
+          <div className="inline-flex items-center border text-amber-700 border-amber-300 bg-amber-50 px-4 py-2 rounded-md text-sm font-medium">
             ⚠️ Start your shift to unlock stage operations
-          </Badge>
+          </div>
         </motion.div>
       )}
     </div>
