@@ -58,7 +58,6 @@ const navGroups = [
       { name: 'Daily Check-In', icon: Users, page: 'Operations', roles: ['all'], modes: ['operate'] },
       { name: 'Shift Handover', icon: MessageSquare, page: 'ShiftHandovers', roles: ['all'], modes: ['operate'] },
       { name: 'Temperature Logs', icon: Thermometer, page: 'TemperatureLogs', roles: ['all'], modes: ['operate'] },
-      { name: 'Label Printing', icon: FileText, page: 'Operations', roles: ['all'], modes: ['operate'] },
       { name: 'Equipment Status', icon: Wrench, page: 'EquipmentHealth', roles: ['all'], modes: ['operate'] },
       { name: 'Operations History', icon: History, page: 'OperationsHistory', roles: ['all'], modes: ['operate'] },
       { name: 'Menu Manager', icon: ChefHat, page: 'MenuManager', roles: ['all'], modes: ['operate'] },
