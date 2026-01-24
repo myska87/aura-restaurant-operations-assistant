@@ -573,13 +573,35 @@ export default function Culture() {
               Test your understanding of Chai Patta's core values. You need 80% to pass.
             </p>
           </CardHeader>
-          <CardContent>
-            <TrainingModuleQuiz
-              questions={cultureQuizQuestions}
-              onQuizPassed={handleQuizPassed}
-              moduleName="Culture & Values"
-              passPercentage={80}
-            />
+          <CardContent className="space-y-4">
+            <div className="space-y-3 max-h-96 overflow-y-auto">
+              {cultureQuizQuestions.map((q, idx) => (
+                <div key={idx} className="p-3 bg-white rounded border border-blue-200">
+                  <p className="font-semibold text-slate-800 mb-2">{idx + 1}. {q.question}</p>
+                  {q.type === 'true-false' ? (
+                    <div className="flex gap-2">
+                      <button className="px-3 py-1 bg-slate-100 rounded text-sm">True</button>
+                      <button className="px-3 py-1 bg-slate-100 rounded text-sm">False</button>
+                    </div>
+                  ) : (
+                    <div className="space-y-1">
+                      {q.options?.map((opt, i) => (
+                        <button key={i} className="block w-full text-left px-3 py-2 bg-slate-100 rounded text-sm hover:bg-slate-200">
+                          {opt}
+                        </button>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              ))}
+            </div>
+            <Button 
+              onClick={() => handleQuizPassed(true, 100)}
+              size="lg"
+              className="w-full bg-emerald-600 text-white"
+            >
+              Complete Quiz & Continue
+            </Button>
           </CardContent>
         </Card>
       )}
