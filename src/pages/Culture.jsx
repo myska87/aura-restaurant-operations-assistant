@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { motion } from 'framer-motion';
@@ -11,6 +11,7 @@ import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import PageHeader from '@/components/ui/PageHeader';
 import TrainingJourneyBar from '@/components/training/TrainingJourneyBar';
+import TrainingModuleQuiz from '@/components/training/TrainingModuleQuiz';
 import { format } from 'date-fns';
 import confetti from 'canvas-confetti';
 
@@ -153,6 +154,59 @@ const pillars = [
   { icon: '❤️', title: 'Chai Patta Family', description: 'We support each other. Always.' }
 ];
 
+const cultureQuizQuestions = [
+  {
+    question: "What can be trained at Chai Patta, but attitude cannot?",
+    options: [
+      "Skills",
+      "Systems",
+      "Nothing - everything can be trained",
+      "Customer service"
+    ],
+    correctAnswer: 0
+  },
+  {
+    question: "Which of these is NOT a core value at Chai Patta?",
+    options: [
+      "Respect for all",
+      "Hygiene is non-negotiable",
+      "Cutting corners to save money",
+      "Create raving fans"
+    ],
+    correctAnswer: 2
+  },
+  {
+    question: "What should you do if you see a mess at your station?",
+    options: [
+      "Let someone else clean it",
+      "Tell your manager",
+      "Clean it immediately",
+      "Ignore it if you're busy"
+    ],
+    correctAnswer: 2
+  },
+  {
+    question: "What does 'Excellence Over Speed' mean?",
+    options: [
+      "Always work slowly",
+      "Never serve customers quickly",
+      "Quality matters more than speed",
+      "Speed is everything"
+    ],
+    correctAnswer: 2
+  },
+  {
+    question: "How should you treat a guest complaint?",
+    options: [
+      "Defend yourself",
+      "Make excuses",
+      "Fix mistakes with grace and learn from it",
+      "Blame the team"
+    ],
+    correctAnswer: 2
+  }
+];
+
 export default function Culture() {
   const [user, setUser] = useState(null);
   const [showAssessment, setShowAssessment] = useState(false);
@@ -163,6 +217,9 @@ export default function Culture() {
     improvement_action: ''
   });
   const [acknowledged, setAcknowledged] = useState(false);
+  const [showQuiz, setShowQuiz] = useState(false);
+  const [quizPassed, setQuizPassed] = useState(false);
+  const pageRef = useRef(null);
 
   const queryClient = useQueryClient();
 
@@ -222,6 +279,10 @@ export default function Culture() {
   });
 
   const handleSubmit = () => {
+    if (!quizPassed) {
+      alert('Please complete and pass the quiz first');
+      return;
+    }
     createAckMutation.mutate({
       staff_id: user.id || '',
       staff_email: user.email,
@@ -230,6 +291,12 @@ export default function Culture() {
       acknowledged_date: new Date().toISOString()
     });
     setShowAssessment(false);
+  };
+
+  const handleQuizPassed = (passed, score) => {
+    if (passed) {
+      setQuizPassed(true);
+    }
   };
 
   const isComplete = assessment.raving_fans_answer.trim() && 
@@ -241,7 +308,7 @@ export default function Culture() {
   const dailyQuote = getDailyQuote();
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-8" ref={pageRef}>
       {/* Journey Progress Bar */}
       {journeyProgress && (
         <TrainingJourneyBar progress={journeyProgress} compact />
@@ -584,9 +651,9 @@ export default function Culture() {
 
                 <Button 
                   onClick={handleSubmit}
-                  disabled={!isComplete}
+                  disabled={!isComplete || !quizPassed}
                   size="lg"
-                  className="w-full bg-gradient-to-r from-emerald-600 to-teal-600 text-lg h-14"
+                  className="w-full bg-gradient-to-r from-emerald-600 to-teal-600 text-lg h-14 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   <CheckCircle className="w-5 h-5 mr-2" />
                   Submit & Complete Culture Training
@@ -597,10 +664,25 @@ export default function Culture() {
                     Please complete all required fields and acknowledge the commitments
                   </p>
                 )}
+                {!quizPassed && (
+                  <p className="text-sm text-red-600 text-center font-semibold">
+                    ⚠️ You must pass the quiz below before submitting
+                  </p>
+                )}
               </div>
             )}
           </CardContent>
         </Card>
+      )}
+
+      {/* Quiz Section */}
+      {showQuiz && !alreadyCompleted && (
+        <TrainingModuleQuiz
+          questions={cultureQuizQuestions}
+          onQuizPassed={handleQuizPassed}
+          moduleName="Culture & Values"
+          passPercentage={80}
+        />
       )}
     </div>
   );
