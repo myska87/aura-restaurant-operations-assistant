@@ -136,6 +136,13 @@ export default function RavingFans() {
     }
   };
 
+  const handleNextModule = async () => {
+    await markCompletedMutation.mutate();
+    setTimeout(() => {
+      navigate(createPageUrl('SOPs'));
+    }, 500);
+  };
+
   if (isLoading) {
     return <LoadingSpinner message="Loading..." />;
   }
