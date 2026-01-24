@@ -11,10 +11,12 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/u
 import { Droplet, CheckCircle, AlertCircle, Clock, TrendingUp, AlertTriangle, Users, Plus } from 'lucide-react';
 import LoadingSpinner from '@/components/ui/LoadingSpinner';
 import DailyCleaningScheduleForm from '@/components/cleaning/DailyCleaningScheduleForm';
+import DeepCleaningScheduleForm from '@/components/cleaning/DeepCleaningScheduleForm';
 
 export default function CleaningHygieneHub() {
   const [user, setUser] = useState(null);
   const [showCleaningForm, setShowCleaningForm] = useState(false);
+  const [showDeepCleaningForm, setShowDeepCleaningForm] = useState(false);
   const today = format(new Date(), 'yyyy-MM-dd');
 
   useEffect(() => {
@@ -51,6 +53,12 @@ export default function CleaningHygieneHub() {
     enabled: !!user
   });
 
+  const { data: deepCleaningSchedules = [] } = useQuery({
+    queryKey: ['deepCleaningSchedules'],
+    queryFn: () => base44.entities.DeepCleaningSchedule?.list?.() || [],
+    enabled: !!user
+  });
+
   if (!user) return <LoadingSpinner />;
 
   // Required cleaning areas
@@ -65,7 +73,10 @@ export default function CleaningHygieneHub() {
     completedAreas.includes(area)
   );
   
-  const deepCleaningDue = addDays(new Date(), 7); // Placeholder: due in 7 days
+  // Find overdue deep cleaning tasks
+  const overdueDeepCleans = deepCleaningSchedules.filter(schedule => 
+    schedule.is_overdue && schedule.status !== 'approved'
+  );
   
   const healthDeclarationsCompleted = healthDeclarations.length;
   const healthDeclarationsTotal = staff.length || 0;
@@ -128,14 +139,22 @@ export default function CleaningHygieneHub() {
 
           {/* Deep Cleaning */}
           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}>
-            <Card className="border-2 border-blue-400 bg-blue-50 hover:shadow-lg transition-all">
+            <Card className={`border-2 hover:shadow-lg transition-all cursor-pointer ${
+              overdueDeepCleans.length > 0 
+                ? 'border-red-400 bg-red-50' 
+                : 'border-blue-400 bg-blue-50'
+            }`}>
               <CardContent className="pt-6">
                 <div className="flex items-center justify-between mb-2">
                   <h3 className="font-semibold text-slate-800">Deep Cleaning</h3>
-                  <Clock className="w-5 h-5 text-blue-600" />
+                  {overdueDeepCleans.length > 0 ? (
+                    <AlertTriangle className="w-5 h-5 text-red-600" />
+                  ) : (
+                    <Clock className="w-5 h-5 text-blue-600" />
+                  )}
                 </div>
-                <p className="text-sm font-bold text-blue-700">
-                  Next: {format(deepCleaningDue, 'd MMM')}
+                <p className={`text-sm font-bold ${overdueDeepCleans.length > 0 ? 'text-red-700' : 'text-blue-700'}`}>
+                  {overdueDeepCleans.length > 0 ? `⚠ ${overdueDeepCleans.length} OVERDUE` : '✓ On Schedule'}
                 </p>
               </CardContent>
             </Card>
@@ -172,23 +191,62 @@ export default function CleaningHygieneHub() {
           </motion.div>
         </div>
 
-        {/* CLEANING SCHEDULES */}
+        {/* DEEP CLEANING SCHEDULE */}
         <Card>
-          <CardHeader>
+          <CardHeader className="flex flex-row items-center justify-between">
             <CardTitle className="flex items-center gap-2">
-              <Droplet className="w-5 h-5 text-blue-600" />
-              Cleaning Schedules
+              <AlertTriangle className="w-5 h-5 text-purple-600" />
+              Deep Cleaning Schedule
             </CardTitle>
+            <Button 
+              onClick={() => setShowDeepCleaningForm(true)}
+              className="bg-purple-600 hover:bg-purple-700 gap-2"
+              size="sm"
+            >
+              <Plus className="w-4 h-4" />
+              Log Deep Clean
+            </Button>
           </CardHeader>
           <CardContent>
-            <div className="space-y-3">
-              {['Morning Opening Clean', 'Mid-Shift Sanitation', 'Evening Deep Clean'].map((task, idx) => (
-                <div key={idx} className="flex items-center justify-between p-3 bg-slate-50 rounded-lg border border-slate-200">
-                  <span className="font-medium text-slate-800">{task}</span>
-                  <Badge className="bg-emerald-600">Scheduled</Badge>
-                </div>
-              ))}
-            </div>
+            {deepCleaningSchedules.length === 0 ? (
+              <p className="text-slate-600 text-center py-4">No deep cleaning schedules set up yet</p>
+            ) : (
+              <div className="space-y-3">
+                {deepCleaningSchedules.map((schedule) => (
+                  <div 
+                    key={schedule.id} 
+                    className={`p-4 rounded-lg border-l-4 ${
+                      schedule.is_overdue && schedule.status !== 'approved'
+                        ? 'bg-red-50 border-red-400'
+                        : schedule.status === 'approved'
+                        ? 'bg-emerald-50 border-emerald-400'
+                        : 'bg-slate-50 border-slate-300'
+                    }`}
+                  >
+                    <div className="flex items-start justify-between mb-2">
+                      <div>
+                        <p className="font-bold text-slate-800">{schedule.area_equipment_name}</p>
+                        <p className="text-sm text-slate-600">{schedule.frequency.charAt(0).toUpperCase() + schedule.frequency.slice(1)} • {schedule.assigned_role}</p>
+                      </div>
+                      <Badge 
+                        className={
+                          schedule.is_overdue && schedule.status !== 'approved' 
+                            ? 'bg-red-600' 
+                            : schedule.status === 'approved'
+                            ? 'bg-emerald-600'
+                            : 'bg-slate-600'
+                        }
+                      >
+                        {schedule.is_overdue && schedule.status !== 'approved' ? '🔴 OVERDUE' : schedule.status === 'approved' ? '✓' : 'Pending'}
+                      </Badge>
+                    </div>
+                    <p className="text-xs text-slate-500">
+                      Next due: {format(new Date(schedule.next_due_date), 'd MMM yyyy')}
+                    </p>
+                  </div>
+                ))}
+              </div>
+            )}
           </CardContent>
         </Card>
 
@@ -310,6 +368,21 @@ export default function CleaningHygieneHub() {
               <DailyCleaningScheduleForm 
                 user={user} 
                 onSuccess={() => setShowCleaningForm(false)}
+              />
+            )}
+          </DialogContent>
+        </Dialog>
+
+        {/* Deep Cleaning Form Dialog */}
+        <Dialog open={showDeepCleaningForm} onOpenChange={setShowDeepCleaningForm}>
+          <DialogContent className="max-w-2xl max-h-96 overflow-y-auto">
+            <DialogHeader>
+              <DialogTitle>Log Deep Cleaning</DialogTitle>
+            </DialogHeader>
+            {user && (
+              <DeepCleaningScheduleForm 
+                user={user} 
+                onSuccess={() => setShowDeepCleaningForm(false)}
               />
             )}
           </DialogContent>
