@@ -22,7 +22,6 @@ export default function ModuleQuizSubmission({
 
   const submitQuizMutation = useMutation({
     mutationFn: async () => {
-      // Calculate score
       let correct = 0;
       const answers = questions.map((q, idx) => {
         const selected = userAnswers[idx];
@@ -40,13 +39,13 @@ export default function ModuleQuizSubmission({
       const score = (correct / questions.length) * 100;
       const passed = score >= 80;
 
-      // Create quiz attempt record
+      // Create quiz attempt
       const attempt = await base44.entities.TrainingQuizAttempt.create({
         staff_id: user.id,
         staff_email: user.email,
         module_id: moduleId,
         module_name: moduleName,
-        attempt_number: 1, // TODO: count previous attempts
+        attempt_number: 1,
         started_at: new Date().toISOString(),
         completed_at: new Date().toISOString(),
         total_questions: questions.length,
@@ -64,31 +63,19 @@ export default function ModuleQuizSubmission({
         module_id: moduleId,
         module_name: moduleName,
         quiz_attempt_id: attempt.id,
-        details: { score: score, correct: correct, total: questions.length },
+        details: { score, correct, total: questions.length },
         performed_by_email: user.email,
         timestamp: new Date().toISOString()
       });
 
       if (passed && journeyProgress) {
-        // Update module status to mark quiz as passed
-        const moduleStatuses = journeyProgress.moduleStatuses || {};
+        // CRITICAL: Update GLOBAL state to unlock "Next Module" button
+        const moduleStatuses = { ...journeyProgress.moduleStatuses };
         moduleStatuses[moduleId] = 'quiz_passed';
         
         await base44.entities.TrainingJourneyProgress.update(journeyProgress.id, {
-          moduleStatuses: moduleStatuses,
+          moduleStatuses,
           lastUpdated: new Date().toISOString()
-        });
-
-        // Log quiz passed
-        await base44.entities.TrainingAuditLog.create({
-          staff_id: user.id,
-          staff_email: user.email,
-          action: 'module_quiz_passed',
-          module_id: moduleId,
-          module_name: moduleName,
-          details: { score: score },
-          performed_by_email: user.email,
-          timestamp: new Date().toISOString()
         });
       }
 
@@ -98,8 +85,8 @@ export default function ModuleQuizSubmission({
       setResult(data);
       setSubmitted(true);
       queryClient.invalidateQueries({ queryKey: ['trainingJourney'] });
-      if (data.passed) {
-        onQuizPassed && onQuizPassed(data.score);
+      if (data.passed && onQuizPassed) {
+        onQuizPassed();
       }
     }
   });
