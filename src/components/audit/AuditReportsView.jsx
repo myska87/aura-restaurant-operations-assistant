@@ -6,13 +6,40 @@ import { Download, FileText, Eye } from 'lucide-react';
 import { format, subMonths } from 'date-fns';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 
+import { base44 } from '@/api/base44Client';
+import { useQuery } from '@tanstack/react-query';
+
 export default function AuditReportsView({ completedAudits = [], user }) {
   const [selectedReport, setSelectedReport] = useState(null);
+  
+  // Fetch all audit types
+  const { data: weeklyAudits = [] } = useQuery({
+    queryKey: ['weekly-audits-reports'],
+    queryFn: () => base44.entities.WeeklyAudit.list('-submission_date', 50)
+  });
+
+  const { data: monthlyAudits = [] } = useQuery({
+    queryKey: ['monthly-audits-reports'],
+    queryFn: () => base44.entities.MonthlyAudit.list('-submission_date', 50)
+  });
+
+  const { data: fsaAudits = [] } = useQuery({
+    queryKey: ['fsa-audits-reports'],
+    queryFn: () => base44.entities.FoodSafetyChecklistSubmission.list('-submission_date', 50)
+  });
+
+  // Combine all audits
+  const allAudits = [
+    ...weeklyAudits.map(a => ({ ...a, type: 'weekly', display_date: a.submission_date, display_score: a.audit_score })),
+    ...monthlyAudits.map(a => ({ ...a, type: 'monthly', display_date: a.submission_date, display_score: a.overall_score })),
+    ...fsaAudits.map(a => ({ ...a, type: 'fsa', display_date: a.submission_date, display_score: a.compliance_score })),
+    ...completedAudits.map(a => ({ ...a, type: 'legacy', display_date: a.created_date, display_score: a.score }))
+  ].sort((a, b) => new Date(b.display_date) - new Date(a.display_date));
 
   // Group audits by month
   const auditsByMonth = {};
-  completedAudits.forEach(audit => {
-    const month = format(new Date(audit.created_date), 'yyyy-MM');
+  allAudits.forEach(audit => {
+    const month = format(new Date(audit.display_date), 'yyyy-MM');
     if (!auditsByMonth[month]) auditsByMonth[month] = [];
     auditsByMonth[month].push(audit);
   });
@@ -20,9 +47,10 @@ export default function AuditReportsView({ completedAudits = [], user }) {
   // Trend data
   const trendData = Object.entries(auditsByMonth)
     .sort()
+    .slice(-6)
     .map(([month, audits]) => ({
       month: format(new Date(month + '-01'), 'MMM'),
-      average: Math.round(audits.reduce((sum, a) => sum + (a.score || 0), 0) / audits.length),
+      average: Math.round(audits.reduce((sum, a) => sum + (a.display_score || 0), 0) / audits.length),
       count: audits.length
     }));
 
@@ -54,31 +82,33 @@ export default function AuditReportsView({ completedAudits = [], user }) {
       {/* Reports List */}
       <Card>
         <CardHeader>
-          <CardTitle>All Audit Reports</CardTitle>
+          <CardTitle>All Audit Reports ({allAudits.length})</CardTitle>
         </CardHeader>
         <CardContent>
-          {completedAudits.length === 0 ? (
+          {allAudits.length === 0 ? (
             <p className="text-sm text-slate-600 text-center py-8">No audit reports yet</p>
           ) : (
             <div className="space-y-3 max-h-96 overflow-y-auto">
-              {completedAudits.map(audit => (
-                <div key={audit.id} className="flex items-center justify-between p-4 border rounded-lg hover:bg-slate-50">
+              {allAudits.map((audit, idx) => (
+                <div key={`${audit.type}-${audit.id}-${idx}`} className="flex items-center justify-between p-4 border rounded-lg hover:bg-slate-50">
                   <div className="flex-1">
                     <div className="flex items-center gap-3 mb-1">
                       <FileText className="w-4 h-4 text-slate-500" />
                       <p className="font-semibold">
-                        {audit.audit_type === 'monthly_audit' ? '📅 Monthly Audit' : '📋 Weekly Review'}
+                        {audit.type === 'weekly' ? '📋 Weekly Review' : 
+                         audit.type === 'monthly' ? '📅 Monthly Audit' :
+                         audit.type === 'fsa' ? '🧼 FSA Checklist' : '📊 Audit'}
                       </p>
                       <Badge className={
-                        audit.score >= 90 ? 'bg-emerald-100 text-emerald-700' :
-                        audit.score >= 75 ? 'bg-amber-100 text-amber-700' :
+                        audit.display_score >= 90 ? 'bg-emerald-100 text-emerald-700' :
+                        audit.display_score >= 70 ? 'bg-amber-100 text-amber-700' :
                         'bg-red-100 text-red-700'
                       }>
-                        {audit.score}%
+                        {audit.display_score >= 90 ? '🟢 Pass' : audit.display_score >= 70 ? '🟡 Watch' : '🔴 Action Needed'} {audit.display_score}%
                       </Badge>
                     </div>
                     <p className="text-sm text-slate-600">
-                      {format(new Date(audit.created_date), 'MMMM d, yyyy')} by {audit.audited_by_name}
+                      {format(new Date(audit.display_date), 'MMMM d, yyyy')} by {audit.submitted_by_name || audit.audited_by_name || 'Unknown'}
                     </p>
                   </div>
                   <div className="flex gap-2">
@@ -89,10 +119,6 @@ export default function AuditReportsView({ completedAudits = [], user }) {
                     >
                       <Eye className="w-4 h-4 mr-1" />
                       View
-                    </Button>
-                    <Button size="sm" variant="outline">
-                      <Download className="w-4 h-4 mr-1" />
-                      PDF
                     </Button>
                   </div>
                 </div>

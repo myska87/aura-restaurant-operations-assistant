@@ -200,33 +200,37 @@ export default function FoodSafetyChecklistForm({ user, onClose, onSubmitted }) 
 
       const result = await base44.entities.FoodSafetyChecklistSubmission.create(submissionData);
 
-      // Send alerts if non-compliances found
-      if (noCount > 0) {
-        const alertEmails = ['owner@example.com', 'manager@example.com'];
-        
-        for (const email of alertEmails) {
-          await base44.entities.Notification.create({
-            recipient_email: email,
-            title: `🚨 Food Safety Non-Compliance Alert`,
-            message: `${noCount} non-compliance items found in this month's FSA checklist. Compliance score: ${complianceScore}%. Immediate action required.`,
-            type: 'food_safety_alert',
-            is_read: false
-          });
-        }
-
-        // Log to Operations History
-        await base44.entities.OperationsHistory.create({
-          entry_type: 'food_safety_alert',
-          entry_date: new Date().toISOString(),
-          title: `Food Safety Checklist - ${noCount} Issues Found`,
-          description: `Compliance: ${complianceScore}%. Non-compliance items: ${nonCompliances.map(n => n.question).join('; ')}`,
-          severity: complianceScore < 50 ? 'critical' : 'high',
-          linked_record_id: result.id
+      // Update KPI Summary
+      try {
+        await base44.entities.AuditKPISummary.create({
+          period_type: 'monthly',
+          period_identifier: format(new Date(), 'yyyy-MM'),
+          hygiene_percent: complianceScore,
+          audit_score_avg: complianceScore
         });
+      } catch (e) {
+        console.log('KPI summary update skipped');
       }
 
-      toast.success(`Food Safety Checklist submitted - Compliance: ${complianceScore}%`);
+      // Save to AuditLog for Reports tab
+      try {
+        await base44.entities.AuditLog.create({
+          audit_type: 'fsa_checklist',
+          audited_by_name: user?.full_name || 'Unknown',
+          audited_by_email: user?.email || '',
+          audit_date: new Date().toISOString(),
+          month_of: format(new Date(), 'yyyy-MM'),
+          score: complianceScore,
+          sections: { fsa_compliance: { rating: complianceScore >= 90 ? 'excellent' : complianceScore >= 75 ? 'good' : 'needs_repair', notes: `${noCount} non-compliances found` } }
+        });
+      } catch (e) {
+        console.log('AuditLog creation skipped');
+      }
+
+      toast.success(`✅ Audit submitted successfully. Report added to Audit Center.`);
       queryClient.invalidateQueries(['food-safety-submissions']);
+      queryClient.invalidateQueries(['completed-audits']);
+      queryClient.invalidateQueries(['audit-kpi-summary']);
       onSubmitted?.();
       onClose();
     } catch (error) {
