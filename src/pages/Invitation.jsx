@@ -46,6 +46,7 @@ export default function Invitation() {
   const [user, setUser] = useState(null);
   const [showQuiz, setShowQuiz] = useState(false);
   const [quizPassed, setQuizPassed] = useState(false);
+  const [quizAnswers, setQuizAnswers] = useState({});
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const pageRef = useRef(null);
