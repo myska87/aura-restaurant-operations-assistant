@@ -334,12 +334,40 @@ export default function RavingFans() {
 
       {/* Quiz Section */}
       {showQuiz && (
-        <TrainingModuleQuiz
-          questions={ravingFansQuizQuestions}
-          onQuizPassed={handleQuizPassed}
-          moduleName="Raving Fans Philosophy"
-          passPercentage={80}
-        />
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="space-y-4"
+        >
+          <TrainingModuleQuiz
+            questions={ravingFansQuizQuestions}
+            onQuizPassed={handleQuizPassed}
+            moduleName="Raving Fans Philosophy"
+            passPercentage={80}
+          />
+
+          {quizPassed && (
+            <motion.div
+              initial={{ opacity: 0, scale: 0.9 }}
+              animate={{ opacity: 1, scale: 1 }}
+              className="flex justify-center gap-3"
+            >
+              <Button
+                onClick={() => navigate(createPageUrl('TrainingAcademy'))}
+                variant="outline"
+              >
+                Back to Academy
+              </Button>
+              <Button
+                onClick={handleNextModule}
+                disabled={markCompletedMutation.isPending}
+                className="bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700"
+              >
+                {markCompletedMutation.isPending ? 'Moving...' : 'Next Module →'}
+              </Button>
+            </motion.div>
+          )}
+        </motion.div>
       )}
     </div>
   );
