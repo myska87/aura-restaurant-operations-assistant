@@ -44,6 +44,7 @@ import ResetFormsButton from '@/components/operations/ResetFormsButton';
 import CCPCheckModal from '@/components/operations/CCPCheckModal';
 import CCPEnforcement from '@/components/operations/CCPEnforcement';
 import ServiceLockdownNotice from '@/components/operations/ServiceLockdownNotice';
+import HotHoldingForm from '@/components/operations/HotHoldingForm';
 
 export default function DailyOperationsHub() {
   const [user, setUser] = useState(null);
@@ -57,6 +58,7 @@ export default function DailyOperationsHub() {
   const [showLabelPrinting, setShowLabelPrinting] = useState(false);
   const [showCCPModal, setShowCCPModal] = useState(false);
   const [activeCCP, setActiveCCP] = useState(null);
+  const [showHotHoldingForm, setShowHotHoldingForm] = useState(false);
   const [blockedMenuItems, setBlockedMenuItems] = useState([]);
   const [failedCCPs, setFailedCCPs] = useState([]);
   const queryClient = useQueryClient();
@@ -515,7 +517,7 @@ export default function DailyOperationsHub() {
       description: 'Track food holding temperatures',
       icon: Thermometer,
       color: 'bg-pink-500',
-      onClick: () => alert('Hot Holding Log form opening soon'),
+      onClick: () => setShowHotHoldingForm(true),
       status: 'pending',
       count: 'Log hot holding temps',
       lastUpdate: null
@@ -964,6 +966,14 @@ export default function DailyOperationsHub() {
             queryClient.invalidateQueries(['ccpChecks']);
             queryClient.invalidateQueries(['activeCCPs']);
           }}
+        />
+
+        {/* Hot Holding Form */}
+        <HotHoldingForm
+          open={showHotHoldingForm}
+          onClose={() => setShowHotHoldingForm(false)}
+          user={user}
+          today={today}
         />
       </div>
 
