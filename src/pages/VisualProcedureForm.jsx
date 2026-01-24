@@ -615,10 +615,32 @@ export default function VisualProcedureForm() {
               </div>
             ))}
           </CardContent>
-        </Card>
+          </Card>
 
-        {/* Actions */}
-        <div className="flex gap-3 justify-between">
+          {/* Staff Notification Option */}
+          {isEditing && (
+          <Card>
+            <CardHeader>
+              <CardTitle>Staff Notification</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <label className="flex items-center gap-2 cursor-pointer">
+                <input
+                  type="checkbox"
+                  checked={notifyStaff}
+                  onChange={(e) => setNotifyStaff(e.target.checked)}
+                  className="w-4 h-4 rounded border-gray-300"
+                />
+                <span className="text-sm text-slate-700">
+                  Notify all staff that this procedure has been updated and requires review
+                </span>
+              </label>
+            </CardContent>
+          </Card>
+          )}
+
+          {/* Actions */}
+          <div className="flex gap-3 justify-between">
           <Button type="button" variant="outline" onClick={() => navigate(createPageUrl('VisualProcedures'))}>
             Cancel
           </Button>
