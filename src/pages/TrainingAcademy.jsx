@@ -19,79 +19,15 @@ import PageHeader from '@/components/ui/PageHeader';
 import TrainingJourneyBar from '@/components/training/TrainingJourneyBar';
 import LoadingSpinner from '@/components/ui/LoadingSpinner';
 
-const trainingOptions = [
-  {
-    title: 'Invitation — You Are Chosen',
-    description: 'Welcome to Chai Patta — start your journey',
-    icon: Leaf,
-    page: 'Invitation',
-    color: 'from-amber-500 to-orange-600',
-    roles: ['all'],
-    step: 'invitation'
-  },
-  {
-    title: 'Welcome & Vision — This Is Bigger Than a Café',
-    description: 'Understand our purpose and what we stand for',
-    icon: Leaf,
-    page: 'WelcomeVision',
-    color: 'from-purple-500 to-pink-600',
-    roles: ['all'],
-    step: 'vision'
-  },
-  {
-    title: 'Culture & Values',
-    description: 'Chai Patta culture, values & behaviour standards',
-    icon: Leaf,
-    page: 'Culture',
-    color: 'from-emerald-500 to-green-600',
-    roles: ['all'],
-    step: 'values'
-  },
-  {
-    title: 'Raving Fans — Ordinary Service Is Not Enough',
-    description: 'Creating memorable experiences that turn guests into fans',
-    icon: Heart,
-    page: 'RavingFans',
-    color: 'from-rose-500 to-pink-600',
-    roles: ['all'],
-    step: 'raving_fans'
-  },
-  {
-    title: 'Skills & SOPs',
-    description: 'Kitchen skills, FOH training & SOP library',
-    icon: ChefHat,
-    page: 'SOPs',
-    color: 'from-amber-500 to-orange-600',
-    roles: ['all'],
-    step: 'skills'
-  },
-  {
-    title: 'Hygiene & Safety',
-    description: 'Level 1, 2 & 3 hygiene training + certificates',
-    icon: Shield,
-    page: 'Training',
-    color: 'from-blue-500 to-blue-600',
-    roles: ['all'],
-    step: 'hygiene'
-  },
-  {
-    title: 'Certification — You Are Ready',
-    description: 'Final certification and on-site work authorization',
-    icon: CheckCircle,
-    page: 'Certification',
-    color: 'from-emerald-500 to-teal-600',
-    roles: ['all'],
-    step: 'certification'
-  },
-  {
-    title: 'Growth Centre — This Is Only the Beginning',
-    description: 'Leadership pathway, progress levels & development journal',
-    icon: Trophy,
-    page: 'LeadershipPathway',
-    color: 'from-purple-500 to-pink-600',
-    roles: ['all'],
-    step: 'growth'
-  }
+const trainingModules = [
+  { id: 'invitation', index: 0, title: 'Invitation — You Are Chosen', description: 'Welcome to Chai Patta — start your journey', icon: Leaf, page: 'Invitation', color: 'from-amber-500 to-orange-600', roles: ['all'] },
+  { id: 'vision', index: 1, title: 'Welcome & Vision — This Is Bigger Than a Café', description: 'Understand our purpose and what we stand for', icon: Leaf, page: 'WelcomeVision', color: 'from-purple-500 to-pink-600', roles: ['all'] },
+  { id: 'values', index: 2, title: 'Culture & Values', description: 'Chai Patta culture, values & behaviour standards', icon: Leaf, page: 'Culture', color: 'from-emerald-500 to-green-600', roles: ['all'] },
+  { id: 'raving_fans', index: 3, title: 'Raving Fans — Ordinary Service Is Not Enough', description: 'Creating memorable experiences that turn guests into fans', icon: Heart, page: 'RavingFans', color: 'from-rose-500 to-pink-600', roles: ['all'] },
+  { id: 'skills', index: 4, title: 'Skills & SOPs', description: 'Kitchen skills, FOH training & SOP library', icon: ChefHat, page: 'SOPs', color: 'from-amber-500 to-orange-600', roles: ['all'] },
+  { id: 'hygiene', index: 5, title: 'Hygiene & Safety', description: 'Level 1, 2 & 3 hygiene training + certificates', icon: Shield, page: 'Training', color: 'from-blue-500 to-blue-600', roles: ['all'] },
+  { id: 'certification', index: 6, title: 'Certification — You Are Ready', description: 'Final certification and on-site work authorization', icon: CheckCircle, page: 'Certification', color: 'from-emerald-500 to-teal-600', roles: ['all'] },
+  { id: 'growth', index: 7, title: 'Growth Centre — This Is Only the Beginning', description: 'Leadership pathway, progress levels & development journal', icon: Trophy, page: 'LeadershipPathway', color: 'from-purple-500 to-pink-600', roles: ['all'] }
 ];
 
 export default function TrainingAcademy() {
