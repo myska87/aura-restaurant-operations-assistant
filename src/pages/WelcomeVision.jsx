@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
 import { base44 } from '@/api/base44Client';
@@ -10,16 +10,75 @@ import { Input } from '@/components/ui/input';
 import { Video, CheckCircle, Heart } from 'lucide-react';
 import LoadingSpinner from '@/components/ui/LoadingSpinner';
 import TrainingJourneyBar from '@/components/training/TrainingJourneyBar';
+import TrainingModuleQuiz from '@/components/training/TrainingModuleQuiz';
+
+const welcomeVisionQuizQuestions = [
+  {
+    question: "What is the core belief Chai Patta is built on?",
+    options: [
+      "Serving the cheapest drinks possible",
+      "People don't remember what you serve — they remember how you make them feel",
+      "Speed is more important than quality",
+      "We're just another café"
+    ],
+    correctAnswer: 1
+  },
+  {
+    question: "What are the three key aspects of Chai Patta mentioned in the module?",
+    options: [
+      "Price, location, hours",
+      "Culture, ritual, human connection",
+      "Staff, customers, profit",
+      "Food, drinks, desserts"
+    ],
+    correctAnswer: 1
+  },
+  {
+    question: "Which is NOT mentioned as part of Chai Patta's vision?",
+    options: [
+      "Guests feel seen, safe, and welcomed",
+      "Team members feel valued, trained, and empowered",
+      "We maximize profits at all costs",
+      "Every cup carries intention"
+    ],
+    correctAnswer: 2
+  },
+  {
+    question: "What is expected from you as a Chai Patta team member?",
+    options: [
+      "Just show up and do the minimum",
+      "Presence, responsibility, pride in your work, and willingness to grow",
+      "Only follow orders without thinking",
+      "Compete with other team members"
+    ],
+    correctAnswer: 1
+  }
+];
 
 export default function WelcomeVision() {
   const [user, setUser] = useState(null);
   const [videoUrl, setVideoUrl] = useState('');
+  const [showQuiz, setShowQuiz] = useState(false);
+  const [quizPassed, setQuizPassed] = useState(false);
   const navigate = useNavigate();
   const queryClient = useQueryClient();
+  const pageRef = useRef(null);
 
   useEffect(() => {
     base44.auth.me().then(setUser).catch(() => {});
   }, []);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      if (!pageRef.current || showQuiz) return;
+      const { scrollTop, scrollHeight, clientHeight } = document.documentElement;
+      if (scrollTop + clientHeight >= scrollHeight - 300) {
+        setShowQuiz(true);
+      }
+    };
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, [showQuiz]);
 
   const { data: journeyProgress, isLoading } = useQuery({
     queryKey: ['trainingJourney', user?.email],
@@ -74,6 +133,12 @@ export default function WelcomeVision() {
     }
   });
 
+  const handleQuizPassed = (passed, score) => {
+    if (passed) {
+      setQuizPassed(true);
+    }
+  };
+
   if (isLoading) {
     return <LoadingSpinner message="Loading..." />;
   }
@@ -99,7 +164,7 @@ export default function WelcomeVision() {
   }
 
   return (
-    <div className="max-w-5xl mx-auto space-y-6">
+    <div className="max-w-5xl mx-auto space-y-6" ref={pageRef}>
       <TrainingJourneyBar progress={journeyProgress} compact />
 
       <motion.div
@@ -237,9 +302,9 @@ export default function WelcomeVision() {
             >
               <Button
                 onClick={() => markCompletedMutation.mutate()}
-                disabled={markCompletedMutation.isPending || journeyProgress?.visionWatched}
+                disabled={!quizPassed || markCompletedMutation.isPending || journeyProgress?.visionWatched}
                 size="lg"
-                className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white font-bold text-lg px-10 py-6 shadow-xl"
+                className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white font-bold text-lg px-10 py-6 shadow-xl disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {journeyProgress?.visionWatched ? (
                   <>
@@ -256,10 +321,25 @@ export default function WelcomeVision() {
                   ✓ Next: Continue to Culture & Values
                 </p>
               )}
+              {!quizPassed && (
+                <p className="mt-4 text-sm text-amber-600 font-semibold">
+                  Complete the quiz below to unlock this button
+                </p>
+              )}
             </motion.div>
           </CardContent>
         </Card>
       </motion.div>
+
+      {/* Quiz Section */}
+      {showQuiz && (
+        <TrainingModuleQuiz
+          questions={welcomeVisionQuizQuestions}
+          onQuizPassed={handleQuizPassed}
+          moduleName="Welcome & Vision"
+          passPercentage={80}
+        />
+      )}
     </div>
   );
 }
