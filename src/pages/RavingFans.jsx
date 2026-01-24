@@ -114,24 +114,7 @@ export default function RavingFans() {
     }
   });
 
-  const markCompletedMutation = useMutation({
-    mutationFn: async () => {
-      if (!quizPassed) {
-        throw new Error('Quiz must be passed first');
-      }
-      await base44.entities.TrainingJourneyProgress.update(journeyProgress.id, {
-        ravingFansCompleted: true,
-        currentStep: 'skills',
-        lastUpdated: new Date().toISOString()
-      });
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries(['trainingJourney']);
-    },
-    onError: (error) => {
-      alert(error.message);
-    }
-  });
+
 
   const handleQuizPassed = () => {
     setQuizPassed(true);
