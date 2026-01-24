@@ -12,6 +12,7 @@ import { motion } from 'framer-motion';
 import { format, addDays, addHours } from 'date-fns';
 import LabelPreview from './LabelPreview';
 import ManageLabelItems from './ManageLabelItems';
+import { logLabelPrint } from './LabelLogger';
 import {
   Select,
   SelectContent,
@@ -107,6 +108,20 @@ export default function LabelPrintingModal({ open, onClose, user, today }) {
       // Attempt to save with retry
       await saveLabel();
 
+      // Log to LabelRegister and OperationReport
+      await logLabelPrint({
+        type: 'prep',
+        itemName: formData.dishName,
+        batchId: formData.batchCode,
+        prepDateTime: new Date().toISOString(),
+        expiryDateTime: expiryDate?.toISOString(),
+        shelfLifeHours: formData.shelfLife.includes('hours') 
+          ? parseInt(formData.shelfLife) 
+          : parseInt(formData.shelfLife) * 24,
+        allergens: [],
+        storageType: 'fridge'
+      }, user);
+
       // Notify manager if near expiry (within 6 hours)
       const now = new Date();
       const sixHoursFromNow = new Date(now.getTime() + 6 * 60 * 60 * 1000);
@@ -172,7 +187,22 @@ export default function LabelPrintingModal({ open, onClose, user, today }) {
 
           await base44.entities.FoodLabel.create(labelData);
         };
-        await saveLabel2();
+         await saveLabel2();
+
+        // Log to LabelRegister and OperationReport
+        await logLabelPrint({
+          type: 'prep',
+          itemName: formData.dishName,
+          batchId: formData.batchCode,
+          prepDateTime: new Date().toISOString(),
+          expiryDateTime: expiryDate?.toISOString(),
+          shelfLifeHours: formData.shelfLife.includes('hours') 
+            ? parseInt(formData.shelfLife) 
+            : parseInt(formData.shelfLife) * 24,
+          allergens: [],
+          storageType: 'fridge'
+        }, user);
+
         alert('✅ Label saved and printed successfully!');
         setTimeout(() => window.print(), 500);
       } catch (retryError) {
