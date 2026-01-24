@@ -70,6 +70,10 @@ export default function VisualProcedures() {
   const [filterCategory, setFilterCategory] = useState('all');
   const [filterRole, setFilterRole] = useState('all');
   const [filterStation, setFilterStation] = useState('all');
+  const [viewMode, setViewMode] = useState('grid');
+  const [deleteId, setDeleteId] = useState(null);
+  const navigate = useNavigate();
+  const queryClient = useQueryClient();
 
   useEffect(() => {
     const loadUser = async () => {
