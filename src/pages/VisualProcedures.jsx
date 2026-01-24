@@ -40,8 +40,9 @@ import PageHeader from '@/components/ui/PageHeader';
 import EmptyState from '@/components/ui/EmptyState';
 import LoadingSpinner from '@/components/ui/LoadingSpinner';
 import ProcedureCard from '@/components/procedures/ProcedureCard';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 
 const categoryIcons = {
   food_prep: ChefHat,
