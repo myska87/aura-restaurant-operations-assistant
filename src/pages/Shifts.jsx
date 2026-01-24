@@ -1078,12 +1078,17 @@ export default function Shifts() {
                   <SelectValue placeholder="Select staff..." />
                 </SelectTrigger>
                 <SelectContent>
-                  {staff.map((s) => (
-                    <SelectItem key={s.id} value={s.id}>
-                      {s.full_name} - {s.position} (£{s.hourly_rate || 12.5}/hr)
-                    </SelectItem>
-                  ))}
-                </SelectContent>
+                   {staff.map((s) => {
+                     const staffProgress = trainingProgress.find(t => t.staff_id === s.id);
+                     const isCertified = staffProgress?.onsiteAccessEnabled;
+                     return (
+                       <SelectItem key={s.id} value={s.id} disabled={!isCertified}>
+                         {s.full_name} - {s.position} (£{s.hourly_rate || 12.5}/hr)
+                         {!isCertified && ' - ⛔ Not certified'}
+                       </SelectItem>
+                     );
+                   })}
+                 </SelectContent>
               </Select>
             </div>
             
