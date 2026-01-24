@@ -265,7 +265,7 @@ export default function Culture() {
       return base44.entities.CultureAcknowledgment.create(data);
     },
     onSuccess: async () => {
-      queryClient.invalidateQueries(['cultureAck']);
+      queryClient.invalidateQueries({ queryKey: ['cultureAck'] });
       
       // Update training journey progress
       if (journeyProgress) {
@@ -274,7 +274,7 @@ export default function Culture() {
           currentStep: 'raving_fans',
           lastUpdated: new Date().toISOString()
         });
-        queryClient.invalidateQueries(['trainingJourney']);
+        queryClient.invalidateQueries({ queryKey: ['trainingJourney'] });
       }
       
       confetti({
@@ -287,6 +287,19 @@ export default function Culture() {
       alert(error.message);
     }
   });
+
+  const handleNextModule = async () => {
+    await createAckMutation.mutate({
+      staff_id: user.id || '',
+      staff_email: user.email,
+      staff_name: user.full_name || user.email,
+      ...assessment,
+      acknowledged_date: new Date().toISOString()
+    });
+    setTimeout(() => {
+      navigate(createPageUrl('RavingFans'));
+    }, 500);
+  };
 
   const handleSubmit = () => {
     if (!quizPassed) {
