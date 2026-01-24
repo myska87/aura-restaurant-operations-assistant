@@ -51,7 +51,10 @@ export default function VisualProcedureDetail() {
 
   const { data: procedure, isLoading } = useQuery({
     queryKey: ['visualProcedure', procedureId],
-    queryFn: () => base44.entities.Visual_Procedures_v1.filter({ id: procedureId }).then(p => p[0]),
+    queryFn: async () => {
+      const results = await base44.entities.SOP.filter({ id: procedureId });
+      return results?.[0] || null;
+    },
     enabled: !!procedureId
   });
 
