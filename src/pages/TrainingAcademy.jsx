@@ -274,10 +274,21 @@ export default function TrainingAcademy() {
 
   return (
     <div className="space-y-6">
-      <PageHeader
-        title="Training Academy"
-        description="Your complete learning journey from invitation to certification"
-      />
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-3xl font-bold text-slate-900">Training Academy</h1>
+          <p className="text-slate-600 mt-1">Your complete learning journey from invitation to certification</p>
+        </div>
+        <Button
+          onClick={() => setShowResetConfirm(true)}
+          variant="outline"
+          className="border-red-300 text-red-700 hover:bg-red-50"
+          size="sm"
+        >
+          <RotateCcw className="w-4 h-4 mr-2" />
+          Reset Training
+        </Button>
+      </div>
 
       {/* Training Journey Progress */}
       <TrainingJourneyBar progress={journeyProgress} />
