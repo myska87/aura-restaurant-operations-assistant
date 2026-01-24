@@ -197,23 +197,39 @@ export default function OperationsReports() {
   const handleGenerateHACCP = async () => {
     setHACCPGenerating(true);
     
-    const haccpData = {
-      location_id: user.location_id || 'default',
-      location_name: user.location_name || 'Main',
-      version: '1.0',
-      last_updated: new Date().toISOString(),
-      verified_by: user.email,
-      verified_date: format(new Date(), 'yyyy-MM-dd'),
-      is_active: true,
-      scope: `${menuItems.length} menu items`,
-      hazard_analysis_complete: true,
-      ccps_identified: filteredCCPChecks.length,
-      linked_menu_items: menuItems.slice(0, 10).map(m => m.id),
-      compliance_status: 'implemented',
-      notes: `Auto-generated HACCP plan based on ${filteredCCPChecks.length} CCP checks and ${menuItems.length} menu items`
-    };
+    try {
+      // Call backend function to generate HACCP
+      const response = await fetch('/.netlify/functions/generateHACCPPlan', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          user_email: user.email,
+          location_id: user.location_id || 'default',
+          location_name: user.location_name || 'Main'
+        })
+      });
 
-    createHACCPMutation.mutate(haccpData);
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.details || 'Failed to generate HACCP plan');
+      }
+
+      const result = await response.json();
+      
+      if (result.success) {
+        // Refresh data
+        queryClient.invalidateQueries(['haccpPlans']);
+        setShowHACCPDialog(false);
+        alert(`✓ HACCP Plan v${result.version} generated successfully!`);
+      } else {
+        throw new Error('Generation failed');
+      }
+    } catch (error) {
+      console.error('HACCP generation error:', error);
+      alert(`❌ Error: ${error.message}`);
+    } finally {
+      setHACCPGenerating(false);
+    }
   };
 
   const FilterBar = () => (
