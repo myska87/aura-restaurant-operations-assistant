@@ -87,6 +87,7 @@ import WelcomeVision from './pages/WelcomeVision';
 import IncidentCenter from './pages/IncidentCenter';
 import LiveFoodSafety from './pages/LiveFoodSafety';
 import OperationsReports from './pages/OperationsReports';
+import AssetRegister from './pages/AssetRegister';
 import __Layout from './Layout.jsx';
 
 
@@ -180,6 +181,7 @@ export const PAGES = {
     "IncidentCenter": IncidentCenter,
     "LiveFoodSafety": LiveFoodSafety,
     "OperationsReports": OperationsReports,
+    "AssetRegister": AssetRegister,
 }
 
 export const pagesConfig = {
