@@ -150,13 +150,26 @@ export default function Certification() {
              <p className="text-amber-700 font-semibold mb-6">
                {incompletePrereqs.length} of {prerequisites.length} modules remaining
              </p>
-             <Button
-               onClick={() => navigate(createPageUrl('TrainingAcademy'))}
-               className="bg-amber-600 hover:bg-amber-700"
-               size="lg"
-             >
-               Back to Training Academy
-             </Button>
+             <div className="flex flex-col gap-3 max-w-md mx-auto">
+               <Button
+                 onClick={() => navigate(createPageUrl('TrainingAcademy'))}
+                 className="bg-amber-600 hover:bg-amber-700"
+                 size="lg"
+               >
+                 Back to Training Academy
+               </Button>
+               {user?.role === 'admin' && (
+                 <Button
+                   onClick={() => setShowBypassConfirm(true)}
+                   variant="outline"
+                   className="border-red-300 text-red-700 hover:bg-red-50"
+                   size="lg"
+                 >
+                   <AlertTriangle className="w-4 h-4 mr-2" />
+                   Admin Override
+                 </Button>
+               )}
+             </div>
            </div>
          </CardContent>
        </Card>
