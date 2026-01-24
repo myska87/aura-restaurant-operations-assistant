@@ -79,29 +79,8 @@ export default function Invitation() {
     enabled: !!user
   });
 
-  const acceptInvitationMutation = useMutation({
-    mutationFn: async () => {
-      if (!quizPassed) {
-        throw new Error('Quiz must be passed first');
-      }
-      await base44.entities.TrainingJourneyProgress.update(journeyProgress.id, {
-        invitationAccepted: true,
-        currentStep: 'vision',
-        lastUpdated: new Date().toISOString()
-      });
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries(['trainingJourney']);
-    },
-    onError: (error) => {
-      alert(error.message);
-    }
-  });
-
-  const handleQuizPassed = (passed, score) => {
-    if (passed) {
-      setQuizPassed(true);
-    }
+  const handleQuizPassed = () => {
+    setQuizPassed(true);
   };
 
   if (isLoading) {
