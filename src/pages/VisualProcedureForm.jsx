@@ -112,9 +112,9 @@ export default function VisualProcedureForm() {
     mutationFn: async (data) => {
       try {
         if (isEditing) {
-          return await base44.entities.Visual_Procedures_v1.update(procedureId, data);
+          return await base44.entities.SOP.update(procedureId, data);
         } else {
-          return await base44.entities.Visual_Procedures_v1.create(data);
+          return await base44.entities.SOP.create(data);
         }
       } catch (error) {
         console.error('Save error:', error);
