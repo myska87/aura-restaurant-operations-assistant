@@ -10,7 +10,7 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { ClipboardCheck, Thermometer, Tag, MessageSquare, User, Clock, Calendar, Plus, Printer, Eye, BarChart3 } from 'lucide-react';
+import { ClipboardCheck, Thermometer, Tag, MessageSquare, User, Clock, Calendar, Plus, Printer, Eye, BarChart3, Sparkles, CheckCircle } from 'lucide-react';
 import { format } from 'date-fns';
 import PageHeader from '@/components/ui/PageHeader';
 import LoadingSpinner from '@/components/ui/LoadingSpinner';
@@ -66,6 +66,9 @@ export default function OperationsHistory() {
     enabled: !!user
   });
 
+  const hygieneRecords = checklists.filter(c => c.checklist_category === 'hygiene');
+  const nonHygieneChecklists = checklists.filter(c => c.checklist_category !== 'hygiene' && c.checklist_category !== 'prep');
+
   // Mutations for adding new records - MUST be before any early returns
   const createCheckInMutation = useMutation({
     mutationFn: (data) => base44.entities.DailyCheckIn.create(data),
@@ -118,8 +121,12 @@ export default function OperationsHistory() {
     : handovers;
 
   const filteredChecklists = dateFilter 
-    ? checklists.filter(c => c.date === dateFilter)
-    : checklists;
+    ? nonHygieneChecklists.filter(c => c.date === dateFilter)
+    : nonHygieneChecklists;
+
+  const filteredHygiene = dateFilter 
+    ? hygieneRecords.filter(c => c.date === dateFilter)
+    : hygieneRecords;
 
   return (
     <div className="space-y-6">
@@ -152,10 +159,14 @@ export default function OperationsHistory() {
       </Card>
 
       <Tabs defaultValue="checklists">
-        <TabsList className="grid w-full grid-cols-6">
+        <TabsList className="grid w-full grid-cols-7">
           <TabsTrigger value="checklists">
             <ClipboardCheck className="w-4 h-4 mr-2" />
             Checklists
+          </TabsTrigger>
+          <TabsTrigger value="hygiene">
+            <Sparkles className="w-4 h-4 mr-2" />
+            Hygiene
           </TabsTrigger>
           <TabsTrigger value="checkins">
             <ClipboardCheck className="w-4 h-4 mr-2" />
@@ -252,6 +263,66 @@ export default function OperationsHistory() {
                   ))}
                   {filteredChecklists.length === 0 && (
                     <p className="text-center text-slate-500 py-8">No checklists completed</p>
+                  )}
+                </div>
+              </ScrollArea>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        {/* Hygiene Tab */}
+        <TabsContent value="hygiene">
+          <Card>
+            <CardHeader>
+              <CardTitle>Hygiene Compliance Logs ({filteredHygiene.length})</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <ScrollArea className="h-[600px]">
+                <div className="space-y-3">
+                  {filteredHygiene.map(record => (
+                    <Card key={record.id} className="border-l-4 border-l-blue-600 bg-blue-50/30">
+                      <CardContent className="pt-4">
+                        <div className="flex items-start justify-between mb-3">
+                          <div className="flex items-center gap-3">
+                            <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center">
+                              <Sparkles className="w-6 h-6 text-white" />
+                            </div>
+                            <div>
+                              <h3 className="text-lg font-bold text-slate-900">
+                                🧼 {record.checklist_name || 'Hygiene Check'}
+                              </h3>
+                              <p className="text-sm text-slate-600">
+                                {record.user_name} · {format(new Date(record.completed_at || record.created_date), 'MMM d, HH:mm')}
+                              </p>
+                            </div>
+                          </div>
+                          <Badge className={record.completion_percentage >= 100 ? 'bg-green-500' : 'bg-amber-500'}>
+                            {record.completion_percentage || 0}%
+                          </Badge>
+                        </div>
+
+                        <div className="bg-white rounded-lg p-4">
+                          <p className="text-sm font-semibold text-slate-700 mb-2">✅ Completed Tasks:</p>
+                          <ul className="space-y-1">
+                            {record.answers?.filter(a => a.answer === 'yes').slice(0, 5).map((answer, idx) => (
+                              <li key={idx} className="text-sm text-slate-600 flex items-center gap-2">
+                                <CheckCircle className="w-4 h-4 text-green-500 flex-shrink-0" />
+                                {answer.question_text}
+                              </li>
+                            ))}
+                          </ul>
+                          {record.notes && (
+                            <div className="mt-3 pt-3 border-t">
+                              <p className="text-sm font-semibold text-slate-700 mb-1">Notes:</p>
+                              <p className="text-sm text-slate-600">{record.notes}</p>
+                            </div>
+                          )}
+                        </div>
+                      </CardContent>
+                    </Card>
+                  ))}
+                  {filteredHygiene.length === 0 && (
+                    <p className="text-center text-slate-500 py-8">No hygiene logs for this period</p>
                   )}
                 </div>
               </ScrollArea>
