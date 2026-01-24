@@ -96,6 +96,10 @@ const trainingOptions = [
 
 export default function TrainingAcademy() {
   const [user, setUser] = useState(null);
+  const [showResetConfirm, setShowResetConfirm] = useState(false);
+  const [resetMode, setResetMode] = useState('self'); // 'self' or 'other'
+  const [selectedStaffEmail, setSelectedStaffEmail] = useState('');
+  const [staffList, setStaffList] = useState([]);
   const queryClient = useQueryClient();
 
   useEffect(() => {
