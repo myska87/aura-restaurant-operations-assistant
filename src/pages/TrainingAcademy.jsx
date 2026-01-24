@@ -18,7 +18,7 @@ const trainingOptions = [
     page: 'Invitation',
     color: 'from-amber-500 to-orange-600',
     roles: ['all'],
-    isInvitation: true
+    step: 'invitation'
   },
   {
     title: 'Welcome & Vision — This Is Bigger Than a Café',
@@ -27,7 +27,7 @@ const trainingOptions = [
     page: 'WelcomeVision',
     color: 'from-purple-500 to-pink-600',
     roles: ['all'],
-    requiresInvitation: true
+    step: 'vision'
   },
   {
     title: 'Culture & Values',
@@ -35,7 +35,8 @@ const trainingOptions = [
     icon: Leaf,
     page: 'Culture',
     color: 'from-emerald-500 to-green-600',
-    roles: ['all']
+    roles: ['all'],
+    step: 'values'
   },
   {
     title: 'Raving Fans — Ordinary Service Is Not Enough',
@@ -43,15 +44,8 @@ const trainingOptions = [
     icon: Heart,
     page: 'RavingFans',
     color: 'from-rose-500 to-pink-600',
-    roles: ['all']
-  },
-  {
-    title: 'Hygiene & Safety',
-    description: 'Level 1, 2 & 3 hygiene training + certificates',
-    icon: Shield,
-    page: 'Training',
-    color: 'from-blue-500 to-blue-600',
-    roles: ['all']
+    roles: ['all'],
+    step: 'raving_fans'
   },
   {
     title: 'Skills & SOPs',
@@ -59,7 +53,17 @@ const trainingOptions = [
     icon: ChefHat,
     page: 'SOPs',
     color: 'from-amber-500 to-orange-600',
-    roles: ['all']
+    roles: ['all'],
+    step: 'skills'
+  },
+  {
+    title: 'Hygiene & Safety',
+    description: 'Level 1, 2 & 3 hygiene training + certificates',
+    icon: Shield,
+    page: 'Training',
+    color: 'from-blue-500 to-blue-600',
+    roles: ['all'],
+    step: 'hygiene'
   },
   {
     title: 'Certification — You Are Ready',
@@ -67,7 +71,8 @@ const trainingOptions = [
     icon: CheckCircle,
     page: 'Certification',
     color: 'from-emerald-500 to-teal-600',
-    roles: ['all']
+    roles: ['all'],
+    step: 'certification'
   },
   {
     title: 'Growth Centre — This Is Only the Beginning',
@@ -75,7 +80,8 @@ const trainingOptions = [
     icon: Trophy,
     page: 'LeadershipPathway',
     color: 'from-purple-500 to-pink-600',
-    roles: ['all']
+    roles: ['all'],
+    step: 'growth'
   }
 ];
 
@@ -224,42 +230,25 @@ export default function TrainingAcademy() {
       <div className="grid md:grid-cols-2 gap-6">
         {trainingOptions.map((option) => {
           const Icon = option.icon;
+          const currentStep = journeyProgress?.currentStep || 'invitation';
           
-          // Invitation is always unlocked
-          let isUnlocked = option.isInvitation ? true : (journeyProgress?.invitationAccepted || false);
-          let completionStatus = null;
+          // Strict sequential logic: only current step is unlocked
+          const isCurrentStep = option.step === currentStep;
+          const isUnlocked = isCurrentStep;
           
-          if (option.isInvitation) {
-            completionStatus = journeyProgress?.invitationAccepted;
-          } else if (option.page === 'WelcomeVision') {
-            completionStatus = journeyProgress?.visionWatched;
-          } else if (option.page === 'Culture') {
-            completionStatus = journeyProgress?.valuesCompleted;
-          } else if (option.page === 'RavingFans') {
-            isUnlocked = journeyProgress?.valuesCompleted || false;
-            completionStatus = journeyProgress?.ravingFansCompleted;
-          } else if (option.page === 'SOPs') {
-            isUnlocked = journeyProgress?.ravingFansCompleted || false;
-            completionStatus = journeyProgress?.skillsCompleted;
-          } else if (option.page === 'Training') {
-            isUnlocked = journeyProgress?.skillsCompleted || false;
-            completionStatus = journeyProgress?.hygieneCompleted;
-          } else if (option.page === 'SOPs') {
-            completionStatus = journeyProgress?.skillsCompleted;
-          } else if (option.page === 'Certification') {
-            const allPrereqsComplete = 
-              journeyProgress?.invitationAccepted &&
-              journeyProgress?.visionWatched &&
-              journeyProgress?.valuesCompleted &&
-              journeyProgress?.ravingFansCompleted &&
-              journeyProgress?.skillsCompleted &&
-              journeyProgress?.hygieneCompleted;
-            isUnlocked = allPrereqsComplete || false;
-            completionStatus = journeyProgress?.certified;
-          } else if (option.page === 'LeadershipPathway') {
-            isUnlocked = journeyProgress?.certified || false;
-            completionStatus = journeyProgress?.onsiteAccessEnabled;
-          }
+          // Check completion status
+          const stepCompletionMap = {
+            'invitation': journeyProgress?.invitationAccepted,
+            'vision': journeyProgress?.visionWatched,
+            'values': journeyProgress?.valuesCompleted,
+            'raving_fans': journeyProgress?.ravingFansCompleted,
+            'skills': journeyProgress?.skillsCompleted,
+            'hygiene': journeyProgress?.hygieneCompleted,
+            'certification': journeyProgress?.certified,
+            'growth': journeyProgress?.onsiteAccessEnabled
+          };
+          
+          const completionStatus = stepCompletionMap[option.step];
           
           const CardWrapper = isUnlocked ? Link : 'div';
           const cardProps = isUnlocked ? { to: createPageUrl(option.page) } : {};
@@ -270,6 +259,7 @@ export default function TrainingAcademy() {
                 transition-all duration-300 border-2 h-full relative
                 ${isUnlocked ? 'hover:shadow-xl hover:border-emerald-400 cursor-pointer' : 'opacity-60 cursor-not-allowed'}
                 ${completionStatus ? 'border-emerald-500 bg-emerald-50' : ''}
+                ${isCurrentStep && !completionStatus ? 'border-blue-400 bg-blue-50' : ''}
               `}>
                 <CardContent className="pt-6">
                   <div className="flex items-start justify-between mb-4">
@@ -282,17 +272,25 @@ export default function TrainingAcademy() {
                     {completionStatus && (
                       <CheckCircle className="w-6 h-6 text-emerald-600" />
                     )}
+                    {isCurrentStep && !completionStatus && (
+                      <Badge className="bg-blue-600">Current</Badge>
+                    )}
                   </div>
                   <h3 className="text-2xl font-bold mb-3">{option.title}</h3>
                   <p className="text-slate-600 text-lg">{option.description}</p>
                   {!isUnlocked && (
                     <p className="text-sm text-amber-600 mt-3 font-semibold">
-                      🔒 Accept invitation to unlock
+                      🔒 Complete the previous module to unlock
                     </p>
                   )}
                   {completionStatus && (
                     <p className="text-sm text-emerald-600 mt-3 font-semibold">
                       ✓ Completed
+                    </p>
+                  )}
+                  {isCurrentStep && !completionStatus && (
+                    <p className="text-sm text-blue-600 mt-3 font-semibold">
+                      → Start here
                     </p>
                   )}
                 </CardContent>
