@@ -297,7 +297,7 @@ export default function VisualProcedures() {
           action={isAdmin ? () => window.location.href = createPageUrl('VisualProcedureForm') : undefined}
           actionLabel="Create Procedure"
         />
-      ) : (
+      ) : viewMode === 'grid' ? (
         <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
           {filteredProcedures.map((procedure) => {
             const isCompleted = completions.some(c => c.procedure_id === procedure.id);
@@ -312,7 +312,89 @@ export default function VisualProcedures() {
             );
           })}
         </div>
+      ) : (
+        <div className="space-y-2">
+          {filteredProcedures.map((procedure) => {
+            const isCompleted = completions.some(c => c.procedure_id === procedure.id);
+            const Icon = categoryIcons[procedure.category];
+            return (
+              <motion.div
+                key={procedure.id}
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                className="flex items-center justify-between p-4 bg-white border rounded-lg hover:shadow-md transition-shadow"
+              >
+                <div className="flex items-center gap-4 flex-1">
+                  {Icon && (
+                    <div className={`p-2 rounded-lg ${categoryColors[procedure.category]?.split(' ').slice(0, 2).join(' ')} bg-opacity-20`}>
+                      <Icon className="w-5 h-5" />
+                    </div>
+                  )}
+                  <div className="flex-1">
+                    <h3 className="font-semibold text-slate-900">{procedure.title}</h3>
+                    <div className="flex gap-2 mt-1">
+                      <Badge variant="outline" className="text-xs">
+                        {procedure.estimated_time_minutes}m
+                      </Badge>
+                      {isCompleted && (
+                        <Badge className="bg-emerald-100 text-emerald-700 border-emerald-300 text-xs">
+                          ✓ Completed
+                        </Badge>
+                      )}
+                      {procedure.status === 'published' && (
+                        <Badge className="bg-blue-100 text-blue-700 border-blue-300 text-xs">
+                          Published
+                        </Badge>
+                      )}
+                    </div>
+                  </div>
+                </div>
+                <div className="flex gap-2">
+                  {isAdmin && (
+                    <>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => navigate(`${createPageUrl('VisualProcedureForm')}?id=${procedure.id}`)}
+                      >
+                        <Edit2 className="w-4 h-4" />
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => setDeleteId(procedure.id)}
+                        className="text-red-600 hover:text-red-700 hover:bg-red-50"
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </Button>
+                    </>
+                  )}
+                </div>
+              </motion.div>
+            );
+          })}
+        </div>
       )}
+
+      {/* Delete Confirmation Dialog */}
+      <AlertDialog open={!!deleteId} onOpenChange={(open) => !open && setDeleteId(null)}>
+        <AlertDialogContent>
+          <AlertDialogTitle>Delete Procedure</AlertDialogTitle>
+          <AlertDialogDescription>
+            Are you sure you want to delete this procedure? This action cannot be undone.
+          </AlertDialogDescription>
+          <div className="flex justify-end gap-2">
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={() => deleteMutation.mutate(deleteId)}
+              disabled={deleteMutation.isPending}
+              className="bg-red-600 hover:bg-red-700"
+            >
+              {deleteMutation.isPending ? 'Deleting...' : 'Delete'}
+            </AlertDialogAction>
+          </div>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }
