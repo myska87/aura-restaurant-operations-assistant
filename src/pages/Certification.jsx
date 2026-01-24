@@ -30,6 +30,7 @@ const prerequisites = [
 
 export default function Certification() {
   const [user, setUser] = useState(null);
+  const [showBypassConfirm, setShowBypassConfirm] = useState(false);
   const navigate = useNavigate();
   const queryClient = useQueryClient();
 
