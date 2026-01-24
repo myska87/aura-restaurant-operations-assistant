@@ -190,45 +190,62 @@ export default function OperationsReports() {
     try {
       console.log('[Frontend] Initiating HACCP generation...');
       
-      // Call backend function to generate HACCP
-      const response = await fetch('/.netlify/functions/generateHACCPPlan', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          user_email: user.email,
-          location_id: user.location_id || 'default',
-          location_name: user.location_name || 'Main'
-        })
+      // Generate HACCP directly with SDK (no backend function)
+      const existingPlans = await base44.entities.HACCPPlan.filter({
+        location_id: user.location_id || 'default'
+      }, '-created_date', 10);
+
+      const latestVersion = existingPlans[0]?.version || '1.0';
+      const [major, minor] = latestVersion.split('.').map(Number);
+      const newVersion = `${major}.${minor + 1}`;
+
+      // Archive old versions
+      if (existingPlans.length > 0) {
+        for (const plan of existingPlans) {
+          await base44.entities.HACCPPlan.update(plan.id, { is_active: false });
+        }
+      }
+
+      // Create new HACCP plan
+      const haccpRecord = await base44.entities.HACCPPlan.create({
+        location_id: user.location_id || 'default',
+        location_name: user.location_name || 'Main',
+        version: newVersion,
+        last_updated: new Date().toISOString(),
+        verified_by: user.email,
+        verified_date: format(new Date(), 'yyyy-MM-dd'),
+        is_active: true,
+        scope: `${menuItems.length} menu items, ${filteredCCPChecks.length} CCPs`,
+        hazard_analysis_complete: true,
+        ccps_identified: filteredCCPChecks.length,
+        linked_menu_items: menuItems.slice(0, 50).map(m => m.id).filter(Boolean),
+        compliance_status: 'implemented',
+        notes: `HACCP Plan v${newVersion}\nGenerated: ${format(new Date(), 'PPP')}\nMenu Items: ${menuItems.length}\nCCP Checks: ${filteredCCPChecks.length}`
       });
 
-      console.log('[Frontend] Response status:', response.status);
+      // Create operation report
+      await base44.entities.OperationReport.create({
+        reportId: `HACCP-${newVersion}-${Date.now()}`,
+        reportType: 'HACCP',
+        locationId: user.location_id || 'default',
+        staffId: user.email,
+        staffName: user.full_name || user.email.split('@')[0],
+        staffEmail: user.email,
+        reportDate: format(new Date(), 'yyyy-MM-dd'),
+        completionPercentage: 100,
+        status: 'completed',
+        sourceEntityId: haccpRecord.id,
+        sourceEntityType: 'HACCPPlan',
+        timestamp: new Date().toISOString(),
+        checklistItems: [
+          { item_id: 'version', item_name: 'Version', answer: newVersion },
+          { item_id: 'ccps', item_name: 'CCPs', answer: `${filteredCCPChecks.length}` }
+        ]
+      });
 
-      // Validate response has body
-      if (!response.body) {
-        throw new Error('Server returned empty response');
-      }
-
-      // Parse JSON response
-      let result;
-      try {
-        result = await response.json();
-        console.log('[Frontend] Parsed response:', result);
-      } catch (parseErr) {
-        console.error('[Frontend] JSON parse error:', parseErr);
-        throw new Error('Invalid response from server: ' + parseErr.message);
-      }
-
-      // Check if response indicates error
-      if (!response.ok || !result.success) {
-        const errorMsg = result.error || result.details || 'Unknown error';
-        throw new Error(errorMsg);
-      }
-
-      // Success
-      console.log('[Frontend] Generation successful, refreshing data...');
       queryClient.invalidateQueries(['haccpPlans']);
       setShowHACCPDialog(false);
-      alert(`✓ HACCP Plan v${result.version} generated successfully!`);
+      alert(`✓ HACCP Plan v${newVersion} generated successfully!`);
     } catch (error) {
       console.error('[Frontend] HACCP generation error:', error);
       alert(`❌ Error: ${error.message}`);
