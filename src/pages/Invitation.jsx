@@ -82,6 +82,9 @@ export default function Invitation() {
 
   const acceptInvitationMutation = useMutation({
     mutationFn: async () => {
+      if (!quizPassed) {
+        throw new Error('Quiz must be passed first');
+      }
       await base44.entities.TrainingJourneyProgress.update(journeyProgress.id, {
         invitationAccepted: true,
         currentStep: 'vision',
@@ -90,7 +93,9 @@ export default function Invitation() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries(['trainingJourney']);
-      navigate(createPageUrl('TrainingAcademy'));
+    },
+    onError: (error) => {
+      alert(error.message);
     }
   });
 
@@ -176,16 +181,22 @@ export default function Invitation() {
                   <>✓ Journey Started</>
                 ) : (
                   <>
-                    Start Your Journey
+                    Complete & Continue
                     <ArrowRight className="w-5 h-5 ml-2" />
                   </>
                 )}
               </Button>
 
               {journeyProgress?.invitationAccepted && (
-                <p className="mt-4 text-sm text-emerald-600 font-semibold">
-                  Welcome aboard! Return to Training Academy to continue.
-                </p>
+                <motion.div
+                  initial={{ opacity: 0, y: -10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  className="mt-4 p-4 bg-emerald-100 border border-emerald-300 rounded-lg"
+                >
+                  <p className="text-sm text-emerald-800 font-semibold">
+                    ✓ Module completed. Next step unlocked.
+                  </p>
+                </motion.div>
               )}
               {!quizPassed && (
                 <p className="mt-4 text-sm text-amber-600 font-semibold">
