@@ -332,33 +332,64 @@ export default function RavingFans() {
           animate={{ opacity: 1, y: 0 }}
           className="space-y-4"
         >
-          <TrainingModuleQuiz
-            questions={ravingFansQuizQuestions}
-            onQuizPassed={handleQuizPassed}
-            moduleName="Raving Fans Philosophy"
-            passPercentage={80}
-          />
+          <Card className="border-2 border-rose-400 bg-rose-50">
+            <CardContent className="pt-6 space-y-4">
+              <div className="space-y-4">
+                {ravingFansQuizQuestions.map((q, idx) => (
+                  <div key={idx} className="p-4 bg-white rounded border border-rose-200">
+                    <p className="font-semibold text-slate-800 mb-3">{idx + 1}. {q.question}</p>
+                    {q.type === 'true-false' ? (
+                      <div className="flex gap-2">
+                        <button 
+                          onClick={() => setQuizAnswers({...quizAnswers, [idx]: 0})}
+                          className={`px-4 py-2 rounded text-sm font-medium transition-all ${quizAnswers[idx] === 0 ? 'bg-rose-600 text-white' : 'bg-slate-200 hover:bg-slate-300'}`}
+                        >
+                          True
+                        </button>
+                        <button 
+                          onClick={() => setQuizAnswers({...quizAnswers, [idx]: 1})}
+                          className={`px-4 py-2 rounded text-sm font-medium transition-all ${quizAnswers[idx] === 1 ? 'bg-rose-600 text-white' : 'bg-slate-200 hover:bg-slate-300'}`}
+                        >
+                          False
+                        </button>
+                      </div>
+                    ) : (
+                      <div className="space-y-2">
+                        {q.options?.map((opt, i) => (
+                          <button 
+                            key={i} 
+                            onClick={() => setQuizAnswers({...quizAnswers, [idx]: i})}
+                            className={`block w-full text-left px-4 py-2 rounded text-sm font-medium transition-all ${quizAnswers[idx] === i ? 'bg-rose-600 text-white' : 'bg-slate-200 hover:bg-slate-300'}`}
+                          >
+                            {opt}
+                          </button>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                ))}
+              </div>
 
-          {quizPassed && (
-            <motion.div
-              initial={{ opacity: 0, scale: 0.9 }}
-              animate={{ opacity: 1, scale: 1 }}
-              className="flex justify-center gap-3"
-            >
-              <Button
-                onClick={() => navigate(createPageUrl('TrainingAcademy'))}
-                variant="outline"
-              >
-                Back to Academy
-              </Button>
-              <Button
-                onClick={handleNextModule}
-                disabled={markCompletedMutation.isPending}
-                className="bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700"
-              >
-                {markCompletedMutation.isPending ? 'Moving...' : 'Next Module →'}
-              </Button>
-            </motion.div>
+              <ModuleQuizSubmission
+                moduleId="raving_fans"
+                moduleName="Raving Fans Philosophy"
+                questions={ravingFansQuizQuestions}
+                userAnswers={quizAnswers}
+                user={user}
+                journeyProgress={journeyProgress}
+                onQuizPassed={handleQuizPassed}
+                disabled={Object.keys(quizAnswers).length < ravingFansQuizQuestions.length}
+              />
+            </CardContent>
+          </Card>
+
+          {quizPassed && journeyProgress && (
+            <NextModuleButton
+              currentModuleId="raving_fans"
+              journeyProgress={journeyProgress}
+              user={user}
+              onComplete={() => setTimeout(() => navigate(createPageUrl('SOPs')), 500)}
+            />
           )}
         </motion.div>
       )}
