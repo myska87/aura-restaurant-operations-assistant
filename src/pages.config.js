@@ -3,6 +3,7 @@ import AllergenReport from './pages/AllergenReport';
 import Announcements from './pages/Announcements';
 import AssetDetail from './pages/AssetDetail';
 import Assets from './pages/Assets';
+import AuditCenter from './pages/AuditCenter';
 import ChangeRequests from './pages/ChangeRequests';
 import ChecklistBuilder from './pages/ChecklistBuilder';
 import ChecklistLibrary from './pages/ChecklistLibrary';
@@ -79,7 +80,6 @@ import VisualProcedures from './pages/VisualProcedures';
 import WeeklyManagerReportDetail from './pages/WeeklyManagerReportDetail';
 import WeeklyManagerReportForm from './pages/WeeklyManagerReportForm';
 import WeeklyManagerReports from './pages/WeeklyManagerReports';
-import AuditCenter from './pages/AuditCenter';
 import __Layout from './Layout.jsx';
 
 
@@ -89,6 +89,7 @@ export const PAGES = {
     "Announcements": Announcements,
     "AssetDetail": AssetDetail,
     "Assets": Assets,
+    "AuditCenter": AuditCenter,
     "ChangeRequests": ChangeRequests,
     "ChecklistBuilder": ChecklistBuilder,
     "ChecklistLibrary": ChecklistLibrary,
@@ -165,7 +166,6 @@ export const PAGES = {
     "WeeklyManagerReportDetail": WeeklyManagerReportDetail,
     "WeeklyManagerReportForm": WeeklyManagerReportForm,
     "WeeklyManagerReports": WeeklyManagerReports,
-    "AuditCenter": AuditCenter,
 }
 
 export const pagesConfig = {

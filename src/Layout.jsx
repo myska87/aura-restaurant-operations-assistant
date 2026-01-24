@@ -53,55 +53,55 @@ const navGroups = [
   {
     title: 'Operations',
     items: [
-      { name: 'Command Center', icon: LayoutDashboard, page: 'CommandCenter', roles: ['all'] },
-      { name: 'Daily Operations Hub', icon: ClipboardCheck, page: 'DailyOperationsHub', roles: ['all'] },
-      { name: 'Daily Check-In', icon: Users, page: 'Operations', roles: ['all'] },
-      { name: 'Shift Handover', icon: MessageSquare, page: 'ShiftHandovers', roles: ['all'] },
-      { name: 'Temperature Logs', icon: Thermometer, page: 'TemperatureLogs', roles: ['all'] },
-      { name: 'Label Printing', icon: FileText, page: 'Operations', roles: ['all'] },
-      { name: 'Equipment Status', icon: Wrench, page: 'EquipmentHealth', roles: ['all'] },
-      { name: 'Operations History', icon: History, page: 'OperationsHistory', roles: ['all'] },
-      { name: 'Menu Manager', icon: ChefHat, page: 'MenuManager', roles: ['all'] },
-      { name: 'Visual Dish Guides', icon: CookingPot, page: 'VisualDishGuides', roles: ['all'] },
+      { name: 'Command Center', icon: LayoutDashboard, page: 'CommandCenter', roles: ['all'], modes: ['operate'] },
+      { name: 'Daily Operations Hub', icon: ClipboardCheck, page: 'DailyOperationsHub', roles: ['all'], modes: ['operate'] },
+      { name: 'Daily Check-In', icon: Users, page: 'Operations', roles: ['all'], modes: ['operate'] },
+      { name: 'Shift Handover', icon: MessageSquare, page: 'ShiftHandovers', roles: ['all'], modes: ['operate'] },
+      { name: 'Temperature Logs', icon: Thermometer, page: 'TemperatureLogs', roles: ['all'], modes: ['operate'] },
+      { name: 'Label Printing', icon: FileText, page: 'Operations', roles: ['all'], modes: ['operate'] },
+      { name: 'Equipment Status', icon: Wrench, page: 'EquipmentHealth', roles: ['all'], modes: ['operate'] },
+      { name: 'Operations History', icon: History, page: 'OperationsHistory', roles: ['all'], modes: ['operate'] },
+      { name: 'Menu Manager', icon: ChefHat, page: 'MenuManager', roles: ['all'], modes: ['operate'] },
+      { name: 'Visual Dish Guides', icon: CookingPot, page: 'VisualDishGuides', roles: ['all'], modes: ['operate'] },
     ]
   },
   {
     title: 'Compliance & Safety',
     items: [
-      { name: 'Quality & Safety', icon: Shield, page: 'QualitySafety', roles: ['all'] },
-      { name: 'Checklist Library', icon: ClipboardCheck, page: 'ChecklistLibrary', roles: ['all'] },
-      { name: 'Checklist Reports', icon: FileText, page: 'ChecklistReports', roles: ['all'] },
-      { name: 'Chemical Safety', icon: Wrench, page: 'ChemicalDashboard', roles: ['all'] },
-      { name: 'Visual Procedures', icon: FileText, page: 'VisualProcedures', roles: ['all'] },
-      { name: 'Assets & Equipment', icon: Package, page: 'Assets', roles: ['all'] },
-      { name: 'Equipment Health', icon: Wrench, page: 'EquipmentHealth', roles: ['all'] },
+      { name: 'Quality & Safety', icon: Shield, page: 'QualitySafety', roles: ['all'], modes: ['operate'] },
+      { name: 'Checklist Library', icon: ClipboardCheck, page: 'ChecklistLibrary', roles: ['all'], modes: ['train'] },
+      { name: 'Checklist Reports', icon: FileText, page: 'ChecklistReports', roles: ['all'], modes: ['train'] },
+      { name: 'Chemical Safety', icon: Wrench, page: 'ChemicalDashboard', roles: ['all'], modes: ['operate'] },
+      { name: 'Visual Procedures', icon: FileText, page: 'VisualProcedures', roles: ['all'], modes: ['train'] },
+      { name: 'Assets & Equipment', icon: Package, page: 'Assets', roles: ['all'], modes: ['manage'] },
+      { name: 'Equipment Health', icon: Wrench, page: 'EquipmentHealth', roles: ['all'], modes: ['manage'] },
     ]
   },
   {
     title: 'Team & Training',
     items: [
-      { name: 'Training Academy', icon: GraduationCap, page: 'TrainingAcademy', roles: ['all'] },
-      { name: 'Leadership Path', icon: Trophy, page: 'LeadershipPathway', roles: ['all'] },
-      { name: 'Culture', icon: Heart, page: 'Culture', roles: ['all'] },
-      { name: 'People', icon: Users, page: 'People', roles: ['all'] },
-      { name: 'Shifts', icon: Calendar, page: 'Shifts', roles: ['all'] },
-      { name: 'Performance', icon: TrendingUp, page: 'Performance', roles: ['manager', 'owner', 'admin'] },
+      { name: 'Training Academy', icon: GraduationCap, page: 'TrainingAcademy', roles: ['all'], modes: ['train'] },
+      { name: 'Leadership Path', icon: Trophy, page: 'LeadershipPathway', roles: ['all'], modes: ['train'] },
+      { name: 'Culture', icon: Heart, page: 'Culture', roles: ['all'], modes: ['train'] },
+      { name: 'People', icon: Users, page: 'People', roles: ['all'], modes: ['train'] },
+      { name: 'Shifts', icon: Calendar, page: 'Shifts', roles: ['all'], modes: ['manage'] },
+      { name: 'Performance', icon: TrendingUp, page: 'Performance', roles: ['manager', 'owner', 'admin'], modes: ['manage'] },
     ]
   },
   {
     title: 'Admin & Reports',
     items: [
-      { name: 'Audit Center', icon: FileText, page: 'AuditCenter', roles: ['all'] },
-      { name: 'Inspector Mode', icon: Shield, page: 'InspectorMode', roles: ['manager', 'owner', 'admin'] },
-      { name: 'Reports', icon: TrendingUp, page: 'Reports', roles: ['manager', 'owner', 'admin'] },
-      { name: 'Weekly Manager Reports', icon: FileText, page: 'WeeklyManagerReports', roles: ['manager', 'owner', 'admin'] },
-      { name: 'Compliance Hub', icon: Shield, page: 'ComplianceHub', roles: ['manager', 'owner', 'admin'] },
-      { name: 'Data Management', icon: Shield, page: 'DataManagement', roles: ['manager', 'owner', 'admin'] },
-      { name: 'Restaurant Info', icon: Settings, page: 'GlobalInfo', roles: ['manager', 'owner', 'admin'] },
-      { name: 'Documents', icon: FolderOpen, page: 'Documents', roles: ['all'] },
-      { name: 'Announcements', icon: Bell, page: 'Announcements', roles: ['all'] },
-      { name: 'Meetings', icon: Calendar, page: 'Meetings', roles: ['all'] },
-      { name: 'Change Requests', icon: MessageSquare, page: 'ChangeRequests', roles: ['all'] },
+      { name: 'Audit Center', icon: FileText, page: 'AuditCenter', roles: ['all'], modes: ['manage'] },
+      { name: 'Inspector Mode', icon: Shield, page: 'InspectorMode', roles: ['manager', 'owner', 'admin'], modes: ['manage'] },
+      { name: 'Reports', icon: TrendingUp, page: 'Reports', roles: ['manager', 'owner', 'admin'], modes: ['manage'] },
+      { name: 'Weekly Manager Reports', icon: FileText, page: 'WeeklyManagerReports', roles: ['manager', 'owner', 'admin'], modes: ['manage'] },
+      { name: 'Compliance Hub', icon: Shield, page: 'ComplianceHub', roles: ['manager', 'owner', 'admin'], modes: ['manage'] },
+      { name: 'Data Management', icon: Shield, page: 'DataManagement', roles: ['manager', 'owner', 'admin'], modes: ['manage'] },
+      { name: 'Restaurant Info', icon: Settings, page: 'GlobalInfo', roles: ['manager', 'owner', 'admin'], modes: ['manage'] },
+      { name: 'Documents', icon: FolderOpen, page: 'Documents', roles: ['all'], modes: ['manage'] },
+      { name: 'Announcements', icon: Bell, page: 'Announcements', roles: ['all'], modes: ['manage'] },
+      { name: 'Meetings', icon: Calendar, page: 'Meetings', roles: ['all'], modes: ['train'] },
+      { name: 'Change Requests', icon: MessageSquare, page: 'ChangeRequests', roles: ['all'], modes: ['manage'] },
     ]
   }
 ];
@@ -160,33 +160,48 @@ function LayoutContent({ children, currentPageName }) {
     base44.auth.logout();
   };
 
-  const NavContent = () => (
-    <div className="flex flex-col h-full">
-      {/* Logo */}
-      <div className="p-6 border-b border-emerald-800/30">
-        <Link to={createPageUrl('Dashboard')} className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-amber-400 to-amber-600 flex items-center justify-center shadow-lg">
-            <Leaf className="w-6 h-6 text-white" />
-          </div>
-          <div>
-            <h1 className="text-xl font-bold text-white tracking-tight">AURA</h1>
-            <p className="text-[10px] text-emerald-300/80 uppercase tracking-widest">Restaurant Ops</p>
-          </div>
-        </Link>
-      </div>
+  const NavContent = () => {
+    // Filter nav groups based on current mode
+    const filteredNavGroups = navGroups
+      .map(group => ({
+        ...group,
+        items: group.items.filter(item => 
+          (item.roles.includes('all') || item.roles.includes(user?.role)) &&
+          (item.modes?.includes(currentMode))
+        )
+      }))
+      .filter(group => group.items.length > 0);
 
-      {/* Navigation */}
-      <ScrollArea className="flex-1 py-4">
-        <nav className="px-3 space-y-6">
-          {navGroups.map((group) => (
-            <div key={group.title}>
-              <h3 className="px-4 mb-2 text-xs font-semibold text-emerald-400/60 uppercase tracking-wider">
-                {group.title}
-              </h3>
-              <div className="space-y-1">
-                {group.items
-                  .filter(item => item.roles.includes('all') || item.roles.includes(user?.role))
-                  .map((item) => {
+    return (
+      <div className="flex flex-col h-full">
+        {/* Logo */}
+        <div className="p-6 border-b border-emerald-800/30">
+          <Link to={createPageUrl('Dashboard')} className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-amber-400 to-amber-600 flex items-center justify-center shadow-lg">
+              <Leaf className="w-6 h-6 text-white" />
+            </div>
+            <div>
+              <h1 className="text-xl font-bold text-white tracking-tight">AURA</h1>
+              <p className="text-[10px] text-emerald-300/80 uppercase tracking-widest">Restaurant Ops</p>
+            </div>
+          </Link>
+        </div>
+
+        {/* Navigation */}
+        <ScrollArea className="flex-1 py-4" key={currentMode}>
+          <motion.nav 
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.2 }}
+            className="px-3 space-y-6"
+          >
+            {filteredNavGroups.map((group) => (
+              <div key={group.title}>
+                <h3 className="px-4 mb-2 text-xs font-semibold text-emerald-400/60 uppercase tracking-wider">
+                  {group.title}
+                </h3>
+                <div className="space-y-1">
+                  {group.items.map((item) => {
                     const isActive = currentPageName === item.page;
                     return (
                       <Link
@@ -212,11 +227,13 @@ function LayoutContent({ children, currentPageName }) {
                       </Link>
                     );
                   })}
+                </div>
               </div>
-            </div>
-          ))}
-        </nav>
-      </ScrollArea>
+            ))}
+          </motion.nav>
+        </ScrollArea>
+    );
+  };
 
       {/* User Section */}
       {user && (
