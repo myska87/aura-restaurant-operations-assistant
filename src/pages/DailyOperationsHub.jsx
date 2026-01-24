@@ -42,6 +42,7 @@ import InteractiveStagesDashboard from '@/components/operations/InteractiveStage
 import ServiceReadinessPanel from '@/components/operations/ServiceReadinessPanel';
 import ResetFormsButton from '@/components/operations/ResetFormsButton';
 import CCPCheckModal from '@/components/operations/CCPCheckModal';
+import CCPEnforcement from '@/components/operations/CCPEnforcement';
 
 export default function DailyOperationsHub() {
   const [user, setUser] = useState(null);
@@ -55,6 +56,7 @@ export default function DailyOperationsHub() {
   const [showLabelPrinting, setShowLabelPrinting] = useState(false);
   const [showCCPModal, setShowCCPModal] = useState(false);
   const [activeCCP, setActiveCCP] = useState(null);
+  const [blockedMenuItems, setBlockedMenuItems] = useState([]);
   const queryClient = useQueryClient();
   const navigate = useNavigate();
 
@@ -557,14 +559,23 @@ export default function DailyOperationsHub() {
           isShiftActive={!!myCheckIn}
         />
 
-        {/* Service Readiness Panel - Prep & Hygiene Forms */}
+        {/* CCP Enforcement & Blocked Items Alert */}
         {myCheckIn && (
-          <ServiceReadinessPanel 
-            user={user} 
-            shift={currentShift} 
-            date={today} 
+          <CCPEnforcement 
+            user={user}
+            blockedItems={blockedMenuItems}
+            onBlockedItemsChange={setBlockedMenuItems}
           />
         )}
+
+        {/* Service Readiness Panel - Prep & Hygiene Forms */}
+         {myCheckIn && (
+           <ServiceReadinessPanel 
+             user={user} 
+             shift={currentShift} 
+             date={today} 
+           />
+         )}
 
         {/* Opening, Closing, Briefing & Handover Buttons */}
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
