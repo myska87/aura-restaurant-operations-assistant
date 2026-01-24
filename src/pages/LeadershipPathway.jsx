@@ -27,6 +27,7 @@ import {
 } from 'lucide-react';
 import LoadingSpinner from '@/components/ui/LoadingSpinner';
 import PageHeader from '@/components/ui/PageHeader';
+import TrainingJourneyBar from '@/components/training/TrainingJourneyBar';
 import { format } from 'date-fns';
 
 const leadershipLevels = [
@@ -148,6 +149,18 @@ export default function LeadershipPathway() {
     enabled: !!user?.email
   });
 
+  const { data: journeyProgress } = useQuery({
+    queryKey: ['trainingJourney', user?.email],
+    queryFn: async () => {
+      if (!user?.email) return null;
+      const existing = await base44.entities.TrainingJourneyProgress.filter({
+        staff_email: user.email
+      });
+      return existing.length > 0 ? existing[0] : null;
+    },
+    enabled: !!user?.email
+  });
+
   const { data: allStaff = [] } = useQuery({
     queryKey: ['allStaff'],
     queryFn: () => base44.entities.Staff.list(),
@@ -240,8 +253,69 @@ export default function LeadershipPathway() {
 
   if (!user) return <LoadingSpinner message="Loading leadership pathway..." />;
 
+  // Check if certified
+  const isCertified = journeyProgress?.certified;
+
+  if (!isCertified) {
+    return (
+      <div className="max-w-4xl mx-auto space-y-6">
+        <TrainingJourneyBar progress={journeyProgress} compact />
+        
+        <Card className="border-2 border-purple-400">
+          <CardContent className="pt-6 text-center">
+            <Lock className="w-16 h-16 mx-auto mb-4 text-purple-600" />
+            <h2 className="text-2xl font-bold text-slate-900 mb-2">Growth Centre Locked</h2>
+            <p className="text-lg text-slate-700 mb-2">
+              Complete your certification to unlock the Growth Centre.
+            </p>
+            <p className="text-sm text-slate-600 mb-6">
+              This is your space for personal and professional development.
+            </p>
+            <Button
+              onClick={() => window.location.href = createPageUrl('TrainingAcademy')}
+              className="bg-purple-600 hover:bg-purple-700"
+            >
+              Back to Training Academy
+            </Button>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-6">
+      {/* Journey Progress Bar */}
+      {journeyProgress && (
+        <TrainingJourneyBar progress={journeyProgress} compact />
+      )}
+
+      {/* Growth Centre Header */}
+      <Card className="border-2 border-purple-400 bg-gradient-to-br from-purple-50 via-pink-50 to-rose-50">
+        <CardContent className="pt-8 pb-8 px-6 md:px-12">
+          <div className="text-center mb-6">
+            <div className="w-20 h-20 mx-auto mb-4 rounded-full bg-gradient-to-br from-purple-500 to-pink-600 flex items-center justify-center shadow-2xl">
+              <Trophy className="w-10 h-10 text-white" />
+            </div>
+            <h1 className="text-4xl md:text-5xl font-bold text-slate-900 mb-2">
+              Growth Centre
+            </h1>
+            <p className="text-xl text-purple-700 font-semibold mb-6">
+              This Is Only the Beginning
+            </p>
+          </div>
+          
+          <div className="max-w-3xl mx-auto space-y-4 text-lg text-slate-700 leading-relaxed text-center">
+            <p className="font-semibold text-slate-900">
+              Chai Patta is a place to grow — personally and professionally.
+            </p>
+            <p>
+              If you grow, the brand grows. If the brand grows, we all win.
+            </p>
+          </div>
+        </CardContent>
+      </Card>
+
       {/* Hero */}
       <motion.div
         initial={{ opacity: 0, y: -20 }}

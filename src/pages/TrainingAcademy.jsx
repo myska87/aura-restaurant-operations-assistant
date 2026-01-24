@@ -70,8 +70,8 @@ const trainingOptions = [
     roles: ['all']
   },
   {
-    title: 'Leadership Pathway',
-    description: 'Progress levels, requirements & leadership journal',
+    title: 'Growth Centre — This Is Only the Beginning',
+    description: 'Leadership pathway, progress levels & development journal',
     icon: Trophy,
     page: 'LeadershipPathway',
     color: 'from-purple-500 to-pink-600',
