@@ -38,6 +38,7 @@ import DailyBriefingForm from '@/components/operations/DailyBriefingForm';
 import ShiftHandoverChecklist from '@/components/operations/ShiftHandoverChecklist';
 import LabelPrintingModal from '@/components/operations/LabelPrintingModal';
 import InteractiveStagesDashboard from '@/components/operations/InteractiveStagesDashboard';
+import PrepStageChecklist from '@/components/operations/PrepStageChecklist';
 
 export default function DailyOperationsHub() {
   const [user, setUser] = useState(null);
@@ -115,6 +116,12 @@ export default function DailyOperationsHub() {
   const { data: briefings = [] } = useQuery({
     queryKey: ['briefings', today],
     queryFn: () => base44.entities.DailyBriefing.filter({ date: today }),
+    enabled: !!user
+  });
+
+  const { data: prepLogs = [] } = useQuery({
+    queryKey: ['prepLogs', today],
+    queryFn: () => base44.entities.PrepChecklistLog.filter({ date: today }),
     enabled: !!user
   });
 
@@ -498,6 +505,15 @@ export default function DailyOperationsHub() {
           closingCompletion={myClosingCompletion?.completion_percentage || 0}
           isShiftActive={!!myCheckIn}
         />
+
+        {/* Prep Stage Checklist - Only show during Service Period */}
+        {myCheckIn && currentShift !== 'Closing' && (
+          <PrepStageChecklist 
+            user={user} 
+            shift={currentShift} 
+            date={today} 
+          />
+        )}
 
         {/* Opening, Closing, Briefing & Handover Buttons */}
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
