@@ -197,19 +197,21 @@ const cultureQuizQuestions = [
 ];
 
 export default function Culture() {
-  const [user, setUser] = useState(null);
-  const [showAssessment, setShowAssessment] = useState(false);
-  const [assessment, setAssessment] = useState({
-    raving_fans_answer: '',
-    connected_value: '',
-    connected_value_why: '',
-    improvement_action: ''
-  });
-  const [acknowledged, setAcknowledged] = useState(false);
-  const [showQuiz, setShowQuiz] = useState(false);
-  const [quizPassed, setQuizPassed] = useState(false);
-  const pageRef = useRef(null);
-  const navigate = useNavigate();
+   const [user, setUser] = useState(null);
+   const [showAssessment, setShowAssessment] = useState(false);
+   const [assessment, setAssessment] = useState({
+     raving_fans_answer: '',
+     connected_value: '',
+     connected_value_why: '',
+     improvement_action: ''
+   });
+   const [acknowledged, setAcknowledged] = useState(false);
+   const [showQuiz, setShowQuiz] = useState(false);
+   const [quizPassed, setQuizPassed] = useState(false);
+   const [quizAnswers, setQuizAnswers] = useState({});
+   const [quizScore, setQuizScore] = useState(0);
+   const pageRef = useRef(null);
+   const navigate = useNavigate();
 
   const queryClient = useQueryClient();
 
