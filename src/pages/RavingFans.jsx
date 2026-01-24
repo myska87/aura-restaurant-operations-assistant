@@ -266,45 +266,7 @@ export default function RavingFans() {
             </motion.div>
 
             {/* CTA Button */}
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.5 }}
-              className="text-center mt-10"
-            >
-              <Button
-                onClick={() => markCompletedMutation.mutate()}
-                disabled={!quizPassed || markCompletedMutation.isPending || journeyProgress?.ravingFansCompleted}
-                size="lg"
-                className="bg-gradient-to-r from-rose-600 to-pink-600 hover:from-rose-700 hover:to-pink-700 text-white font-bold text-lg px-10 py-6 shadow-xl disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                {journeyProgress?.ravingFansCompleted ? (
-                  <>
-                    <CheckCircle className="w-5 h-5 mr-2" />
-                    Completed
-                  </>
-                ) : (
-                  "Complete & Continue"
-                )}
-              </Button>
 
-              {journeyProgress?.ravingFansCompleted && (
-                <motion.div
-                  initial={{ opacity: 0, y: -10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  className="mt-4 p-4 bg-emerald-100 border border-emerald-300 rounded-lg"
-                >
-                  <p className="text-sm text-emerald-800 font-semibold">
-                    ✓ Module completed. Next step unlocked.
-                  </p>
-                </motion.div>
-              )}
-              {!quizPassed && (
-                <p className="mt-4 text-sm text-amber-600 font-semibold">
-                  Complete the quiz below to unlock this button
-                </p>
-              )}
-            </motion.div>
           </CardContent>
         </Card>
       </motion.div>
