@@ -256,7 +256,12 @@ export default function Culture() {
   });
 
   const createAckMutation = useMutation({
-    mutationFn: (data) => base44.entities.CultureAcknowledgment.create(data),
+    mutationFn: (data) => {
+      if (!quizPassed) {
+        throw new Error('Quiz must be passed first');
+      }
+      return base44.entities.CultureAcknowledgment.create(data);
+    },
     onSuccess: async () => {
       queryClient.invalidateQueries(['cultureAck']);
       
@@ -275,6 +280,9 @@ export default function Culture() {
         spread: 100,
         origin: { y: 0.6 }
       });
+    },
+    onError: (error) => {
+      alert(error.message);
     }
   });
 
@@ -657,7 +665,7 @@ export default function Culture() {
                   className="w-full bg-gradient-to-r from-emerald-600 to-teal-600 text-lg h-14 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   <CheckCircle className="w-5 h-5 mr-2" />
-                  Submit & Complete Culture Training
+                  Complete & Continue
                 </Button>
 
                 {!isComplete && (
