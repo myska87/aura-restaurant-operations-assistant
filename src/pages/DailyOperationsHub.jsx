@@ -45,6 +45,7 @@ import CCPCheckModal from '@/components/operations/CCPCheckModal';
 import CCPEnforcement from '@/components/operations/CCPEnforcement';
 import ServiceLockdownNotice from '@/components/operations/ServiceLockdownNotice';
 import HotHoldingForm from '@/components/operations/HotHoldingForm';
+import PersonalHygieneDeclarationForm from '@/components/hygiene/PersonalHygieneDeclarationForm';
 
 export default function DailyOperationsHub() {
   const [user, setUser] = useState(null);
@@ -59,8 +60,10 @@ export default function DailyOperationsHub() {
   const [showCCPModal, setShowCCPModal] = useState(false);
   const [activeCCP, setActiveCCP] = useState(null);
   const [showHotHoldingForm, setShowHotHoldingForm] = useState(false);
+  const [showHygieneDeclaration, setShowHygieneDeclaration] = useState(false);
   const [blockedMenuItems, setBlockedMenuItems] = useState([]);
   const [failedCCPs, setFailedCCPs] = useState([]);
+  const [clockInBlocked, setClockInBlocked] = useState(false);
   const queryClient = useQueryClient();
   const navigate = useNavigate();
 
@@ -146,6 +149,15 @@ export default function DailyOperationsHub() {
     queryKey: ['ccpChecks', today],
     queryFn: () => base44.entities.CriticalControlPointCheck.filter({ check_date: today }),
     enabled: !!user
+  });
+
+  const { data: hygieneDeclarations = [] } = useQuery({
+    queryKey: ['hygieneDeclarations', today],
+    queryFn: () => base44.entities.PersonalHygieneDeclaration?.filter?.({ 
+      shift_date: today,
+      staff_email: user?.email 
+    }) || [],
+    enabled: !!user?.email
   });
 
   const handoverMutation = useMutation({
@@ -242,10 +254,8 @@ export default function DailyOperationsHub() {
     mutationFn: (data) => base44.entities.DailyCheckIn.create(data),
     onSuccess: () => {
       queryClient.invalidateQueries(['checkIns']);
-      // Auto-open opening checklist on check-in
-      if (openingChecklists.length > 0) {
-        setShowOpeningChecklist(true);
-      }
+      // Show hygiene declaration instead of opening checklist
+      setShowHygieneDeclaration(true);
     }
   });
 
@@ -734,7 +744,7 @@ export default function DailyOperationsHub() {
               {!myCheckIn ? (
                 <Button
                   onClick={handleStartShift}
-                  disabled={checkInMutation.isPending}
+                  disabled={checkInMutation.isPending || clockInBlocked}
                   className="bg-white text-emerald-700 hover:bg-emerald-50 font-bold"
                 >
                   <CheckCircle className="w-5 h-5 mr-2" />
@@ -743,6 +753,11 @@ export default function DailyOperationsHub() {
               ) : (
                 <Badge className="bg-white text-emerald-700 text-sm px-4 py-2">
                   ✓ Shift Active
+                </Badge>
+              )}
+              {clockInBlocked && (
+                <Badge className="bg-red-600 text-white text-sm px-4 py-2">
+                  Manager Approval Pending
                 </Badge>
               )}
             </div>
@@ -975,6 +990,30 @@ export default function DailyOperationsHub() {
           user={user}
           today={today}
         />
+
+        {/* Personal Hygiene Declaration Modal */}
+        <Dialog open={showHygieneDeclaration} onOpenChange={setShowHygieneDeclaration}>
+          <DialogContent className="max-w-2xl max-h-96 overflow-y-auto">
+            <DialogHeader>
+              <DialogTitle>Personal Hygiene Declaration</DialogTitle>
+            </DialogHeader>
+            {user && (
+              <PersonalHygieneDeclarationForm 
+                user={user}
+                shiftDate={today}
+                onBlockClockIn={(blocked) => setClockInBlocked(blocked)}
+                onSuccess={() => {
+                  setShowHygieneDeclaration(false);
+                  // Auto-open opening checklist after hygiene declaration
+                  if (openingChecklists.length > 0) {
+                    setTimeout(() => setShowOpeningChecklist(true), 500);
+                  }
+                  queryClient.invalidateQueries(['hygieneDeclarations']);
+                }}
+              />
+            )}
+          </DialogContent>
+        </Dialog>
       </div>
 
       {/* Bottom Quick Toolbar */}
