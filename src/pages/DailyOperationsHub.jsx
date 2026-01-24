@@ -566,7 +566,12 @@ export default function DailyOperationsHub() {
           <CCPEnforcement 
             user={user}
             blockedItems={blockedMenuItems}
-            onBlockedItemsChange={setBlockedMenuItems}
+            onBlockedItemsChange={(items) => {
+              setBlockedMenuItems(items);
+              // Update failed CCPs from the checks
+              const failedChecks = ccpChecksToday.filter(c => c.status === 'fail');
+              setFailedCCPs(failedChecks);
+            }}
           />
         )}
 
