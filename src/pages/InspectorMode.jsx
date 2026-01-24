@@ -16,7 +16,8 @@ import {
   Shield,
   AlertCircle,
   LogOut,
-  Clock
+  Clock,
+  Users
 } from 'lucide-react';
 import { motion } from 'framer-motion';
 import InspectorPDFExport from '@/components/inspector/InspectorPDFExport';
@@ -25,6 +26,8 @@ import InspectorCleaningRecords from '@/components/inspector/InspectorCleaningRe
 import InspectorTrainingCerts from '@/components/inspector/InspectorTrainingCerts';
 import InspectorDocuments from '@/components/inspector/InspectorDocuments';
 import InspectorAcknowledgements from '@/components/inspector/InspectorAcknowledgements';
+import HACCPInspectorView from '@/components/inspector/HACCPInspectorView';
+import InspectorStaffHygiene from '@/components/inspector/InspectorStaffHygiene';
 
 const TIMEOUT_MINUTES = 20;
 
@@ -86,6 +89,13 @@ export default function InspectorMode() {
 
   const sections = [
     {
+      id: 'haccp',
+      title: 'HACCP Plan & CCPs',
+      icon: Shield,
+      color: 'bg-slate-600',
+      description: 'Critical control points & verifications'
+    },
+    {
       id: 'temperature',
       title: 'Temperature Logs',
       icon: ThermometerSun,
@@ -114,6 +124,13 @@ export default function InspectorMode() {
       description: 'Approved SOPs, HACCP, COSHH'
     },
     {
+      id: 'staff',
+      title: 'Staff Hygiene & Certificates',
+      icon: Users,
+      color: 'bg-pink-500',
+      description: 'Staff records and certifications'
+    },
+    {
       id: 'acknowledgements',
       title: 'Acknowledgements',
       icon: FileCheck,
@@ -123,6 +140,9 @@ export default function InspectorMode() {
   ];
 
   // Render section views
+  if (currentView === 'haccp') {
+    return <HACCPInspectorView onBack={() => setCurrentView('home')} dateRange={dateRange} />;
+  }
   if (currentView === 'temperature') {
     return <InspectorTemperatureLogs onBack={() => setCurrentView('home')} dateRange={dateRange} />;
   }
@@ -134,6 +154,9 @@ export default function InspectorMode() {
   }
   if (currentView === 'documents') {
     return <InspectorDocuments onBack={() => setCurrentView('home')} dateRange={dateRange} />;
+  }
+  if (currentView === 'staff') {
+    return <InspectorStaffHygiene onBack={() => setCurrentView('home')} />;
   }
   if (currentView === 'acknowledgements') {
     return <InspectorAcknowledgements onBack={() => setCurrentView('home')} dateRange={dateRange} />;
@@ -187,7 +210,8 @@ export default function InspectorMode() {
                   <SelectItem value="today">Today</SelectItem>
                   <SelectItem value="last_7">Last 7 days</SelectItem>
                   <SelectItem value="last_30">Last 30 days</SelectItem>
-                  <SelectItem value="custom">Custom range</SelectItem>
+                  <SelectItem value="last_60">Last 60 days</SelectItem>
+                  <SelectItem value="last_90">Last 90 days</SelectItem>
                 </SelectContent>
               </Select>
               <Badge variant="outline" className="ml-auto">
