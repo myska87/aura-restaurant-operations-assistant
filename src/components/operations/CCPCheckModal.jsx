@@ -7,6 +7,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { AlertCircle, CheckCircle, XCircle } from 'lucide-react';
 import { motion } from 'framer-motion';
 import CorrectiveActionForm from './CorrectiveActionForm';
+import { logFoodSafetyIncident } from './IncidentLogger';
 
 export default function CCPCheckModal({ open, onClose, ccp, user, onSuccess }) {
   const [recordedValue, setRecordedValue] = useState('');
@@ -88,9 +89,14 @@ export default function CCPCheckModal({ open, onClose, ccp, user, onSuccess }) {
       }
 
       // Save the check
-      const result = await base44.entities.CriticalControlPointCheck.create(checkData);
+       const result = await base44.entities.CriticalControlPointCheck.create(checkData);
 
-      // Create corresponding OperationReport
+       // If FAIL: Log to IncidentRecord (permanent audit trail)
+       if (!isPassed) {
+         await logFoodSafetyIncident(ccp, { ...checkData, id: result.id }, user);
+       }
+
+       // Create corresponding OperationReport
       await base44.entities.OperationReport.create({
         reportType: 'CCP',
         locationId: 'default',
