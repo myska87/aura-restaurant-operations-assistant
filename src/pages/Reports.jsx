@@ -5,7 +5,7 @@ import { base44 } from '@/api/base44Client';
 import { useQuery } from '@tanstack/react-query';
 import { format, subDays, startOfWeek, endOfWeek } from 'date-fns';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { TrendingUp, AlertTriangle, GraduationCap, Shield, Wrench, Trophy, BarChart3, Thermometer, CheckCircle, Sparkles } from 'lucide-react';
+import { TrendingUp, AlertTriangle, GraduationCap, Shield, Wrench, Trophy, BarChart3, Thermometer, CheckCircle, Sparkles, Tag } from 'lucide-react';
 import { LineChart, Line, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from 'recharts';
 import { motion } from 'framer-motion';
 import PageHeader from '@/components/ui/PageHeader';
@@ -149,6 +149,18 @@ export default function Reports() {
     enabled: !!user && isManager
   });
 
+  const { data: labelReports = [], isLoading: labelsLoading } = useQuery({
+    queryKey: ['labelReports', weekStart],
+    queryFn: async () => {
+      const reports = await base44.entities.OperationReport.filter({
+        reportType: 'LABEL',
+        reportDate: { $gte: weekStart, $lte: weekEnd }
+      });
+      return reports;
+    },
+    enabled: !!user && isManager
+  });
+
   // Calculate KPIs
   const avgAuditScore = weeklyAudits.length > 0 
     ? weeklyAudits.reduce((sum, a) => sum + (a.audit_score || 0), 0) / weeklyAudits.length 
@@ -192,8 +204,9 @@ export default function Reports() {
   }
 
   const [selectedHygieneReport, setSelectedHygieneReport] = useState(null);
+  const [selectedLabelReport, setSelectedLabelReport] = useState(null);
 
-  const isLoading = auditsLoading || tempLoading || hygieneLoading || shiftsLoading || reportsLoading;
+  const isLoading = auditsLoading || tempLoading || hygieneLoading || shiftsLoading || reportsLoading || labelsLoading;
 
   if (isLoading) {
     return <LoadingSpinner message="Loading reports data..." />;
@@ -369,6 +382,43 @@ export default function Reports() {
         </motion.div>
       </div>
 
+      {/* Label Reports Section */}
+      {labelReports.length > 0 && (
+        <div className="bg-gradient-to-r from-purple-50 to-pink-50 rounded-lg p-6 border-2 border-purple-200">
+          <div className="flex items-center gap-2 mb-4">
+            <Tag className="w-6 h-6 text-purple-600" />
+            <h3 className="text-xl font-bold text-slate-900">Food Safety Labels</h3>
+          </div>
+          <p className="text-slate-600 mb-4">
+            {labelReports.length} labels printed this week
+          </p>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3">
+            {labelReports.map((report) => (
+              <motion.div
+                key={report.id}
+                initial={{ opacity: 0, scale: 0.95 }}
+                animate={{ opacity: 1, scale: 1 }}
+                onClick={() => setSelectedLabelReport(report)}
+                className="cursor-pointer"
+              >
+                <Card className="hover:shadow-lg transition-all h-full">
+                  <CardContent className="pt-4">
+                    <div className="flex items-center justify-between mb-2">
+                      <p className="font-semibold text-slate-900 text-sm line-clamp-2">
+                        {report.checklistItems?.[0]?.item_name || 'Label'}
+                      </p>
+                      <Badge className="bg-purple-100 text-purple-700 text-xs">Label</Badge>
+                    </div>
+                    <p className="text-xs text-slate-600 mb-2">{report.staffName}</p>
+                    <p className="text-xs text-slate-500">{report.reportDate}</p>
+                  </CardContent>
+                </Card>
+              </motion.div>
+            ))}
+          </div>
+        </div>
+      )}
+
       {/* Hygiene Reports Section */}
       <div className="bg-gradient-to-r from-blue-50 to-emerald-50 rounded-lg p-6 border-2 border-blue-200">
         <div className="flex items-center gap-2 mb-4">
@@ -438,6 +488,55 @@ export default function Reports() {
           );
         })}
       </div>
+
+      {/* Label Report Detail Modal */}
+      <Dialog open={!!selectedLabelReport} onOpenChange={(open) => !open && setSelectedLabelReport(null)}>
+        <DialogContent className="max-w-2xl">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <Tag className="w-5 h-5 text-purple-600" />
+              Food Safety Label Details
+            </DialogTitle>
+            <DialogDescription>
+              Complete label information & traceability
+            </DialogDescription>
+          </DialogHeader>
+          {selectedLabelReport && (
+            <div className="space-y-4">
+              <div className="grid grid-cols-2 gap-4">
+                <Card className="bg-slate-50">
+                  <CardContent className="pt-4">
+                    <p className="text-xs text-slate-600 mb-1">Item Name</p>
+                    <p className="font-bold text-sm">{selectedLabelReport.checklistItems?.[0]?.item_name}</p>
+                  </CardContent>
+                </Card>
+                <Card className="bg-slate-50">
+                  <CardContent className="pt-4">
+                    <p className="text-xs text-slate-600 mb-1">Printed By</p>
+                    <p className="font-bold text-sm">{selectedLabelReport.staffName}</p>
+                  </CardContent>
+                </Card>
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <Card className="bg-slate-50">
+                  <CardContent className="pt-4">
+                    <p className="text-xs text-slate-600 mb-1">Print Date</p>
+                    <p className="font-bold text-sm">{selectedLabelReport.reportDate}</p>
+                  </CardContent>
+                </Card>
+                <Card className="bg-slate-50">
+                  <CardContent className="pt-4">
+                    <p className="text-xs text-slate-600 mb-1">Print Time</p>
+                    <p className="font-bold text-sm">
+                      {new Date(selectedLabelReport.timestamp).toLocaleTimeString()}
+                    </p>
+                  </CardContent>
+                </Card>
+              </div>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
 
       {/* Hygiene Report Detail Modal */}
       <Dialog open={!!selectedHygieneReport} onOpenChange={(open) => !open && setSelectedHygieneReport(null)}>
