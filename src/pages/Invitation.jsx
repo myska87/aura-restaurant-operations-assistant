@@ -11,6 +11,7 @@ import LoadingSpinner from '@/components/ui/LoadingSpinner';
 import TrainingJourneyBar from '@/components/training/TrainingJourneyBar';
 import ModuleQuizSubmission from '@/components/training/ModuleQuizSubmission';
 import NextModuleButton from '@/components/training/NextModuleButton';
+import DebugTrainingState from '@/components/training/DebugTrainingState';
 
 const invitationQuizQuestions = [
   {
