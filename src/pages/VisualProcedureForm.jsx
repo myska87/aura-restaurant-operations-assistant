@@ -35,7 +35,8 @@ export default function VisualProcedureForm() {
     steps: [{ step_number: 1, step_title: '', instruction_text: '', photo_url: '', video_url: '', duration_seconds: 30 }],
     tips_warnings: [],
     version: '1.0',
-    is_published: true
+    status: 'draft',
+    is_published: false
   });
   
   const [uploadingCover, setUploadingCover] = useState(false);
@@ -43,6 +44,8 @@ export default function VisualProcedureForm() {
   const [validationErrors, setValidationErrors] = useState([]);
   const [saveMessage, setSaveMessage] = useState(null);
   const [user, setUser] = useState(null);
+  const [autoSaving, setAutoSaving] = useState(false);
+  const [lastSaved, setLastSaved] = useState(null);
 
   // Load user
   useEffect(() => {
@@ -66,6 +69,41 @@ export default function VisualProcedureForm() {
       setFormData(procedure[0]);
     }
   }, [procedure]);
+
+  // Auto-save every 10 seconds
+  useEffect(() => {
+    if (!formData.title || formData.title.trim() === '') return;
+    
+    const autoSaveInterval = setInterval(async () => {
+      setAutoSaving(true);
+      try {
+        const autoSaveData = {
+          ...formData,
+          auto_saved_at: new Date().toISOString(),
+          last_updated_by_id: user?.id,
+          last_updated_by_name: user?.full_name || user?.email
+        };
+
+        if (isEditing && procedureId) {
+          await base44.entities.Visual_Procedures_v1.update(procedureId, autoSaveData);
+        } else if (formData.id) {
+          await base44.entities.Visual_Procedures_v1.update(formData.id, autoSaveData);
+        } else {
+          const created = await base44.entities.Visual_Procedures_v1.create(autoSaveData);
+          setFormData({ ...autoSaveData, id: created.id });
+        }
+        
+        setLastSaved(new Date());
+        queryClient.invalidateQueries({ queryKey: ['visualProcedures'] });
+      } catch (error) {
+        console.error('Auto-save failed:', error);
+      } finally {
+        setAutoSaving(false);
+      }
+    }, 10000);
+
+    return () => clearInterval(autoSaveInterval);
+  }, [formData, isEditing, procedureId, user, queryClient]);
 
   const saveMutation = useMutation({
     mutationFn: async (data) => {
@@ -115,17 +153,42 @@ export default function VisualProcedureForm() {
     return errors;
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = (e, saveAsDraft = false) => {
     e.preventDefault();
+    
     const errors = validateForm();
-    if (errors.length > 0) {
+    if (errors.length > 0 && !saveAsDraft) {
       setValidationErrors(errors);
-      setSaveMessage({ type: 'error', text: 'Please fix the errors below before saving.' });
+      setSaveMessage({ type: 'error', text: 'Please fix the errors below before publishing.' });
       return;
     }
+    
     setValidationErrors([]);
     setSaveMessage(null);
-    saveMutation.mutate(formData);
+    
+    const saveData = {
+      ...formData,
+      status: saveAsDraft ? 'draft' : 'published',
+      is_published: !saveAsDraft,
+      published_date: !saveAsDraft ? new Date().toISOString() : formData.published_date,
+      last_updated_by_id: user?.id,
+      last_updated_by_name: user?.full_name || user?.email,
+      version: formData.version || '1.0'
+    };
+
+    // Add version history if editing
+    if (isEditing && procedure?.[0]) {
+      const previousVersion = {
+        version: procedure[0].version,
+        updated_date: new Date().toISOString(),
+        updated_by: user?.full_name || user?.email,
+        changes_summary: saveAsDraft ? 'Saved as draft' : 'Published',
+        data_snapshot: procedure[0]
+      };
+      saveData.previous_versions = [...(formData.previous_versions || []), previousVersion];
+    }
+
+    saveMutation.mutate(saveData);
   };
 
   const addStep = () => {
@@ -222,6 +285,29 @@ export default function VisualProcedureForm() {
 
   return (
     <div className="max-w-4xl mx-auto space-y-6">
+      {/* Auto-save Indicator */}
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-3">
+          {autoSaving && (
+            <Badge variant="outline" className="animate-pulse">
+              <Loader2 className="w-3 h-3 mr-1 animate-spin" />
+              Auto-saving...
+            </Badge>
+          )}
+          {lastSaved && !autoSaving && (
+            <Badge variant="outline" className="bg-emerald-50 text-emerald-700 border-emerald-300">
+              <CheckCircle className="w-3 h-3 mr-1" />
+              Saved {new Date(lastSaved).toLocaleTimeString()}
+            </Badge>
+          )}
+          {formData.status && (
+            <Badge className={formData.status === 'published' ? 'bg-emerald-500' : 'bg-amber-500'}>
+              {formData.status === 'published' ? '✓ Published' : '📝 Draft'}
+            </Badge>
+          )}
+        </div>
+      </div>
+
       {/* Status Messages */}
       {saveMessage && (
         <motion.div
@@ -506,14 +592,29 @@ export default function VisualProcedureForm() {
         </Card>
 
         {/* Actions */}
-        <div className="flex gap-3 justify-end">
+        <div className="flex gap-3 justify-between">
           <Button type="button" variant="outline" onClick={() => navigate(createPageUrl('VisualProcedures'))}>
             Cancel
           </Button>
-          <Button type="submit" disabled={saveMutation.isPending}>
-            <Save className="w-4 h-4 mr-2" />
-            {saveMutation.isPending ? 'Saving...' : 'Save Procedure'}
-          </Button>
+          <div className="flex gap-3">
+            <Button 
+              type="button"
+              variant="outline"
+              onClick={(e) => handleSubmit(e, true)}
+              disabled={saveMutation.isPending}
+            >
+              <Save className="w-4 h-4 mr-2" />
+              {saveMutation.isPending ? 'Saving...' : 'Save Draft'}
+            </Button>
+            <Button 
+              type="submit"
+              disabled={saveMutation.isPending}
+              className="bg-emerald-600 hover:bg-emerald-700"
+            >
+              <CheckCircle className="w-4 h-4 mr-2" />
+              {saveMutation.isPending ? 'Publishing...' : 'Publish Procedure'}
+            </Button>
+          </div>
         </div>
       </form>
     </div>

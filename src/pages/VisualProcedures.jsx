@@ -69,9 +69,15 @@ export default function VisualProcedures() {
     loadUser();
   }, []);
 
+  const isAdmin = user && ['admin', 'owner', 'manager'].includes(user.role);
+
   const { data: procedures = [], isLoading } = useQuery({
     queryKey: ['visualProcedures'],
-    queryFn: () => base44.entities.Visual_Procedures_v1.filter({ is_published: true }, '-created_date')
+    queryFn: () => base44.entities.Visual_Procedures_v1.filter(
+      isAdmin ? {} : { status: 'published' },
+      '-created_date'
+    ),
+    enabled: !!user
   });
 
   const { data: completions = [] } = useQuery({
@@ -97,8 +103,6 @@ export default function VisualProcedures() {
     
     return matchesSearch && matchesCategory && matchesRole && matchesStation;
   });
-
-  const isAdmin = user && ['admin', 'owner', 'manager'].includes(user.role);
 
   // Stats
   const totalProcedures = procedures.length;
