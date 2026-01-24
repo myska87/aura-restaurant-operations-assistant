@@ -701,12 +701,42 @@ export default function Culture() {
 
       {/* Quiz Section */}
       {showQuiz && !alreadyCompleted && (
-        <TrainingModuleQuiz
-          questions={cultureQuizQuestions}
-          onQuizPassed={handleQuizPassed}
-          moduleName="Culture & Values"
-          passPercentage={80}
-        />
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="space-y-4"
+        >
+          <TrainingModuleQuiz
+            questions={cultureQuizQuestions}
+            onQuizPassed={handleQuizPassed}
+            moduleName="Culture & Values"
+            passPercentage={80}
+          />
+
+          {quizPassed && (
+            <motion.div
+              initial={{ opacity: 0, scale: 0.9 }}
+              animate={{ opacity: 1, scale: 1 }}
+              className="flex justify-center gap-3"
+            >
+              <Button
+                onClick={() => navigate(createPageUrl('TrainingAcademy'))}
+                variant="outline"
+              >
+                Back to Academy
+              </Button>
+              <Button
+                onClick={() => {
+                  setShowAssessment(true);
+                  window.scrollTo({ top: 0, behavior: 'smooth' });
+                }}
+                className="bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700"
+              >
+                Complete Assessment →
+              </Button>
+            </motion.div>
+          )}
+        </motion.div>
       )}
     </div>
   );
