@@ -137,6 +137,11 @@ export default function Shifts() {
     queryFn: () => base44.entities.Staff.filter({ status: 'active' }),
   });
 
+  const { data: trainingProgress = [] } = useQuery({
+    queryKey: ['trainingProgress'],
+    queryFn: () => base44.entities.TrainingJourneyProgress.list(),
+  });
+
   const createMutation = useMutation({
     mutationFn: (data) => base44.entities.Shift.create(data),
     onSuccess: () => {
