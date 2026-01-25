@@ -91,6 +91,7 @@ import WeeklyManagerReportForm from './pages/WeeklyManagerReportForm';
 import WeeklyManagerReports from './pages/WeeklyManagerReports';
 import WelcomeVision from './pages/WelcomeVision';
 import DeepCleaningSchedule from './pages/DeepCleaningSchedule';
+import Diagnostics from './pages/Diagnostics';
 import __Layout from './Layout.jsx';
 
 
@@ -188,6 +189,7 @@ export const PAGES = {
     "WeeklyManagerReports": WeeklyManagerReports,
     "WelcomeVision": WelcomeVision,
     "DeepCleaningSchedule": DeepCleaningSchedule,
+    "Diagnostics": Diagnostics,
 }
 
 export const pagesConfig = {
