@@ -4,6 +4,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { motion } from 'framer-motion';
 import { format } from 'date-fns';
 import { Thermometer, AlertTriangle, CheckCircle, Plus, Settings, Edit, Trash2, Save, Download, FileText } from 'lucide-react';
+import FormCompletionBanner from '@/components/operations/FormCompletionBanner';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -24,6 +25,7 @@ export default function TemperatureLog({ user }) {
   const [bulkNotes, setBulkNotes] = useState({});
   const [isDraft, setIsDraft] = useState(false);
   const [lastAutoSave, setLastAutoSave] = useState(null);
+  const [completionStatus, setCompletionStatus] = useState(null);
   const [equipmentFormData, setEquipmentFormData] = useState({
     name: '',
     location: '',
@@ -85,14 +87,21 @@ export default function TemperatureLog({ user }) {
       await Promise.all(
         logsData.map(log => base44.entities.TemperatureLog.create(log))
       );
+      return logsData;
     },
-    onSuccess: () => {
+    onSuccess: (logsData) => {
       queryClient.invalidateQueries(['temperatureLogs']);
+      
+      // Check if any temps are out of range
+      const hasFailures = logsData.some(log => !log.is_in_range);
+      setCompletionStatus(hasFailures ? 'failed' : 'completed');
+      
       setShowBulkForm(false);
       setBulkTemperatures({});
       setBulkNotes({});
       setIsDraft(false);
-      toast.success('✅ All temperatures logged successfully!');
+      
+      setTimeout(() => setCompletionStatus(null), 4000);
     },
     onError: (error) => {
       toast.error('Failed to save temperatures. Please try again.');
@@ -429,6 +438,19 @@ export default function TemperatureLog({ user }) {
                   </Button>
                 </div>
               </div>
+
+              {/* Completion Status Banner */}
+              {completionStatus && (
+                <FormCompletionBanner 
+                  status={completionStatus}
+                  message={completionStatus === 'failed' 
+                    ? '❌ Failed — Action Required'
+                    : '✅ Completed & Logged'}
+                  details={completionStatus === 'failed'
+                    ? 'Some temperatures are out of range. Manager has been notified. Review the critical readings and take corrective action.'
+                    : 'All temperature readings have been logged within safe ranges.'}
+                />
+              )}
             </motion.div>
           )}
 
