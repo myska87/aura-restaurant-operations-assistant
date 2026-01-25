@@ -17,7 +17,7 @@ import {
   CheckCircle,
   Clock
 } from 'lucide-react';
-import DailyCleaningScheduleForm from '@/components/cleaning/DailyCleaningScheduleForm';
+import HygieneCheckForm from '@/components/cleaning/HygieneCheckForm';
 import PersonalHygieneDeclarationForm from '@/components/hygiene/PersonalHygieneDeclarationForm';
 import IllnessReportingForm from '@/components/hygiene/IllnessReportingForm';
 
@@ -69,8 +69,8 @@ export default function CleaningHygieneHub() {
   const sections = [
     {
       id: 1,
-      title: 'Daily Cleaning',
-      description: 'Routine cleaning schedules and logs',
+      title: 'Hygiene Check',
+      description: 'Daily hygiene inspection across all areas',
       icon: Droplet,
       color: 'bg-blue-500',
       onClick: () => setShowDailyForm(true),
@@ -177,14 +177,14 @@ export default function CleaningHygieneHub() {
         </div>
       </div>
 
-      {/* Daily Cleaning Form Dialog */}
+      {/* Hygiene Check Form Dialog */}
       <Dialog open={showDailyForm} onOpenChange={setShowDailyForm}>
-        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+        <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
-            <DialogTitle>Daily Cleaning Schedule</DialogTitle>
+            <DialogTitle>Daily Hygiene Check</DialogTitle>
           </DialogHeader>
           {user && (
-            <DailyCleaningScheduleForm
+            <HygieneCheckForm
               user={user}
               onSuccess={() => {
                 queryClient.invalidateQueries(['dailyCleaningLogs']);
