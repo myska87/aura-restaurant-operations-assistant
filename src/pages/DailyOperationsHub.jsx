@@ -30,7 +30,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import LoadingSpinner from '@/components/ui/LoadingSpinner';
 import ChecklistModal from '@/components/operations/ChecklistModal';
@@ -66,6 +66,8 @@ export default function DailyOperationsHub() {
   const [blockedMenuItems, setBlockedMenuItems] = useState([]);
   const [failedCCPs, setFailedCCPs] = useState([]);
   const [clockInBlocked, setClockInBlocked] = useState(false);
+  const [showShiftCloseBlocker, setShowShiftCloseBlocker] = useState(false);
+  const [missingItems, setMissingItems] = useState([]);
   const queryClient = useQueryClient();
   const navigate = useNavigate();
 
@@ -167,6 +169,15 @@ export default function DailyOperationsHub() {
     queryFn: () => base44.entities.DailyCleaningLog.filter({ 
       date: today,
       area: 'Hygiene Check'
+    }),
+    enabled: !!user
+  });
+
+  const { data: dailyCleaningLogs = [] } = useQuery({
+    queryKey: ['dailyCleaningLogs', today],
+    queryFn: () => base44.entities.DailyCleaningLog.filter({ 
+      date: today,
+      status: 'completed'
     }),
     enabled: !!user
   });
@@ -384,10 +395,47 @@ export default function DailyOperationsHub() {
     }
   };
 
+  const checkShiftCloseRequirements = () => {
+    const missing = [];
+
+    // Check if daily cleaning tasks are completed
+    if (dailyCleaningLogs.length === 0) {
+      missing.push({
+        id: 'cleaning',
+        title: 'Daily Cleaning Tasks',
+        description: 'No cleaning tasks completed today',
+        action: () => navigate(createPageUrl('CleaningHygieneHub'))
+      });
+    }
+
+    // Check if required temperature logs are completed
+    const requiredTempCount = tempAssets.length;
+    if (temperatureLogs.length < requiredTempCount) {
+      missing.push({
+        id: 'temps',
+        title: 'Temperature Logs',
+        description: `Missing ${requiredTempCount - temperatureLogs.length} of ${requiredTempCount} required temperature checks`,
+        action: () => setShowTempAssets(true)
+      });
+    }
+
+    return missing;
+  };
+
   const openChecklist = (type) => {
     if (!user?.email) {
       alert('Please log in to access checklists');
       return;
+    }
+
+    // For closing checklist, check requirements first
+    if (type === 'closing') {
+      const missing = checkShiftCloseRequirements();
+      if (missing.length > 0) {
+        setMissingItems(missing);
+        setShowShiftCloseBlocker(true);
+        return;
+      }
     }
 
     const checklists = type === 'opening' ? openingChecklists : closingChecklists;
@@ -1086,6 +1134,50 @@ export default function DailyOperationsHub() {
                 }}
               />
             )}
+          </DialogContent>
+        </Dialog>
+
+        {/* Shift Close Blocker Modal */}
+        <Dialog open={showShiftCloseBlocker} onOpenChange={setShowShiftCloseBlocker}>
+          <DialogContent className="max-w-2xl">
+            <DialogHeader>
+              <DialogTitle className="flex items-center gap-2 text-red-600">
+                <AlertCircle className="w-6 h-6" />
+                Complete Required Safety Actions Before Closing
+              </DialogTitle>
+              <DialogDescription>
+                No day ends without compliance evidence. All items must be completed before you can close the shift.
+              </DialogDescription>
+            </DialogHeader>
+            <div className="space-y-3">
+              {missingItems.map((item) => (
+                <div 
+                  key={item.id}
+                  className="border-2 border-red-200 bg-red-50 rounded-lg p-4"
+                >
+                  <div className="flex items-start justify-between gap-3 mb-2">
+                    <div className="flex-1">
+                      <h4 className="font-semibold text-red-900">{item.title}</h4>
+                      <p className="text-sm text-red-700 mt-1">{item.description}</p>
+                    </div>
+                    <AlertCircle className="w-5 h-5 text-red-600 flex-shrink-0 mt-0.5" />
+                  </div>
+                  <Button
+                    onClick={() => {
+                      item.action();
+                      setShowShiftCloseBlocker(false);
+                    }}
+                    size="sm"
+                    className="bg-red-600 hover:bg-red-700 w-full"
+                  >
+                    Complete Now
+                  </Button>
+                </div>
+              ))}
+            </div>
+            <p className="text-xs text-slate-600 text-center pt-4 border-t">
+              After completing all items, return to close your shift.
+            </p>
           </DialogContent>
         </Dialog>
       </div>
