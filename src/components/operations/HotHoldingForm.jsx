@@ -75,8 +75,8 @@ export default function HotHoldingForm({ open, onClose, user, today }) {
       const passedItems = items.filter(i => i.status === 'compliant').length;
       const failedItems = items.filter(i => i.status === 'non_compliant').length;
 
-      // Create Hot Holding Log record
-      await base44.entities.ChecklistCompletion.create({
+      // Create Hot Holding Log as ChecklistCompletion
+      const checklistData = {
         checklist_id: 'HOT_HOLDING_LOG',
         checklist_name: 'Hot Holding Temperature Log',
         checklist_category: 'hot_holding',
@@ -95,11 +95,36 @@ export default function HotHoldingForm({ open, onClose, user, today }) {
         completion_percentage: Math.round((passedItems / items.length) * 100) || 0,
         failed_items: items.filter(i => i.status === 'non_compliant').map(i => String(i.id)),
         status: failedItems > 0 ? 'pending_review' : 'completed'
+      };
+
+      const completion = await base44.entities.ChecklistCompletion.create(checklistData);
+
+      // Also save to OperationReport for reporting
+      await base44.entities.OperationReport.create({
+        reportType: 'TEMPERATURE',
+        locationId: 'default',
+        staffId: user?.id || 'unknown',
+        staffName: user?.full_name || user?.email || 'Staff',
+        staffEmail: user?.email || 'unknown@restaurant.com',
+        reportDate: today,
+        completionPercentage: Math.round((passedItems / items.length) * 100) || 0,
+        status: failedItems > 0 ? 'fail' : 'pass',
+        checklistItems: items.map(item => ({
+          item_id: String(item.id),
+          item_name: `${item.name} - ${item.temperature}°C`,
+          answer: item.status === 'compliant' ? 'pass' : 'fail',
+          notes: `Logged at ${item.time} by ${user?.full_name || user?.email}`
+        })),
+        failedItems: items.filter(i => i.status === 'non_compliant').map(i => `${i.name} (${i.temperature}°C)`),
+        sourceEntityId: completion.id,
+        sourceEntityType: 'ChecklistCompletion',
+        timestamp: new Date().toISOString()
       });
 
       alert(`✅ Hot Holding Log recorded\n${passedItems} items compliant, ${failedItems} require attention`);
       
       queryClient.invalidateQueries(['completions']);
+      queryClient.invalidateQueries(['operationReports']);
       setItems([]);
       onClose();
     } catch (error) {
