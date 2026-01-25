@@ -15,14 +15,19 @@ import {
 } from '@/components/ui/select';
 import { AlertCircle, Upload, CheckCircle2 } from 'lucide-react';
 
-const EQUIPMENT_DETAILS = {
-  oven: { name: 'Oven' },
-  fridge: { name: 'Fridge' },
-  freezer: { name: 'Freezer' },
-  extraction: { name: 'Extraction Hood' },
-  drains: { name: 'Drains' },
-  storage_shelves: { name: 'Storage Shelves' },
-};
+const EQUIPMENT_PRESETS = [
+  'Oven',
+  'Fridge',
+  'Freezer',
+  'Extraction Hood',
+  'Drains',
+  'Storage Shelves',
+  'Whole Kitchen',
+  'Customer Area',
+  'Toilets',
+  'Back of House',
+  'Dining Area',
+];
 
 const FREQUENCIES = {
   weekly: { label: 'Weekly' },
@@ -32,6 +37,7 @@ const FREQUENCIES = {
 
 export default function DeepCleaningScheduleForm({ user, onSuccess }) {
   const [equipment, setEquipment] = useState('');
+  const [customEquipment, setCustomEquipment] = useState('');
   const [frequency, setFrequency] = useState('');
   const [assignedRole, setAssignedRole] = useState('');
   const [lastCompletedDate, setLastCompletedDate] = useState(format(new Date(), 'yyyy-MM-dd'));
@@ -71,9 +77,11 @@ export default function DeepCleaningScheduleForm({ user, onSuccess }) {
       const now = new Date();
       const isOverdue = new Date(nextDue) < now;
 
+      const finalEquipment = equipment === 'custom' ? customEquipment : equipment;
+
       const data = {
-        area_equipment: equipment,
-        area_equipment_name: EQUIPMENT_DETAILS[equipment].name,
+        area_equipment: finalEquipment,
+        area_equipment_name: finalEquipment,
         frequency,
         last_completed_date: lastCompletedDate,
         next_due_date: format(nextDue, 'yyyy-MM-dd'),
@@ -110,7 +118,8 @@ export default function DeepCleaningScheduleForm({ user, onSuccess }) {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    if (!equipment || !frequency || !assignedRole || !supervisorApproval) {
+    const finalEquipment = equipment === 'custom' ? customEquipment : equipment;
+    if (!finalEquipment || !frequency || !assignedRole || !supervisorApproval) {
       alert('Please fill all required fields and get supervisor approval');
       return;
     }
@@ -135,17 +144,36 @@ export default function DeepCleaningScheduleForm({ user, onSuccess }) {
             </label>
             <Select value={equipment} onValueChange={setEquipment}>
               <SelectTrigger className="bg-white border-slate-300">
-                <SelectValue placeholder="Select equipment" />
+                <SelectValue placeholder="Select or choose custom" />
               </SelectTrigger>
               <SelectContent>
-                {Object.entries(EQUIPMENT_DETAILS).map(([key, value]) => (
-                  <SelectItem key={key} value={key}>
-                    {value.name}
+                {EQUIPMENT_PRESETS.map((preset) => (
+                  <SelectItem key={preset} value={preset}>
+                    {preset}
                   </SelectItem>
                 ))}
+                <SelectItem value="custom">
+                  ✏️ Custom Area (type your own)
+                </SelectItem>
               </SelectContent>
             </Select>
           </div>
+
+          {/* Custom Equipment Input */}
+          {equipment === 'custom' && (
+            <div>
+              <label className="text-sm font-semibold text-slate-700 block mb-2">
+                Custom Area Name <span className="text-red-600">*</span>
+              </label>
+              <input
+                type="text"
+                value={customEquipment}
+                onChange={(e) => setCustomEquipment(e.target.value)}
+                placeholder="e.g., Deep Clean Whole Kitchen, Staff Room, etc."
+                className="w-full p-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+              />
+            </div>
+          )}
 
           {/* Frequency */}
           <div>
