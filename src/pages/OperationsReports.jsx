@@ -130,6 +130,18 @@ export default function OperationsReports() {
     enabled: !!user
   });
 
+  const { data: dailyCleaningLogs = [] } = useQuery({
+    queryKey: ['dailyCleaningLogs', startDate, endDate],
+    queryFn: () => base44.entities.DailyCleaningLog?.list?.('-created_date', 100) || [],
+    enabled: !!user && !!startDate
+  });
+
+  const { data: deepCleaningSchedules = [] } = useQuery({
+    queryKey: ['deepCleaningSchedules', startDate, endDate],
+    queryFn: () => base44.entities.DeepCleaningSchedule?.list?.('-created_date', 100) || [],
+    enabled: !!user && !!startDate
+  });
+
 
 
   if (!user) return <LoadingSpinner />;
@@ -1289,6 +1301,8 @@ export default function OperationsReports() {
           ccpChecks={filteredCCPChecks}
           handovers={filteredHandovers}
           staff={staff}
+          dailyCleaningLogs={dailyCleaningLogs}
+          deepCleaningSchedules={deepCleaningSchedules}
           onClose={() => setShowDetailedDailyDialog(false)}
         />
       )}
