@@ -74,6 +74,8 @@ const reportOptions = [
 
 export default function Reports() {
   const [user, setUser] = useState(null);
+  const [selectedHygieneReport, setSelectedHygieneReport] = useState(null);
+  const [selectedLabelReport, setSelectedLabelReport] = useState(null);
 
   useEffect(() => {
     const loadUser = async () => {
@@ -193,6 +195,8 @@ export default function Reports() {
     };
   });
 
+  const isLoading = auditsLoading || tempLoading || hygieneLoading || shiftsLoading || reportsLoading || labelsLoading;
+
   if (!isManager) {
     return (
       <div className="py-12 text-center">
@@ -202,11 +206,6 @@ export default function Reports() {
       </div>
     );
   }
-
-  const [selectedHygieneReport, setSelectedHygieneReport] = useState(null);
-  const [selectedLabelReport, setSelectedLabelReport] = useState(null);
-
-  const isLoading = auditsLoading || tempLoading || hygieneLoading || shiftsLoading || reportsLoading || labelsLoading;
 
   if (isLoading) {
     return <LoadingSpinner message="Loading reports data..." />;
