@@ -12,6 +12,7 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/comp
 export default function OperateHome() {
   const [user, setUser] = useState(null);
   const [restaurantState, setRestaurantState] = useState('Not Started');
+  const { dayState } = useDayState();
 
   useEffect(() => {
     base44.auth.me().then(setUser).catch(() => {});
