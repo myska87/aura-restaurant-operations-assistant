@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Checkbox } from '@/components/ui/checkbox';
 import { AlertCircle, CheckCircle2 } from 'lucide-react';
+import FormCompletionBanner from '@/components/operations/FormCompletionBanner';
 import { motion } from 'framer-motion';
 
 const SYMPTOMS = [
@@ -28,6 +29,8 @@ export default function IllnessReportingForm({ user, onSuccess, existingReport }
   const [clearanceDate, setClearanceDate] = useState(existingReport?.clearance_date || '');
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
+  const [completionStatus, setCompletionStatus] = useState(null);
+  const [submittedData, setSubmittedData] = useState(null);
   
   const isManager = user?.role === 'manager' || user?.role === 'owner' || user?.role === 'admin';
 
@@ -62,12 +65,22 @@ export default function IllnessReportingForm({ user, onSuccess, existingReport }
       }
       return data;
     },
-    onSuccess: () => {
+    onSuccess: (data) => {
       setSuccess(true);
+      setSubmittedData(data);
+      
+      // Determine completion status based on manager response
+      let status = 'completed';
+      if (isManager && existingReport && managerResponse === 'pending') {
+        status = 'pending_signoff';
+      }
+      setCompletionStatus(status);
+      
       setTimeout(() => {
         setSuccess(false);
+        setCompletionStatus(null);
         onSuccess?.();
-      }, 2000);
+      }, 3500);
     }
   });
 
@@ -241,16 +254,19 @@ export default function IllnessReportingForm({ user, onSuccess, existingReport }
             </div>
           )}
 
-          {/* Success Message */}
-          {success && (
-            <motion.div
-              initial={{ opacity: 0, y: -10 }}
-              animate={{ opacity: 1, y: 0 }}
-              className="p-4 bg-emerald-50 border border-emerald-400 rounded-lg flex items-center gap-3"
-            >
-              <CheckCircle2 className="w-5 h-5 text-emerald-600" />
-              <span className="font-medium text-emerald-800">Illness report submitted successfully!</span>
-            </motion.div>
+          {/* Completion Status Banner */}
+          {success && completionStatus && (
+            <FormCompletionBanner 
+              status={completionStatus}
+              message={completionStatus === 'pending_signoff'
+                ? '⏳ Completed — Awaiting Manager Review'
+                : '✅ Completed & Logged'}
+              details={completionStatus === 'pending_signoff'
+                ? 'Your illness report has been submitted and is awaiting your manager\'s review and decision.'
+                : submittedData?.manager_response === 'pending'
+                ? 'Your illness report has been recorded and submitted for manager review.'
+                : 'Your illness report and manager decision have been logged.'}
+            />
           )}
 
           {/* Submit Button */}
