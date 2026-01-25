@@ -25,6 +25,7 @@ import { motion } from 'framer-motion';
 
 export default function TrainHome() {
   const [user, setUser] = useState(null);
+  const queryClient = useQueryClient();
 
   useEffect(() => {
     base44.auth.me().then(setUser).catch(() => {});
@@ -41,6 +42,36 @@ export default function TrainHome() {
   const { data: courses = [] } = useQuery({
     queryKey: ['allCourses'],
     queryFn: () => base44.entities.TrainingCourse.list()
+  });
+
+  // Fetch training documents to sign
+  const { data: documents = [] } = useQuery({
+    queryKey: ['trainingDocs', user?.id],
+    queryFn: () => user?.id
+      ? base44.entities.Document.filter({ 
+          document_type: 'policy',
+          assigned_to: user?.email,
+          requires_signature: true 
+        })
+      : [],
+    enabled: !!user?.id
+  });
+
+  // Log document view/sign action
+  const logActionMutation = useMutation({
+    mutationFn: async (data) => {
+      return base44.entities.DocumentSignature.create({
+        document_id: data.documentId,
+        staff_email: user?.email,
+        staff_name: user?.full_name,
+        action: data.action, // 'viewed' or 'signed'
+        timestamp: new Date().toISOString(),
+        ip_address: 'logged' // Placeholder
+      });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['trainingDocs'] });
+    }
   });
 
   const completedCount = progress.filter(p => p.status === 'completed').length;
