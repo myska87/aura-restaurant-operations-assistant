@@ -53,6 +53,12 @@ export default function CleaningHygieneHub() {
     enabled: !!user
   });
 
+  const { data: illnessReports = [] } = useQuery({
+    queryKey: ['illnessReports'],
+    queryFn: () => base44.entities.IllnessReport?.filter?.({ status: 'pending' }) || [],
+    enabled: !!user
+  });
+
   const { data: deepCleaningSchedules = [] } = useQuery({
     queryKey: ['deepCleaningSchedules'],
     queryFn: () => base44.entities.DeepCleaningSchedule?.list?.() || [],
@@ -249,6 +255,44 @@ export default function CleaningHygieneHub() {
             )}
           </CardContent>
         </Card>
+
+        {/* ACTIVE ILLNESS ALERTS */}
+        {illnessReports.length > 0 && (
+          <Card className="border-2 border-red-400 bg-red-50">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2 text-red-900">
+                <AlertTriangle className="w-5 h-5" />
+                🚨 Active Illness Alerts
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-3">
+                {illnessReports.map((report) => (
+                  <div key={report.id} className="p-4 bg-white rounded-lg border-l-4 border-red-600">
+                    <div className="flex items-start justify-between mb-2">
+                      <div className="flex-1">
+                        <p className="font-bold text-red-900">{report.staff_name}</p>
+                        <p className="text-sm text-red-700">
+                          Symptoms: {report.symptoms?.join(', ') || 'Not specified'}
+                        </p>
+                        <p className="text-xs text-slate-600 mt-1">
+                          Started: {report.date_symptoms_started ? format(new Date(report.date_symptoms_started), 'd MMM yyyy') : 'Unknown'}
+                        </p>
+                        {report.doctor_advised && (
+                          <Badge className="bg-red-700 mt-2">Doctor Advised Stay Away</Badge>
+                        )}
+                      </div>
+                      <Badge className="bg-amber-600">PENDING CLEARANCE</Badge>
+                    </div>
+                    <div className="mt-3 p-2 bg-red-100 rounded text-xs text-red-800">
+                      ⚠️ Food handling restricted until manager approval
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+        )}
 
         {/* STAFF HYGIENE DECLARATIONS */}
         <Card>
