@@ -23,6 +23,8 @@ import DailyCheckIn from './pages/DailyCheckIn';
 import DailyOperationsHub from './pages/DailyOperationsHub';
 import Dashboard from './pages/Dashboard';
 import DataManagement from './pages/DataManagement';
+import DeepCleaningSchedule from './pages/DeepCleaningSchedule';
+import Diagnostics from './pages/Diagnostics';
 import DocumentCreator from './pages/DocumentCreator';
 import Documents from './pages/Documents';
 import EquipmentHealth from './pages/EquipmentHealth';
@@ -90,8 +92,6 @@ import WeeklyManagerReportDetail from './pages/WeeklyManagerReportDetail';
 import WeeklyManagerReportForm from './pages/WeeklyManagerReportForm';
 import WeeklyManagerReports from './pages/WeeklyManagerReports';
 import WelcomeVision from './pages/WelcomeVision';
-import DeepCleaningSchedule from './pages/DeepCleaningSchedule';
-import Diagnostics from './pages/Diagnostics';
 import __Layout from './Layout.jsx';
 
 
@@ -121,6 +121,8 @@ export const PAGES = {
     "DailyOperationsHub": DailyOperationsHub,
     "Dashboard": Dashboard,
     "DataManagement": DataManagement,
+    "DeepCleaningSchedule": DeepCleaningSchedule,
+    "Diagnostics": Diagnostics,
     "DocumentCreator": DocumentCreator,
     "Documents": Documents,
     "EquipmentHealth": EquipmentHealth,
@@ -188,8 +190,6 @@ export const PAGES = {
     "WeeklyManagerReportForm": WeeklyManagerReportForm,
     "WeeklyManagerReports": WeeklyManagerReports,
     "WelcomeVision": WelcomeVision,
-    "DeepCleaningSchedule": DeepCleaningSchedule,
-    "Diagnostics": Diagnostics,
 }
 
 export const pagesConfig = {

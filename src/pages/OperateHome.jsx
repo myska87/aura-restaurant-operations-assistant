@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
 import { base44 } from '@/api/base44Client';
+import { useQuery } from '@tanstack/react-query';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -16,7 +17,9 @@ import {
   TrendingUp,
   ShieldAlert,
   AlertCircle,
-  LayoutDashboard
+  LayoutDashboard,
+  CheckCircle2,
+  XCircle
 } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { format } from 'date-fns';
@@ -24,10 +27,93 @@ import TodaysRequiredActions from '@/components/operate/TodaysRequiredActions';
 
 export default function OperateHome() {
   const [user, setUser] = useState(null);
+  const today = format(new Date(), 'yyyy-MM-dd');
 
   useEffect(() => {
     base44.auth.me().then(setUser).catch(() => {});
   }, []);
+
+  // Fetch data for safety status calculation
+  const { data: hygieneDeclarations = [] } = useQuery({
+    queryKey: ['hygieneDeclarations', today],
+    queryFn: () => base44.entities.PersonalHygieneDeclaration.filter({ declaration_date: today }),
+    enabled: !!user
+  });
+
+  const { data: temperatureLogs = [] } = useQuery({
+    queryKey: ['temperatureLogs', today],
+    queryFn: () => base44.entities.TemperatureLog.filter({ log_date: today }),
+    enabled: !!user
+  });
+
+  const { data: cleaningLogs = [] } = useQuery({
+    queryKey: ['cleaningLogs', today],
+    queryFn: () => base44.entities.DailyCleaningLog.filter({ date: today }),
+    enabled: !!user
+  });
+
+  const { data: illnessReports = [] } = useQuery({
+    queryKey: ['illnessReports', 'active'],
+    queryFn: () => base44.entities.IllnessReport.filter({ status: 'pending' }),
+    enabled: !!user
+  });
+
+  // Calculate safety status
+  const calculateSafetyStatus = () => {
+    // RED conditions - critical issues
+    const hasCriticalTempFailure = temperatureLogs.some(log => 
+      log.status === 'fail' || log.is_out_of_range === true
+    );
+    const hasActiveIllness = illnessReports.length > 0;
+    
+    if (hasCriticalTempFailure || hasActiveIllness) {
+      return {
+        status: 'STOP',
+        color: 'red',
+        bgColor: 'bg-red-100',
+        textColor: 'text-red-900',
+        borderColor: 'border-red-500',
+        icon: XCircle,
+        emoji: '🔴',
+        message: hasCriticalTempFailure 
+          ? 'Critical temperature breach detected' 
+          : 'Active illness report on file'
+      };
+    }
+
+    // Check if required tasks are completed
+    const hygieneComplete = hygieneDeclarations.some(d => d.all_clear === true);
+    const tempsLogged = temperatureLogs.length > 0;
+    const cleaningDone = cleaningLogs.some(log => log.status === 'completed' || log.status === 'approved');
+
+    // AMBER - tasks pending
+    if (!hygieneComplete || !tempsLogged || !cleaningDone) {
+      return {
+        status: 'ATTENTION',
+        color: 'amber',
+        bgColor: 'bg-amber-100',
+        textColor: 'text-amber-900',
+        borderColor: 'border-amber-500',
+        icon: AlertTriangle,
+        emoji: '🟡',
+        message: 'Required daily checks pending'
+      };
+    }
+
+    // GREEN - all good
+    return {
+      status: 'SAFE',
+      color: 'green',
+      bgColor: 'bg-emerald-100',
+      textColor: 'text-emerald-900',
+      borderColor: 'border-emerald-500',
+      icon: CheckCircle2,
+      emoji: '🟢',
+      message: 'All safety checks complete'
+    };
+  };
+
+  const safetyStatus = calculateSafetyStatus();
 
   const operateTiles = [
     {
@@ -137,6 +223,34 @@ export default function OperateHome() {
             </Badge>
           </div>
         </div>
+
+        {/* Safety Status Indicator */}
+        {user && (
+          <motion.div
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ duration: 0.3 }}
+          >
+            <Card className={`border-2 ${safetyStatus.borderColor} ${safetyStatus.bgColor} shadow-lg`}>
+              <CardContent className="pt-6 pb-6">
+                <div className="flex items-center gap-4">
+                  <safetyStatus.icon className={`w-10 h-10 ${safetyStatus.textColor} flex-shrink-0`} />
+                  <div className="flex-1">
+                    <div className="flex items-center gap-2 mb-1">
+                      <h3 className={`text-xl font-bold ${safetyStatus.textColor}`}>
+                        Safety Status: {safetyStatus.status}
+                      </h3>
+                      <span className="text-2xl">{safetyStatus.emoji}</span>
+                    </div>
+                    <p className={`text-sm ${safetyStatus.textColor} opacity-90`}>
+                      {safetyStatus.message}
+                    </p>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </motion.div>
+        )}
 
         {/* Welcome Message */}
         {user && (
