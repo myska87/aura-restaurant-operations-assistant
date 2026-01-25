@@ -795,6 +795,7 @@ export default function DailyOperationsHub() {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           {operationTiles.map((tile, idx) => {
             const Icon = tile.icon;
+            const handleClick = tile.onClick || (() => navigate(createPageUrl(tile.page)));
             return (
               <motion.div
                 key={tile.title}
@@ -802,84 +803,43 @@ export default function DailyOperationsHub() {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: idx * 0.05 }}
               >
-                {tile.onClick ? (
-                  <Card 
-                    onClick={tile.onClick}
-                    className="h-full hover:shadow-2xl transition-all cursor-pointer border-2 border-slate-200 hover:border-emerald-400 hover:scale-[1.02] duration-200"
-                  >
-                    <CardContent className="pt-6">
-                      <div className="flex items-start justify-between mb-4">
-                        <div className="flex items-center gap-3">
-                          <div className={`${tile.color} w-14 h-14 rounded-2xl flex items-center justify-center shadow-lg`}>
-                            <Icon className="w-7 h-7 text-white" />
-                          </div>
-                          <div>
-                            <h3 className="text-xl font-bold text-slate-800">{tile.title}</h3>
-                            <p className="text-sm text-slate-500">{tile.description}</p>
-                          </div>
+                <Card 
+                  onClick={handleClick}
+                  className="h-full hover:shadow-2xl transition-all cursor-pointer border-2 border-slate-200 hover:border-emerald-400 hover:scale-[1.02] duration-200"
+                >
+                  <CardContent className="pt-6">
+                    <div className="flex items-start justify-between mb-4">
+                      <div className="flex items-center gap-3">
+                        <div className={`${tile.color} w-14 h-14 rounded-2xl flex items-center justify-center shadow-lg`}>
+                          <Icon className="w-7 h-7 text-white" />
                         </div>
-                        <Badge 
-                          variant={tile.status === 'complete' ? 'default' : 'outline'}
-                          className={tile.status === 'complete' ? 'bg-emerald-500' : 'border-amber-400 text-amber-700'}
-                        >
-                          {tile.status === 'complete' ? '✓' : '⚠'}
-                        </Badge>
+                        <div>
+                          <h3 className="text-xl font-bold text-slate-800">{tile.title}</h3>
+                          <p className="text-sm text-slate-500">{tile.description}</p>
+                        </div>
                       </div>
+                      <Badge 
+                        variant={tile.status === 'complete' ? 'default' : 'outline'}
+                        className={tile.status === 'complete' ? 'bg-emerald-500' : 'border-amber-400 text-amber-700'}
+                      >
+                        {tile.status === 'complete' ? '✓' : '⚠'}
+                      </Badge>
+                    </div>
 
-                      {tile.progress !== undefined && (
-                        <Progress value={tile.progress} className="h-2 mb-3" />
+                    {tile.progress !== undefined && (
+                      <Progress value={tile.progress} className="h-2 mb-3" />
+                    )}
+
+                    <div className="flex items-center justify-between">
+                      <p className="text-sm text-slate-600">{tile.count}</p>
+                      {tile.lastUpdate && (
+                        <p className="text-xs text-slate-400">
+                          Updated {format(new Date(tile.lastUpdate), 'HH:mm')}
+                        </p>
                       )}
-
-                      <div className="flex items-center justify-between">
-                        <p className="text-sm text-slate-600">{tile.count}</p>
-                        {tile.lastUpdate && (
-                          <p className="text-xs text-slate-400">
-                            Updated {format(new Date(tile.lastUpdate), 'HH:mm')}
-                          </p>
-                        )}
-                      </div>
-                    </CardContent>
-                  </Card>
-                ) : (
-                  <Link to={createPageUrl(tile.page)}>
-                    <Card 
-                      className="h-full hover:shadow-2xl transition-all cursor-pointer border-2 border-slate-200 hover:border-emerald-400 hover:scale-[1.02] duration-200"
-                    >
-                      <CardContent className="pt-6">
-                        <div className="flex items-start justify-between mb-4">
-                          <div className="flex items-center gap-3">
-                            <div className={`${tile.color} w-14 h-14 rounded-2xl flex items-center justify-center shadow-lg`}>
-                              <Icon className="w-7 h-7 text-white" />
-                            </div>
-                            <div>
-                              <h3 className="text-xl font-bold text-slate-800">{tile.title}</h3>
-                              <p className="text-sm text-slate-500">{tile.description}</p>
-                            </div>
-                          </div>
-                          <Badge 
-                            variant={tile.status === 'complete' ? 'default' : 'outline'}
-                            className={tile.status === 'complete' ? 'bg-emerald-500' : 'border-amber-400 text-amber-700'}
-                          >
-                            {tile.status === 'complete' ? '✓' : '⚠'}
-                          </Badge>
-                        </div>
-
-                        {tile.progress !== undefined && (
-                          <Progress value={tile.progress} className="h-2 mb-3" />
-                        )}
-
-                        <div className="flex items-center justify-between">
-                          <p className="text-sm text-slate-600">{tile.count}</p>
-                          {tile.lastUpdate && (
-                            <p className="text-xs text-slate-400">
-                              Updated {format(new Date(tile.lastUpdate), 'HH:mm')}
-                            </p>
-                          )}
-                        </div>
-                      </CardContent>
-                    </Card>
-                  </Link>
-                )}
+                    </div>
+                  </CardContent>
+                </Card>
               </motion.div>
             );
           })}
