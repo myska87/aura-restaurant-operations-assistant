@@ -52,12 +52,7 @@ export function ModeProvider({ children }) {
 export function useMode() {
   const context = useContext(ModeContext);
   if (!context) {
-    console.error('useMode must be used within ModeProvider');
-    return {
-      currentMode: MODES.OPERATE,
-      setCurrentMode: () => console.warn('setCurrentMode called outside ModeProvider'),
-      canAccessMode: () => true
-    };
+    throw new Error('useMode must be used within ModeProvider');
   }
   return context;
 }

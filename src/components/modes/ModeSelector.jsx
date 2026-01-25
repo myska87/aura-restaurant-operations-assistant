@@ -9,8 +9,6 @@ export default function ModeSelector({ user }) {
   const [showConfirm, setShowConfirm] = useState(false);
   const [targetMode, setTargetMode] = useState(null);
 
-  if (!user) return null;
-
   const handleModeSwitch = (mode) => {
     if (mode === currentMode) return;
     if (!canAccessMode(mode, user?.role)) return;
@@ -20,9 +18,7 @@ export default function ModeSelector({ user }) {
   };
 
   const confirmSwitch = () => {
-    if (targetMode) {
-      setCurrentMode(targetMode);
-    }
+    setCurrentMode(targetMode);
     setShowConfirm(false);
     setTargetMode(null);
   };

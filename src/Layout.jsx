@@ -52,14 +52,11 @@ import { ModeProvider, useMode, MODES } from '@/components/modes/ModeContext';
 import ModeSelector from '@/components/modes/ModeSelector';
 import ErrorBoundary from '@/components/ErrorBoundary';
 import RouteGuard from '@/components/RouteGuard';
-import { DayStateProvider } from '@/components/daystate/DayStateContext';
 
 const navGroups = [
   {
     title: 'Live Operations',
     items: [
-      { name: 'Daily', icon: LayoutDashboard, page: 'DailyOperationsHub', roles: ['all'], modes: ['operate'] },
-      { name: 'Daily Operations', icon: LayoutDashboard, page: 'OperateHome', roles: ['all'], modes: ['operate'] },
       { name: 'Command Center', icon: LayoutDashboard, page: 'CommandCenter', roles: ['all'], modes: ['manage'] },
       { name: 'Cleaning & Hygiene', icon: Droplet, page: 'CleaningHygieneHub', roles: ['all'], modes: ['operate'] },
       { name: 'Sign-Off Log', icon: Shield, page: 'CleaningSignOffLog', roles: ['manager', 'owner', 'admin'], modes: ['manage'] },
@@ -523,11 +520,9 @@ function LayoutContent({ children, currentPageName }) {
 export default function Layout({ children, currentPageName }) {
   return (
     <ErrorBoundary currentPageName={currentPageName}>
-      <DayStateProvider>
-        <ModeProvider>
-          <LayoutContent children={children} currentPageName={currentPageName} />
-        </ModeProvider>
-      </DayStateProvider>
+      <ModeProvider>
+        <LayoutContent children={children} currentPageName={currentPageName} />
+      </ModeProvider>
     </ErrorBoundary>
   );
 }

@@ -36,7 +36,6 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import LoadingSpinner from '@/components/ui/LoadingSpinner';
 import ChecklistModal from '@/components/operations/ChecklistModal';
 import TemperatureLog from '@/components/operations/TemperatureLog';
-import TemperatureLogsTable from '@/components/operations/TemperatureLogsTable';
 import DailyBriefingForm from '@/components/operations/DailyBriefingForm';
 import ShiftHandoverChecklist from '@/components/operations/ShiftHandoverChecklist';
 import LabelPrintingModal from '@/components/operations/LabelPrintingModal';
@@ -53,7 +52,6 @@ import HygieneCheckForm from '@/components/cleaning/HygieneCheckForm';
 import OperationCard from '@/components/operate/OperationCard';
 import MidServiceChecksPanel from '@/components/operate/MidServiceChecksPanel';
 import { AnimatePresence } from 'framer-motion';
-import { FEATURE_FLAGS, isFeatureEnabled } from '@/components/utils/featureFlags';
 
 export default function DailyOperationsHub() {
   const [user, setUser] = useState(null);
@@ -187,22 +185,6 @@ export default function DailyOperationsHub() {
       status: 'completed'
     }),
     enabled: !!user
-  });
-
-  // Fetch tasks with role-based visibility
-  const { data: allTasks = [] } = useQuery({
-    queryKey: ['tasks'],
-    queryFn: () => base44.entities.Task.list(),
-    enabled: !!user
-  });
-
-  // Filter tasks by role
-  const visibleTasks = allTasks.filter(task => {
-    if (user?.role === 'manager' || user?.role === 'admin') {
-      return true; // Managers see all tasks
-    }
-    // Regular staff and chefs see only tasks for their role
-    return task.required_role === user?.role || task.required_role === 'staff';
   });
 
   const handoverMutation = useMutation({
@@ -749,27 +731,6 @@ export default function DailyOperationsHub() {
         {/* Mid-Service Mandatory Checks */}
         {myCheckIn && <MidServiceChecksPanel user={user} shiftDate={today} />}
 
-        {/* My Tasks - Role-Filtered */}
-        {visibleTasks.length > 0 && (
-          <Card className="border border-slate-200">
-            <CardContent className="pt-6">
-              <h3 className="font-bold text-lg mb-4">My Tasks ({visibleTasks.length})</h3>
-              <div className="space-y-2">
-                {visibleTasks.map(task => (
-                  <div key={task.id} className="p-3 bg-slate-50 border border-slate-200 rounded-lg flex items-start gap-3">
-                    <div className="w-2 h-2 rounded-full bg-blue-500 mt-2 flex-shrink-0" />
-                    <div className="flex-1 min-w-0">
-                      <p className="font-semibold text-slate-900">{task.title}</p>
-                      <p className="text-sm text-slate-600">{task.description}</p>
-                      <Badge variant="outline" className="mt-2 text-xs capitalize">{task.required_role}</Badge>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </CardContent>
-          </Card>
-        )}
-
         {/* Opening, Closing, Briefing & Handover Buttons */}
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
           <div className="space-y-2">
@@ -960,48 +921,6 @@ export default function DailyOperationsHub() {
           </motion.div>
         )}
 
-        {/* Smart Alerts Placeholder - Feature Flag */}
-        {isFeatureEnabled(FEATURE_FLAGS.SMART_ALERTS) && (
-          <Card className="border border-slate-200 bg-slate-50/50 opacity-60">
-            <CardContent className="pt-6">
-              <div className="flex items-center gap-3 mb-3">
-                <AlertCircle className="w-5 h-5 text-slate-400" />
-                <h3 className="font-semibold text-slate-600">Smart Alerts</h3>
-                <Badge variant="outline" className="ml-auto text-xs">Coming Soon</Badge>
-              </div>
-              <p className="text-sm text-slate-500">Intelligent alerts based on real-time data analysis.</p>
-            </CardContent>
-          </Card>
-        )}
-
-        {/* Performance Insights Placeholder - Feature Flag */}
-        {isFeatureEnabled(FEATURE_FLAGS.PERFORMANCE_INSIGHTS) && (
-          <Card className="border border-slate-200 bg-slate-50/50 opacity-60">
-            <CardContent className="pt-6">
-              <div className="flex items-center gap-3 mb-3">
-                <TrendingUp className="w-5 h-5 text-slate-400" />
-                <h3 className="font-semibold text-slate-600">Performance Insights</h3>
-                <Badge variant="outline" className="ml-auto text-xs">Coming Soon</Badge>
-              </div>
-              <p className="text-sm text-slate-500">Deep insights into team and operational performance metrics.</p>
-            </CardContent>
-          </Card>
-        )}
-
-        {/* Predictive Warnings Placeholder - Feature Flag */}
-        {isFeatureEnabled(FEATURE_FLAGS.PREDICTIVE_WARNINGS) && (
-          <Card className="border border-slate-200 bg-slate-50/50 opacity-60">
-            <CardContent className="pt-6">
-              <div className="flex items-center gap-3 mb-3">
-                <AlertCircle className="w-5 h-5 text-slate-400" />
-                <h3 className="font-semibold text-slate-600">Predictive Warnings</h3>
-                <Badge variant="outline" className="ml-auto text-xs">Coming Soon</Badge>
-              </div>
-              <p className="text-sm text-slate-500">AI-powered predictions for operational risks and issues.</p>
-            </CardContent>
-          </Card>
-        )}
-
         {/* Operations Grid - Fast & Action-Focused */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
           {operationTiles.map((tile, idx) => (
@@ -1044,9 +963,16 @@ export default function DailyOperationsHub() {
         />
 
         {/* Temperature Logging Component */}
-        {showTempAssets && (
-          <TemperatureLogsTable user={user} onClose={() => setShowTempAssets(false)} />
-        )}
+        <Dialog open={showTempAssets} onOpenChange={setShowTempAssets}>
+          <DialogContent className="max-w-7xl h-[90vh] overflow-hidden flex flex-col">
+            <DialogHeader>
+              <DialogTitle>Temperature Logs</DialogTitle>
+            </DialogHeader>
+            <div className="flex-1 overflow-y-auto">
+              <TemperatureLog user={user} />
+            </div>
+          </DialogContent>
+        </Dialog>
 
         {/* Daily Briefing Form */}
         <DailyBriefingForm
