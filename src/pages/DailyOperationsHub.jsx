@@ -46,6 +46,7 @@ import CCPEnforcement from '@/components/operations/CCPEnforcement';
 import ServiceLockdownNotice from '@/components/operations/ServiceLockdownNotice';
 import HotHoldingForm from '@/components/operations/HotHoldingForm';
 import PersonalHygieneDeclarationForm from '@/components/hygiene/PersonalHygieneDeclarationForm';
+import HygieneCheckForm from '@/components/cleaning/HygieneCheckForm';
 
 export default function DailyOperationsHub() {
   const [user, setUser] = useState(null);
@@ -61,6 +62,7 @@ export default function DailyOperationsHub() {
   const [activeCCP, setActiveCCP] = useState(null);
   const [showHotHoldingForm, setShowHotHoldingForm] = useState(false);
   const [showHygieneDeclaration, setShowHygieneDeclaration] = useState(false);
+  const [showHygieneCheck, setShowHygieneCheck] = useState(false);
   const [blockedMenuItems, setBlockedMenuItems] = useState([]);
   const [failedCCPs, setFailedCCPs] = useState([]);
   const [clockInBlocked, setClockInBlocked] = useState(false);
@@ -158,6 +160,15 @@ export default function DailyOperationsHub() {
       staff_email: user?.email 
     }) || [],
     enabled: !!user?.email
+  });
+
+  const { data: dailyHygieneChecks = [] } = useQuery({
+    queryKey: ['dailyHygieneChecks', today],
+    queryFn: () => base44.entities.DailyCleaningLog.filter({ 
+      date: today,
+      area: 'Hygiene Check'
+    }),
+    enabled: !!user
   });
 
   const handoverMutation = useMutation({
@@ -483,6 +494,16 @@ export default function DailyOperationsHub() {
   if (!user) return <LoadingSpinner />;
 
   const operationTiles = [
+    {
+      title: 'Daily Hygiene Check',
+      description: 'Morning mandatory hygiene inspection',
+      icon: Droplet,
+      color: 'bg-cyan-500',
+      onClick: () => setShowHygieneCheck(true),
+      status: dailyHygieneChecks.length > 0 ? 'complete' : 'pending',
+      count: dailyHygieneChecks.length > 0 ? '✓ Completed' : 'Not completed',
+      lastUpdate: dailyHygieneChecks[0]?.created_date
+    },
     {
       title: 'Daily Check-In',
       description: 'Opening & closing checklists',
@@ -1023,6 +1044,25 @@ export default function DailyOperationsHub() {
           user={user}
           today={today}
         />
+
+        {/* Daily Hygiene Check Form */}
+        <Dialog open={showHygieneCheck} onOpenChange={setShowHygieneCheck}>
+          <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
+            <DialogHeader>
+              <DialogTitle>Daily Hygiene Check</DialogTitle>
+            </DialogHeader>
+            {user && (
+              <HygieneCheckForm
+                user={user}
+                onSuccess={() => {
+                  queryClient.invalidateQueries(['dailyHygieneChecks']);
+                  setShowHygieneCheck(false);
+                }}
+                onCancel={() => setShowHygieneCheck(false)}
+              />
+            )}
+          </DialogContent>
+        </Dialog>
 
         {/* Personal Hygiene Declaration Modal */}
         <Dialog open={showHygieneDeclaration} onOpenChange={setShowHygieneDeclaration}>
