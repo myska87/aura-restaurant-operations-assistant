@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { base44 } from '@/api/base44Client';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -11,12 +11,15 @@ import { createPageUrl } from '@/utils';
 import { format } from 'date-fns';
 import PersonalHygieneDeclarationForm from '@/components/hygiene/PersonalHygieneDeclarationForm';
 import TemperatureLog from '@/components/operations/TemperatureLog';
+import HygieneCheckForm from '@/components/cleaning/HygieneCheckForm';
 
 export default function TodaysRequiredActions({ user }) {
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
   const today = format(new Date(), 'yyyy-MM-dd');
   const [hygieneDialogOpen, setHygieneDialogOpen] = useState(false);
   const [tempLogDialogOpen, setTempLogDialogOpen] = useState(false);
+  const [hygieneCheckDialogOpen, setHygieneCheckDialogOpen] = useState(false);
 
   // Fetch today's hygiene declaration
   const { data: hygieneDeclarations = [] } = useQuery({
@@ -53,6 +56,16 @@ export default function TodaysRequiredActions({ user }) {
     enabled: true
   });
 
+  // Fetch today's hygiene check (specific check from cleaning logs)
+  const { data: hygieneChecks = [] } = useQuery({
+    queryKey: ['hygieneChecks', today],
+    queryFn: () => base44.entities.DailyCleaningLog.filter({
+      date: today,
+      area: 'Hygiene Check'
+    }),
+    enabled: true
+  });
+
   const actions = [];
 
   // Personal Hygiene Declaration
@@ -81,15 +94,14 @@ export default function TodaysRequiredActions({ user }) {
     detailsAction: () => navigate(createPageUrl('Operations'))
   });
 
-  // Daily Cleaning Tasks
-  const cleaningComplete = cleaningLogs.length >= 5; // Assume 5 required daily
+  // Daily Cleaning Tasks / Hygiene Check
+  const hygieneCheckComplete = hygieneChecks.length > 0;
   actions.push({
     id: 'cleaning',
     title: 'Daily Cleaning Tasks',
-    status: cleaningComplete ? 'complete' : 'pending',
+    status: hygieneCheckComplete ? 'complete' : 'pending',
     dueTime: 'End of shift',
-    count: cleaningLogs.length,
-    action: () => navigate(createPageUrl('CleaningHygieneHub')),
+    action: () => setHygieneCheckDialogOpen(true),
     detailsAction: () => navigate(createPageUrl('CleaningHygieneHub'))
   });
 
@@ -207,6 +219,24 @@ export default function TodaysRequiredActions({ user }) {
             <DialogTitle>Temperature Logs</DialogTitle>
           </DialogHeader>
           <TemperatureLog onClose={() => setTempLogDialogOpen(false)} />
+        </DialogContent>
+      </Dialog>
+
+      {/* Hygiene Check Dialog */}
+      <Dialog open={hygieneCheckDialogOpen} onOpenChange={setHygieneCheckDialogOpen}>
+        <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>Daily Hygiene Check</DialogTitle>
+          </DialogHeader>
+          <HygieneCheckForm
+            user={user}
+            onSuccess={() => {
+              setHygieneCheckDialogOpen(false);
+              queryClient.invalidateQueries(['hygieneChecks']);
+              queryClient.invalidateQueries(['cleaningLogs']);
+            }}
+            onCancel={() => setHygieneCheckDialogOpen(false)}
+          />
         </DialogContent>
       </Dialog>
     </Card>
