@@ -964,16 +964,9 @@ export default function DailyOperationsHub() {
         />
 
         {/* Temperature Logging Component */}
-        <Dialog open={showTempAssets} onOpenChange={setShowTempAssets}>
-          <DialogContent className="max-w-7xl h-[90vh] overflow-hidden flex flex-col">
-            <DialogHeader>
-              <DialogTitle>Temperature Logs</DialogTitle>
-            </DialogHeader>
-            <div className="flex-1 overflow-y-auto">
-              <TemperatureLog user={user} />
-            </div>
-          </DialogContent>
-        </Dialog>
+        {showTempAssets && (
+          <TemperatureLogsTable user={user} onClose={() => setShowTempAssets(false)} />
+        )}
 
         {/* Daily Briefing Form */}
         <DailyBriefingForm
