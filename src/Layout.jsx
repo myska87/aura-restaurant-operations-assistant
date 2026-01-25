@@ -51,6 +51,7 @@ import QuickAccessToolbar from '@/components/ui/QuickAccessToolbar';
 import { ModeProvider, useMode, MODES } from '@/components/modes/ModeContext';
 import ModeSelector from '@/components/modes/ModeSelector';
 import ErrorBoundary from '@/components/ErrorBoundary';
+import RouteGuard from '@/components/RouteGuard';
 
 const navGroups = [
   {
@@ -116,11 +117,6 @@ function LayoutContent({ children, currentPageName }) {
       try {
         const userData = await base44.auth.me();
         setUser(userData);
-        
-        // First-login onboarding redirect
-        if (userData && !userData.onboarding_completed && currentPageName !== 'OnboardingFlow') {
-          navigate(createPageUrl('OnboardingFlow'));
-        }
       } catch (e) {
         console.log('User not authenticated');
       }
@@ -427,17 +423,19 @@ function LayoutContent({ children, currentPageName }) {
       {/* Main Content */}
       <main className="lg:pl-72 pt-16 lg:pt-16 min-h-screen pb-24" style={{ paddingTop: window.innerWidth < 1024 ? '120px' : '64px' }}>
         <div className="p-4 md:p-6 lg:p-8">
-          <AnimatePresence mode="wait">
-            <motion.div
-              key={currentPageName}
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -10 }}
-              transition={{ duration: 0.2 }}
-            >
-              {children}
-            </motion.div>
-          </AnimatePresence>
+          <RouteGuard currentPageName={currentPageName}>
+            <AnimatePresence mode="wait">
+              <motion.div
+                key={currentPageName}
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -10 }}
+                transition={{ duration: 0.2 }}
+              >
+                {children}
+              </motion.div>
+            </AnimatePresence>
+          </RouteGuard>
         </div>
       </main>
 
