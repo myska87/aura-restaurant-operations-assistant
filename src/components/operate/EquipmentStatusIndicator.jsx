@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
@@ -15,22 +15,12 @@ const CRITICAL_EQUIPMENT = [
   { id: 'reach_in_fridge', label: '❄️ Reach-in Fridge', icon: '❄️', requiredDuringService: false, criticalForClosing: false }
 ];
 
-export default function EquipmentStatusIndicator({ myCheckIn, myClosingCompletion, onOpenClosing }) {
-  // State to track equipment status - can be toggled by user
-  const [equipmentStatus, setEquipmentStatus] = useState({
-    dishwasher: myCheckIn ? 'on' : 'off',
-    gas_interlock: myCheckIn ? 'on' : 'off',
-    hood: myCheckIn ? 'on' : 'off',
-    combi_oven: myCheckIn ? 'on' : 'off',
-    reach_in_fridge: myCheckIn ? 'on' : 'off'
-  });
-
-  // Toggle equipment status
-  const toggleEquipment = (equipmentId) => {
-    setEquipmentStatus(prev => ({
-      ...prev,
-      [equipmentId]: prev[equipmentId] === 'on' ? 'off' : 'on'
-    }));
+export default function EquipmentStatusIndicator({ myCheckIn, myClosingCompletion, onOpenClosing, openingFormAnswers = {} }) {
+  // Get equipment status from opening form answers
+  const getEquipmentStatus = (equipmentId) => {
+    // Check if equipment was checked in the opening form
+    const answer = openingFormAnswers[equipmentId];
+    return answer === 'yes' ? 'on' : 'off';
   };
 
   // Check if critical equipment is properly set for service state
