@@ -128,7 +128,7 @@ export default function PersonalHygieneDeclarationForm({ user, shiftDate, onSucc
             {/* Info */}
             <div className="p-3 bg-blue-50 rounded-lg border border-blue-200">
               <p className="text-sm text-blue-900">
-                <strong>Date:</strong> {format(new Date(shiftDate), 'd MMMM yyyy')} | 
+                <strong>Date:</strong> {shiftDate ? format(new Date(shiftDate), 'd MMMM yyyy') : format(new Date(), 'd MMMM yyyy')} | 
                 <strong className="ml-4">Time:</strong> {format(new Date(), 'HH:mm')}
               </p>
             </div>

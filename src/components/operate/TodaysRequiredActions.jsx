@@ -190,8 +190,12 @@ export default function TodaysRequiredActions({ user }) {
             <DialogTitle>Personal Hygiene Declaration</DialogTitle>
           </DialogHeader>
           <PersonalHygieneDeclarationForm 
-            user={user} 
-            onComplete={() => setHygieneDialogOpen(false)} 
+            user={user}
+            shiftDate={today}
+            onSuccess={() => {
+              setHygieneDialogOpen(false);
+              queryClient.invalidateQueries(['hygieneDeclarations']);
+            }}
           />
         </DialogContent>
       </Dialog>
