@@ -262,8 +262,10 @@ export default function DailyOperationsHub() {
     mutationFn: (data) => base44.entities.DailyCheckIn.create(data),
     onSuccess: () => {
       queryClient.invalidateQueries(['checkIns']);
-      // Show hygiene declaration instead of opening checklist
-      setShowHygieneDeclaration(true);
+      // Auto-open opening checklist after successful check-in
+      if (openingChecklists.length > 0) {
+        setTimeout(() => openChecklist('opening'), 500);
+      }
     }
   });
 
@@ -424,6 +426,19 @@ export default function DailyOperationsHub() {
 
   const handleStartShift = () => {
     if (!user?.email) return;
+    
+    // Check if hygiene declaration exists for today
+    const todayDeclaration = hygieneDeclarations.find(d => 
+      d.staff_email === user.email && 
+      d.shift_date === today
+    );
+    
+    if (!todayDeclaration) {
+      // Block clock-in, show hygiene declaration modal
+      alert('⚠️ Hygiene Declaration Required\n\nYou must complete your Personal Hygiene Declaration before starting your shift.');
+      setShowHygieneDeclaration(true);
+      return;
+    }
     
     checkInMutation.mutate({
       staff_name: user?.full_name || user?.email,
@@ -1011,9 +1026,12 @@ export default function DailyOperationsHub() {
 
         {/* Personal Hygiene Declaration Modal */}
         <Dialog open={showHygieneDeclaration} onOpenChange={setShowHygieneDeclaration}>
-          <DialogContent className="max-w-2xl max-h-96 overflow-y-auto">
+          <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
             <DialogHeader>
-              <DialogTitle>Personal Hygiene Declaration</DialogTitle>
+              <DialogTitle>Personal Hygiene Declaration Required</DialogTitle>
+              <p className="text-sm text-slate-600 mt-2">
+                Complete this declaration to confirm you're fit to handle food before starting your shift.
+              </p>
             </DialogHeader>
             {user && (
               <PersonalHygieneDeclarationForm 
@@ -1022,11 +1040,9 @@ export default function DailyOperationsHub() {
                 onBlockClockIn={(blocked) => setClockInBlocked(blocked)}
                 onSuccess={() => {
                   setShowHygieneDeclaration(false);
-                  // Auto-open opening checklist after hygiene declaration
-                  if (openingChecklists.length > 0) {
-                    setTimeout(() => setShowOpeningChecklist(true), 500);
-                  }
                   queryClient.invalidateQueries(['hygieneDeclarations']);
+                  // Now allow clock-in
+                  setTimeout(() => handleStartShift(), 500);
                 }}
               />
             )}
