@@ -243,11 +243,19 @@ export default function DailyOperationsHub() {
     enabled: !!user
   });
 
-  // Get dishwasher status
+  // Get dishwasher status from checklist answers
   const latestCompletion = todayCompletions.sort((a, b) => 
     new Date(b.created_date) - new Date(a.created_date)
   )[0];
-  const dishwasherStatus = latestCompletion?.dishwasher_status || 'off';
+  
+  // Check if any checklist has a dishwasher-related answer
+  const dishwasherAnswer = latestCompletion?.answers?.find(a => 
+    a.question_text?.toLowerCase().includes('dishwasher') || 
+    a.item_id?.toLowerCase().includes('dishwasher')
+  );
+  
+  // Status is 'on' if dishwasher was turned on (yes), 'off' if turned off (no) or not answered
+  const dishwasherStatus = dishwasherAnswer?.answer === 'yes' ? 'on' : 'off';
 
   // Check-in mutation
   const checkInMutation = useMutation({
