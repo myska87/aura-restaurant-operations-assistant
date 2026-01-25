@@ -72,22 +72,19 @@ export default function EquipmentStatusIndicator({ myCheckIn, myClosingCompletio
           </div>
         </div>
 
-        {/* Equipment Status Grid - Click to Toggle */}
+        {/* Equipment Status Grid - From Opening Form */}
         <div className="grid grid-cols-2 md:grid-cols-5 gap-3 mb-6">
           {CRITICAL_EQUIPMENT.map((eq) => {
-            const status = equipmentStatus[eq.id];
-            const isOn = status === 'on';
+            const isOn = getEquipmentStatus(eq.id) === 'on';
             const shouldBeOn = myCheckIn && eq.requiredDuringService;
             const shouldBeOff = !myCheckIn && eq.criticalForClosing;
             const isCorrect = (shouldBeOn && isOn) || (shouldBeOff && !isOn);
 
             return (
-              <motion.button
+              <motion.div
                 key={eq.id}
                 whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-                onClick={() => toggleEquipment(eq.id)}
-                className={`p-3 rounded-lg border-2 transition-all cursor-pointer ${
+                className={`p-3 rounded-lg border-2 transition-all ${
                   isCorrect
                     ? 'border-emerald-300 bg-emerald-500 bg-opacity-30'
                     : 'border-red-300 bg-red-500 bg-opacity-30'
@@ -104,8 +101,7 @@ export default function EquipmentStatusIndicator({ myCheckIn, myClosingCompletio
                 <p className="text-xs font-bold text-white">
                   {isOn ? '⚡ ON' : '⭘ OFF'}
                 </p>
-                <p className="text-xs text-white opacity-70 mt-1">Click to toggle</p>
-              </motion.button>
+              </motion.div>
             );
           })}
         </div>
