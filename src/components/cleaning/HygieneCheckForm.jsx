@@ -15,21 +15,32 @@ const HYGIENE_CHECKS = [
     id: 'general_hygiene',
     icon: Sparkles,
     title: '🧼 General Hygiene',
-    description: 'All surfaces sanitized and wiped down, floors mopped and free of debris, bins emptied and cleaned, hand wash stations fully stocked with soap and paper towels, and all staff wearing clean uniforms with proper PPE.',
+    label: 'General hygiene standards confirmed',
+    description: 'All surfaces are sanitised, floors are clean, bins are emptied, and hand wash stations are fully stocked and ready for service.',
     color: 'bg-blue-500'
   },
   {
     id: 'food_safety',
     icon: UtensilsCrossed,
     title: '🍴 Food Safety',
-    description: 'All food items properly covered and labeled with dates, cold chain maintained (fridges/freezers at safe temps), hot food held above 63°C, raw and cooked foods separated to prevent cross-contamination, and allergen procedures followed with clear labeling.',
+    label: 'Food safety standards confirmed',
+    description: 'All food is covered and labelled correctly, cold chain is maintained, hot food is held above 63°C, and raw and cooked foods are properly separated.',
     color: 'bg-emerald-500'
+  },
+  {
+    id: 'allergen_procedures',
+    icon: FileText,
+    title: '🧴 Allergen Procedures',
+    label: 'Allergen procedures confirmed',
+    description: 'Allergen controls are in place, cross-contamination risks are managed, and staff are following allergen handling procedures.',
+    color: 'bg-amber-500'
   },
   {
     id: 'cleaning_records',
     icon: FileText,
-    title: '🧴 Cleaning Records',
-    description: 'Daily cleaning log signed and completed, deep clean schedule reviewed and up to date, pest control documentation current with no issues, and waste segregation bins correctly labeled and in use.',
+    title: '📋 Cleaning Records',
+    label: 'Cleaning records verified',
+    description: 'Daily cleaning log is signed, deep clean schedule checked, pest control status verified, and waste is correctly segregated.',
     color: 'bg-purple-500'
   }
 ];
@@ -109,7 +120,7 @@ export default function HygieneCheckForm({ user, onSuccess, onCancel }) {
           </Badge>
         </CardTitle>
         <p className="text-sm text-slate-600 mt-2">
-          Complete all hygiene checks to ensure safe food handling operations
+          Morning Mandatory Checks – Complete before service
         </p>
       </CardHeader>
       <CardContent className="pt-6">
@@ -137,23 +148,28 @@ export default function HygieneCheckForm({ user, onSuccess, onCancel }) {
                     className="mt-1"
                   />
                   <div className="flex-1">
-                    <div className="flex items-center gap-3 mb-2">
+                    <div className="flex items-center gap-3 mb-3">
                       <div className={`${check.color} w-10 h-10 rounded-lg flex items-center justify-center`}>
                         <Icon className="w-5 h-5 text-white" />
                       </div>
-                      <h3 className="text-lg font-bold text-slate-900">{check.title}</h3>
+                      <div className="flex-1">
+                        <h3 className="text-lg font-bold text-slate-900">{check.title}</h3>
+                        <p className="text-sm font-medium text-slate-800 mt-1">{check.label}</p>
+                      </div>
                       {isChecked && <CheckCircle2 className="w-5 h-5 text-emerald-600 ml-auto" />}
                     </div>
-                    <p className="text-sm text-slate-700 leading-relaxed mb-3">
+                    <p className="text-sm text-slate-600 leading-relaxed mb-3 pl-[52px]">
                       {check.description}
                     </p>
-                    <Textarea
-                      value={notes[check.id] || ''}
-                      onChange={(e) => setNotes(prev => ({ ...prev, [check.id]: e.target.value }))}
-                      placeholder="Add any notes or observations (optional)..."
-                      rows={2}
-                      className="text-sm"
-                    />
+                    <div className="pl-[52px]">
+                      <Textarea
+                        value={notes[check.id] || ''}
+                        onChange={(e) => setNotes(prev => ({ ...prev, [check.id]: e.target.value }))}
+                        placeholder="Add any notes or observations (optional)..."
+                        rows={2}
+                        className="text-sm"
+                      />
+                    </div>
                   </div>
                 </div>
               </motion.div>
