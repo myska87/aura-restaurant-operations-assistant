@@ -36,6 +36,7 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import LoadingSpinner from '@/components/ui/LoadingSpinner';
 import ChecklistModal from '@/components/operations/ChecklistModal';
 import TemperatureLog from '@/components/operations/TemperatureLog';
+import TemperatureLogsTable from '@/components/operations/TemperatureLogsTable';
 import DailyBriefingForm from '@/components/operations/DailyBriefingForm';
 import ShiftHandoverChecklist from '@/components/operations/ShiftHandoverChecklist';
 import LabelPrintingModal from '@/components/operations/LabelPrintingModal';
