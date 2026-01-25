@@ -82,25 +82,19 @@ export default function HotHoldingForm({ open, onClose, user, today }) {
         checklist_category: 'hot_holding',
         date: today,
         shift: new Date().getHours() >= 12 ? 'Service' : 'Prep',
-        user_id: user?.id,
-        user_name: user?.full_name || user?.email,
-        user_email: user?.email,
+        user_id: user?.id || 'unknown',
+        user_name: user?.full_name || user?.email || 'Staff',
+        user_email: user?.email || 'unknown@restaurant.com',
         answers: items.map(item => ({
-          item_id: item.id,
+          item_id: String(item.id),
           question_text: `Hot holding temperature for: ${item.name}`,
           question_type: 'temperature',
           answer: `${item.temperature}°C @ ${item.time}`,
           notes: `Status: ${item.status === 'compliant' ? '✓ Compliant' : '✗ Non-Compliant (Below 63°C)'}`
         })),
-        completion_percentage: ((passedItems / items.length) * 100) || 0,
-        failed_items: items.filter(i => i.status === 'non_compliant').map(i => i.id),
-        status: failedItems > 0 ? 'pending_review' : 'completed',
-        metadata: {
-          hot_holding_items: items,
-          minimum_temp: minimumTemp,
-          passed: passedItems,
-          failed: failedItems
-        }
+        completion_percentage: Math.round((passedItems / items.length) * 100) || 0,
+        failed_items: items.filter(i => i.status === 'non_compliant').map(i => String(i.id)),
+        status: failedItems > 0 ? 'pending_review' : 'completed'
       });
 
       alert(`✅ Hot Holding Log recorded\n${passedItems} items compliant, ${failedItems} require attention`);
@@ -110,7 +104,7 @@ export default function HotHoldingForm({ open, onClose, user, today }) {
       onClose();
     } catch (error) {
       console.error('Error saving hot holding log:', error);
-      alert('❌ Error saving hot holding log');
+      alert(`❌ Error: ${error.message || 'Failed to save hot holding log'}`);
     } finally {
       setSaving(false);
     }
