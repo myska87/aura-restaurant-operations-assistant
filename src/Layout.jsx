@@ -413,6 +413,33 @@ function LayoutContent({ children, currentPageName }) {
             Back
           </Button>
           <div className="h-6 w-px bg-slate-300" />
+          <div className="flex items-center gap-2">
+            <Button
+              variant={currentPageName?.includes('Operate') ? 'default' : 'ghost'}
+              size="sm"
+              onClick={() => navigate(createPageUrl('OperateHome'))}
+              className="pointer-events-auto"
+            >
+              Operate
+            </Button>
+            <Button
+              variant={currentPageName?.includes('Train') ? 'default' : 'ghost'}
+              size="sm"
+              onClick={() => navigate(createPageUrl('TrainHome'))}
+              className="pointer-events-auto"
+            >
+              Train
+            </Button>
+            <Button
+              variant={currentPageName?.includes('Manage') ? 'default' : 'ghost'}
+              size="sm"
+              onClick={() => navigate(createPageUrl('ManageHome'))}
+              className="pointer-events-auto"
+            >
+              Manage
+            </Button>
+          </div>
+          <div className="h-6 w-px bg-slate-300" />
           <h1 className="text-xl font-semibold text-slate-800 capitalize">
             {currentPageName?.replace(/([A-Z])/g, ' $1').trim() || 'Dashboard'}
           </h1>
