@@ -54,6 +54,7 @@ import CCPCheckModal from '@/components/operations/CCPCheckModal';
 import HotHoldingForm from '@/components/operations/HotHoldingForm';
 import PersonalHygieneDeclarationForm from '@/components/hygiene/PersonalHygieneDeclarationForm';
 import HygieneCheckForm from '@/components/cleaning/HygieneCheckForm';
+import DevResetConsole from '@/components/system/DevResetConsole';
 
 export default function OperateHome() {
   const [user, setUser] = useState(null);
