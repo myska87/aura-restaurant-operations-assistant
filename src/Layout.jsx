@@ -522,9 +522,11 @@ function LayoutContent({ children, currentPageName }) {
 export default function Layout({ children, currentPageName }) {
   return (
     <ErrorBoundary currentPageName={currentPageName}>
-      <ModeProvider>
-        <LayoutContent children={children} currentPageName={currentPageName} />
-      </ModeProvider>
+      <DayStateProvider>
+        <ModeProvider>
+          <LayoutContent children={children} currentPageName={currentPageName} />
+        </ModeProvider>
+      </DayStateProvider>
     </ErrorBoundary>
   );
 }
