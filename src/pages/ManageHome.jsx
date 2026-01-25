@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
 import { base44 } from '@/api/base44Client';
 import { useQuery } from '@tanstack/react-query';
+import { format } from 'date-fns';
 import { 
   BarChart3, 
   FileText, 
@@ -11,7 +12,13 @@ import {
   TrendingUp,
   DollarSign,
   CheckCircle,
-  XCircle
+  XCircle,
+  Clock,
+  Settings,
+  ClipboardCheck,
+  Eye,
+  Shield,
+  AlertCircle
 } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
