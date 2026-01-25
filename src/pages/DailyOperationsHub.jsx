@@ -49,6 +49,7 @@ import HotHoldingForm from '@/components/operations/HotHoldingForm';
 import PersonalHygieneDeclarationForm from '@/components/hygiene/PersonalHygieneDeclarationForm';
 import HygieneCheckForm from '@/components/cleaning/HygieneCheckForm';
 import OperationCard from '@/components/operate/OperationCard';
+import MidServiceChecksPanel from '@/components/operate/MidServiceChecksPanel';
 import { AnimatePresence } from 'framer-motion';
 
 export default function DailyOperationsHub() {
