@@ -44,6 +44,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import PageHeader from '@/components/ui/PageHeader';
 import LoadingSpinner from '@/components/ui/LoadingSpinner';
 import ShiftApprovalDialog from '@/components/shifts/ShiftApprovalDialog';
+import PersonalHygieneDeclarationForm from '@/components/hygiene/PersonalHygieneDeclarationForm';
 
 export default function Shifts() {
   const [currentWeekStart, setCurrentWeekStart] = useState(startOfWeek(new Date(), { weekStartsOn: 1 }));
@@ -55,6 +56,8 @@ export default function Shifts() {
   const [activeTab, setActiveTab] = useState('schedule');
   const [user, setUser] = useState(null);
   const [approvingShift, setApprovingShift] = useState(null);
+  const [hygieneBlockModal, setHygieneBlockModal] = useState(false);
+  const [pendingClockInShift, setPendingClockInShift] = useState(null);
   const [formData, setFormData] = useState({
     staff_id: '',
     date: format(new Date(), 'yyyy-MM-dd'),
@@ -142,6 +145,15 @@ export default function Shifts() {
     queryFn: () => base44.entities.TrainingJourneyProgress.list(),
   });
 
+  // Fetch today's hygiene declarations
+  const today = format(new Date(), 'yyyy-MM-dd');
+  const { data: todaysHygieneDeclarations = [] } = useQuery({
+    queryKey: ['hygieneDeclarations', today],
+    queryFn: () => base44.entities.PersonalHygieneDeclaration.filter({
+      declaration_date: today
+    }),
+  });
+
   const createMutation = useMutation({
     mutationFn: (data) => base44.entities.Shift.create(data),
     onSuccess: () => {
@@ -185,6 +197,20 @@ export default function Shifts() {
     
     if (!staffProgress?.onsiteAccessEnabled) {
       alert('⛔ Training not completed — access restricted.\n\nThis staff member must complete their full training journey and obtain certification before clocking in.');
+      return;
+    }
+
+    // Check if hygiene declaration is completed for today
+    const staffMember = staff.find(s => s.id === shift.staff_id);
+    const staffEmail = staffMember?.email;
+    
+    const todaysDeclaration = todaysHygieneDeclarations.find(d => 
+      d.staff_email === staffEmail && d.all_clear === true
+    );
+
+    if (!todaysDeclaration) {
+      setPendingClockInShift(shift);
+      setHygieneBlockModal(true);
       return;
     }
 
@@ -1227,6 +1253,51 @@ export default function Shifts() {
         onOpenChange={(open) => !open && setApprovingShift(null)}
         user={user}
       />
+
+      {/* Hygiene Declaration Block Modal */}
+      <Dialog open={hygieneBlockModal} onOpenChange={setHygieneBlockModal}>
+        <DialogContent className="max-w-2xl">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2 text-red-600">
+              <AlertCircle className="w-6 h-6" />
+              Complete Hygiene Declaration to Start Shift
+            </DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div className="bg-red-50 border-2 border-red-200 rounded-lg p-4">
+              <p className="text-sm text-red-900 font-medium">
+                ⛔ You must complete your Personal Hygiene Declaration before clocking in.
+              </p>
+              <p className="text-xs text-red-700 mt-2">
+                This is a legal requirement to ensure food safety. Nobody can start work without confirming fitness to handle food.
+              </p>
+            </div>
+            
+            <PersonalHygieneDeclarationForm
+              user={pendingClockInShift ? staff.find(s => s.id === pendingClockInShift.staff_id) : null}
+              shiftDate={today}
+              onSuccess={async () => {
+                await queryClient.invalidateQueries(['hygieneDeclarations']);
+                setHygieneBlockModal(false);
+                
+                // Now proceed with clock-in
+                if (pendingClockInShift) {
+                  const now = new Date().toISOString();
+                  await updateMutation.mutateAsync({
+                    id: pendingClockInShift.id,
+                    data: {
+                      actual_clock_in: now,
+                      status: 'clocked_in',
+                      needs_approval: true
+                    }
+                  });
+                  setPendingClockInShift(null);
+                }
+              }}
+            />
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
