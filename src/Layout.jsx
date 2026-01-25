@@ -124,6 +124,33 @@ function LayoutContent({ children, currentPageName }) {
     loadUser();
   }, [currentPageName, navigate]);
 
+  // Development warning: detect if any element is covering the header
+  useEffect(() => {
+    if (process.env.NODE_ENV === 'development') {
+      const checkHeaderCoverage = () => {
+        const headers = document.querySelectorAll('header');
+        headers.forEach(header => {
+          const headerRect = header.getBoundingClientRect();
+          const centerX = headerRect.left + headerRect.width / 2;
+          const centerY = headerRect.top + headerRect.height / 2;
+          const elementAtPoint = document.elementFromPoint(centerX, centerY);
+
+          if (elementAtPoint && !header.contains(elementAtPoint)) {
+            console.warn(
+              '⚠️ HEADER COVERAGE WARNING: Element is covering the header area:',
+              elementAtPoint,
+              '\nThis may block mode selector interactions.',
+              '\nEnsure page content has z-index < 9999'
+            );
+          }
+        });
+      };
+
+      const timer = setTimeout(checkHeaderCoverage, 1000);
+      return () => clearTimeout(timer);
+    }
+  }, [currentPageName]);
+
   // Redirect to mode home if on Dashboard
   useEffect(() => {
     if (currentPageName === 'Dashboard' && user) {
@@ -275,6 +302,25 @@ function LayoutContent({ children, currentPageName }) {
           --green-primary: #2E7D32;
           --green-light: #4CAF50;
         }
+
+        /* CRITICAL: Prevent any page content from blocking header interactions */
+        header {
+          pointer-events: auto !important;
+        }
+
+        /* Ensure all header interactive elements are clickable */
+        header button,
+        header [role="button"],
+        header a,
+        header [role="menu"] {
+          pointer-events: auto !important;
+        }
+
+        /* Page content must never have z-index >= header */
+        main > * {
+          position: relative;
+          z-index: 1;
+        }
       `}</style>
 
       {/* Desktop Sidebar */}
@@ -284,7 +330,7 @@ function LayoutContent({ children, currentPageName }) {
 
       {/* Mobile Header */}
       {/* IMPORTANT: All interactive elements in mobile header MUST have pointer-events enabled */}
-      <header className="lg:hidden fixed top-0 left-0 right-0 z-40 bg-white/80 backdrop-blur-xl border-b border-slate-200/50 shadow-sm">
+      <header className="lg:hidden fixed top-0 left-0 right-0 z-[9999] bg-white/80 backdrop-blur-xl border-b border-slate-200/50 shadow-sm pointer-events-auto">
         <div className="flex items-center justify-between h-16 px-4">
           <div className="flex items-center gap-2 pointer-events-auto">
             <Sheet open={sidebarOpen} onOpenChange={setSidebarOpen}>
@@ -356,7 +402,7 @@ function LayoutContent({ children, currentPageName }) {
       {/* Desktop Header */}
       {/* IMPORTANT: All interactive elements in this header MUST have pointer-events enabled */}
       {/* NEVER wrap buttons/selectors in click-intercepting containers */}
-      <header className="hidden lg:flex fixed top-0 left-72 right-0 z-40 h-16 bg-white/80 backdrop-blur-xl border-b border-slate-200/50 shadow-sm items-center justify-between px-8">
+      <header className="hidden lg:flex fixed top-0 left-72 right-0 z-[9999] h-16 bg-white/80 backdrop-blur-xl border-b border-slate-200/50 shadow-sm items-center justify-between px-8 pointer-events-auto">
         <div className="flex items-center gap-3">
           <Button
             variant="ghost"
