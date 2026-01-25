@@ -447,7 +447,7 @@ export default function OperateHome() {
           </Button>
         </div>
 
-        {/* Operational Tools Grid */}
+        {/* Operational Tools Grid - Complete Set */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
           {/* Temperature Logs */}
           <OperationCard icon={Thermometer} color="bg-red-500" title="Temperature Logs" summary={`${temperatureLogs.length}/${tempAssets.length} logged`} status={tempCompletion === 100 ? 'complete' : 'pending'} actionButtons={[{ label: '→ Log', onClick: () => setShowTempAssets(true) }]} progress={tempCompletion} />
@@ -461,6 +461,18 @@ export default function OperateHome() {
           <OperationCard icon={Thermometer} color="bg-pink-500" title="Hot Hold Temps" summary="Track holding temps" status="pending" actionButtons={[{ label: '→ Log', onClick: () => setShowHotHoldingForm(true) }]} />
           {/* Equipment */}
           <OperationCard icon={Wrench} color="bg-orange-500" title="Equipment Status" summary={`${equipmentFaults.length} faults`} status={equipmentFaults.length === 0 ? 'complete' : 'pending'} actionButtons={[{ label: '→ Check', onClick: () => navigate(createPageUrl('EquipmentHealth')) }]} />
+          {/* Cleaning & Hygiene Hub */}
+          <OperationCard icon={Sparkles} color="bg-purple-500" title="Cleaning & Hygiene" summary="Daily, deep clean, hygiene" status="pending" actionButtons={[{ label: '→ Hub', onClick: () => navigate(createPageUrl('CleaningHygieneHub')) }]} />
+          {/* Prep Workflow */}
+          <OperationCard icon={ChefHat} color="bg-amber-500" title="Prep Workflow" summary="Stock, components, prep" status="pending" actionButtons={[{ label: '→ Manage', onClick: () => navigate(createPageUrl('PrepWorkflow')) }]} />
+          {/* Visual Dish Guides */}
+          <OperationCard icon={Box} color="bg-emerald-500" title="Dish Assembly" summary="Visual step guides" status="pending" actionButtons={[{ label: '→ View', onClick: () => navigate(createPageUrl('VisualDishGuides')) }]} />
+          {/* Service Recovery */}
+          <OperationCard icon={AlertTriangle} color="bg-orange-500" title="Issues & Recovery" summary="Faults, waste, recovery" status="pending" actionButtons={[{ label: '→ Report', onClick: () => navigate(createPageUrl('ServiceRecovery')) }]} />
+          {/* Flow Board */}
+          <OperationCard icon={TrendingUp} color="bg-blue-600" title="Live Orders" summary="Kitchen flow board" status="pending" actionButtons={[{ label: '→ Check', onClick: () => navigate(createPageUrl('FlowBoard')) }]} />
+          {/* Allergen Dashboard */}
+          <OperationCard icon={ShieldAlert} color="bg-red-600" title="Allergens" summary="Search & verify" status="pending" actionButtons={[{ label: '→ Search', onClick: () => navigate(createPageUrl('AllergenDashboard')) }]} />
         </div>
 
         {/* Modals */}
