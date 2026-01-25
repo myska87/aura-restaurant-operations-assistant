@@ -672,19 +672,22 @@ export default function DailyOperationsHub() {
         </div>
 
         {/* Admin Tools Section */}
-        {user?.role === 'admin' && (
-          <Card className="bg-gradient-to-r from-amber-50 to-orange-50 border-2 border-amber-300">
-            <CardContent className="pt-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <h3 className="text-lg font-bold text-slate-900 mb-1">🛠️ Admin Tools</h3>
-                  <p className="text-sm text-slate-600">Reset active forms for testing or training</p>
-                </div>
-                <ResetFormsButton user={user} />
-              </div>
-            </CardContent>
-          </Card>
-        )}
+         {user?.role === 'admin' && (
+           <Card className="bg-gradient-to-r from-amber-50 to-orange-50 border-2 border-amber-300">
+             <CardContent className="pt-6">
+               <div className="flex items-center justify-between gap-3">
+                 <div>
+                   <h3 className="text-lg font-bold text-slate-900 mb-1">🛠️ Admin Tools</h3>
+                   <p className="text-sm text-slate-600">Reset active forms for testing or training</p>
+                 </div>
+                 <div className="flex gap-2">
+                   <DevResetConsole user={user} />
+                   <ResetFormsButton user={user} />
+                 </div>
+               </div>
+             </CardContent>
+           </Card>
+         )}
 
         {/* Interactive Stages Dashboard */}
         <InteractiveStagesDashboard
