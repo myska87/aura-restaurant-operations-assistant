@@ -14,6 +14,8 @@ import ChemicalDashboard from './pages/ChemicalDashboard';
 import ChemicalDetail from './pages/ChemicalDetail';
 import ChemicalRegister from './pages/ChemicalRegister';
 import ChemicalStockList from './pages/ChemicalStockList';
+import CleaningHygieneHub from './pages/CleaningHygieneHub';
+import CleaningSignOffLog from './pages/CleaningSignOffLog';
 import CommandCenter from './pages/CommandCenter';
 import ComplianceHub from './pages/ComplianceHub';
 import Culture from './pages/Culture';
@@ -88,8 +90,6 @@ import WeeklyManagerReportDetail from './pages/WeeklyManagerReportDetail';
 import WeeklyManagerReportForm from './pages/WeeklyManagerReportForm';
 import WeeklyManagerReports from './pages/WeeklyManagerReports';
 import WelcomeVision from './pages/WelcomeVision';
-import CleaningHygieneHub from './pages/CleaningHygieneHub';
-import CleaningSignOffLog from './pages/CleaningSignOffLog';
 import __Layout from './Layout.jsx';
 
 
@@ -110,6 +110,8 @@ export const PAGES = {
     "ChemicalDetail": ChemicalDetail,
     "ChemicalRegister": ChemicalRegister,
     "ChemicalStockList": ChemicalStockList,
+    "CleaningHygieneHub": CleaningHygieneHub,
+    "CleaningSignOffLog": CleaningSignOffLog,
     "CommandCenter": CommandCenter,
     "ComplianceHub": ComplianceHub,
     "Culture": Culture,
@@ -184,8 +186,6 @@ export const PAGES = {
     "WeeklyManagerReportForm": WeeklyManagerReportForm,
     "WeeklyManagerReports": WeeklyManagerReports,
     "WelcomeVision": WelcomeVision,
-    "CleaningHygieneHub": CleaningHygieneHub,
-    "CleaningSignOffLog": CleaningSignOffLog,
 }
 
 export const pagesConfig = {

@@ -811,10 +811,7 @@ export default function DailyOperationsHub() {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: idx * 0.05 }}
               >
-                <Card 
-                  onClick={handleClick}
-                  className="h-full hover:shadow-2xl transition-all cursor-pointer border-2 border-slate-200 hover:border-emerald-400 hover:scale-[1.02] duration-200"
-                >
+                <Card className="h-full hover:shadow-2xl transition-all border-2 border-slate-200 hover:border-emerald-400">
                   <CardContent className="pt-6">
                     <div className="flex items-start justify-between mb-4">
                       <div className="flex items-center gap-3">
@@ -838,7 +835,7 @@ export default function DailyOperationsHub() {
                       <Progress value={tile.progress} className="h-2 mb-3" />
                     )}
 
-                    <div className="flex items-center justify-between">
+                    <div className="flex items-center justify-between mb-4">
                       <p className="text-sm text-slate-600">{tile.count}</p>
                       {tile.lastUpdate && (
                         <p className="text-xs text-slate-400">
@@ -846,6 +843,13 @@ export default function DailyOperationsHub() {
                         </p>
                       )}
                     </div>
+
+                    <Button 
+                      onClick={handleClick}
+                      className="w-full bg-emerald-600 hover:bg-emerald-700"
+                    >
+                      Open {tile.title}
+                    </Button>
                   </CardContent>
                 </Card>
               </motion.div>
@@ -862,6 +866,7 @@ export default function DailyOperationsHub() {
           onItemToggle={handleChecklistItemToggle}
           onComplete={handleCompleteChecklist}
           loading={false}
+          user={user}
         />
 
         <ChecklistModal
@@ -872,6 +877,7 @@ export default function DailyOperationsHub() {
           onItemToggle={handleChecklistItemToggle}
           onComplete={handleCompleteChecklist}
           loading={false}
+          user={user}
         />
 
         {/* Temperature Logging Component */}
@@ -932,17 +938,11 @@ export default function DailyOperationsHub() {
                   return (
                     <Card 
                       key={ccp.id}
-                      className={`cursor-pointer transition-all ${
+                      className={`transition-all ${
                         checked 
                           ? 'border-emerald-400 bg-emerald-50' 
-                          : 'border-slate-300 hover:border-amber-400'
+                          : 'border-slate-300'
                       }`}
-                      onClick={() => {
-                        if (!checked) {
-                          setActiveCCP(ccp);
-                          setShowCCPModal(false);
-                        }
-                      }}
                     >
                       <CardContent className="pt-4">
                         <div className="flex items-start justify-between mb-2">
@@ -959,6 +959,18 @@ export default function DailyOperationsHub() {
                           }`}>
                             Result: {latestCheck.status.toUpperCase()} ({latestCheck.recorded_value})
                           </p>
+                        )}
+                        {!checked && (
+                          <Button 
+                            onClick={() => {
+                              setActiveCCP(ccp);
+                              setShowCCPModal(false);
+                            }}
+                            className="w-full mt-3 bg-red-600 hover:bg-red-700"
+                            size="sm"
+                          >
+                            Check CCP
+                          </Button>
                         )}
                       </CardContent>
                     </Card>
