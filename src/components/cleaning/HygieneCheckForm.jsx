@@ -8,6 +8,7 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
 import { CheckCircle2, Sparkles, UtensilsCrossed, FileText } from 'lucide-react';
+import FormCompletionBanner from '@/components/operations/FormCompletionBanner';
 import { motion } from 'framer-motion';
 
 const HYGIENE_CHECKS = [
@@ -50,6 +51,7 @@ export default function HygieneCheckForm({ user, onSuccess, onCancel }) {
   const [notes, setNotes] = useState({});
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
+  const [completionStatus, setCompletionStatus] = useState(null);
   const queryClient = useQueryClient();
 
   const submitMutation = useMutation({
@@ -58,10 +60,11 @@ export default function HygieneCheckForm({ user, onSuccess, onCancel }) {
     },
     onSuccess: () => {
       setSuccess(true);
+      setCompletionStatus('completed');
       setTimeout(() => {
         queryClient.invalidateQueries(['dailyCleaningLogs']);
         onSuccess?.();
-      }, 1500);
+      }, 3000);
     }
   });
 
@@ -176,15 +179,12 @@ export default function HygieneCheckForm({ user, onSuccess, onCancel }) {
             );
           })}
 
-          {success && (
-            <motion.div
-              initial={{ opacity: 0, scale: 0.9 }}
-              animate={{ opacity: 1, scale: 1 }}
-              className="p-4 bg-emerald-50 border-2 border-emerald-400 rounded-lg flex items-center gap-3"
-            >
-              <CheckCircle2 className="w-6 h-6 text-emerald-600" />
-              <span className="font-bold text-emerald-800">Hygiene check completed successfully!</span>
-            </motion.div>
+          {success && completionStatus && (
+            <FormCompletionBanner 
+              status={completionStatus}
+              message="✅ Completed & Logged"
+              details="Your daily hygiene check has been recorded and logged successfully."
+            />
           )}
 
           <div className="flex gap-3">
