@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
@@ -16,13 +16,21 @@ const CRITICAL_EQUIPMENT = [
 ];
 
 export default function EquipmentStatusIndicator({ myCheckIn, myClosingCompletion, onOpenClosing }) {
-  // Mock data - replace with real equipment status from database
-  const equipmentStatus = {
+  // State to track equipment status - can be toggled by user
+  const [equipmentStatus, setEquipmentStatus] = useState({
     dishwasher: myCheckIn ? 'on' : 'off',
     gas_interlock: myCheckIn ? 'on' : 'off',
     hood: myCheckIn ? 'on' : 'off',
     combi_oven: myCheckIn ? 'on' : 'off',
     reach_in_fridge: myCheckIn ? 'on' : 'off'
+  });
+
+  // Toggle equipment status
+  const toggleEquipment = (equipmentId) => {
+    setEquipmentStatus(prev => ({
+      ...prev,
+      [equipmentId]: prev[equipmentId] === 'on' ? 'off' : 'on'
+    }));
   };
 
   // Check if critical equipment is properly set for service state
@@ -74,7 +82,7 @@ export default function EquipmentStatusIndicator({ myCheckIn, myClosingCompletio
           </div>
         </div>
 
-        {/* Equipment Status Grid */}
+        {/* Equipment Status Grid - Click to Toggle */}
         <div className="grid grid-cols-2 md:grid-cols-5 gap-3 mb-6">
           {CRITICAL_EQUIPMENT.map((eq) => {
             const status = equipmentStatus[eq.id];
@@ -84,10 +92,12 @@ export default function EquipmentStatusIndicator({ myCheckIn, myClosingCompletio
             const isCorrect = (shouldBeOn && isOn) || (shouldBeOff && !isOn);
 
             return (
-              <motion.div
+              <motion.button
                 key={eq.id}
                 whileHover={{ scale: 1.05 }}
-                className={`p-3 rounded-lg border-2 transition-all ${
+                whileTap={{ scale: 0.95 }}
+                onClick={() => toggleEquipment(eq.id)}
+                className={`p-3 rounded-lg border-2 transition-all cursor-pointer ${
                   isCorrect
                     ? 'border-emerald-300 bg-emerald-500 bg-opacity-30'
                     : 'border-red-300 bg-red-500 bg-opacity-30'
@@ -95,13 +105,17 @@ export default function EquipmentStatusIndicator({ myCheckIn, myClosingCompletio
               >
                 <div className="flex items-start justify-between mb-2">
                   <span className="text-2xl">{eq.icon}</span>
-                  <div className={`w-3 h-3 rounded-full ${isOn ? 'bg-yellow-300 animate-pulse' : 'bg-slate-400'}`} />
+                  <motion.div 
+                    animate={{ scale: isOn ? 1.2 : 1 }}
+                    className={`w-3 h-3 rounded-full ${isOn ? 'bg-yellow-300 animate-pulse' : 'bg-slate-400'}`} 
+                  />
                 </div>
                 <p className="text-xs font-semibold text-white mb-1 line-clamp-2">{eq.label.replace(/[🍽️🔥💨❄️]/g, '')}</p>
                 <p className="text-xs font-bold text-white">
                   {isOn ? '⚡ ON' : '⭘ OFF'}
                 </p>
-              </motion.div>
+                <p className="text-xs text-white opacity-70 mt-1">Click to toggle</p>
+              </motion.button>
             );
           })}
         </div>
