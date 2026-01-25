@@ -52,6 +52,7 @@ import { ModeProvider, useMode, MODES } from '@/components/modes/ModeContext';
 import ModeSelector from '@/components/modes/ModeSelector';
 import ErrorBoundary from '@/components/ErrorBoundary';
 import RouteGuard from '@/components/RouteGuard';
+import { DayStateProvider } from '@/components/daystate/DayStateContext';
 
 const navGroups = [
   {
