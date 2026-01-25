@@ -16,10 +16,12 @@ import {
   Clock
 } from 'lucide-react';
 import DailyCleaningScheduleForm from '@/components/cleaning/DailyCleaningScheduleForm';
+import PersonalHygieneDeclarationForm from '@/components/hygiene/PersonalHygieneDeclarationForm';
 
 export default function CleaningHygieneHub() {
   const [user, setUser] = useState(null);
   const [showDailyForm, setShowDailyForm] = useState(false);
+  const [showHygieneForm, setShowHygieneForm] = useState(false);
   const queryClient = useQueryClient();
 
   useEffect(() => {
@@ -34,11 +36,23 @@ export default function CleaningHygieneHub() {
     queryFn: () => base44.entities.DailyCleaningLog.filter({ date: today }),
     enabled: !!user
   });
+
+  // Fetch today's hygiene declarations
+  const { data: hygieneDeclarations = [] } = useQuery({
+    queryKey: ['hygieneDeclarations', today],
+    queryFn: () => base44.entities.PersonalHygieneDeclaration.filter({ shift_date: today }),
+    enabled: !!user
+  });
   // Calculate completion status
   const completedLogs = dailyLogs.filter(log => log.status === 'completed' || log.status === 'approved');
   const dailyCompletionRate = dailyLogs.length > 0 
     ? Math.round((completedLogs.length / dailyLogs.length) * 100) 
     : 0;
+
+  // Check if user has declared today
+  const myDeclaration = hygieneDeclarations.find(d => d.staff_email === user?.email);
+  const allClearDeclarations = hygieneDeclarations.filter(d => d.all_clear === true);
+  const pendingApproval = hygieneDeclarations.filter(d => d.requires_manager_approval && !d.manager_approved);
 
   const sections = [
     {
@@ -63,7 +77,12 @@ export default function CleaningHygieneHub() {
       title: 'Staff Hygiene',
       description: 'Personal hygiene declarations',
       icon: UserCheck,
-      color: 'bg-emerald-500'
+      color: 'bg-emerald-500',
+      onClick: () => setShowHygieneForm(true),
+      status: myDeclaration ? 'active' : 'pending',
+      count: myDeclaration 
+        ? (myDeclaration.all_clear ? '✓ Declared fit' : '⚠ Manager review')
+        : `${allClearDeclarations.length} staff declared`
     },
     {
       id: 4,
@@ -156,6 +175,26 @@ export default function CleaningHygieneHub() {
                 setShowDailyForm(false);
               }}
               onCancel={() => setShowDailyForm(false)}
+            />
+          )}
+        </DialogContent>
+      </Dialog>
+
+      {/* Personal Hygiene Declaration Dialog */}
+      <Dialog open={showHygieneForm} onOpenChange={setShowHygieneForm}>
+        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>Personal Hygiene Declaration</DialogTitle>
+          </DialogHeader>
+          {user && (
+            <PersonalHygieneDeclarationForm
+              user={user}
+              shiftDate={today}
+              onBlockClockIn={(blocked) => {}} // Not blocking shifts yet
+              onSuccess={() => {
+                queryClient.invalidateQueries(['hygieneDeclarations']);
+                setShowHygieneForm(false);
+              }}
             />
           )}
         </DialogContent>
