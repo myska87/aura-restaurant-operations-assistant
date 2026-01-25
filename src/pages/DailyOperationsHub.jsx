@@ -724,6 +724,9 @@ export default function DailyOperationsHub() {
            />
          )}
 
+        {/* Mid-Service Mandatory Checks */}
+        {myCheckIn && <MidServiceChecksPanel user={user} shiftDate={today} />}
+
         {/* Opening, Closing, Briefing & Handover Buttons */}
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
           <div className="space-y-2">
