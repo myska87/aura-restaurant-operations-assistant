@@ -168,37 +168,108 @@ export default function ManageHome() {
           animate={{ opacity: 1, y: 0 }}
           className="text-center"
         >
-          <h1 className="text-4xl font-bold text-slate-900 mb-2">Control Mode</h1>
-          <p className="text-slate-600">Manage. Monitor. Optimize.</p>
+          <h1 className="text-4xl font-bold text-slate-900 mb-2">Management Hub</h1>
+          <p className="text-slate-600">Today: {format(new Date(), 'd MMMM yyyy')} — Monitor, approve, and optimize</p>
         </motion.div>
 
-        {/* Status Dashboard */}
-        <Card className="bg-gradient-to-r from-red-500 to-rose-500 text-white border-0">
-          <CardHeader>
-            <CardTitle>System Status</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="grid grid-cols-4 gap-4">
-              {statusIndicators.map(indicator => (
-                <div key={indicator.label} className="text-center">
-                  <div className={`
-                    w-16 h-16 mx-auto rounded-full flex items-center justify-center mb-2
-                    ${indicator.status === 'green' ? 'bg-emerald-500' : 
-                      indicator.status === 'amber' ? 'bg-amber-500' : 'bg-red-600'}
-                  `}>
-                    {indicator.status === 'green' ? (
-                      <CheckCircle className="w-8 h-8" />
-                    ) : (
-                      <AlertTriangle className="w-8 h-8" />
-                    )}
+        {/* Today's Summary */}
+        <div className="grid grid-cols-4 gap-4">
+          <Card>
+            <CardContent className="pt-6 text-center">
+              <Users className="w-8 h-8 text-blue-500 mx-auto mb-2" />
+              <p className="text-3xl font-bold text-slate-900">{staffOnShift}</p>
+              <p className="text-sm text-slate-600">On Shift Today</p>
+            </CardContent>
+          </Card>
+          <Card>
+            <CardContent className="pt-6 text-center">
+              <ClipboardCheck className="w-8 h-8 text-emerald-500 mx-auto mb-2" />
+              <p className="text-3xl font-bold text-slate-900">{checklistsCompleted}</p>
+              <p className="text-sm text-slate-600">Checklists Completed</p>
+            </CardContent>
+          </Card>
+          <Card>
+            <CardContent className="pt-6 text-center">
+              <AlertCircle className="w-8 h-8 text-amber-500 mx-auto mb-2" />
+              <p className="text-3xl font-bold text-slate-900">{pendingApprovals}</p>
+              <p className="text-sm text-slate-600">Pending Approvals</p>
+            </CardContent>
+          </Card>
+          <Card>
+            <CardContent className="pt-6 text-center">
+              <AlertTriangle className="w-8 h-8 text-red-500 mx-auto mb-2" />
+              <p className="text-3xl font-bold text-slate-900">{pendingTasks}</p>
+              <p className="text-sm text-slate-600">Pending Tasks</p>
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* Pending Approvals */}
+        {pendingApprovals > 0 && (
+          <Card className="border-l-4 border-l-amber-500">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <AlertTriangle className="w-5 h-5 text-amber-500" />
+                Pending Approvals ({pendingApprovals})
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-2">
+                {documentSignatures
+                  .filter(d => !d.signed_date && d.action === 'pending')
+                  .slice(0, 5)
+                  .map(sig => (
+                    <div key={sig.id} className="p-3 bg-amber-50 rounded-lg flex items-center justify-between">
+                      <div>
+                        <p className="font-medium text-slate-900">Document approval needed</p>
+                        <p className="text-xs text-slate-600">From: {sig.staff_email}</p>
+                      </div>
+                      <Button size="sm" variant="outline">
+                        <Eye className="w-3 h-3 mr-1" />
+                        Review
+                      </Button>
+                    </div>
+                  ))}
+              </div>
+              {pendingApprovals > 5 && (
+                <Button variant="ghost" className="w-full mt-3" onClick={() => navigate(createPageUrl('Documents'))}>
+                  View all ({pendingApprovals})
+                </Button>
+              )}
+            </CardContent>
+          </Card>
+        )}
+
+        {/* Staff Performance Overview */}
+        {topPerformers.length > 0 && (
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <TrendingUp className="w-5 h-5 text-emerald-500" />
+                Top Performers
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-3">
+                {topPerformers.map((perf, idx) => (
+                  <div key={perf.id} className="flex items-center justify-between p-3 bg-slate-50 rounded-lg">
+                    <div>
+                      <p className="font-semibold text-slate-900">{perf.staff_name}</p>
+                      <p className="text-xs text-slate-600">Safety Score: {Math.round(perf.overall_safety_score)}%</p>
+                    </div>
+                    <Badge className={
+                      perf.overall_safety_score >= 90 ? 'bg-emerald-500 text-white' :
+                      perf.overall_safety_score >= 80 ? 'bg-blue-500 text-white' :
+                      'bg-amber-500 text-white'
+                    }>
+                      {perf.safety_grade || 'N/A'}
+                    </Badge>
                   </div>
-                  <p className="text-sm opacity-90">{indicator.label}</p>
-                  <p className="text-lg font-bold">{indicator.value}</p>
-                </div>
-              ))}
-            </div>
-          </CardContent>
-        </Card>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+        )}
 
         {/* Control Centers */}
         {/* CRITICAL: Cards use Button-based navigation - NO full-card Link wrappers */}
