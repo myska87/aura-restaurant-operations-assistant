@@ -157,52 +157,109 @@ export default function OperateHome() {
             <CardTitle>Daily Flows</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-3">
-              <Button 
-                disabled 
-                className="h-24 flex flex-col items-center justify-center gap-2 bg-blue-50 text-blue-900 border-2 border-blue-200 hover:bg-blue-100"
-                variant="outline"
-              >
-                <ClipboardCheck className="w-6 h-6" />
-                <span className="text-xs font-semibold">Opening Checklist</span>
-              </Button>
+            <TooltipProvider>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-3">
+                {/* Opening Checklist - enabled only when NOT_STARTED */}
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <div className="relative">
+                      <Button 
+                        disabled={dayState !== DAY_STATES.NOT_STARTED}
+                        className="h-24 flex flex-col items-center justify-center gap-2 bg-blue-50 text-blue-900 border-2 border-blue-200 hover:bg-blue-100 disabled:opacity-50 disabled:cursor-not-allowed w-full"
+                        variant="outline"
+                      >
+                        {dayState !== DAY_STATES.NOT_STARTED && <Lock className="w-4 h-4 absolute top-2 right-2" />}
+                        <ClipboardCheck className="w-6 h-6" />
+                        <span className="text-xs font-semibold">Opening Checklist</span>
+                      </Button>
+                    </div>
+                  </TooltipTrigger>
+                  {dayState !== DAY_STATES.NOT_STARTED && (
+                    <TooltipContent>Available only during NOT_STARTED phase</TooltipContent>
+                  )}
+                </Tooltip>
 
-              <Button 
-                disabled 
-                className="h-24 flex flex-col items-center justify-center gap-2 bg-red-50 text-red-900 border-2 border-red-200 hover:bg-red-100"
-                variant="outline"
-              >
-                <Thermometer className="w-6 h-6" />
-                <span className="text-xs font-semibold">Temperature Logs</span>
-              </Button>
+                {/* Temperature Logs - enabled when OPENING or OPEN */}
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <div className="relative">
+                      <Button 
+                        disabled={dayState !== DAY_STATES.OPENING && dayState !== DAY_STATES.OPEN}
+                        className="h-24 flex flex-col items-center justify-center gap-2 bg-red-50 text-red-900 border-2 border-red-200 hover:bg-red-100 disabled:opacity-50 disabled:cursor-not-allowed w-full"
+                        variant="outline"
+                      >
+                        {dayState !== DAY_STATES.OPENING && dayState !== DAY_STATES.OPEN && <Lock className="w-4 h-4 absolute top-2 right-2" />}
+                        <Thermometer className="w-6 h-6" />
+                        <span className="text-xs font-semibold">Temperature Logs</span>
+                      </Button>
+                    </div>
+                  </TooltipTrigger>
+                  {dayState !== DAY_STATES.OPENING && dayState !== DAY_STATES.OPEN && (
+                    <TooltipContent>Available during OPENING or OPEN phases</TooltipContent>
+                  )}
+                </Tooltip>
 
-              <Button 
-                disabled 
-                className="h-24 flex flex-col items-center justify-center gap-2 bg-amber-50 text-amber-900 border-2 border-amber-200 hover:bg-amber-100"
-                variant="outline"
-              >
-                <Clock className="w-6 h-6" />
-                <span className="text-xs font-semibold">Mid-Service Checks</span>
-              </Button>
+                {/* Mid-Service Checks - enabled only when OPEN */}
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <div className="relative">
+                      <Button 
+                        disabled={dayState !== DAY_STATES.OPEN}
+                        className="h-24 flex flex-col items-center justify-center gap-2 bg-amber-50 text-amber-900 border-2 border-amber-200 hover:bg-amber-100 disabled:opacity-50 disabled:cursor-not-allowed w-full"
+                        variant="outline"
+                      >
+                        {dayState !== DAY_STATES.OPEN && <Lock className="w-4 h-4 absolute top-2 right-2" />}
+                        <Clock className="w-6 h-6" />
+                        <span className="text-xs font-semibold">Mid-Service Checks</span>
+                      </Button>
+                    </div>
+                  </TooltipTrigger>
+                  {dayState !== DAY_STATES.OPEN && (
+                    <TooltipContent>Available only during OPEN phase</TooltipContent>
+                  )}
+                </Tooltip>
 
-              <Button 
-                disabled 
-                className="h-24 flex flex-col items-center justify-center gap-2 bg-orange-50 text-orange-900 border-2 border-orange-200 hover:bg-orange-100"
-                variant="outline"
-              >
-                <UtensilsCrossed className="w-6 h-6" />
-                <span className="text-xs font-semibold">Closing Checklist</span>
-              </Button>
+                {/* Closing Checklist - enabled only when CLOSING */}
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <div className="relative">
+                      <Button 
+                        disabled={dayState !== DAY_STATES.CLOSING}
+                        className="h-24 flex flex-col items-center justify-center gap-2 bg-orange-50 text-orange-900 border-2 border-orange-200 hover:bg-orange-100 disabled:opacity-50 disabled:cursor-not-allowed w-full"
+                        variant="outline"
+                      >
+                        {dayState !== DAY_STATES.CLOSING && <Lock className="w-4 h-4 absolute top-2 right-2" />}
+                        <UtensilsCrossed className="w-6 h-6" />
+                        <span className="text-xs font-semibold">Closing Checklist</span>
+                      </Button>
+                    </div>
+                  </TooltipTrigger>
+                  {dayState !== DAY_STATES.CLOSING && (
+                    <TooltipContent>Available only during CLOSING phase</TooltipContent>
+                  )}
+                </Tooltip>
 
-              <Button 
-                disabled 
-                className="h-24 flex flex-col items-center justify-center gap-2 bg-purple-50 text-purple-900 border-2 border-purple-200 hover:bg-purple-100"
-                variant="outline"
-              >
-                <LogOut className="w-6 h-6" />
-                <span className="text-xs font-semibold">Handover Notes</span>
-              </Button>
-            </div>
+                {/* Handover Notes - enabled when CLOSING or CLOSED */}
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <div className="relative">
+                      <Button 
+                        disabled={dayState !== DAY_STATES.CLOSING && dayState !== DAY_STATES.CLOSED}
+                        className="h-24 flex flex-col items-center justify-center gap-2 bg-purple-50 text-purple-900 border-2 border-purple-200 hover:bg-purple-100 disabled:opacity-50 disabled:cursor-not-allowed w-full"
+                        variant="outline"
+                      >
+                        {dayState !== DAY_STATES.CLOSING && dayState !== DAY_STATES.CLOSED && <Lock className="w-4 h-4 absolute top-2 right-2" />}
+                        <LogOut className="w-6 h-6" />
+                        <span className="text-xs font-semibold">Handover Notes</span>
+                      </Button>
+                    </div>
+                  </TooltipTrigger>
+                  {dayState !== DAY_STATES.CLOSING && dayState !== DAY_STATES.CLOSED && (
+                    <TooltipContent>Available during CLOSING or CLOSED phases</TooltipContent>
+                  )}
+                </Tooltip>
+              </div>
+            </TooltipProvider>
             <p className="text-xs text-slate-500 pt-4 italic">
               Logic and routing will be implemented separately.
             </p>
