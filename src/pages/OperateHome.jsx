@@ -313,6 +313,14 @@ export default function OperateHome() {
   const pendingCCPs = activeCCPs.filter(ccp => !ccpChecksToday.some(check => check.ccp_id === ccp.id));
   const ccpCompletion = activeCCPs.length > 0 ? ((activeCCPs.length - pendingCCPs.length) / activeCCPs.length) * 100 : 100;
 
+  // Equipment status - determine based on fault count
+  const getEquipmentStatus = () => {
+    if (equipmentFaults.length > 0) return 'critical';
+    if (tempAssets.length > 0 && temperatureLogs.length < tempAssets.length) return 'warning';
+    return 'ok';
+  };
+  const equipmentStatus = getEquipmentStatus();
+
   // Calculate safety status
   const calculateSafetyStatus = () => {
     // RED conditions - critical issues

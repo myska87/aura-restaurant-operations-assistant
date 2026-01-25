@@ -33,6 +33,7 @@ import FoodSafetyChecklist from './pages/FoodSafetyChecklist';
 import Forms from './pages/Forms';
 import GlobalInfo from './pages/GlobalInfo';
 import HygieneReports from './pages/HygieneReports';
+import IllnessReportsList from './pages/IllnessReportsList';
 import IncidentCenter from './pages/IncidentCenter';
 import InspectorMode from './pages/InspectorMode';
 import Inventory from './pages/Inventory';
@@ -92,7 +93,6 @@ import WeeklyManagerReportDetail from './pages/WeeklyManagerReportDetail';
 import WeeklyManagerReportForm from './pages/WeeklyManagerReportForm';
 import WeeklyManagerReports from './pages/WeeklyManagerReports';
 import WelcomeVision from './pages/WelcomeVision';
-import IllnessReportsList from './pages/IllnessReportsList';
 import __Layout from './Layout.jsx';
 
 
@@ -132,6 +132,7 @@ export const PAGES = {
     "Forms": Forms,
     "GlobalInfo": GlobalInfo,
     "HygieneReports": HygieneReports,
+    "IllnessReportsList": IllnessReportsList,
     "IncidentCenter": IncidentCenter,
     "InspectorMode": InspectorMode,
     "Inventory": Inventory,
@@ -191,7 +192,6 @@ export const PAGES = {
     "WeeklyManagerReportForm": WeeklyManagerReportForm,
     "WeeklyManagerReports": WeeklyManagerReports,
     "WelcomeVision": WelcomeVision,
-    "IllnessReportsList": IllnessReportsList,
 }
 
 export const pagesConfig = {
