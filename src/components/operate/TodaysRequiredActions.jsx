@@ -1,17 +1,20 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { base44 } from '@/api/base44Client';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { CheckCircle2, Square, XCircle, ChevronRight, Info } from 'lucide-react';
 import { createPageUrl } from '@/utils';
 import { format } from 'date-fns';
+import PersonalHygieneDeclarationForm from '@/components/hygiene/PersonalHygieneDeclarationForm';
 
 export default function TodaysRequiredActions({ user }) {
   const navigate = useNavigate();
   const today = format(new Date(), 'yyyy-MM-dd');
+  const [hygieneDialogOpen, setHygieneDialogOpen] = useState(false);
 
   // Fetch today's hygiene declaration
   const { data: hygieneDeclarations = [] } = useQuery({
@@ -52,7 +55,7 @@ export default function TodaysRequiredActions({ user }) {
     title: 'Personal Hygiene Declaration',
     status: hygieneComplete ? 'complete' : hygieneFailed ? 'failed' : 'pending',
     dueTime: 'Before shift start',
-    action: () => navigate(createPageUrl('CleaningHygieneHub')),
+    action: () => setHygieneDialogOpen(true),
     detailsAction: () => navigate(createPageUrl('CleaningHygieneHub'))
   });
 
@@ -169,6 +172,19 @@ export default function TodaysRequiredActions({ user }) {
           </div>
         )}
       </CardContent>
+
+      {/* Hygiene Declaration Dialog */}
+      <Dialog open={hygieneDialogOpen} onOpenChange={setHygieneDialogOpen}>
+        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>Personal Hygiene Declaration</DialogTitle>
+          </DialogHeader>
+          <PersonalHygieneDeclarationForm 
+            user={user} 
+            onComplete={() => setHygieneDialogOpen(false)} 
+          />
+        </DialogContent>
+      </Dialog>
     </Card>
   );
 }

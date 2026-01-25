@@ -36,7 +36,7 @@ export default function OperateHome() {
       description: 'Overview and key metrics',
       icon: LayoutDashboard,
       color: 'bg-indigo-600',
-      page: 'AllergenDashboard'
+      page: 'DailyOperationsHub'
     },
     {
       id: 2,
