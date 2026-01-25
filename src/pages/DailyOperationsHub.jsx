@@ -960,6 +960,48 @@ export default function DailyOperationsHub() {
           </motion.div>
         )}
 
+        {/* Smart Alerts Placeholder - Feature Flag */}
+        {isFeatureEnabled(FEATURE_FLAGS.SMART_ALERTS) && (
+          <Card className="border border-slate-200 bg-slate-50/50 opacity-60">
+            <CardContent className="pt-6">
+              <div className="flex items-center gap-3 mb-3">
+                <AlertCircle className="w-5 h-5 text-slate-400" />
+                <h3 className="font-semibold text-slate-600">Smart Alerts</h3>
+                <Badge variant="outline" className="ml-auto text-xs">Coming Soon</Badge>
+              </div>
+              <p className="text-sm text-slate-500">Intelligent alerts based on real-time data analysis.</p>
+            </CardContent>
+          </Card>
+        )}
+
+        {/* Performance Insights Placeholder - Feature Flag */}
+        {isFeatureEnabled(FEATURE_FLAGS.PERFORMANCE_INSIGHTS) && (
+          <Card className="border border-slate-200 bg-slate-50/50 opacity-60">
+            <CardContent className="pt-6">
+              <div className="flex items-center gap-3 mb-3">
+                <TrendingUp className="w-5 h-5 text-slate-400" />
+                <h3 className="font-semibold text-slate-600">Performance Insights</h3>
+                <Badge variant="outline" className="ml-auto text-xs">Coming Soon</Badge>
+              </div>
+              <p className="text-sm text-slate-500">Deep insights into team and operational performance metrics.</p>
+            </CardContent>
+          </Card>
+        )}
+
+        {/* Predictive Warnings Placeholder - Feature Flag */}
+        {isFeatureEnabled(FEATURE_FLAGS.PREDICTIVE_WARNINGS) && (
+          <Card className="border border-slate-200 bg-slate-50/50 opacity-60">
+            <CardContent className="pt-6">
+              <div className="flex items-center gap-3 mb-3">
+                <AlertCircle className="w-5 h-5 text-slate-400" />
+                <h3 className="font-semibold text-slate-600">Predictive Warnings</h3>
+                <Badge variant="outline" className="ml-auto text-xs">Coming Soon</Badge>
+              </div>
+              <p className="text-sm text-slate-500">AI-powered predictions for operational risks and issues.</p>
+            </CardContent>
+          </Card>
+        )}
+
         {/* Operations Grid - Fast & Action-Focused */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
           {operationTiles.map((tile, idx) => (
