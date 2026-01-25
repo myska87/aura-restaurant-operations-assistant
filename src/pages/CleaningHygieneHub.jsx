@@ -25,6 +25,7 @@ export default function CleaningHygieneHub() {
   const [showHygieneForm, setShowHygieneForm] = useState(false);
   const [showIllnessForm, setShowIllnessForm] = useState(false);
   const queryClient = useQueryClient();
+  const navigate = useNavigate();
 
   useEffect(() => {
     base44.auth.me().then(setUser).catch(() => {});
