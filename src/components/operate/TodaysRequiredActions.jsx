@@ -10,11 +10,13 @@ import { CheckCircle2, Square, XCircle, ChevronRight, Info } from 'lucide-react'
 import { createPageUrl } from '@/utils';
 import { format } from 'date-fns';
 import PersonalHygieneDeclarationForm from '@/components/hygiene/PersonalHygieneDeclarationForm';
+import TemperatureLog from '@/components/operations/TemperatureLog';
 
 export default function TodaysRequiredActions({ user }) {
   const navigate = useNavigate();
   const today = format(new Date(), 'yyyy-MM-dd');
   const [hygieneDialogOpen, setHygieneDialogOpen] = useState(false);
+  const [tempLogDialogOpen, setTempLogDialogOpen] = useState(false);
 
   // Fetch today's hygiene declaration
   const { data: hygieneDeclarations = [] } = useQuery({
@@ -67,7 +69,7 @@ export default function TodaysRequiredActions({ user }) {
     status: tempLogsComplete ? 'complete' : 'pending',
     dueTime: 'Throughout the day',
     count: tempLogs.length,
-    action: () => navigate(createPageUrl('DailyOperationsHub')),
+    action: () => setTempLogDialogOpen(true),
     detailsAction: () => navigate(createPageUrl('Operations'))
   });
 
@@ -183,6 +185,16 @@ export default function TodaysRequiredActions({ user }) {
             user={user} 
             onComplete={() => setHygieneDialogOpen(false)} 
           />
+        </DialogContent>
+      </Dialog>
+
+      {/* Temperature Log Dialog */}
+      <Dialog open={tempLogDialogOpen} onOpenChange={setTempLogDialogOpen}>
+        <DialogContent className="max-w-5xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>Temperature Logs</DialogTitle>
+          </DialogHeader>
+          <TemperatureLog onClose={() => setTempLogDialogOpen(false)} />
         </DialogContent>
       </Dialog>
     </Card>
