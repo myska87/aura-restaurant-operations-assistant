@@ -120,11 +120,17 @@ export default function ResetFormsButton({ user }) {
         records_cleared: recordsCleared
       });
 
-      // Invalidate queries to refresh UI
+      // Invalidate all relevant queries to refresh UI
       queryClient.invalidateQueries(['prepLogs']);
-      queryClient.invalidateQueries(['hygieneChecks']);
-      queryClient.invalidateQueries(['checklistCompletions']);
-      queryClient.invalidateQueries(['dailyCheckIn']);
+      queryClient.invalidateQueries(['hygieneDeclarations']);
+      queryClient.invalidateQueries(['completions']);
+      queryClient.invalidateQueries(['checkIns']);
+      queryClient.invalidateQueries(['temperatureLogs']);
+      queryClient.invalidateQueries(['temps']);
+      queryClient.invalidateQueries(['handovers']);
+      queryClient.invalidateQueries(['ccpChecks']);
+      queryClient.invalidateQueries(['briefings']);
+      queryClient.invalidateQueries(['dailyHygieneChecks']);
 
       toast.success(`✅ Reset complete! ${recordsCleared} active forms cleared.`);
       setShowDialog(false);
