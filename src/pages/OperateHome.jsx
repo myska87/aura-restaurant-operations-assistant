@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
 import { base44 } from '@/api/base44Client';
 import { useQuery } from '@tanstack/react-query';
@@ -29,6 +29,7 @@ import OperationCard from '@/components/operate/OperationCard';
 
 export default function OperateHome() {
   const [user, setUser] = useState(null);
+  const navigate = useNavigate();
   const today = format(new Date(), 'yyyy-MM-dd');
 
   useEffect(() => {
