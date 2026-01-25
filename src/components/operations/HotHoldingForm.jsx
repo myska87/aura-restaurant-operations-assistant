@@ -6,19 +6,36 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent } from '@/components/ui/card';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Thermometer, Plus, Trash2, Check, AlertCircle } from 'lucide-react';
 import { format } from 'date-fns';
+
+const PRESET_ITEMS = [
+  'Chicken Soup',
+  'Beef Stew',
+  'Curry',
+  'Rice',
+  'Pasta',
+  'Sauce',
+  'Gravy',
+  'Vegetables',
+  'Roast Meat',
+  'Mashed Potatoes',
+];
 
 export default function HotHoldingForm({ open, onClose, user, today }) {
   const [items, setItems] = useState([]);
   const [newItem, setNewItem] = useState({ name: '', temperature: '', time: '' });
+  const [customName, setCustomName] = useState('');
   const [saving, setSaving] = useState(false);
   const queryClient = useQueryClient();
 
   const minimumTemp = 63; // Celsius - standard hot holding minimum
 
   const addItem = () => {
-    if (!newItem.name || !newItem.temperature) {
+    const finalName = newItem.name === 'custom' ? customName : newItem.name;
+    
+    if (!finalName || !newItem.temperature) {
       alert('⚠️ Please enter food item name and temperature');
       return;
     }
@@ -30,7 +47,7 @@ export default function HotHoldingForm({ open, onClose, user, today }) {
       ...items,
       {
         id: Date.now(),
-        name: newItem.name,
+        name: finalName,
         temperature: temp,
         time: newItem.time || format(new Date(), 'HH:mm'),
         status,
@@ -40,6 +57,7 @@ export default function HotHoldingForm({ open, onClose, user, today }) {
     ]);
 
     setNewItem({ name: '', temperature: '', time: '' });
+    setCustomName('');
   };
 
   const removeItem = (id) => {
@@ -126,11 +144,21 @@ export default function HotHoldingForm({ open, onClose, user, today }) {
               <h3 className="font-semibold text-slate-800 mb-4">Add Food Item</h3>
               <div className="space-y-3">
                 <div className="grid grid-cols-2 gap-3">
-                  <Input
-                    placeholder="Food item name (e.g., Chicken Soup)"
-                    value={newItem.name}
-                    onChange={(e) => setNewItem({ ...newItem, name: e.target.value })}
-                  />
+                  <Select value={newItem.name} onValueChange={(val) => setNewItem({ ...newItem, name: val })}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select food item" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {PRESET_ITEMS.map((item) => (
+                        <SelectItem key={item} value={item}>
+                          {item}
+                        </SelectItem>
+                      ))}
+                      <SelectItem value="custom">
+                        ✏️ Custom Item (type your own)
+                      </SelectItem>
+                    </SelectContent>
+                  </Select>
                   <Input
                     type="number"
                     placeholder="Temperature (°C)"
@@ -139,6 +167,15 @@ export default function HotHoldingForm({ open, onClose, user, today }) {
                     onChange={(e) => setNewItem({ ...newItem, temperature: e.target.value })}
                   />
                 </div>
+                
+                {newItem.name === 'custom' && (
+                  <Input
+                    placeholder="Enter custom food item name"
+                    value={customName}
+                    onChange={(e) => setCustomName(e.target.value)}
+                  />
+                )}
+                
                 <div className="flex gap-3">
                   <Input
                     type="time"
