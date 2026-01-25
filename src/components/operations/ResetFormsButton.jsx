@@ -31,6 +31,17 @@ export default function ResetFormsButton({ user }) {
     try {
       const today = format(new Date(), 'yyyy-MM-dd');
       
+      // Clear all ChecklistCompletion for today (opening, closing, etc)
+      const allCompletions = await base44.entities.ChecklistCompletion.filter({
+        date: today
+      });
+      
+      for (const completion of allCompletions) {
+        await base44.entities.ChecklistCompletion.delete(completion.id);
+        affectedForms.push(completion.checklist_name || completion.checklist_category);
+        recordsCleared++;
+      }
+
       // Clear in-progress prep checklists for today
       const prepLogs = await base44.entities.PrepChecklistLog.filter({
         date: today,
@@ -43,31 +54,59 @@ export default function ResetFormsButton({ user }) {
         recordsCleared++;
       }
 
-      // Clear in-progress hygiene checks for today
-      const hygieneChecks = await base44.entities.ChecklistCompletion.filter({
-        date: today,
-        status: 'in_progress',
-        checklist_category: 'hygiene'
+      // Clear hygiene declarations for today
+      const hygieneDeclarations = await base44.entities.PersonalHygieneDeclaration.filter({
+        shift_date: today
       });
 
-      for (const check of hygieneChecks) {
-        await base44.entities.ChecklistCompletion.delete(check.id);
-        affectedForms.push('Hygiene Check');
+      for (const decl of hygieneDeclarations) {
+        await base44.entities.PersonalHygieneDeclaration.delete(decl.id);
+        affectedForms.push('Hygiene Declaration');
         recordsCleared++;
       }
 
-      // Clear other in-progress checklists for today
-      const otherChecklists = await base44.entities.ChecklistCompletion.filter({
-        date: today,
-        status: 'in_progress'
+      // Clear temperature logs for today
+      const tempLogs = await base44.entities.TemperatureLog.filter({
+        log_date: today
       });
 
-      for (const checklist of otherChecklists) {
-        if (checklist.checklist_category !== 'hygiene') {
-          await base44.entities.ChecklistCompletion.delete(checklist.id);
-          affectedForms.push(checklist.checklist_name || 'Checklist');
-          recordsCleared++;
-        }
+      for (const log of tempLogs) {
+        await base44.entities.TemperatureLog.delete(log.id);
+        affectedForms.push('Temperature Logs');
+        recordsCleared++;
+      }
+
+      // Clear shift handovers for today
+      const handovers = await base44.entities.ShiftHandover.filter({
+        shift_date: today
+      });
+
+      for (const handover of handovers) {
+        await base44.entities.ShiftHandover.delete(handover.id);
+        affectedForms.push('Shift Handover');
+        recordsCleared++;
+      }
+
+      // Clear daily check-ins for today
+      const checkIns = await base44.entities.DailyCheckIn.filter({
+        shift_date: today
+      });
+
+      for (const checkIn of checkIns) {
+        await base44.entities.DailyCheckIn.delete(checkIn.id);
+        affectedForms.push('Daily Check-In');
+        recordsCleared++;
+      }
+
+      // Clear CCP checks for today
+      const ccpChecks = await base44.entities.CriticalControlPointCheck.filter({
+        check_date: today
+      });
+
+      for (const check of ccpChecks) {
+        await base44.entities.CriticalControlPointCheck.delete(check.id);
+        affectedForms.push('CCP Checks');
+        recordsCleared++;
       }
 
       // Log the reset action
