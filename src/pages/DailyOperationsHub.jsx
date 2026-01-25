@@ -24,7 +24,8 @@ import {
   StopCircle,
   Droplet,
   Eye,
-  Shield
+  Shield,
+  ChevronDown
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
@@ -47,6 +48,8 @@ import ServiceLockdownNotice from '@/components/operations/ServiceLockdownNotice
 import HotHoldingForm from '@/components/operations/HotHoldingForm';
 import PersonalHygieneDeclarationForm from '@/components/hygiene/PersonalHygieneDeclarationForm';
 import HygieneCheckForm from '@/components/cleaning/HygieneCheckForm';
+import OperationCard from '@/components/operate/OperationCard';
+import { AnimatePresence } from 'framer-motion';
 
 export default function DailyOperationsHub() {
   const [user, setUser] = useState(null);
@@ -543,86 +546,113 @@ export default function DailyOperationsHub() {
 
   const operationTiles = [
     {
-      title: 'Daily Hygiene Check',
-      description: 'Morning mandatory hygiene inspection',
+      title: 'Hygiene Check',
+      summary: 'Morning mandatory check',
       icon: Droplet,
       color: 'bg-cyan-500',
       onClick: () => setShowHygieneCheck(true),
       status: dailyHygieneChecks.length > 0 ? 'complete' : 'pending',
-      count: dailyHygieneChecks.length > 0 ? '✓ Completed' : 'Not completed',
-      lastUpdate: dailyHygieneChecks[0]?.created_date
+      actionButtons: [
+        { label: dailyHygieneChecks.length > 0 ? '✓ Completed' : '→ Check Now', onClick: () => setShowHygieneCheck(true) }
+      ],
+      details: 'Confirm all mandatory hygiene standards are met before service.'
     },
     {
-      title: 'Daily Check-In',
-      description: 'Opening & closing checklists',
-      icon: ClipboardCheck,
-      color: 'bg-blue-500',
-      page: 'Operations',
-      status: myCheckIn ? 'complete' : 'pending',
-      count: `${checkIns.length} staff checked in`,
-      lastUpdate: checkIns[0]?.created_date
+      title: 'Opening',
+      summary: 'Checklists & prep',
+      icon: PlayCircle,
+      color: 'bg-emerald-500',
+      status: myOpeningCompletion?.status === 'completed' ? 'complete' : 'pending',
+      actionButtons: [
+        { label: myOpeningCompletion?.status === 'completed' ? '✓ Complete' : '→ Start', onClick: () => openChecklist('opening') }
+      ],
+      progress: myOpeningCompletion?.completion_percentage || 0,
+      details: 'Complete opening checklist to start service.'
     },
     {
-      title: 'Shift Handover',
-      description: 'Pass info between shifts',
-      icon: MessageSquare,
-      color: 'bg-amber-500',
-      onClick: () => setShowHandoverChecklist(true),
-      status: handovers.filter(h => h.shift_date === today).length > 0 ? 'complete' : 'pending',
-      count: `${handovers.filter(h => h.shift_date === today).length} handovers today`,
-      lastUpdate: handovers[0]?.created_date
-    },
-    {
-      title: 'Temperature Logs',
-      description: 'Equipment & food temp monitoring',
+      title: 'Temperatures',
+      summary: `${temperatureLogs.length}/${tempAssets.length} logged`,
       icon: Thermometer,
       color: 'bg-red-500',
       onClick: () => setShowTempAssets(true),
       status: tempCompletion === 100 ? 'complete' : 'pending',
-      count: `${temperatureLogs.length}/${tempAssets.length} logged`,
+      actionButtons: [
+        { label: '→ Log', onClick: () => setShowTempAssets(true) }
+      ],
       progress: tempCompletion,
-      lastUpdate: temperatureLogs[0]?.created_date
+      details: 'Monitor all temperature-controlled equipment throughout the day.'
     },
     {
-      title: 'Label Printing',
-      description: 'Food safety labels & prep tracking',
+      title: 'Handover',
+      summary: `${handovers.filter(h => h.shift_date === today).length} logged`,
+      icon: MessageSquare,
+      color: 'bg-amber-500',
+      onClick: () => setShowHandoverChecklist(true),
+      status: handovers.filter(h => h.shift_date === today).length > 0 ? 'complete' : 'pending',
+      actionButtons: [
+        { label: '→ Log', onClick: () => setShowHandoverChecklist(true) }
+      ],
+      details: 'Pass critical info to the next shift.'
+    },
+    {
+      title: 'Labels',
+      summary: `${labels.filter(l => l.created_date?.startsWith(today)).length} printed`,
       icon: FileText,
       color: 'bg-purple-500',
       onClick: () => setShowLabelPrinting(true),
       status: labels.filter(l => l.created_date?.startsWith(today)).length > 0 ? 'complete' : 'pending',
-      count: `${labels.filter(l => l.created_date?.startsWith(today)).length} labels today`,
-      lastUpdate: labels[0]?.created_date
+      actionButtons: [
+        { label: '→ Print', onClick: () => setShowLabelPrinting(true) }
+      ],
+      details: 'Print and track food safety labels for traceability.'
     },
     {
-      title: 'Equipment Status',
-      description: 'Log faults & maintenance',
+      title: 'Equipment',
+      summary: `${equipmentFaults.length} faults`,
       icon: Wrench,
       color: 'bg-orange-500',
-      page: 'EquipmentHealth',
       status: equipmentFaults.length === 0 ? 'complete' : 'pending',
-      count: `${equipmentFaults.length} faults reported`,
-      lastUpdate: equipmentFaults[0]?.created_date
+      actionButtons: [
+        { label: '→ Check', onClick: () => navigate(createPageUrl('EquipmentHealth')) }
+      ],
+      details: 'Report equipment issues and maintenance needs immediately.'
     },
     {
-      title: 'Critical Control Points',
-      description: 'Mandatory CCP compliance checks',
+      title: 'CCPs',
+      summary: `${pendingCCPs.length} pending`,
       icon: Shield,
       color: 'bg-red-600',
       onClick: () => setShowCCPModal(true),
       status: pendingCCPs.length === 0 ? 'complete' : 'pending',
-      count: `${pendingCCPs.length} pending`,
+      actionButtons: [
+        { label: '→ Check', onClick: () => setShowCCPModal(true) }
+      ],
       progress: ccpCompletion,
-      lastUpdate: ccpChecksToday[0]?.timestamp
+      details: 'Mandatory Critical Control Point compliance checks.'
     },
     {
-      title: 'Hot Holding Log',
-      description: 'Track food holding temperatures',
+      title: 'Hot Hold',
+      summary: 'Track holding temps',
       icon: Thermometer,
       color: 'bg-pink-500',
       onClick: () => setShowHotHoldingForm(true),
       status: 'pending',
-      count: 'Log hot holding temps',
-      lastUpdate: null
+      actionButtons: [
+        { label: '→ Log', onClick: () => setShowHotHoldingForm(true) }
+      ],
+      details: 'Monitor food holding temperatures during service.'
+    },
+    {
+      title: 'Closing',
+      summary: 'End of shift',
+      icon: StopCircle,
+      color: 'bg-red-600',
+      status: myClosingCompletion?.status === 'completed' ? 'complete' : 'pending',
+      actionButtons: [
+        { label: myClosingCompletion?.status === 'completed' ? '✓ Complete' : '→ Close', onClick: () => openChecklist('closing') }
+      ],
+      progress: myClosingCompletion?.completion_percentage || 0,
+      details: 'Complete closing checklist before leaving.'
     }
   ];
 
@@ -883,63 +913,22 @@ export default function DailyOperationsHub() {
           </motion.div>
         )}
 
-        {/* Operations Grid */}
-        {/* CRITICAL: Cards use explicit Button navigation - NO full-card clickable wrappers */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          {operationTiles.map((tile, idx) => {
-            const Icon = tile.icon;
-            const handleClick = tile.onClick || (() => navigate(createPageUrl(tile.page)));
-            return (
-              <motion.div
-                key={tile.title}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: idx * 0.05 }}
-              >
-                <Card className="h-full hover:shadow-2xl transition-all border-2 border-slate-200 hover:border-emerald-400">
-                  <CardContent className="pt-6">
-                    <div className="flex items-start justify-between mb-4">
-                      <div className="flex items-center gap-3">
-                        <div className={`${tile.color} w-14 h-14 rounded-2xl flex items-center justify-center shadow-lg`}>
-                          <Icon className="w-7 h-7 text-white" />
-                        </div>
-                        <div>
-                          <h3 className="text-xl font-bold text-slate-800">{tile.title}</h3>
-                          <p className="text-sm text-slate-500">{tile.description}</p>
-                        </div>
-                      </div>
-                      <Badge 
-                        variant={tile.status === 'complete' ? 'default' : 'outline'}
-                        className={tile.status === 'complete' ? 'bg-emerald-500' : 'border-amber-400 text-amber-700'}
-                      >
-                        {tile.status === 'complete' ? '✓' : '⚠'}
-                      </Badge>
-                    </div>
-
-                    {tile.progress !== undefined && (
-                      <Progress value={tile.progress} className="h-2 mb-3" />
-                    )}
-
-                    <div className="flex items-center justify-between mb-4">
-                      <p className="text-sm text-slate-600">{tile.count}</p>
-                      {tile.lastUpdate && (
-                        <p className="text-xs text-slate-400">
-                          Updated {format(new Date(tile.lastUpdate), 'HH:mm')}
-                        </p>
-                      )}
-                    </div>
-
-                    <Button 
-                      onClick={handleClick}
-                      className="w-full bg-emerald-600 hover:bg-emerald-700"
-                    >
-                      Open {tile.title}
-                    </Button>
-                  </CardContent>
-                </Card>
-              </motion.div>
-            );
-          })}
+        {/* Operations Grid - Fast & Action-Focused */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+          {operationTiles.map((tile, idx) => (
+            <OperationCard
+              key={tile.title}
+              icon={tile.icon}
+              color={tile.color}
+              title={tile.title}
+              summary={tile.summary}
+              details={tile.details}
+              status={tile.status}
+              actionButtons={tile.actionButtons}
+              progress={tile.progress}
+              lastUpdate={tile.lastUpdate ? format(new Date(tile.lastUpdate), 'HH:mm') : null}
+            />
+          ))}
         </div>
 
         {/* Checklist Modals */}
