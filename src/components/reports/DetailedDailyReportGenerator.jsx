@@ -20,7 +20,9 @@ export default function DetailedDailyReportGenerator({
   ccpChecks,
   handovers,
   staff,
-  reportType = 'detailed', // 'detailed' or 'combined'
+  reportType = 'detailed',
+  dailyCleaningLogs = [],
+  deepCleaningSchedules = [],
   onClose
 }) {
   const [isGenerating, setIsGenerating] = useState(false);
@@ -43,6 +45,8 @@ export default function DetailedDailyReportGenerator({
   const dailyLabels = groupByDate(labels, 'prep_date');
   const dailyCCPs = groupByDate(ccpChecks, 'check_date');
   const dailyHandovers = groupByDate(handovers, 'shift_date');
+  const dailyCleanings = groupByDate(dailyCleaningLogs, 'date');
+  const deepCleanings = groupByDate(deepCleaningSchedules, 'completion_date');
 
   // Get all unique dates
   const allDates = Array.from(
@@ -52,7 +56,9 @@ export default function DetailedDailyReportGenerator({
       ...Object.keys(dailyTemps),
       ...Object.keys(dailyLabels),
       ...Object.keys(dailyCCPs),
-      ...Object.keys(dailyHandovers)
+      ...Object.keys(dailyHandovers),
+      ...Object.keys(dailyCleanings),
+      ...Object.keys(deepCleanings)
     ])
   ).sort();
 
@@ -129,7 +135,9 @@ export default function DetailedDailyReportGenerator({
           labels: dailyLabels[date]?.length || 0,
           ccps: dailyCCPs[date]?.length || 0,
           ccpsPassed: dailyCCPs[date]?.filter(c => c.status === 'pass').length || 0,
-          ccpsFailed: dailyCCPs[date]?.filter(c => c.status === 'fail').length || 0
+          ccpsFailed: dailyCCPs[date]?.filter(c => c.status === 'fail').length || 0,
+          cleaningTasks: dailyCleanings[date]?.length || 0,
+          deepCleanings: deepCleanings[date]?.length || 0
         };
 
         pdf.text(`Compliance Status: ${daySummary.ccpsFailed === 0 ? '✔ PASS' : '⚠ REQUIRES ATTENTION'}`, margin, yPosition);
@@ -208,6 +216,36 @@ export default function DetailedDailyReportGenerator({
           yPosition += 4;
         }
 
+        // Cleaning Logs section
+        if (daySummary.cleaningTasks > 0) {
+          pdf.setFont(undefined, 'bold');
+          pdf.text('🔹 Cleaning Logs', margin, yPosition);
+          yPosition += 6;
+          pdf.setFont(undefined, 'normal');
+
+          (dailyCleanings[date] || []).slice(0, 5).forEach(cleaning => {
+            const status = cleaning.supervisor_sign_off ? '✔' : '⚠';
+            pdf.text(`• ${status} ${cleaning.area_name}: ${cleaning.cleaning_task} by ${cleaning.completed_by_name}`, margin + 5, yPosition);
+            yPosition += 4;
+          });
+          yPosition += 4;
+        }
+
+        // Deep Cleaning section
+        if (daySummary.deepCleanings > 0) {
+          pdf.setFont(undefined, 'bold');
+          pdf.text('🔹 Deep Cleaning', margin, yPosition);
+          yPosition += 6;
+          pdf.setFont(undefined, 'normal');
+
+          (deepCleanings[date] || []).forEach(deep => {
+            const status = deep.supervisor_approval ? '✔' : '⏳';
+            pdf.text(`• ${status} ${deep.area_equipment_name} (${deep.frequency}) - ${deep.completed_by_name}`, margin + 5, yPosition);
+            yPosition += 4;
+          });
+          yPosition += 4;
+        }
+
         // Handovers section
         if ((dailyHandovers[date] || []).length > 0) {
           pdf.setFont(undefined, 'bold');
@@ -233,7 +271,9 @@ export default function DetailedDailyReportGenerator({
           `Staff Check-ins: ${daySummary.checkIns}`,
           `Temperatures Logged: ${daySummary.temps}`,
           `CCPs: ${daySummary.ccpsPassed} Passed, ${daySummary.ccpsFailed} Failed`,
-          `Labels Printed: ${daySummary.labels}`
+          `Labels Printed: ${daySummary.labels}`,
+          `Cleaning Tasks: ${daySummary.cleaningTasks}`,
+          `Deep Cleaning: ${daySummary.deepCleanings}`
         ];
 
         summaryText.forEach(text => {
@@ -272,7 +312,7 @@ export default function DetailedDailyReportGenerator({
         report_id: reportId,
         report_type: 'detailed_daily',
         title: `Detailed Daily Report - ${format(new Date(), 'MMM d, yyyy')}`,
-        description: `Chronological daily operations report with detailed activity logs`,
+        description: `Chronological daily operations report with detailed activity logs including cleaning records`,
         date_range_start: startDate,
         date_range_end: endDate,
         generated_by_id: user.id || user.email,
@@ -284,7 +324,7 @@ export default function DetailedDailyReportGenerator({
         compliance_status: dailyCCPs[allDates[allDates.length - 1]]?.filter(c => c.status === 'fail').length > 0 ? 'amber' : 'green',
         pdf_url: uploadedFile.file_url,
         status: 'generated',
-        notes: `Detailed daily report for ${allDates.length} days`
+        notes: `Detailed daily report for ${allDates.length} days with cleaning logs (${dailyCleaningLogs.length} daily, ${deepCleaningSchedules.length} deep)`
       });
 
       queryClient.invalidateQueries(['reports']);
