@@ -27,10 +27,20 @@ import { motion } from 'framer-motion';
 
 export default function ManageHome() {
   const [user, setUser] = useState(null);
+  const navigate = useNavigate();
 
   useEffect(() => {
     base44.auth.me().then(setUser).catch(() => {});
   }, []);
+
+  // Check role access
+  useEffect(() => {
+    if (user && !['manager', 'owner', 'admin'].includes(user?.role?.toLowerCase())) {
+      navigate(createPageUrl('Dashboard'));
+    }
+  }, [user, navigate]);
+
+  const today = format(new Date(), 'yyyy-MM-dd');
 
   const { data: tasks = [] } = useQuery({
     queryKey: ['allTasks'],
@@ -47,9 +57,39 @@ export default function ManageHome() {
     queryFn: () => base44.entities.Document.list()
   });
 
+  const { data: shifts = [] } = useQuery({
+    queryKey: ['shiftsToday', today],
+    queryFn: () => base44.entities.Shift.filter({ date: today })
+  });
+
+  const { data: safetyScores = [] } = useQuery({
+    queryKey: ['safetyScores'],
+    queryFn: () => base44.entities.StaffSafetyScore.list('-calculation_date', 50)
+  });
+
+  const { data: documentSignatures = [] } = useQuery({
+    queryKey: ['documentSignatures'],
+    queryFn: () => base44.entities.DocumentSignature.list('-timestamp', 100)
+  });
+
+  const { data: checklistCompletions = [] } = useQuery({
+    queryKey: ['checklistsToday', today],
+    queryFn: () => base44.entities.ChecklistCompletion.filter({ date: today })
+  });
+
+  // Today's Summary
+  const staffOnShift = shifts.filter(s => s.status !== 'clocked_out').length;
+  const checklistsCompleted = checklistCompletions.filter(c => c.status === 'completed').length;
+  const pendingApprovals = documentSignatures.filter(d => !d.signed_date && d.action === 'pending').length;
+  
   const pendingTasks = tasks.filter(t => t.status === 'pending').length;
   const activeStaff = staff.filter(s => s.status === 'active').length;
   const draftDocuments = documents.filter(d => d.status === 'draft').length;
+
+  // Get top performers
+  const topPerformers = safetyScores
+    .sort((a, b) => b.overall_safety_score - a.overall_safety_score)
+    .slice(0, 3);
 
   const controlCenters = [
     {
