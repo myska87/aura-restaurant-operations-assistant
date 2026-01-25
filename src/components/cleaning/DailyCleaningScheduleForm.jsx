@@ -14,44 +14,17 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { AlertCircle, Upload, CheckCircle2 } from 'lucide-react';
+import { Input } from '@/components/ui/input';
 
-const AREA_DETAILS = {
-  front_counter: {
-    name: 'Front Counter',
-    task: 'Wipe surfaces, sanitize, organize customer area',
-    method: 'Microfiber cloth + disinfectant spray',
-  },
-  chai_station: {
-    name: 'Chai Station',
-    task: 'Clean kettles, wipe surfaces, sanitize utensils',
-    method: 'Hot water + detergent, then sanitiser',
-  },
-  kitchen_prep: {
-    name: 'Kitchen Prep',
-    task: 'Clean prep tables, sanitize cutting boards',
-    method: 'Hot water + detergent, then sanitiser',
-  },
-  cooking_area: {
-    name: 'Cooking Area',
-    task: 'Clean stoves, wipe surfaces, empty grease traps',
-    method: 'Degreaser + hot water',
-  },
-  storage: {
-    name: 'Storage',
-    task: 'Wipe shelves, check expiry dates, organize stock',
-    method: 'Damp cloth + mild detergent',
-  },
-  toilets: {
-    name: 'Toilets',
-    task: 'Clean toilets, sinks, sanitize surfaces',
-    method: 'Toilet cleaner + disinfectant',
-  },
-  floor_waste: {
-    name: 'Floor & Waste',
-    task: 'Sweep, mop floors, empty bins, drain cleaning',
-    method: 'Broom + mop with cleaning solution',
-  },
-};
+const AREA_PRESETS = [
+  { id: 'front_counter', name: 'Front Counter', task: 'Wipe surfaces, sanitize, organize customer area', method: 'Microfiber cloth + disinfectant spray' },
+  { id: 'chai_station', name: 'Chai Station', task: 'Clean kettles, wipe surfaces, sanitize utensils', method: 'Hot water + detergent, then sanitiser' },
+  { id: 'kitchen_prep', name: 'Kitchen Prep', task: 'Clean prep tables, sanitize cutting boards', method: 'Hot water + detergent, then sanitiser' },
+  { id: 'cooking_area', name: 'Cooking Area', task: 'Clean stoves, wipe surfaces, empty grease traps', method: 'Degreaser + hot water' },
+  { id: 'storage', name: 'Storage', task: 'Wipe shelves, check expiry dates, organize stock', method: 'Damp cloth + mild detergent' },
+  { id: 'toilets', name: 'Toilets', task: 'Clean toilets, sinks, sanitize surfaces', method: 'Toilet cleaner + disinfectant' },
+  { id: 'floor_waste', name: 'Floor & Waste', task: 'Sweep, mop floors, empty bins, drain cleaning', method: 'Broom + mop with cleaning solution' },
+];
 
 const CHEMICALS = [
   'Disinfectant Spray',
@@ -66,6 +39,9 @@ const CHEMICALS = [
 
 export default function DailyCleaningScheduleForm({ user, onSuccess }) {
   const [selectedArea, setSelectedArea] = useState('');
+  const [customArea, setCustomArea] = useState('');
+  const [customTask, setCustomTask] = useState('');
+  const [customMethod, setCustomMethod] = useState('');
   const [chemical, setChemical] = useState('');
   const [timeCompleted, setTimeCompleted] = useState(format(new Date(), 'HH:mm'));
   const [photoFile, setPhotoFile] = useState(null);
@@ -90,12 +66,15 @@ export default function DailyCleaningScheduleForm({ user, onSuccess }) {
       const today = format(new Date(), 'yyyy-MM-dd');
       const completedTime = new Date(`${today}T${timeCompleted}:00`);
 
+      const isCustom = selectedArea === 'custom';
+      const preset = AREA_PRESETS.find(a => a.id === selectedArea);
+
       const data = {
         date: today,
-        area: selectedArea,
-        area_name: AREA_DETAILS[selectedArea].name,
-        cleaning_task: AREA_DETAILS[selectedArea].task,
-        cleaning_method: AREA_DETAILS[selectedArea].method,
+        area: isCustom ? customArea : selectedArea,
+        area_name: isCustom ? customArea : preset?.name,
+        cleaning_task: isCustom ? customTask : preset?.task,
+        cleaning_method: isCustom ? customMethod : preset?.method,
         chemical_used: chemical,
         completed_by_id: user.id,
         completed_by_name: user.full_name,
@@ -125,7 +104,9 @@ export default function DailyCleaningScheduleForm({ user, onSuccess }) {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    if (!selectedArea || !chemical || !supervisorSignOff) {
+    
+    const isCustom = selectedArea === 'custom';
+    if (!selectedArea || (isCustom && (!customArea || !customTask)) || !chemical || !supervisorSignOff) {
       alert('Please fill all required fields and get supervisor sign-off');
       return;
     }
@@ -134,7 +115,8 @@ export default function DailyCleaningScheduleForm({ user, onSuccess }) {
     setLoading(false);
   };
 
-  const area = AREA_DETAILS[selectedArea];
+  const preset = AREA_PRESETS.find(a => a.id === selectedArea);
+  const isCustom = selectedArea === 'custom';
 
   return (
     <Card className="border-2 border-blue-200">
@@ -159,17 +141,60 @@ export default function DailyCleaningScheduleForm({ user, onSuccess }) {
                 <SelectValue placeholder="Select cleaning area" />
               </SelectTrigger>
               <SelectContent>
-                {Object.entries(AREA_DETAILS).map(([key, value]) => (
-                  <SelectItem key={key} value={key}>
-                    {value.name}
+                {AREA_PRESETS.map((area) => (
+                  <SelectItem key={area.id} value={area.id}>
+                    {area.name}
                   </SelectItem>
                 ))}
+                <SelectItem value="custom">
+                  ✏️ Custom Area (type your own)
+                </SelectItem>
               </SelectContent>
             </Select>
           </div>
 
-          {/* Task & Method (display only) */}
-          {area && (
+          {/* Custom Area Inputs */}
+          {isCustom && (
+            <motion.div
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="space-y-3"
+            >
+              <div>
+                <label className="text-sm font-semibold text-slate-700 block mb-2">
+                  Custom Area Name <span className="text-red-600">*</span>
+                </label>
+                <Input
+                  placeholder="e.g., Back Office, Staff Room"
+                  value={customArea}
+                  onChange={(e) => setCustomArea(e.target.value)}
+                />
+              </div>
+              <div>
+                <label className="text-sm font-semibold text-slate-700 block mb-2">
+                  Cleaning Task <span className="text-red-600">*</span>
+                </label>
+                <Input
+                  placeholder="e.g., Wipe surfaces, sanitize equipment"
+                  value={customTask}
+                  onChange={(e) => setCustomTask(e.target.value)}
+                />
+              </div>
+              <div>
+                <label className="text-sm font-semibold text-slate-700 block mb-2">
+                  Cleaning Method
+                </label>
+                <Input
+                  placeholder="e.g., Disinfectant spray + cloth"
+                  value={customMethod}
+                  onChange={(e) => setCustomMethod(e.target.value)}
+                />
+              </div>
+            </motion.div>
+          )}
+
+          {/* Task & Method (display only for presets) */}
+          {preset && !isCustom && (
             <motion.div
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
@@ -177,11 +202,11 @@ export default function DailyCleaningScheduleForm({ user, onSuccess }) {
             >
               <div>
                 <label className="text-sm font-semibold text-slate-700 block mb-1">Cleaning Task</label>
-                <p className="text-slate-800 font-medium">{area.task}</p>
+                <p className="text-slate-800 font-medium">{preset.task}</p>
               </div>
               <div>
                 <label className="text-sm font-semibold text-slate-700 block mb-1">Cleaning Method</label>
-                <p className="text-slate-800 font-medium">{area.method}</p>
+                <p className="text-slate-800 font-medium">{preset.method}</p>
               </div>
             </motion.div>
           )}
