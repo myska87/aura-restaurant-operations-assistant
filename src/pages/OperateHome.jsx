@@ -42,6 +42,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { format } from 'date-fns';
 import TodaysRequiredActions from '@/components/operate/TodaysRequiredActions';
 import MidServiceChecksPanel from '@/components/operate/MidServiceChecksPanel';
+import EquipmentStatusIndicator from '@/components/operate/EquipmentStatusIndicator';
 import OperationCard from '@/components/operate/OperationCard';
 import LoadingSpinner from '@/components/ui/LoadingSpinner';
 import ChecklistModal from '@/components/operations/ChecklistModal';
@@ -398,44 +399,27 @@ export default function OperateHome() {
           </Card>
         </motion.div>
 
-        {/* Shift Summary Card */}
-        <Card className="bg-gradient-to-r from-emerald-600 to-emerald-700 text-white border-0 shadow-xl">
-          <CardContent className="pt-6">
-            <div className="grid grid-cols-2 md:grid-cols-5 gap-4 mb-4">
-              <div>
-                <p className="text-emerald-100 text-xs mb-1">Date</p>
-                <p className="font-bold">{format(new Date(), 'd MMM yyyy')}</p>
-              </div>
-              <div>
-                <p className="text-emerald-100 text-xs mb-1">Shift</p>
-                <p className="font-bold">{detectShift()}</p>
-              </div>
-              <div>
-                <p className="text-emerald-100 text-xs mb-1">Active Staff</p>
-                <p className="font-bold">{shifts.length} on shift</p>
-              </div>
-              <div>
-                <p className="text-emerald-100 text-xs mb-1">Status</p>
-                <p className="font-bold">{myCheckIn ? '✓ Shift Active' : 'Not Started'}</p>
-              </div>
-              <div>
-                <p className="text-emerald-100 text-xs mb-1">Completion</p>
-                <p className="font-bold">{Math.round(((tempCompletion + (handovers.length > 0 ? 100 : 0) + (myOpeningCompletion?.status === 'completed' ? 100 : 0)) / 3))}</p>
-              </div>
-            </div>
-            <Progress value={((tempCompletion + (handovers.length > 0 ? 100 : 0) + (myOpeningCompletion?.status === 'completed' ? 100 : 0)) / 3)} className="h-3 bg-emerald-800 mb-4" />
-            <div className="flex gap-3">
-              {!myCheckIn ? (
-                <Button onClick={handleStartShift} disabled={checkInMutation.isPending || clockInBlocked} className="bg-white text-emerald-700 hover:bg-emerald-50 font-bold">
-                  <CheckCircle2 className="w-5 h-5 mr-2" />
-                  Start Shift
-                </Button>
-              ) : (
-                <Badge className="bg-white text-emerald-700 text-sm px-4 py-2">✓ Shift Active</Badge>
-              )}
-            </div>
-          </CardContent>
-        </Card>
+        {/* Equipment Status Indicator */}
+        <EquipmentStatusIndicator 
+          myCheckIn={myCheckIn} 
+          myClosingCompletion={myClosingCompletion}
+          onOpenClosing={() => openChecklist('closing')}
+        />
+
+        {/* Shift Start Button */}
+        {!myCheckIn && (
+          <div className="flex gap-3">
+            <Button 
+              onClick={handleStartShift} 
+              disabled={checkInMutation.isPending || clockInBlocked} 
+              className="flex-1 h-12 text-lg font-bold bg-gradient-to-r from-emerald-500 to-emerald-600 hover:from-emerald-600 hover:to-emerald-700 shadow-lg"
+              size="lg"
+            >
+              <CheckCircle2 className="w-6 h-6 mr-3" />
+              Start Shift
+            </Button>
+          </div>
+        )}
 
         {/* Today's Required Actions */}
         <TodaysRequiredActions user={user} />
