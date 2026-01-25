@@ -188,6 +188,22 @@ export default function DailyOperationsHub() {
     enabled: !!user
   });
 
+  // Fetch tasks with role-based visibility
+  const { data: allTasks = [] } = useQuery({
+    queryKey: ['tasks'],
+    queryFn: () => base44.entities.Task.list(),
+    enabled: !!user
+  });
+
+  // Filter tasks by role
+  const visibleTasks = allTasks.filter(task => {
+    if (user?.role === 'manager' || user?.role === 'admin') {
+      return true; // Managers see all tasks
+    }
+    // Regular staff and chefs see only tasks for their role
+    return task.required_role === user?.role || task.required_role === 'staff';
+  });
+
   const handoverMutation = useMutation({
     mutationFn: (data) => base44.entities.ShiftHandover.create(data),
     onSuccess: () => {
