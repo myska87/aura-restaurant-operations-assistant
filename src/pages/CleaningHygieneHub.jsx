@@ -1,23 +1,55 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
+import { base44 } from '@/api/base44Client';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { motion } from 'framer-motion';
+import { format } from 'date-fns';
 import { 
   Droplet, 
   Sparkles, 
   UserCheck, 
-  AlertCircle 
+  AlertCircle,
+  CheckCircle,
+  Clock
 } from 'lucide-react';
+import DailyCleaningScheduleForm from '@/components/cleaning/DailyCleaningScheduleForm';
 
 export default function CleaningHygieneHub() {
+  const [user, setUser] = useState(null);
+  const [showDailyForm, setShowDailyForm] = useState(false);
+  const queryClient = useQueryClient();
+
+  useEffect(() => {
+    base44.auth.me().then(setUser).catch(() => {});
+  }, []);
+
+  const today = format(new Date(), 'yyyy-MM-dd');
+
+  // Fetch today's daily cleaning logs
+  const { data: dailyLogs = [] } = useQuery({
+    queryKey: ['dailyCleaningLogs', today],
+    queryFn: () => base44.entities.DailyCleaningLog.filter({ date: today }),
+    enabled: !!user
+  });
+  // Calculate completion status
+  const completedLogs = dailyLogs.filter(log => log.status === 'completed' || log.status === 'approved');
+  const dailyCompletionRate = dailyLogs.length > 0 
+    ? Math.round((completedLogs.length / dailyLogs.length) * 100) 
+    : 0;
+
   const sections = [
     {
       id: 1,
       title: 'Daily Cleaning',
       description: 'Routine cleaning schedules and logs',
       icon: Droplet,
-      color: 'bg-blue-500'
+      color: 'bg-blue-500',
+      onClick: () => setShowDailyForm(true),
+      status: dailyLogs.length > 0 ? 'active' : 'pending',
+      count: `${completedLogs.length}/${dailyLogs.length} completed`
     },
     {
       id: 2,
@@ -80,11 +112,20 @@ export default function CleaningHygieneHub() {
                     </div>
                   </CardHeader>
                   <CardContent>
+                    {section.status && (
+                      <div className="mb-3 flex items-center justify-between">
+                        <Badge variant={section.status === 'active' ? 'default' : 'outline'}>
+                          {section.status === 'active' ? <CheckCircle className="w-3 h-3 mr-1" /> : <Clock className="w-3 h-3 mr-1" />}
+                          {section.count || 'No entries'}
+                        </Badge>
+                      </div>
+                    )}
                     <Button 
-                      disabled 
+                      onClick={section.onClick}
+                      disabled={!section.onClick}
                       className="w-full"
                     >
-                      Coming Soon
+                      {section.onClick ? 'Open' : 'Coming Soon'}
                     </Button>
                   </CardContent>
                 </Card>
@@ -96,10 +137,29 @@ export default function CleaningHygieneHub() {
         {/* Info Badge */}
         <div className="text-center">
           <Badge variant="outline" className="text-slate-600">
-            Functionality will be added soon
+            Daily Cleaning is now operational • More features coming soon
           </Badge>
         </div>
       </div>
+
+      {/* Daily Cleaning Form Dialog */}
+      <Dialog open={showDailyForm} onOpenChange={setShowDailyForm}>
+        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>Daily Cleaning Schedule</DialogTitle>
+          </DialogHeader>
+          {user && (
+            <DailyCleaningScheduleForm
+              user={user}
+              onSuccess={() => {
+                queryClient.invalidateQueries(['dailyCleaningLogs']);
+                setShowDailyForm(false);
+              }}
+              onCancel={() => setShowDailyForm(false)}
+            />
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
