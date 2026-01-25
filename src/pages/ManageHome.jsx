@@ -271,61 +271,93 @@ export default function ManageHome() {
           </Card>
         )}
 
-        {/* Control Centers */}
-        {/* CRITICAL: Cards use Button-based navigation - NO full-card Link wrappers */}
-        <div className="grid grid-cols-3 gap-4">
-          {controlCenters.map((center, idx) => {
-            const Icon = center.icon;
-            return (
-              <motion.div
-                key={center.title}
-                initial={{ opacity: 0, scale: 0.9 }}
-                animate={{ opacity: 1, scale: 1 }}
-                transition={{ delay: idx * 0.05 }}
-              >
-                <Card className="hover:shadow-xl transition-all border-2 border-transparent hover:border-red-300">
-                  <CardContent className="pt-6 text-center">
-                    <div className={`${center.color} w-14 h-14 rounded-xl flex items-center justify-center mx-auto mb-3`}>
-                      <Icon className="w-7 h-7 text-white" />
-                    </div>
-                    <p className="font-bold text-slate-800 mb-2">{center.title}</p>
-                    <p className="text-xs text-slate-500 mb-3">{center.description}</p>
-                    <Link to={createPageUrl(center.link)}>
-                      <Button size="sm" className="w-full bg-red-600 hover:bg-red-700">
-                        Open
-                      </Button>
-                    </Link>
-                  </CardContent>
-                </Card>
-              </motion.div>
-            );
-          })}
+        {/* Reports & Settings */}
+        <div className="grid grid-cols-2 gap-4">
+          {/* Reports Access */}
+          <Card className="border-l-4 border-l-purple-500">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <BarChart3 className="w-5 h-5 text-purple-500" />
+                Reports & Analytics
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-3">
+              <p className="text-sm text-slate-600 mb-3">Access operational and performance reports</p>
+              <div className="space-y-2">
+                <Button variant="outline" className="w-full justify-start" onClick={() => navigate(createPageUrl('Reports'))}>
+                  <FileText className="w-4 h-4 mr-2" />
+                  Business Reports
+                </Button>
+                <Button variant="outline" className="w-full justify-start" onClick={() => navigate(createPageUrl('OperationsReports'))}>
+                  <Shield className="w-4 h-4 mr-2" />
+                  Operations Reports
+                </Button>
+                <Button variant="outline" className="w-full justify-start" onClick={() => navigate(createPageUrl('AuditCenter'))}>
+                  <CheckCircle className="w-4 h-4 mr-2" />
+                  Audit Center
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Settings Access */}
+          <Card className="border-l-4 border-l-slate-500">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Settings className="w-5 h-5 text-slate-600" />
+                System Settings
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-3">
+              <p className="text-sm text-slate-600 mb-3">Configure and manage your operation</p>
+              <div className="space-y-2">
+                <Button variant="outline" className="w-full justify-start" onClick={() => navigate(createPageUrl('GlobalInfo'))}>
+                  <AlertCircle className="w-4 h-4 mr-2" />
+                  Restaurant Info
+                </Button>
+                <Button variant="outline" className="w-full justify-start" onClick={() => navigate(createPageUrl('People'))}>
+                  <Users className="w-4 h-4 mr-2" />
+                  Staff Management
+                </Button>
+                <Button variant="outline" className="w-full justify-start" onClick={() => navigate(createPageUrl('DataManagement'))}>
+                  <Shield className="w-4 h-4 mr-2" />
+                  Data Management
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
         </div>
 
-        {/* Quick Stats */}
-        <div className="grid grid-cols-3 gap-4">
-          <Card>
-            <CardContent className="pt-6 text-center">
-              <Users className="w-8 h-8 text-blue-500 mx-auto mb-2" />
-              <p className="text-3xl font-bold text-slate-800">{activeStaff}</p>
-              <p className="text-sm text-slate-600">Active Staff</p>
-            </CardContent>
-          </Card>
-          <Card>
-            <CardContent className="pt-6 text-center">
-              <AlertTriangle className="w-8 h-8 text-amber-500 mx-auto mb-2" />
-              <p className="text-3xl font-bold text-slate-800">{pendingTasks}</p>
-              <p className="text-sm text-slate-600">Pending Tasks</p>
-            </CardContent>
-          </Card>
-          <Card>
-            <CardContent className="pt-6 text-center">
-              <FileText className="w-8 h-8 text-emerald-500 mx-auto mb-2" />
-              <p className="text-3xl font-bold text-slate-800">{documents.length}</p>
-              <p className="text-sm text-slate-600">Documents</p>
-            </CardContent>
-          </Card>
-        </div>
+        {/* Control Centers */}
+         {/* CRITICAL: Cards use Button-based navigation - NO full-card Link wrappers */}
+         <div className="grid grid-cols-3 gap-4">
+           {controlCenters.map((center, idx) => {
+             const Icon = center.icon;
+             return (
+               <motion.div
+                 key={center.title}
+                 initial={{ opacity: 0, scale: 0.9 }}
+                 animate={{ opacity: 1, scale: 1 }}
+                 transition={{ delay: idx * 0.05 }}
+               >
+                 <Card className="hover:shadow-xl transition-all border-2 border-transparent hover:border-red-300">
+                   <CardContent className="pt-6 text-center">
+                     <div className={`${center.color} w-14 h-14 rounded-xl flex items-center justify-center mx-auto mb-3`}>
+                       <Icon className="w-7 h-7 text-white" />
+                     </div>
+                     <p className="font-bold text-slate-800 mb-2">{center.title}</p>
+                     <p className="text-xs text-slate-500 mb-3">{center.description}</p>
+                     <Link to={createPageUrl(center.link)}>
+                       <Button size="sm" className="w-full bg-red-600 hover:bg-red-700">
+                         Open
+                       </Button>
+                     </Link>
+                   </CardContent>
+                 </Card>
+               </motion.div>
+             );
+           })}
+         </div>
       </div>
     </div>
   );
