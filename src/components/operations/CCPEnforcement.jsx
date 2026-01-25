@@ -37,7 +37,7 @@ export default function CCPEnforcement({ user, blockedItems, onBlockedItemsChang
     if (onBlockedItemsChange) {
       onBlockedItemsChange(Array.from(blockedMenuItems));
     }
-  }, [todayChecks, onBlockedItemsChange]);
+  }, [todayChecks]);
 
   const failedChecks = todayChecks.filter(check => check.status === 'fail');
   const passedChecks = todayChecks.filter(check => check.status === 'pass');
