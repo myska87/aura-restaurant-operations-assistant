@@ -14,6 +14,7 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { AlertCircle, Upload, CheckCircle2 } from 'lucide-react';
+import FormCompletionBanner from '@/components/operations/FormCompletionBanner';
 import { Input } from '@/components/ui/input';
 
 const AREA_PRESETS = [
@@ -49,6 +50,7 @@ export default function DailyCleaningScheduleForm({ user, onSuccess }) {
   const [notes, setNotes] = useState('');
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
+  const [completionStatus, setCompletionStatus] = useState(null);
 
   const queryClient = useQueryClient();
 
@@ -89,16 +91,25 @@ export default function DailyCleaningScheduleForm({ user, onSuccess }) {
       await base44.entities.DailyCleaningLog.create(data);
       return data;
     },
-    onSuccess: () => {
+    onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: ['cleaningLogs'] });
       setSuccess(true);
+      
+      // Determine completion status
+      const status = supervisorSignOff ? 'completed' : 'pending_signoff';
+      setCompletionStatus(status);
+      
       setSelectedArea('');
       setChemical('');
       setPhotoFile(null);
       setSupervisorSignOff(false);
       setNotes('');
-      setTimeout(() => setSuccess(false), 3000);
-      onSuccess?.();
+      
+      setTimeout(() => {
+        setSuccess(false);
+        setCompletionStatus(null);
+        onSuccess?.();
+      }, 4000);
     },
   });
 
@@ -294,17 +305,17 @@ export default function DailyCleaningScheduleForm({ user, onSuccess }) {
             </label>
           </div>
 
-          {/* Success Message */}
-          {success && (
-            <motion.div
-              initial={{ opacity: 0, y: -10 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -10 }}
-              className="p-4 bg-emerald-50 border border-emerald-400 rounded-lg flex items-center gap-3"
-            >
-              <CheckCircle2 className="w-5 h-5 text-emerald-600" />
-              <span className="font-medium text-emerald-800">Cleaning log recorded successfully!</span>
-            </motion.div>
+          {/* Completion Status Banner */}
+          {success && completionStatus && (
+            <FormCompletionBanner 
+              status={completionStatus}
+              message={completionStatus === 'completed' 
+                ? '✅ Completed & Logged' 
+                : '⏳ Completed — Awaiting Supervisor Sign-Off'}
+              details={completionStatus === 'pending_signoff' 
+                ? 'This cleaning task is recorded and pending your supervisor\'s sign-off for compliance.'
+                : 'Cleaning log has been recorded and signed off.'}
+            />
           )}
 
           {/* Submit Button */}
