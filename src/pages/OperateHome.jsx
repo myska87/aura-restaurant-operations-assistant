@@ -4,6 +4,7 @@ import { createPageUrl } from '@/utils';
 import { base44 } from '@/api/base44Client';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
 import { 
   ClipboardCheck, 
   ThermometerSun, 
@@ -19,6 +20,7 @@ import {
 } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { format } from 'date-fns';
+import TodaysRequiredActions from '@/components/operate/TodaysRequiredActions';
 
 export default function OperateHome() {
   const [user, setUser] = useState(null);
@@ -149,6 +151,9 @@ export default function OperateHome() {
             </CardContent>
           </Card>
         )}
+
+        {/* Today's Required Actions */}
+        {user && <TodaysRequiredActions user={user} />}
 
         {/* Main Grid */}
         {/* CRITICAL: Cards use Button-based navigation - NO full-card Link wrappers */}
