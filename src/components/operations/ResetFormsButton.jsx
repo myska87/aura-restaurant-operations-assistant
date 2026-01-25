@@ -169,10 +169,17 @@ export default function ResetFormsButton({ user }) {
           <div className="space-y-4">
             <div className="bg-amber-50 border border-amber-200 rounded-lg p-4">
               <p className="text-sm text-slate-700">
-                <strong>⚠️ This will reset all active form states</strong> (in-progress checklists) 
-                back to default without deleting any historical data or reports.
+                <strong>⚠️ This will reset all today's forms</strong> for complete testing:
               </p>
-              <p className="text-xs text-slate-600 mt-2">
+              <ul className="text-xs text-slate-600 mt-2 space-y-1">
+                <li>✓ Opening/Closing Checklists</li>
+                <li>✓ Hygiene Declarations & Checks</li>
+                <li>✓ Temperature Logs</li>
+                <li>✓ Shift Handovers</li>
+                <li>✓ CCP Checks & Training</li>
+                <li>✓ Check-Ins</li>
+              </ul>
+              <p className="text-xs text-emerald-700 mt-3 font-semibold">
                 ✅ All completed records, reports, and KPIs remain intact.
               </p>
             </div>
