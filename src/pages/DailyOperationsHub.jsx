@@ -748,6 +748,27 @@ export default function DailyOperationsHub() {
         {/* Mid-Service Mandatory Checks */}
         {myCheckIn && <MidServiceChecksPanel user={user} shiftDate={today} />}
 
+        {/* My Tasks - Role-Filtered */}
+        {visibleTasks.length > 0 && (
+          <Card className="border border-slate-200">
+            <CardContent className="pt-6">
+              <h3 className="font-bold text-lg mb-4">My Tasks ({visibleTasks.length})</h3>
+              <div className="space-y-2">
+                {visibleTasks.map(task => (
+                  <div key={task.id} className="p-3 bg-slate-50 border border-slate-200 rounded-lg flex items-start gap-3">
+                    <div className="w-2 h-2 rounded-full bg-blue-500 mt-2 flex-shrink-0" />
+                    <div className="flex-1 min-w-0">
+                      <p className="font-semibold text-slate-900">{task.title}</p>
+                      <p className="text-sm text-slate-600">{task.description}</p>
+                      <Badge variant="outline" className="mt-2 text-xs capitalize">{task.required_role}</Badge>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+        )}
+
         {/* Opening, Closing, Briefing & Handover Buttons */}
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
           <div className="space-y-2">
