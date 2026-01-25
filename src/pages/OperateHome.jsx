@@ -409,9 +409,7 @@ export default function OperateHome() {
 
         {/* Equipment Status Indicator */}
         <EquipmentStatusIndicator 
-          myCheckIn={myCheckIn} 
-          myClosingCompletion={myClosingCompletion}
-          onOpenClosing={() => openChecklist('closing')}
+          equipmentStatus={equipmentStatus}
         />
 
         {/* Shift Start Button */}
