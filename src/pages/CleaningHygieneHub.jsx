@@ -17,11 +17,13 @@ import {
 } from 'lucide-react';
 import DailyCleaningScheduleForm from '@/components/cleaning/DailyCleaningScheduleForm';
 import PersonalHygieneDeclarationForm from '@/components/hygiene/PersonalHygieneDeclarationForm';
+import IllnessReportingForm from '@/components/hygiene/IllnessReportingForm';
 
 export default function CleaningHygieneHub() {
   const [user, setUser] = useState(null);
   const [showDailyForm, setShowDailyForm] = useState(false);
   const [showHygieneForm, setShowHygieneForm] = useState(false);
+  const [showIllnessForm, setShowIllnessForm] = useState(false);
   const queryClient = useQueryClient();
 
   useEffect(() => {
@@ -41,6 +43,13 @@ export default function CleaningHygieneHub() {
   const { data: hygieneDeclarations = [] } = useQuery({
     queryKey: ['hygieneDeclarations', today],
     queryFn: () => base44.entities.PersonalHygieneDeclaration.filter({ shift_date: today }),
+    enabled: !!user
+  });
+
+  // Fetch illness reports
+  const { data: illnessReports = [] } = useQuery({
+    queryKey: ['illnessReports'],
+    queryFn: () => base44.entities.IllnessReport.filter({ status: { $in: ['pending', 'reviewed'] } }),
     enabled: !!user
   });
   // Calculate completion status
@@ -89,7 +98,10 @@ export default function CleaningHygieneHub() {
       title: 'Illness Reporting',
       description: 'Staff illness notifications',
       icon: AlertCircle,
-      color: 'bg-red-500'
+      color: 'bg-red-500',
+      onClick: () => setShowIllnessForm(true),
+      status: illnessReports.length > 0 ? 'active' : 'pending',
+      count: `${illnessReports.length} active reports`
     }
   ];
 
@@ -194,6 +206,24 @@ export default function CleaningHygieneHub() {
               onSuccess={() => {
                 queryClient.invalidateQueries(['hygieneDeclarations']);
                 setShowHygieneForm(false);
+              }}
+            />
+          )}
+        </DialogContent>
+      </Dialog>
+
+      {/* Illness Reporting Dialog */}
+      <Dialog open={showIllnessForm} onOpenChange={setShowIllnessForm}>
+        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>Report Illness</DialogTitle>
+          </DialogHeader>
+          {user && (
+            <IllnessReportingForm
+              user={user}
+              onSuccess={() => {
+                queryClient.invalidateQueries(['illnessReports']);
+                setShowIllnessForm(false);
               }}
             />
           )}
