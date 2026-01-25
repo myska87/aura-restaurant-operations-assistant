@@ -9,6 +9,7 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { CheckCircle, Circle, AlertTriangle, Upload } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { base44 } from '@/api/base44Client';
+import { format } from 'date-fns';
 
 export default function ChecklistModal({ 
   open, 
@@ -17,7 +18,8 @@ export default function ChecklistModal({
   existingCompletion,
   onItemToggle,
   onComplete,
-  loading 
+  loading,
+  user
 }) {
   const [answers, setAnswers] = useState({});
   const [notes, setNotes] = useState({});
@@ -99,6 +101,43 @@ export default function ChecklistModal({
   const allRequiredComplete = items
     .filter(i => i.required && i.question_type !== 'section_header')
     .every(i => answers[i.item_id] && answers[i.item_id] !== '');
+
+  const handleCompleteWithReport = async () => {
+    // Call original complete handler
+    await onComplete();
+    
+    // Also save to OperationReport
+    try {
+      const completedItems = items.filter(i => answers[i.item_id] && answers[i.item_id] !== '');
+      const failedItems = items.filter(i => 
+        answers[i.item_id] === 'no' || 
+        (i.required && (!answers[i.item_id] || answers[i.item_id] === ''))
+      );
+
+      await base44.entities.OperationReport.create({
+        reportType: 'CHECKLIST',
+        locationId: 'default',
+        staffId: user?.id || 'unknown',
+        staffName: user?.full_name || user?.email || 'Staff',
+        staffEmail: user?.email || 'unknown@restaurant.com',
+        reportDate: format(new Date(), 'yyyy-MM-dd'),
+        completionPercentage: Math.round(progress) || 0,
+        status: failedItems.length > 0 ? 'fail' : 'pass',
+        checklistItems: completedItems.map(item => ({
+          item_id: item.item_id,
+          item_name: item.question_text,
+          answer: answers[item.item_id],
+          notes: notes[item.item_id] || ''
+        })),
+        failedItems: failedItems.map(i => i.question_text),
+        sourceEntityId: existingCompletion?.id || checklist.id,
+        sourceEntityType: 'ChecklistCompletion',
+        timestamp: new Date().toISOString()
+      });
+    } catch (error) {
+      console.error('Error saving to operation report:', error);
+    }
+  };
 
   return (
     <Dialog open={open} onOpenChange={onClose}>
@@ -266,7 +305,7 @@ export default function ChecklistModal({
               Close
             </Button>
             <Button
-              onClick={onComplete}
+              onClick={handleCompleteWithReport}
               disabled={!allRequiredComplete || loading}
               className="bg-emerald-600 hover:bg-emerald-700"
             >

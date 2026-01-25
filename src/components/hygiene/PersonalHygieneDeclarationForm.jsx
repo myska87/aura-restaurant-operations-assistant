@@ -63,6 +63,28 @@ export default function PersonalHygieneDeclarationForm({ user, shiftDate, onSucc
 
       const result = await base44.entities.PersonalHygieneDeclaration.create(data);
 
+      // Save to OperationReport
+      await base44.entities.OperationReport.create({
+        reportType: 'HYGIENE',
+        locationId: 'default',
+        staffId: user.id || 'unknown',
+        staffName: user.full_name || 'Staff',
+        staffEmail: user.email,
+        reportDate: today,
+        completionPercentage: allYes ? 100 : 0,
+        status: allYes ? 'pass' : 'fail',
+        checklistItems: QUESTIONS.map(q => ({
+          item_id: q.id,
+          item_name: q.label,
+          answer: answers[q.id] ? 'yes' : 'no',
+          notes: ''
+        })),
+        failedItems: failedQuestions.map(id => QUESTIONS.find(q => q.id === id)?.label || id),
+        sourceEntityId: result.id,
+        sourceEntityType: 'PersonalHygieneDeclaration',
+        timestamp: now.toISOString()
+      });
+
       // If any answer is NO, trigger illness report flow
       if (!allYes) {
         setShowIllnessForm(true);

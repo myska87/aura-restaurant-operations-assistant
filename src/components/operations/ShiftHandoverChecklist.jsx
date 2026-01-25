@@ -6,6 +6,8 @@ import { Badge } from '@/components/ui/badge';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { CheckCircle, AlertCircle, AlertTriangle } from 'lucide-react';
 import { motion } from 'framer-motion';
+import { base44 } from '@/api/base44Client';
+import { format } from 'date-fns';
 
 export default function ShiftHandoverChecklist({ open, onClose, user, shift, date, onSubmit, loading }) {
   const [answers, setAnswers] = useState({
@@ -74,13 +76,42 @@ export default function ShiftHandoverChecklist({ open, onClose, user, shift, dat
 
   const hasIssues = Object.entries(answers).some(([, data]) => data.answer === 'yes');
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
+    // Call original submit
     onSubmit({
       shift_date: date,
       shift_type: shift,
       answers,
       has_issues: hasIssues
     });
+
+    // Save to OperationReport
+    try {
+      await base44.entities.OperationReport.create({
+        reportType: 'HANDOVER',
+        locationId: 'default',
+        staffId: user?.id || 'unknown',
+        staffName: user?.full_name || user?.email || 'Staff',
+        staffEmail: user?.email || 'unknown@restaurant.com',
+        reportDate: date,
+        completionPercentage: allRequiredAnswered ? 100 : 0,
+        status: hasIssues ? 'fail' : 'pass',
+        checklistItems: questions.map(q => ({
+          item_id: q.id,
+          item_name: q.label,
+          answer: answers[q.id].answer || 'not_answered',
+          notes: answers[q.id].details || ''
+        })),
+        failedItems: Object.entries(answers)
+          .filter(([_, data]) => data.answer === 'yes')
+          .map(([id]) => questions.find(q => q.id === id)?.label || id),
+        sourceEntityId: date + '_' + shift,
+        sourceEntityType: 'ShiftHandover',
+        timestamp: new Date().toISOString()
+      });
+    } catch (error) {
+      console.error('Error saving handover report:', error);
+    }
   };
 
   return (
