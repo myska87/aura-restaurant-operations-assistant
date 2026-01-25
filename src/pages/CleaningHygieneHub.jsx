@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { useNavigate } from 'react-router-dom';
+import { createPageUrl } from './utils';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -80,7 +82,8 @@ export default function CleaningHygieneHub() {
       title: 'Deep Cleaning',
       description: 'Equipment and area deep cleaning',
       icon: Sparkles,
-      color: 'bg-purple-500'
+      color: 'bg-purple-500',
+      navigateTo: 'DeepCleaningSchedule'
     },
     {
       id: 3,
@@ -153,11 +156,11 @@ export default function CleaningHygieneHub() {
                       </div>
                     )}
                     <Button 
-                      onClick={section.onClick}
-                      disabled={!section.onClick}
+                      onClick={section.navigateTo ? () => navigate(createPageUrl(section.navigateTo)) : section.onClick}
+                      disabled={!section.onClick && !section.navigateTo}
                       className="w-full"
                     >
-                      {section.onClick ? 'Open' : 'Coming Soon'}
+                      {(section.onClick || section.navigateTo) ? 'Open' : 'Coming Soon'}
                     </Button>
                   </CardContent>
                 </Card>
