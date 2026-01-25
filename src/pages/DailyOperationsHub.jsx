@@ -800,6 +800,7 @@ export default function DailyOperationsHub() {
         )}
 
         {/* Operations Grid */}
+        {/* CRITICAL: Cards use explicit Button navigation - NO full-card clickable wrappers */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           {operationTiles.map((tile, idx) => {
             const Icon = tile.icon;

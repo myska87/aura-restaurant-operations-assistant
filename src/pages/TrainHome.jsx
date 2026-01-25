@@ -15,6 +15,7 @@ import {
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
 import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
 import { motion } from 'framer-motion';
 
 export default function TrainHome() {
@@ -111,6 +112,7 @@ export default function TrainHome() {
         </Card>
 
         {/* Training Paths */}
+        {/* CRITICAL: Cards use Button-based navigation - NO full-card Link wrappers */}
         <div className="grid grid-cols-2 gap-4">
           {trainingPaths.map((path, idx) => {
             const Icon = path.icon;
@@ -121,19 +123,22 @@ export default function TrainHome() {
                 animate={{ opacity: 1, scale: 1 }}
                 transition={{ delay: idx * 0.1 }}
               >
-                <Link to={createPageUrl(path.link)}>
-                  <Card className="hover:shadow-xl transition-all cursor-pointer border-2 border-transparent hover:border-amber-300 h-40">
-                    <CardContent className="pt-6 flex flex-col items-center justify-center h-full text-center">
-                      <div className={`${path.color} w-16 h-16 rounded-2xl flex items-center justify-center mb-3`}>
-                        <Icon className="w-8 h-8 text-white" />
-                      </div>
-                      <p className="font-bold text-lg text-slate-800">{path.title}</p>
-                      {path.stat && (
-                        <Badge className="mt-2 bg-amber-500">{path.stat}</Badge>
-                      )}
-                    </CardContent>
-                  </Card>
-                </Link>
+                <Card className="hover:shadow-xl transition-all border-2 border-transparent hover:border-amber-300">
+                  <CardContent className="pt-6 pb-6 flex flex-col items-center text-center">
+                    <div className={`${path.color} w-16 h-16 rounded-2xl flex items-center justify-center mb-3`}>
+                      <Icon className="w-8 h-8 text-white" />
+                    </div>
+                    <p className="font-bold text-lg text-slate-800 mb-2">{path.title}</p>
+                    {path.stat && (
+                      <Badge className="mb-3 bg-amber-500">{path.stat}</Badge>
+                    )}
+                    <Link to={createPageUrl(path.link)} className="w-full">
+                      <Button className="w-full bg-amber-600 hover:bg-amber-700">
+                        Open
+                      </Button>
+                    </Link>
+                  </CardContent>
+                </Card>
               </motion.div>
             );
           })}

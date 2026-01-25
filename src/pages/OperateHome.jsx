@@ -151,6 +151,7 @@ export default function OperateHome() {
         )}
 
         {/* Main Grid */}
+        {/* CRITICAL: Cards use Button-based navigation - NO full-card Link wrappers */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
           {operateTiles.map((tile, idx) => {
             const Icon = tile.icon;
@@ -161,21 +162,24 @@ export default function OperateHome() {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: idx * 0.05 }}
               >
-                <Link to={createPageUrl(tile.page)}>
-                  <Card className="h-full hover:shadow-2xl transition-all cursor-pointer border-2 border-slate-200 hover:border-blue-400 hover:scale-105 duration-200">
-                    <CardContent className="pt-8 pb-8 text-center">
-                      <div className={`${tile.color} w-20 h-20 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg`}>
-                        <Icon className="w-10 h-10 text-white" />
-                      </div>
-                      <h3 className="text-xl font-bold text-slate-800 mb-2">
-                        {tile.title}
-                      </h3>
-                      <p className="text-sm text-slate-600">
-                        {tile.description}
-                      </p>
-                    </CardContent>
-                  </Card>
-                </Link>
+                <Card className="h-full hover:shadow-2xl transition-all border-2 border-slate-200 hover:border-blue-400">
+                  <CardContent className="pt-8 pb-8 text-center">
+                    <div className={`${tile.color} w-20 h-20 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg`}>
+                      <Icon className="w-10 h-10 text-white" />
+                    </div>
+                    <h3 className="text-xl font-bold text-slate-800 mb-2">
+                      {tile.title}
+                    </h3>
+                    <p className="text-sm text-slate-600 mb-4">
+                      {tile.description}
+                    </p>
+                    <Link to={createPageUrl(tile.page)}>
+                      <Button className="w-full bg-blue-600 hover:bg-blue-700">
+                        Open
+                      </Button>
+                    </Link>
+                  </CardContent>
+                </Card>
               </motion.div>
             );
           })}

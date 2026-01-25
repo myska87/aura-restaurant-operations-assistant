@@ -15,6 +15,7 @@ import {
 } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
 import { motion } from 'framer-motion';
 
 export default function ManageHome() {
@@ -153,6 +154,7 @@ export default function ManageHome() {
         </Card>
 
         {/* Control Centers */}
+        {/* CRITICAL: Cards use Button-based navigation - NO full-card Link wrappers */}
         <div className="grid grid-cols-3 gap-4">
           {controlCenters.map((center, idx) => {
             const Icon = center.icon;
@@ -163,17 +165,20 @@ export default function ManageHome() {
                 animate={{ opacity: 1, scale: 1 }}
                 transition={{ delay: idx * 0.05 }}
               >
-                <Link to={createPageUrl(center.link)}>
-                  <Card className="hover:shadow-xl transition-all cursor-pointer border-2 border-transparent hover:border-red-300">
-                    <CardContent className="pt-6 text-center">
-                      <div className={`${center.color} w-14 h-14 rounded-xl flex items-center justify-center mx-auto mb-3`}>
-                        <Icon className="w-7 h-7 text-white" />
-                      </div>
-                      <p className="font-bold text-slate-800">{center.title}</p>
-                      <p className="text-xs text-slate-500 mt-1">{center.description}</p>
-                    </CardContent>
-                  </Card>
-                </Link>
+                <Card className="hover:shadow-xl transition-all border-2 border-transparent hover:border-red-300">
+                  <CardContent className="pt-6 text-center">
+                    <div className={`${center.color} w-14 h-14 rounded-xl flex items-center justify-center mx-auto mb-3`}>
+                      <Icon className="w-7 h-7 text-white" />
+                    </div>
+                    <p className="font-bold text-slate-800 mb-2">{center.title}</p>
+                    <p className="text-xs text-slate-500 mb-3">{center.description}</p>
+                    <Link to={createPageUrl(center.link)}>
+                      <Button size="sm" className="w-full bg-red-600 hover:bg-red-700">
+                        Open
+                      </Button>
+                    </Link>
+                  </CardContent>
+                </Card>
               </motion.div>
             );
           })}

@@ -286,12 +286,13 @@ function LayoutContent({ children, currentPageName }) {
       </aside>
 
       {/* Mobile Header */}
+      {/* IMPORTANT: All interactive elements in mobile header MUST have pointer-events enabled */}
       <header className="lg:hidden fixed top-0 left-0 right-0 z-40 bg-white/80 backdrop-blur-xl border-b border-slate-200/50 shadow-sm">
         <div className="flex items-center justify-between h-16 px-4">
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 pointer-events-auto">
             <Sheet open={sidebarOpen} onOpenChange={setSidebarOpen}>
               <SheetTrigger asChild>
-                <Button variant="ghost" size="icon" className="lg:hidden">
+                <Button variant="ghost" size="icon" className="lg:hidden pointer-events-auto">
                   <MenuIcon className="w-6 h-6" />
                 </Button>
               </SheetTrigger>
@@ -303,18 +304,18 @@ function LayoutContent({ children, currentPageName }) {
               variant="ghost"
               size="sm"
               onClick={() => navigate(-1)}
-              className="hover:bg-slate-100"
+              className="hover:bg-slate-100 pointer-events-auto"
             >
               <ArrowLeft className="w-4 h-4" />
             </Button>
-          </div>
+            </div>
 
-          <div className="flex items-center gap-2">
+            <div className="flex items-center gap-2">
             <Leaf className="w-6 h-6 text-emerald-600" />
             <span className="font-bold text-slate-800">AURA</span>
-          </div>
+            </div>
 
-          <div className="flex items-center gap-2">
+            <div className="flex items-center gap-2 pointer-events-auto">
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button variant="ghost" size="icon" className="relative">
@@ -349,20 +350,22 @@ function LayoutContent({ children, currentPageName }) {
               </DropdownMenuContent>
             </DropdownMenu>
           </div>
-        </div>
-        <div className="px-4 pb-3">
+          </div>
+          <div className="px-4 pb-3 pointer-events-auto">
           <ModeSelector user={user} />
-        </div>
-      </header>
+          </div>
+          </header>
 
       {/* Desktop Header */}
+      {/* IMPORTANT: All interactive elements in this header MUST have pointer-events enabled */}
+      {/* NEVER wrap buttons/selectors in click-intercepting containers */}
       <header className="hidden lg:flex fixed top-0 left-72 right-0 z-40 h-16 bg-white/80 backdrop-blur-xl border-b border-slate-200/50 shadow-sm items-center justify-between px-8">
         <div className="flex items-center gap-3">
           <Button
             variant="ghost"
             size="sm"
             onClick={() => navigate(-1)}
-            className="hover:bg-slate-100"
+            className="hover:bg-slate-100 pointer-events-auto"
           >
             <ArrowLeft className="w-4 h-4 mr-2" />
             Back
@@ -372,7 +375,7 @@ function LayoutContent({ children, currentPageName }) {
             {currentPageName?.replace(/([A-Z])/g, ' $1').trim() || 'Dashboard'}
           </h1>
         </div>
-        <div className="flex items-center gap-4">
+        <div className="flex items-center gap-4 pointer-events-auto">
           <ModeSelector user={user} />
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
