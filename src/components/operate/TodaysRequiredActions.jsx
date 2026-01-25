@@ -21,10 +21,17 @@ export default function TodaysRequiredActions({ user }) {
   // Fetch today's hygiene declaration
   const { data: hygieneDeclarations = [] } = useQuery({
     queryKey: ['hygieneDeclarations', user?.email, today],
-    queryFn: () => base44.entities.PersonalHygieneDeclaration.filter({
-      staff_email: user.email,
-      declaration_date: today
-    }),
+    queryFn: async () => {
+      try {
+        return await base44.entities.PersonalHygieneDeclaration.filter({
+          staff_email: user.email,
+          declaration_date: today
+        });
+      } catch (error) {
+        console.error('Failed to fetch hygiene declarations:', error);
+        return [];
+      }
+    },
     enabled: !!user?.email
   });
 
@@ -49,8 +56,9 @@ export default function TodaysRequiredActions({ user }) {
   const actions = [];
 
   // Personal Hygiene Declaration
-  const hygieneComplete = hygieneDeclarations.length > 0 && hygieneDeclarations[0]?.all_clear;
-  const hygieneFailed = hygieneDeclarations.length > 0 && !hygieneDeclarations[0]?.all_clear;
+  const latestDeclaration = hygieneDeclarations?.[0];
+  const hygieneComplete = latestDeclaration?.all_clear === true;
+  const hygieneFailed = latestDeclaration && latestDeclaration.all_clear === false;
   
   actions.push({
     id: 'hygiene',
