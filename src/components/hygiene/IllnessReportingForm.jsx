@@ -17,34 +17,49 @@ const SYMPTOMS = [
   { id: 'other', label: 'Other' }
 ];
 
-export default function IllnessReportingForm({ user, onSuccess }) {
-  const [symptoms, setSymptoms] = useState([]);
-  const [symptomsStartDate, setSymptomsStartDate] = useState('');
-  const [lastShiftWorked, setLastShiftWorked] = useState('');
-  const [doctorAdvised, setDoctorAdvised] = useState(false);
-  const [managerNotified, setManagerNotified] = useState(false);
+export default function IllnessReportingForm({ user, onSuccess, existingReport }) {
+  const [symptoms, setSymptoms] = useState(existingReport?.symptoms || []);
+  const [symptomsStartDate, setSymptomsStartDate] = useState(existingReport?.date_symptoms_started || '');
+  const [lastShiftWorked, setLastShiftWorked] = useState(existingReport?.last_shift_worked || '');
+  const [doctorAdvised, setDoctorAdvised] = useState(existingReport?.doctor_advised || false);
+  const [managerNotified, setManagerNotified] = useState(existingReport?.manager_notified || false);
+  const [managerResponse, setManagerResponse] = useState(existingReport?.manager_response || 'pending');
+  const [managerNotes, setManagerNotes] = useState(existingReport?.manager_notes || '');
+  const [clearanceDate, setClearanceDate] = useState(existingReport?.clearance_date || '');
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
+  
+  const isManager = user?.role === 'manager' || user?.role === 'owner' || user?.role === 'admin';
 
   const submitMutation = useMutation({
     mutationFn: async () => {
       const today = format(new Date(), 'yyyy-MM-dd');
       
       const data = {
-        staff_id: user.id,
-        staff_name: user.full_name,
-        staff_email: user.email,
-        report_date: today,
-        report_time: new Date().toISOString(),
+        staff_id: existingReport?.staff_id || user.id,
+        staff_name: existingReport?.staff_name || user.full_name,
+        staff_email: existingReport?.staff_email || user.email,
+        report_date: existingReport?.report_date || today,
+        report_time: existingReport?.report_time || new Date().toISOString(),
         symptoms,
         date_symptoms_started: symptomsStartDate,
         last_shift_worked: lastShiftWorked,
         doctor_advised: doctorAdvised,
         manager_notified: managerNotified,
-        status: 'pending'
+        manager_response: managerResponse,
+        manager_notes: managerNotes,
+        manager_id: isManager ? user.id : existingReport?.manager_id,
+        manager_name: isManager ? user.full_name : existingReport?.manager_name,
+        manager_email: isManager ? user.email : existingReport?.manager_email,
+        clearance_date: clearanceDate,
+        status: managerResponse === 'approved_work' ? 'cleared' : (managerResponse === 'go_home' ? 'reviewed' : 'pending')
       };
 
-      await base44.entities.IllnessReport.create(data);
+      if (existingReport) {
+        await base44.entities.IllnessReport.update(existingReport.id, data);
+      } else {
+        await base44.entities.IllnessReport.create(data);
+      }
       return data;
     },
     onSuccess: () => {
@@ -170,6 +185,62 @@ export default function IllnessReportingForm({ user, onSuccess }) {
             </label>
           </div>
 
+          {/* Manager Decision Section (only visible if manager and editing existing report) */}
+          {isManager && existingReport && (
+            <div className="p-4 bg-amber-50 border-2 border-amber-400 rounded-lg space-y-4">
+              <h3 className="font-bold text-amber-900 flex items-center gap-2">
+                <AlertCircle className="w-5 h-5" />
+                Manager Decision
+              </h3>
+              
+              {/* Manager Response */}
+              <div>
+                <label className="text-sm font-semibold text-slate-700 block mb-2">
+                  Decision <span className="text-red-600">*</span>
+                </label>
+                <select
+                  value={managerResponse}
+                  onChange={(e) => setManagerResponse(e.target.value)}
+                  className="w-full p-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-amber-500"
+                >
+                  <option value="pending">Pending Review</option>
+                  <option value="approved_work">Clear to Work</option>
+                  <option value="approved_alternative">Alternative Duties</option>
+                  <option value="go_home">Send Home</option>
+                </select>
+              </div>
+
+              {/* Manager Notes */}
+              <div>
+                <label className="text-sm font-semibold text-slate-700 block mb-2">
+                  Manager Notes
+                </label>
+                <textarea
+                  value={managerNotes}
+                  onChange={(e) => setManagerNotes(e.target.value)}
+                  placeholder="Enter notes about the decision..."
+                  rows={3}
+                  className="w-full p-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-amber-500"
+                />
+              </div>
+
+              {/* Clearance Date (if approved to work) */}
+              {(managerResponse === 'approved_work' || managerResponse === 'approved_alternative') && (
+                <div>
+                  <label className="text-sm font-semibold text-slate-700 block mb-2">
+                    Clearance Date
+                  </label>
+                  <input
+                    type="date"
+                    value={clearanceDate}
+                    onChange={(e) => setClearanceDate(e.target.value)}
+                    className="w-full p-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-amber-500"
+                  />
+                </div>
+              )}
+            </div>
+          )}
+
           {/* Success Message */}
           {success && (
             <motion.div
@@ -188,7 +259,7 @@ export default function IllnessReportingForm({ user, onSuccess }) {
             disabled={symptoms.length === 0 || !symptomsStartDate || loading}
             className="w-full bg-red-600 hover:bg-red-700 text-white font-bold py-3"
           >
-            {loading ? 'Submitting...' : 'Submit Illness Report'}
+            {loading ? 'Submitting...' : (existingReport ? 'Update Report' : 'Submit Illness Report')}
           </Button>
         </form>
       </CardContent>

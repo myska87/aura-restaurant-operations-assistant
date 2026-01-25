@@ -103,7 +103,7 @@ export default function CleaningHygieneHub() {
       description: 'Staff illness notifications',
       icon: AlertCircle,
       color: 'bg-red-500',
-      onClick: () => setShowIllnessForm(true),
+      navigateTo: 'IllnessReportsList',
       status: illnessReports.length > 0 ? 'active' : 'pending',
       count: `${illnessReports.length} active reports`
     }
