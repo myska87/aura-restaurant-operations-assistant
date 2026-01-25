@@ -50,6 +50,7 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import QuickAccessToolbar from '@/components/ui/QuickAccessToolbar';
 import { ModeProvider, useMode, MODES } from '@/components/modes/ModeContext';
 import ModeSelector from '@/components/modes/ModeSelector';
+import ErrorBoundary from '@/components/ErrorBoundary';
 
 const navGroups = [
   {
@@ -448,8 +449,10 @@ function LayoutContent({ children, currentPageName }) {
 
 export default function Layout({ children, currentPageName }) {
   return (
-    <ModeProvider>
-      <LayoutContent children={children} currentPageName={currentPageName} />
-    </ModeProvider>
+    <ErrorBoundary currentPageName={currentPageName}>
+      <ModeProvider>
+        <LayoutContent children={children} currentPageName={currentPageName} />
+      </ModeProvider>
+    </ErrorBoundary>
   );
 }
