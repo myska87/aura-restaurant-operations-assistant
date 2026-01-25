@@ -3,9 +3,11 @@ import { base44 } from '@/api/base44Client';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { AlertCircle, Calendar, ClipboardCheck, Thermometer, Clock, UtensilsCrossed, LogOut } from 'lucide-react';
+import { AlertCircle, Calendar, ClipboardCheck, Thermometer, Clock, UtensilsCrossed, LogOut, Lock } from 'lucide-react';
 import { format } from 'date-fns';
 import LoadingSpinner from '@/components/ui/LoadingSpinner';
+import { useDayState, DAY_STATES } from '@/components/daystate/DayStateContext';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 
 export default function OperateHome() {
   const [user, setUser] = useState(null);
