@@ -19,11 +19,13 @@ import {
   AlertCircle,
   LayoutDashboard,
   CheckCircle2,
-  XCircle
+  XCircle,
+  Zap
 } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { format } from 'date-fns';
 import TodaysRequiredActions from '@/components/operate/TodaysRequiredActions';
+import OperationCard from '@/components/operate/OperationCard';
 
 export default function OperateHome() {
   const [user, setUser] = useState(null);
@@ -119,90 +121,101 @@ export default function OperateHome() {
     {
       id: 1,
       title: 'Dashboard',
-      description: 'Overview and key metrics',
+      summary: 'All tools & status',
       icon: LayoutDashboard,
       color: 'bg-indigo-600',
-      page: 'DailyOperationsHub'
+      page: 'DailyOperationsHub',
+      actionButtons: [{ label: '→ Open', onClick: () => navigate(createPageUrl('DailyOperationsHub')) }]
     },
     {
       id: 2,
       title: "Today's Tasks",
-      description: 'Opening, closing, shift tasks',
+      summary: 'Opening, closing, checklists',
       icon: ClipboardCheck,
       color: 'bg-blue-500',
-      page: 'DailyOperationsHub'
+      page: 'DailyOperationsHub',
+      actionButtons: [{ label: '→ Start', onClick: () => navigate(createPageUrl('DailyOperationsHub')) }]
     },
     {
       id: 3,
-      title: 'Food Safety Logs',
-      description: 'Temp checks, fridge, freezer, hot hold',
+      title: 'Food Safety',
+      summary: 'Temps, CCPs, hot hold',
       icon: ThermometerSun,
       color: 'bg-red-500',
-      page: 'Operations'
+      page: 'Operations',
+      actionButtons: [{ label: '→ Log', onClick: () => navigate(createPageUrl('Operations')) }]
     },
     {
       id: 4,
-      title: 'Cleaning & Hygiene',
-      description: 'Daily, weekly, deep clean, COSHH',
+      title: 'Cleaning',
+      summary: 'Daily, deep clean, hygiene',
       icon: Sparkles,
       color: 'bg-purple-500',
-      page: 'FoodSafetyChecklist'
+      page: 'CleaningHygieneHub',
+      actionButtons: [{ label: '→ Check', onClick: () => navigate(createPageUrl('CleaningHygieneHub')) }]
     },
     {
       id: 5,
-      title: 'Prep & Stock',
-      description: 'Prep workflow, components, deliveries',
+      title: 'Prep',
+      summary: 'Stock, components, prep',
       icon: ChefHat,
       color: 'bg-amber-500',
-      page: 'PrepWorkflow'
+      page: 'PrepWorkflow',
+      actionButtons: [{ label: '→ Manage', onClick: () => navigate(createPageUrl('PrepWorkflow')) }]
     },
     {
       id: 6,
       title: 'Dish Assembly',
-      description: 'Visual guides, step-by-step build',
+      summary: 'Visual step guides',
       icon: Box,
       color: 'bg-emerald-500',
-      page: 'VisualDishGuides'
+      page: 'VisualDishGuides',
+      actionButtons: [{ label: '→ View', onClick: () => navigate(createPageUrl('VisualDishGuides')) }]
     },
     {
       id: 7,
-      title: 'Waste & Issues',
-      description: 'Log waste, equipment faults, recovery',
+      title: 'Issues',
+      summary: 'Faults, waste, recovery',
       icon: AlertTriangle,
       color: 'bg-orange-500',
-      page: 'ServiceRecovery'
+      page: 'ServiceRecovery',
+      actionButtons: [{ label: '→ Report', onClick: () => navigate(createPageUrl('ServiceRecovery')) }]
     },
     {
       id: 8,
-      title: 'Shift & Clock',
-      description: 'Clock in/out, shift schedule',
+      title: 'Shifts',
+      summary: 'Clock in/out, schedule',
       icon: Clock,
       color: 'bg-slate-600',
-      page: 'Shifts'
+      page: 'Shifts',
+      actionButtons: [{ label: '→ View', onClick: () => navigate(createPageUrl('Shifts')) }]
     },
     {
       id: 9,
-      title: 'Flow Board',
-      description: 'Live orders, kitchen flow',
+      title: 'Live Orders',
+      summary: 'Kitchen flow board',
       icon: TrendingUp,
       color: 'bg-blue-600',
-      page: 'FlowBoard'
+      page: 'FlowBoard',
+      actionButtons: [{ label: '→ Check', onClick: () => navigate(createPageUrl('FlowBoard')) }]
     },
     {
       id: 10,
       title: 'Allergens',
-      description: 'Search dishes, check allergens',
+      summary: 'Search & check',
       icon: ShieldAlert,
       color: 'bg-red-600',
-      page: 'AllergenDashboard'
+      page: 'AllergenDashboard',
+      actionButtons: [{ label: '→ Search', onClick: () => navigate(createPageUrl('AllergenDashboard')) }]
     },
     {
       id: 11,
-      title: 'Emergency / Help',
-      description: 'Procedures, contacts, manuals',
+      title: 'Help',
+      summary: 'Procedures & contacts',
       icon: AlertCircle,
       color: 'bg-red-700',
-      page: 'QualitySafety'
+      page: 'QualitySafety',
+      actionButtons: [{ label: '→ Find', onClick: () => navigate(createPageUrl('QualitySafety')) }]
     }
   ];
 
@@ -269,39 +282,19 @@ export default function OperateHome() {
         {/* Today's Required Actions */}
         {user && <TodaysRequiredActions user={user} />}
 
-        {/* Main Grid */}
-        {/* CRITICAL: Cards use Button-based navigation - NO full-card Link wrappers */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-          {operateTiles.map((tile, idx) => {
-            const Icon = tile.icon;
-            return (
-              <motion.div
-                key={tile.id}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: idx * 0.05 }}
-              >
-                <Card className="h-full hover:shadow-2xl transition-all border-2 border-slate-200 hover:border-blue-400">
-                  <CardContent className="pt-8 pb-8 text-center">
-                    <div className={`${tile.color} w-20 h-20 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg`}>
-                      <Icon className="w-10 h-10 text-white" />
-                    </div>
-                    <h3 className="text-xl font-bold text-slate-800 mb-2">
-                      {tile.title}
-                    </h3>
-                    <p className="text-sm text-slate-600 mb-4">
-                      {tile.description}
-                    </p>
-                    <Link to={createPageUrl(tile.page)}>
-                      <Button className="w-full bg-blue-600 hover:bg-blue-700">
-                        Open
-                      </Button>
-                    </Link>
-                  </CardContent>
-                </Card>
-              </motion.div>
-            );
-          })}
+        {/* Main Grid - Fast & Scannable */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+          {operateTiles.map((tile, idx) => (
+            <OperationCard
+              key={tile.id}
+              icon={tile.icon}
+              color={tile.color}
+              title={tile.title}
+              summary={tile.summary}
+              status="pending"
+              actionButtons={tile.actionButtons}
+            />
+          ))}
         </div>
 
         {/* Footer Info */}
