@@ -413,20 +413,21 @@ export default function OperateHome() {
           equipmentStatus={equipmentStatus}
         />
 
-        {/* Shift Start Button */}
-        {!myCheckIn && (
-          <div className="flex gap-3">
-            <Button 
-              onClick={handleStartShift} 
-              disabled={checkInMutation.isPending || clockInBlocked} 
-              className="flex-1 h-12 text-lg font-bold bg-gradient-to-r from-emerald-500 to-emerald-600 hover:from-emerald-600 hover:to-emerald-700 shadow-lg"
-              size="lg"
-            >
-              <CheckCircle2 className="w-6 h-6 mr-3" />
-              Start Shift
-            </Button>
-          </div>
-        )}
+        {/* Shift Start Button & Dev Console */}
+         <div className="flex gap-3">
+           {!myCheckIn && (
+             <Button 
+               onClick={handleStartShift} 
+               disabled={checkInMutation.isPending || clockInBlocked} 
+               className="flex-1 h-12 text-lg font-bold bg-gradient-to-r from-emerald-500 to-emerald-600 hover:from-emerald-600 hover:to-emerald-700 shadow-lg"
+               size="lg"
+             >
+               <CheckCircle2 className="w-6 h-6 mr-3" />
+               Start Shift
+             </Button>
+           )}
+           <DevResetConsole user={user} />
+         </div>
 
         {/* Today's Required Actions */}
         <TodaysRequiredActions user={user} />
