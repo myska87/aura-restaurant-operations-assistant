@@ -58,6 +58,7 @@ const navGroups = [
   {
     title: 'Live Operations',
     items: [
+      { name: 'Daily', icon: LayoutDashboard, page: 'DailyOperationsHub', roles: ['all'], modes: ['operate'] },
       { name: 'Daily Operations', icon: LayoutDashboard, page: 'OperateHome', roles: ['all'], modes: ['operate'] },
       { name: 'Command Center', icon: LayoutDashboard, page: 'CommandCenter', roles: ['all'], modes: ['manage'] },
       { name: 'Cleaning & Hygiene', icon: Droplet, page: 'CleaningHygieneHub', roles: ['all'], modes: ['operate'] },
