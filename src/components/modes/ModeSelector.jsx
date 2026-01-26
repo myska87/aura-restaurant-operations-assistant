@@ -5,9 +5,15 @@ import { Button } from '@/components/ui/button';
 import { AlertCircle } from 'lucide-react';
 
 export default function ModeSelector({ user }) {
-  const { currentMode, setCurrentMode, canAccessMode } = useMode();
+  const context = useMode();
   const [showConfirm, setShowConfirm] = useState(false);
   const [targetMode, setTargetMode] = useState(null);
+
+  if (!context) {
+    return null;
+  }
+
+  const { currentMode, setCurrentMode, canAccessMode } = context;
 
   const handleModeSwitch = (mode) => {
     if (mode === currentMode) return;
@@ -18,7 +24,9 @@ export default function ModeSelector({ user }) {
   };
 
   const confirmSwitch = () => {
-    setCurrentMode(targetMode);
+    if (setCurrentMode) {
+      setCurrentMode(targetMode);
+    }
     setShowConfirm(false);
     setTargetMode(null);
   };
