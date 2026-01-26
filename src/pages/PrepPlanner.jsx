@@ -17,7 +17,9 @@ import {
   AlertCircle,
   Circle,
   PlayCircle,
-  User
+  User,
+  Sparkles,
+  Save
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -77,6 +79,10 @@ const PORTION_PRESETS = [20, 50, 100, 150];
 
 export default function PrepPlanner() {
   const [user, setUser] = useState(null);
+  const [prepMode, setPrepMode] = useState('manual'); // 'manual' or 'smart'
+  const [selectedMenuItem, setSelectedMenuItem] = useState(null);
+  const [targetServings, setTargetServings] = useState('');
+  const [calculatedIngredients, setCalculatedIngredients] = useState([]);
   const [selectedPortions, setSelectedPortions] = useState(50);
   const [customPortions, setCustomPortions] = useState('');
   const [generatedTasks, setGeneratedTasks] = useState([]);
@@ -103,6 +109,76 @@ export default function PrepPlanner() {
     queryKey: ['recipes_v2'],
     queryFn: () => base44.entities.Recipe_Engine_v2.list(),
   });
+
+  const savePrepPlanMutation = useMutation({
+    mutationFn: async (prepData) => {
+      return base44.entities.OperationReport.create(prepData);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['operationReports'] });
+    }
+  });
+
+  // Smart Recipe Mode calculation
+  const calculateSmartRecipe = () => {
+    if (!selectedMenuItem || !targetServings || targetServings <= 0) return;
+
+    const baseServings = selectedMenuItem.baseRecipeServings || selectedMenuItem.servings_per_batch || 1;
+    
+    if (!selectedMenuItem.ingredients || selectedMenuItem.ingredients.length === 0) {
+      alert('This menu item does not have a recipe configured. Use Manual Prep.');
+      return;
+    }
+
+    const scaleFactor = targetServings / baseServings;
+    
+    const calculated = selectedMenuItem.ingredients.map(ing => {
+      const baseQty = ing.quantity || 0;
+      let requiredQty = baseQty * scaleFactor;
+      
+      // Rounding rules
+      const unit = ing.unit?.toLowerCase() || '';
+      if (unit.includes('ml') || unit.includes('l')) {
+        requiredQty = Math.round(requiredQty * 100) / 100; // 2 decimals
+      } else if (unit.includes('pcs') || unit.includes('units')) {
+        requiredQty = Math.ceil(requiredQty); // whole numbers
+      } else {
+        requiredQty = Math.round(requiredQty * 10) / 10; // 1 decimal
+      }
+      
+      return {
+        ingredientName: ing.ingredient_name,
+        requiredQuantity: requiredQty,
+        unit: ing.unit || 'units'
+      };
+    });
+    
+    setCalculatedIngredients(calculated);
+  };
+
+  const saveSmartPrepPlan = async () => {
+    if (!user || !selectedMenuItem || calculatedIngredients.length === 0) return;
+    
+    const prepData = {
+      reportType: 'PREP_PLAN',
+      locationId: 'main',
+      staffId: user.id || user.email,
+      staffName: user.full_name || user.email,
+      staffEmail: user.email,
+      reportDate: new Date().toISOString().split('T')[0],
+      status: 'completed',
+      completionPercentage: 100,
+      timestamp: new Date().toISOString(),
+      prepMode: 'smart',
+      menuItemId: selectedMenuItem.id,
+      menuItemName: selectedMenuItem.name,
+      targetServings: parseInt(targetServings),
+      calculatedIngredients: calculatedIngredients
+    };
+    
+    await savePrepPlanMutation.mutateAsync(prepData);
+    alert(`Prep plan saved for ${selectedMenuItem.name} (${targetServings} servings)`);
+  };
 
   // Auto-generate prep tasks from menu items and recipes
   const generatePrepTasks = () => {
@@ -192,8 +268,135 @@ export default function PrepPlanner() {
         description="Dish-driven preparation planning by station"
       />
 
-      {/* Portion Calculator */}
-      <Card className="bg-gradient-to-br from-emerald-50 to-teal-50 border-emerald-200">
+      {/* Mode Toggle */}
+      <Card className="bg-gradient-to-br from-purple-50 to-indigo-50 border-purple-200">
+        <CardContent className="pt-6">
+          <div className="flex items-center gap-3 mb-4">
+            <Calculator className="w-6 h-6 text-purple-600" />
+            <h3 className="text-lg font-bold text-slate-800">Prep Mode</h3>
+          </div>
+          <div className="flex gap-3">
+            <Button
+              variant={prepMode === 'manual' ? 'default' : 'outline'}
+              onClick={() => setPrepMode('manual')}
+              className={prepMode === 'manual' ? 'bg-emerald-600' : ''}
+            >
+              <Calculator className="w-4 h-4 mr-2" />
+              Manual Prep
+            </Button>
+            <Button
+              variant={prepMode === 'smart' ? 'default' : 'outline'}
+              onClick={() => setPrepMode('smart')}
+              className={prepMode === 'smart' ? 'bg-purple-600' : ''}
+            >
+              <Sparkles className="w-4 h-4 mr-2" />
+              Smart Recipe Prep
+            </Button>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Smart Recipe Mode */}
+      {prepMode === 'smart' && (
+        <Card className="bg-gradient-to-br from-purple-50 to-indigo-50 border-purple-200">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Sparkles className="w-6 h-6 text-purple-600" />
+              Smart Recipe Prep
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div>
+              <label className="text-sm font-medium text-slate-700 mb-2 block">Select Menu Item</label>
+              <select
+                className="w-full p-3 border border-purple-300 rounded-lg bg-white"
+                value={selectedMenuItem?.id || ''}
+                onChange={(e) => {
+                  const item = menuItems.find(m => m.id === e.target.value);
+                  setSelectedMenuItem(item);
+                  setCalculatedIngredients([]);
+                }}
+              >
+                <option value="">Choose a menu item...</option>
+                {menuItems
+                  .filter(item => item.is_active && item.ingredients?.length > 0)
+                  .map(item => (
+                    <option key={item.id} value={item.id}>
+                      {item.name} ({item.ingredients?.length || 0} ingredients)
+                    </option>
+                  ))}
+              </select>
+            </div>
+
+            {selectedMenuItem && (
+              <>
+                <div>
+                  <label className="text-sm font-medium text-slate-700 mb-2 block">Target Servings</label>
+                  <Input
+                    type="number"
+                    placeholder="Enter number of servings..."
+                    value={targetServings}
+                    onChange={(e) => setTargetServings(e.target.value)}
+                    min="1"
+                    className="border-purple-300"
+                  />
+                  <p className="text-xs text-slate-500 mt-1">
+                    Base recipe: {selectedMenuItem.baseRecipeServings || selectedMenuItem.servings_per_batch || 1} servings
+                  </p>
+                </div>
+
+                <Button
+                  onClick={calculateSmartRecipe}
+                  className="w-full bg-purple-600 hover:bg-purple-700"
+                  disabled={!targetServings || targetServings <= 0}
+                >
+                  <Sparkles className="w-4 h-4 mr-2" />
+                  Calculate Ingredients
+                </Button>
+
+                {calculatedIngredients.length > 0 && (
+                  <div className="bg-white p-4 rounded-lg border-2 border-purple-300">
+                    <h4 className="font-bold text-slate-800 mb-3 flex items-center gap-2">
+                      <ChefHat className="w-5 h-5 text-purple-600" />
+                      Calculated Ingredients for {targetServings} servings
+                    </h4>
+                    <div className="space-y-2 mb-4">
+                      {calculatedIngredients.map((ing, idx) => (
+                        <div key={idx} className="flex justify-between items-center p-2 bg-purple-50 rounded">
+                          <span className="font-medium text-slate-700">{ing.ingredientName}</span>
+                          <span className="font-bold text-purple-700">
+                            {ing.requiredQuantity} {ing.unit}
+                          </span>
+                        </div>
+                      ))}
+                    </div>
+                    <div className="flex gap-2">
+                      <Button
+                        onClick={saveSmartPrepPlan}
+                        className="flex-1 bg-emerald-600 hover:bg-emerald-700"
+                      >
+                        <Save className="w-4 h-4 mr-2" />
+                        Save Prep Plan
+                      </Button>
+                      <Button
+                        variant="outline"
+                        onClick={() => window.print()}
+                        className="flex-1"
+                      >
+                        Print
+                      </Button>
+                    </div>
+                  </div>
+                )}
+              </>
+            )}
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Manual Mode - Portion Calculator */}
+      {prepMode === 'manual' && (
+        <Card className="bg-gradient-to-br from-emerald-50 to-teal-50 border-emerald-200">
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Calculator className="w-6 h-6 text-emerald-600" />
@@ -262,8 +465,9 @@ export default function PrepPlanner() {
           )}
         </CardContent>
       </Card>
+      )}
 
-      {generatedTasks.length === 0 ? (
+      {prepMode === 'manual' && generatedTasks.length === 0 && (
         <Card>
           <CardContent className="py-16 text-center">
             <Calculator className="w-16 h-16 mx-auto text-slate-300 mb-4" />
@@ -271,7 +475,9 @@ export default function PrepPlanner() {
             <p className="text-slate-500 mb-6">Select portions above and click "Generate Prep Tasks"</p>
           </CardContent>
         </Card>
-      ) : (
+      )}
+
+      {prepMode === 'manual' && generatedTasks.length > 0 && (
         <>
           {/* Overall Progress */}
           <Card className="bg-gradient-to-br from-blue-50 to-cyan-50 border-blue-200">
