@@ -63,7 +63,7 @@ export default function RouteGuard({ children, currentPageName }) {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
-  const { currentMode, setMode } = useMode();
+  const { currentMode, setCurrentMode } = useMode();
 
   useEffect(() => {
     const checkAuth = async () => {
@@ -175,8 +175,8 @@ export default function RouteGuard({ children, currentPageName }) {
             <div className="flex gap-2">
               <Button
                 onClick={() => {
-                  if (requiredMode) {
-                    setMode(requiredMode.toUpperCase());
+                  if (requiredMode && setCurrentMode) {
+                    setCurrentMode(requiredMode);
                   }
                 }}
                 className="bg-amber-600 hover:bg-amber-700 flex-1"
