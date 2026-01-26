@@ -138,9 +138,9 @@ export default function MenuItemDetail() {
     );
   }
 
-  const profit = menuItem.price - calculatedCost;
+  const profit = (menuItem?.price || 0) - calculatedCost;
   const margin = calculatedMargin;
-  const isAdmin = user && ['admin', 'owner', 'manager'].includes(user.role);
+  const isAdmin = user && ['admin', 'owner', 'manager'].includes(user?.role);
 
   const getProfitColor = () => {
     if (margin >= 60) return 'text-emerald-600';
@@ -150,7 +150,9 @@ export default function MenuItemDetail() {
   };
 
   const openVisualGuide = () => {
-    navigate(createPageUrl('VisualDishGuideDetail') + '?id=' + linkedGuide.id);
+    if (linkedGuide?.id) {
+      navigate(createPageUrl('VisualDishGuideDetail') + '?id=' + linkedGuide.id);
+    }
   };
 
   return (
@@ -167,29 +169,29 @@ export default function MenuItemDetail() {
               >
                 <ArrowLeft className="w-5 h-5" />
               </Button>
-              {menuItem.photo_url && (
+              {menuItem?.photo_url && (
                 <div className="w-16 h-16 rounded-lg overflow-hidden shadow-md border-2 border-white">
                   <img
                     src={menuItem.photo_url}
-                    alt={menuItem.name}
+                    alt={menuItem?.name || 'Menu Item'}
                     className="w-full h-full object-cover"
                   />
                 </div>
               )}
               <div>
-                <h1 className="text-2xl font-bold text-slate-800">{menuItem.name}</h1>
-                <div className="flex items-center gap-2 mt-1">
-                  <Badge variant="outline">{menuItem.category?.replace('_', ' ')}</Badge>
-                  <Badge className={margin >= 40 ? 'bg-emerald-100 text-emerald-700' : 'bg-amber-100 text-amber-700'}>
-                    {margin.toFixed(0)}% margin
-                  </Badge>
-                </div>
+               <h1 className="text-2xl font-bold text-slate-800">{menuItem?.name || 'Unnamed Item'}</h1>
+               <div className="flex items-center gap-2 mt-1">
+                 <Badge variant="outline">{menuItem?.category?.replace('_', ' ') || 'Uncategorized'}</Badge>
+                 <Badge className={margin >= 40 ? 'bg-emerald-100 text-emerald-700' : 'bg-amber-100 text-amber-700'}>
+                   {margin.toFixed(0)}% margin
+                 </Badge>
+               </div>
               </div>
             </div>
             <div className="flex items-center gap-3">
               <div className="text-right mr-4">
                 <p className="text-sm text-slate-500">Sale Price</p>
-                <p className="text-3xl font-bold text-slate-800">£{menuItem.price?.toFixed(2)}</p>
+                <p className="text-3xl font-bold text-slate-800">£{(menuItem?.price || 0).toFixed(2)}</p>
               </div>
               {isAdmin && (
                 <Button 
@@ -213,7 +215,7 @@ export default function MenuItemDetail() {
 
       <div className="max-w-7xl mx-auto px-6 py-8">
         {/* Hero Image */}
-        {menuItem.photo_url && (
+        {menuItem?.photo_url && (
           <motion.div 
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -221,7 +223,7 @@ export default function MenuItemDetail() {
           >
             <img
               src={menuItem.photo_url}
-              alt={menuItem.name}
+              alt={menuItem?.name || 'Menu Item'}
               className="w-full h-[280px] object-cover"
             />
           </motion.div>
@@ -259,37 +261,37 @@ export default function MenuItemDetail() {
                   <CardTitle>Dish Information</CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4">
-                  {menuItem.image_url && (
+                  {menuItem?.image_url && (
                     <img
                       src={menuItem.image_url}
-                      alt={menuItem.name}
+                      alt={menuItem?.name || 'Menu Item'}
                       className="w-full h-48 object-cover rounded-lg"
                     />
                   )}
                   <div>
                     <p className="text-sm text-slate-500 mb-1">Description</p>
-                    <p className="text-slate-700">{menuItem.description || 'No description available'}</p>
+                    <p className="text-slate-700">{menuItem?.description || 'No description available'}</p>
                   </div>
                   <div className="grid grid-cols-2 gap-4">
                     <div>
                       <p className="text-sm text-slate-500 mb-1">Category</p>
-                      <p className="font-medium">{menuItem.category?.replace('_', ' ')}</p>
+                      <p className="font-medium">{menuItem?.category?.replace('_', ' ') || 'Not assigned'}</p>
                     </div>
                     <div>
                       <p className="text-sm text-slate-500 mb-1">Preparation Location</p>
-                      <p className="font-medium">{menuItem.preparation_location?.replace('_', ' ')}</p>
+                      <p className="font-medium">{menuItem?.preparation_location?.replace('_', ' ') || 'Not assigned'}</p>
                     </div>
                     <div>
                       <p className="text-sm text-slate-500 mb-1">Prep Time</p>
                       <p className="font-medium flex items-center gap-1">
                         <Clock className="w-4 h-4" />
-                        {menuItem.prep_time_minutes || 0} min
+                        {menuItem?.prep_time_minutes || 0} min
                       </p>
                     </div>
                     <div>
                       <p className="text-sm text-slate-500 mb-1">Status</p>
-                      <Badge className={menuItem.is_active ? 'bg-emerald-100 text-emerald-700' : 'bg-red-100 text-red-700'}>
-                        {menuItem.is_active ? 'Active' : 'Inactive'}
+                      <Badge className={menuItem?.is_active ? 'bg-emerald-100 text-emerald-700' : 'bg-red-100 text-red-700'}>
+                        {menuItem?.is_active ? 'Active' : 'Inactive'}
                       </Badge>
                     </div>
                   </div>
@@ -327,7 +329,7 @@ export default function MenuItemDetail() {
                 <Card>
                   <CardContent className="pt-6">
                     <p className="text-sm text-slate-500 mb-2">Total Ingredients</p>
-                    <p className="text-3xl font-bold text-slate-800">{menuItem.ingredients?.length || 0}</p>
+                    <p className="text-3xl font-bold text-slate-800">{menuItem?.ingredients?.length || 0}</p>
                     <Button
                       size="sm"
                       variant="ghost"
@@ -368,7 +370,7 @@ export default function MenuItemDetail() {
                 <CardTitle>Ingredients & Cost Breakdown</CardTitle>
               </CardHeader>
               <CardContent>
-                {menuItem.ingredients && menuItem.ingredients.length > 0 ? (
+                {menuItem?.ingredients && menuItem.ingredients.length > 0 ? (
                   <div className="space-y-4">
                     <div className="overflow-x-auto">
                       <table className="w-full">
@@ -382,7 +384,7 @@ export default function MenuItemDetail() {
                           </tr>
                         </thead>
                         <tbody>
-                          {menuItem.ingredients.map((ing, idx) => {
+                          {(menuItem?.ingredients || []).map((ing, idx) => {
                             const inventoryItem = ingredients.find(i => 
                               i.name?.toLowerCase() === ing.ingredient_name?.toLowerCase()
                             );
@@ -469,25 +471,25 @@ export default function MenuItemDetail() {
               </CardHeader>
               <CardContent>
                 {visualLink && linkedGuide ? (
-                  <div className="space-y-4">
-                    <div className="flex gap-6">
-                      {linkedGuide.hero_image_url && (
-                        <img
-                          src={linkedGuide.hero_image_url}
-                          alt={linkedGuide.dish_name}
-                          className="w-64 h-48 object-cover rounded-lg"
-                        />
-                      )}
-                      <div className="flex-1 space-y-3">
-                        <h3 className="text-2xl font-bold text-slate-800">{linkedGuide.dish_name}</h3>
-                        <div className="flex gap-2">
-                          <Badge>{linkedGuide.category}</Badge>
-                          <Badge variant="outline">{linkedGuide.difficulty}</Badge>
-                          <Badge variant="outline">
-                            <Clock className="w-3 h-3 mr-1" />
-                            {linkedGuide.estimated_cook_time_minutes}m
-                          </Badge>
-                        </div>
+                <div className="space-y-4">
+                  <div className="flex gap-6">
+                    {linkedGuide?.hero_image_url && (
+                      <img
+                        src={linkedGuide.hero_image_url}
+                        alt={linkedGuide?.dish_name || 'Visual Guide'}
+                        className="w-64 h-48 object-cover rounded-lg"
+                      />
+                    )}
+                    <div className="flex-1 space-y-3">
+                      <h3 className="text-2xl font-bold text-slate-800">{linkedGuide?.dish_name || 'Visual Guide'}</h3>
+                      <div className="flex gap-2">
+                        <Badge>{linkedGuide?.category || 'Guide'}</Badge>
+                        <Badge variant="outline">{linkedGuide?.difficulty || 'Standard'}</Badge>
+                        <Badge variant="outline">
+                          <Clock className="w-3 h-3 mr-1" />
+                          {linkedGuide?.estimated_cook_time_minutes || 0}m
+                        </Badge>
+                      </div>
                         <p className="text-slate-600">
                           This menu item has a complete visual preparation guide with step-by-step photos and instructions.
                         </p>
@@ -531,7 +533,7 @@ export default function MenuItemDetail() {
                 </CardHeader>
                 <CardContent>
                   <p className="text-3xl font-bold text-slate-700">48%</p>
-                  <p className="text-sm text-slate-500 mt-1">For {menuItem.category}</p>
+                  <p className="text-sm text-slate-500 mt-1">For {menuItem?.category || 'this category'}</p>
                 </CardContent>
               </Card>
               <Card>
