@@ -46,6 +46,16 @@ export default function TrainHome() {
     }
   });
 
+  const { data: journeyProgress } = useQuery({
+    queryKey: ['journeyProgress', user?.id],
+    queryFn: async () => {
+      if (!user?.id) return {};
+      const prog = await base44.entities.TrainingJourneyProgress.filter({ staff_id: user.id });
+      return prog[0] || {};
+    },
+    enabled: !!user?.id
+  });
+
   const completedCount = progress.filter(p => p.status === 'completed').length;
   const inProgressCount = progress.filter(p => p.status === 'in_progress').length;
   const totalCourses = courses.length;
@@ -82,83 +92,206 @@ export default function TrainHome() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-amber-50 to-orange-50 p-6">
       <div className="max-w-5xl mx-auto space-y-6">
-        {/* Header */}
-        <motion.div
-          initial={{ opacity: 0, y: -20 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="text-center"
-        >
-          <h1 className="text-4xl font-bold text-slate-900 mb-2">Learning Mode</h1>
-          <p className="text-slate-600">Build your skills. Earn certifications.</p>
-        </motion.div>
-
-        {/* Training Spotlight */}
-        {globalInfo?.training_spotlight_video && (
+        {/* Leadership Welcome Video */}
+        {globalInfo?.founderWelcomeVideoUrl && (
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.2 }}
+            className="bg-white rounded-2xl shadow-xl overflow-hidden border border-slate-200"
           >
-            <Card className="border-0 shadow-xl overflow-hidden">
-              <CardHeader className="bg-gradient-to-r from-slate-800 to-slate-900 text-white pb-3">
-                <CardTitle className="text-xl font-bold">Training Spotlight</CardTitle>
-                <p className="text-sm text-slate-300">Learn from leaders. Train with purpose.</p>
-              </CardHeader>
-              <CardContent className="p-0">
-                <div className="grid md:grid-cols-[60%_40%] gap-0">
-                  {/* Left: Video */}
-                  <div className="aspect-video bg-black">
-                    <iframe
-                      src={globalInfo.training_spotlight_video.replace('watch?v=', 'embed/').replace('&', '?')}
-                      className="w-full h-full"
-                      allow="accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                      allowFullScreen
-                    />
-                  </div>
-                  
-                  {/* Right: Mission Text */}
-                  <div className="p-6 md:p-8 bg-slate-50 flex flex-col justify-center">
-                    {globalInfo.training_spotlight_text_variant === 'short' ? (
-                      <>
-                        <h3 className="text-lg font-bold text-slate-900 mb-4">This is where professionals are built.</h3>
-                        <div className="space-y-3 text-sm text-slate-700 leading-relaxed">
-                          <p className="font-medium">Learn the standards.<br />Master the systems.<br />Earn your place on the floor.</p>
-                          <p className="text-slate-900 font-semibold">Growth here is real — and it's earned.</p>
-                        </div>
-                      </>
-                    ) : (
-                      <>
-                        <h3 className="text-lg font-bold text-slate-900 mb-3">Learning With Purpose</h3>
-                        <div className="space-y-3 text-sm text-slate-700 leading-relaxed">
-                          <p>At Chai Patta, learning is not optional — it's how we grow.</p>
-                          <p className="text-xs space-y-1">
-                            <span className="block">Every module you complete builds skill.</span>
-                            <span className="block">Every standard you master builds trust.</span>
-                            <span className="block">Every certificate you earn builds your future.</span>
-                          </p>
-                          <p className="text-xs italic text-slate-600">
-                            This academy exists to turn effort into excellence and team members into leaders.
-                          </p>
-                          <p className="font-medium text-slate-900">
-                            Learn seriously. Apply consistently. Grow intentionally.
-                          </p>
-                        </div>
-                      </>
-                    )}
-                    <Link to={createPageUrl('TrainingAcademy')} className="mt-5">
-                      <Button variant="outline" className="w-full border-slate-300 hover:bg-slate-100 text-sm">
-                        Start Your Next Module →
-                      </Button>
-                    </Link>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
+            <div className="p-8 text-center">
+              <h1 className="text-3xl font-bold text-slate-800 mb-2">
+                Welcome to the Chai Patta Training Academy
+              </h1>
+              <p className="text-lg text-slate-600 mb-6">
+                Where professionals are built — not rushed.
+              </p>
+            </div>
+            <div className="aspect-video bg-slate-900">
+              <iframe
+                src={globalInfo.founderWelcomeVideoUrl.replace('watch?v=', 'embed/').replace('&', '?')}
+                className="w-full h-full"
+                allow="accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                allowFullScreen
+              />
+            </div>
           </motion.div>
         )}
 
+        {/* Mission & Purpose */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.1 }}
+        >
+          <Card className="bg-gradient-to-br from-emerald-50 to-teal-50 border-emerald-200 shadow-lg">
+            <CardContent className="pt-6 pb-6">
+              <h2 className="text-2xl font-bold text-slate-800 mb-4 text-center">
+                Learning With Purpose
+              </h2>
+              <div className="space-y-4 text-slate-700 leading-relaxed max-w-4xl mx-auto">
+                <p>
+                  Excellence in hospitality begins with mastery of fundamentals. This academy is designed to build your confidence, competence, and career through structured learning that respects both the craft and the customer.
+                </p>
+                <p>
+                  Every module you complete strengthens not just your skill set, but your professional identity. You are not learning shortcuts—you are building expertise that will serve you throughout your career.
+                </p>
+                <p>
+                  Take your time. Progress with purpose. Your growth matters to us.
+                </p>
+              </div>
+            </CardContent>
+          </Card>
+        </motion.div>
+
+        {/* Training Journey Overview */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.2 }}
+        >
+          <Card className="shadow-xl">
+            <CardHeader>
+              <CardTitle className="text-2xl text-center">Your Training Journey</CardTitle>
+              <p className="text-center text-slate-600">
+                A structured path from foundation to certification
+              </p>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-4">
+                {[
+                  {
+                    step: 1,
+                    title: 'Welcome & Vision',
+                    description: 'Understand our mission, values, and what makes this place special.',
+                    page: 'WelcomeVision',
+                    progressKey: 'welcome_vision_completed'
+                  },
+                  {
+                    step: 2,
+                    title: 'Culture & Values',
+                    description: 'Learn the principles that guide how we work and serve.',
+                    page: 'Culture',
+                    progressKey: 'culture_completed'
+                  },
+                  {
+                    step: 3,
+                    title: 'Skills & SOPs',
+                    description: 'Master the technical skills and standard operating procedures.',
+                    page: 'SOPLibrary',
+                    progressKey: 'sops_completed'
+                  },
+                  {
+                    step: 4,
+                    title: 'Hygiene & Safety',
+                    description: 'Critical knowledge for maintaining standards and customer safety.',
+                    page: 'LiveFoodSafety',
+                    progressKey: 'hygiene_completed'
+                  },
+                  {
+                    step: 5,
+                    title: 'Certification',
+                    description: 'Complete assessments and earn your professional certification.',
+                    page: 'Certification',
+                    progressKey: 'certification_completed'
+                  },
+                  {
+                    step: 6,
+                    title: 'Growth Centre',
+                    description: 'Continue developing through advanced modules and leadership training.',
+                    page: 'LeadershipPathway',
+                    progressKey: 'growth_completed'
+                  }
+                ].map((item, idx) => {
+                  const isCompleted = journeyProgress?.[item.progressKey] || false;
+                  const isCurrent = idx === 0 || (idx > 0 && !isCompleted && progress.some(p => p.status !== 'not_started'));
+                  
+                  return (
+                    <div
+                      key={item.step}
+                      className={`
+                        flex items-start gap-4 p-4 rounded-lg border-2 transition-all
+                        ${isCompleted ? 'bg-emerald-50 border-emerald-300' : ''}
+                        ${isCurrent && !isCompleted ? 'bg-blue-50 border-blue-300' : ''}
+                        ${!isCurrent && !isCompleted ? 'bg-slate-50 border-slate-200 opacity-60' : ''}
+                      `}
+                    >
+                      <div className={`
+                        w-12 h-12 rounded-full flex items-center justify-center text-xl font-bold flex-shrink-0
+                        ${isCompleted ? 'bg-emerald-600 text-white' : ''}
+                        ${isCurrent && !isCompleted ? 'bg-blue-600 text-white' : ''}
+                        ${!isCurrent && !isCompleted ? 'bg-slate-300 text-slate-600' : ''}
+                      `}>
+                        {isCompleted ? '✓' : item.step}
+                      </div>
+                      <div className="flex-1">
+                        <h3 className="text-lg font-bold text-slate-800 mb-1">
+                          {item.title}
+                        </h3>
+                        <p className="text-sm text-slate-600 mb-2">
+                          {item.description}
+                        </p>
+                        {isCompleted && (
+                          <Badge className="bg-emerald-600 text-white">
+                            Completed
+                          </Badge>
+                        )}
+                        {isCurrent && !isCompleted && (
+                          <Badge className="bg-blue-600 text-white">
+                            Current Step
+                          </Badge>
+                        )}
+                      </div>
+                      {(isCompleted || isCurrent) && (
+                        <Link to={createPageUrl(item.page)}>
+                          <Button variant="outline" size="sm">
+                            {isCompleted ? 'Review' : 'Start'}
+                          </Button>
+                        </Link>
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
+            </CardContent>
+          </Card>
+        </motion.div>
+
+        {/* Encouragement Block */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.3 }}
+        >
+          <Card className="bg-gradient-to-br from-slate-800 to-slate-900 text-white shadow-2xl">
+            <CardContent className="pt-6 pb-6 text-center">
+              <h2 className="text-2xl font-bold mb-4">A Message From Leadership</h2>
+              <p className="text-lg leading-relaxed max-w-3xl mx-auto mb-6">
+                Training is not a hurdle to clear—it is the foundation of your success here. Every hour you invest in learning is an investment in your career, your confidence, and your ability to deliver excellence. We believe in your potential. Now, it is time to build on it.
+              </p>
+              <p className="text-slate-300 italic">
+                Take your time. Learn deeply. Grow with purpose.
+              </p>
+            </CardContent>
+          </Card>
+        </motion.div>
+
+        {/* Primary CTA */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.4 }}
+          className="text-center"
+        >
+          <Link to={createPageUrl('TrainingAcademy')}>
+            <Button size="lg" className="bg-emerald-600 hover:bg-emerald-700 text-lg px-8 py-6 shadow-lg">
+              Continue Your Training →
+            </Button>
+          </Link>
+        </motion.div>
+
         {/* Progress Overview */}
-        <Card className="bg-gradient-to-r from-amber-500 to-orange-500 text-white border-0">
+        <Card className="bg-gradient-to-r from-amber-500 to-orange-500 text-white border-0 shadow-lg">
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <GraduationCap className="w-6 h-6" />
@@ -184,8 +317,7 @@ export default function TrainHome() {
           </CardContent>
         </Card>
 
-        {/* Training Paths */}
-        {/* CRITICAL: Cards use Button-based navigation - NO full-card Link wrappers */}
+        {/* Quick Access Cards */}
         <div className="grid grid-cols-2 gap-4">
           {trainingPaths.map((path, idx) => {
             const Icon = path.icon;
