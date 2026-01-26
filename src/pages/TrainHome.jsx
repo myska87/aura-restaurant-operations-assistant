@@ -38,6 +38,14 @@ export default function TrainHome() {
     queryFn: () => base44.entities.TrainingCourse.list()
   });
 
+  const { data: globalInfo } = useQuery({
+    queryKey: ['globalInfo'],
+    queryFn: async () => {
+      const info = await base44.entities.GlobalInfo.list();
+      return info[0] || {};
+    }
+  });
+
   const completedCount = progress.filter(p => p.status === 'completed').length;
   const inProgressCount = progress.filter(p => p.status === 'in_progress').length;
   const totalCourses = courses.length;
@@ -83,6 +91,56 @@ export default function TrainHome() {
           <h1 className="text-4xl font-bold text-slate-900 mb-2">Learning Mode</h1>
           <p className="text-slate-600">Build your skills. Earn certifications.</p>
         </motion.div>
+
+        {/* Training Spotlight */}
+        {globalInfo?.training_spotlight_video && (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.2 }}
+          >
+            <Card className="border-0 shadow-xl overflow-hidden">
+              <CardHeader className="bg-gradient-to-r from-slate-800 to-slate-900 text-white pb-3">
+                <CardTitle className="text-xl font-bold">Training Spotlight</CardTitle>
+                <p className="text-sm text-slate-300">Learn from leaders. Train with purpose.</p>
+              </CardHeader>
+              <CardContent className="p-0">
+                <div className="grid md:grid-cols-[60%_40%]">
+                  {/* Left: Video */}
+                  <div className="aspect-video bg-black">
+                    <iframe
+                      src={globalInfo.training_spotlight_video.replace('watch?v=', 'embed/')}
+                      className="w-full h-full"
+                      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                      allowFullScreen
+                    />
+                  </div>
+                  
+                  {/* Right: Mission Text */}
+                  <div className="p-6 bg-slate-50 flex flex-col justify-center">
+                    <h3 className="text-lg font-bold text-slate-900 mb-3">Learning With Purpose</h3>
+                    <div className="space-y-3 text-sm text-slate-700 leading-relaxed">
+                      <p>At Chai Patta, learning is not optional — it's how we grow.</p>
+                      <p className="text-xs space-y-1">
+                        <span className="block">Every module you complete builds skill.</span>
+                        <span className="block">Every standard you master builds trust.</span>
+                        <span className="block">Every certificate you earn builds your future.</span>
+                      </p>
+                      <p className="font-medium text-slate-900">
+                        Learn seriously. Apply consistently. Grow intentionally.
+                      </p>
+                    </div>
+                    <Link to={createPageUrl('TrainingAcademy')} className="mt-4">
+                      <Button variant="outline" className="w-full border-slate-300 hover:bg-slate-100">
+                        Start Your Next Module →
+                      </Button>
+                    </Link>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </motion.div>
+        )}
 
         {/* Progress Overview */}
         <Card className="bg-gradient-to-r from-amber-500 to-orange-500 text-white border-0">
