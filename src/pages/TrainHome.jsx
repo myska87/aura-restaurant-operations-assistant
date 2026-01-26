@@ -17,6 +17,7 @@ import { Progress } from '@/components/ui/progress';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { motion } from 'framer-motion';
+import VideoEmbed from '@/components/training/VideoEmbed';
 
 export default function TrainHome() {
   const [user, setUser] = useState(null);
@@ -108,12 +109,7 @@ export default function TrainHome() {
               </p>
             </div>
             <div className="aspect-video bg-slate-900">
-              <iframe
-                src={globalInfo.founderWelcomeVideoUrl.replace('watch?v=', 'embed/').replace('&', '?')}
-                className="w-full h-full"
-                allow="accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                allowFullScreen
-              />
+              <VideoEmbed url={globalInfo.founderWelcomeVideoUrl} />
             </div>
           </motion.div>
         )}

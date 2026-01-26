@@ -11,6 +11,7 @@ import { Video, CheckCircle, Heart } from 'lucide-react';
 import LoadingSpinner from '@/components/ui/LoadingSpinner';
 import TrainingJourneyBar from '@/components/training/TrainingJourneyBar';
 import TrainingModuleQuiz from '@/components/training/TrainingModuleQuiz';
+import VideoEmbed from '@/components/training/VideoEmbed';
 
 const welcomeVisionQuizQuestions = [
   {
@@ -192,7 +193,7 @@ export default function WelcomeVision() {
                   </label>
                   <div className="flex gap-2">
                     <Input
-                      placeholder="YouTube or Instagram video URL"
+                      placeholder="Video URL (YouTube, HeyGen, Vimeo, Loom, etc.)"
                       value={videoUrl || globalInfo?.founderWelcomeVideoUrl || ''}
                       onChange={(e) => setVideoUrl(e.target.value)}
                     />
@@ -208,12 +209,7 @@ export default function WelcomeVision() {
 
               <div className="aspect-video bg-slate-900 rounded-2xl flex items-center justify-center overflow-hidden shadow-2xl">
                 {globalInfo?.founderWelcomeVideoUrl ? (
-                  <iframe
-                    src={globalInfo.founderWelcomeVideoUrl.replace('watch?v=', 'embed/')}
-                    className="w-full h-full"
-                    allowFullScreen
-                    title="Founder Welcome Video"
-                  />
+                  <VideoEmbed url={globalInfo.founderWelcomeVideoUrl} />
                 ) : (
                   <div className="text-center text-white p-8">
                     <Video className="w-16 h-16 mx-auto mb-4 opacity-50" />
