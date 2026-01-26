@@ -105,33 +105,48 @@ export default function TrainHome() {
                 <p className="text-sm text-slate-300">Learn from leaders. Train with purpose.</p>
               </CardHeader>
               <CardContent className="p-0">
-                <div className="grid md:grid-cols-[60%_40%]">
+                <div className="grid md:grid-cols-[60%_40%] gap-0">
                   {/* Left: Video */}
                   <div className="aspect-video bg-black">
                     <iframe
-                      src={globalInfo.training_spotlight_video.replace('watch?v=', 'embed/')}
+                      src={globalInfo.training_spotlight_video.replace('watch?v=', 'embed/').replace('&', '?')}
                       className="w-full h-full"
-                      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                      allow="accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                       allowFullScreen
                     />
                   </div>
                   
                   {/* Right: Mission Text */}
-                  <div className="p-6 bg-slate-50 flex flex-col justify-center">
-                    <h3 className="text-lg font-bold text-slate-900 mb-3">Learning With Purpose</h3>
-                    <div className="space-y-3 text-sm text-slate-700 leading-relaxed">
-                      <p>At Chai Patta, learning is not optional — it's how we grow.</p>
-                      <p className="text-xs space-y-1">
-                        <span className="block">Every module you complete builds skill.</span>
-                        <span className="block">Every standard you master builds trust.</span>
-                        <span className="block">Every certificate you earn builds your future.</span>
-                      </p>
-                      <p className="font-medium text-slate-900">
-                        Learn seriously. Apply consistently. Grow intentionally.
-                      </p>
-                    </div>
-                    <Link to={createPageUrl('TrainingAcademy')} className="mt-4">
-                      <Button variant="outline" className="w-full border-slate-300 hover:bg-slate-100">
+                  <div className="p-6 md:p-8 bg-slate-50 flex flex-col justify-center">
+                    {globalInfo.training_spotlight_text_variant === 'short' ? (
+                      <>
+                        <h3 className="text-lg font-bold text-slate-900 mb-4">This is where professionals are built.</h3>
+                        <div className="space-y-3 text-sm text-slate-700 leading-relaxed">
+                          <p className="font-medium">Learn the standards.<br />Master the systems.<br />Earn your place on the floor.</p>
+                          <p className="text-slate-900 font-semibold">Growth here is real — and it's earned.</p>
+                        </div>
+                      </>
+                    ) : (
+                      <>
+                        <h3 className="text-lg font-bold text-slate-900 mb-3">Learning With Purpose</h3>
+                        <div className="space-y-3 text-sm text-slate-700 leading-relaxed">
+                          <p>At Chai Patta, learning is not optional — it's how we grow.</p>
+                          <p className="text-xs space-y-1">
+                            <span className="block">Every module you complete builds skill.</span>
+                            <span className="block">Every standard you master builds trust.</span>
+                            <span className="block">Every certificate you earn builds your future.</span>
+                          </p>
+                          <p className="text-xs italic text-slate-600">
+                            This academy exists to turn effort into excellence and team members into leaders.
+                          </p>
+                          <p className="font-medium text-slate-900">
+                            Learn seriously. Apply consistently. Grow intentionally.
+                          </p>
+                        </div>
+                      </>
+                    )}
+                    <Link to={createPageUrl('TrainingAcademy')} className="mt-5">
+                      <Button variant="outline" className="w-full border-slate-300 hover:bg-slate-100 text-sm">
                         Start Your Next Module →
                       </Button>
                     </Link>
