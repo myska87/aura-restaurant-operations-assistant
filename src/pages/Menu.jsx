@@ -99,8 +99,21 @@ export default function Menu() {
       }
     };
 
+    // Listen for recipe editor trigger from PortionOrderingDialog
+    const handleOpenRecipeEditor = (event) => {
+      const item = event.detail?.menuItem;
+      if (item) {
+        setEditingItem(item);
+        setShowForm(true);
+      }
+    };
+
     window.addEventListener('openEditModal', handleOpenEdit);
-    return () => window.removeEventListener('openEditModal', handleOpenEdit);
+    window.addEventListener('openRecipeEditor', handleOpenRecipeEditor);
+    return () => {
+      window.removeEventListener('openEditModal', handleOpenEdit);
+      window.removeEventListener('openRecipeEditor', handleOpenRecipeEditor);
+    };
   }, []);
 
   const { data: menuItems = [], isLoading } = useQuery({
