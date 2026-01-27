@@ -2,15 +2,19 @@ import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { CheckCircle, AlertCircle, RotateCcw, BookOpen } from 'lucide-react';
+import { CheckCircle, AlertCircle, RotateCcw, BookOpen, ArrowRight } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
+import { Link } from 'react-router-dom';
+import { createPageUrl } from '@/utils';
 
 export default function TrainingModuleQuiz({ 
   questions, 
   onQuizPassed, 
   moduleName = 'Training Module',
   passPercentage = 80,
-  quizId = 'default-quiz'
+  quizId = 'default-quiz',
+  nextModuleName = null,
+  nextModulePage = null
 }) {
   // Persist quiz state in localStorage to survive page refresh
   const storageKey = `quiz-state-${quizId}`;
@@ -212,15 +216,37 @@ export default function TrainingModuleQuiz({
             </div>
 
             {passed ? (
-              <motion.div
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                className="p-4 bg-emerald-100 border border-emerald-300 rounded-lg mb-6"
-              >
-                <p className="text-emerald-800 font-semibold">
-                  🎉 Excellent! You've mastered this module. You can now proceed to certification.
-                </p>
-              </motion.div>
+              <>
+                <motion.div
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  className="p-4 bg-emerald-100 border border-emerald-300 rounded-lg mb-6"
+                >
+                  <p className="text-emerald-800 font-semibold">
+                    Excellent! You've mastered this module.
+                  </p>
+                </motion.div>
+
+                {nextModuleName && nextModulePage && (
+                  <Link to={createPageUrl(nextModulePage)}>
+                    <Button
+                      size="lg"
+                      className="w-full bg-emerald-600 hover:bg-emerald-700 mb-4"
+                    >
+                      Continue to Next Module
+                      <ArrowRight className="w-5 h-5 ml-2" />
+                    </Button>
+                  </Link>
+                )}
+
+                {!nextModuleName && (
+                  <div className="p-4 bg-blue-50 border border-blue-200 rounded-lg mb-6 text-center">
+                    <p className="text-blue-800 font-semibold">
+                      You've completed all available modules.
+                    </p>
+                  </div>
+                )}
+              </>
             ) : (
               <motion.div
                 initial={{ opacity: 0 }}
