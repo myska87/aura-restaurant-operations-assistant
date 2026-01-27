@@ -26,6 +26,7 @@ export default function TemperatureLog({ user }) {
   const [isDraft, setIsDraft] = useState(false);
   const [lastAutoSave, setLastAutoSave] = useState(null);
   const [completionStatus, setCompletionStatus] = useState(null);
+  const [activeShift, setActiveShift] = useState(null);
   const [equipmentFormData, setEquipmentFormData] = useState({
     name: '',
     location: '',
@@ -45,7 +46,7 @@ export default function TemperatureLog({ user }) {
     return 'closing';
   };
   
-  const currentShift = getCurrentShift();
+  const currentShift = activeShift || getCurrentShift();
   const batchId = uuidv4();
 
   // Fetch today's temperature logs
@@ -137,6 +138,7 @@ export default function TemperatureLog({ user }) {
       setBulkTemperatures({});
       setBulkNotes({});
       setIsDraft(false);
+      setActiveShift(null);
       
       if (!isDraft) {
         setTimeout(() => setCompletionStatus(null), 4000);
@@ -328,9 +330,10 @@ export default function TemperatureLog({ user }) {
                 <button
                   key={time}
                   onClick={() => {
-                    if (status !== 'complete') {
-                      setShowBulkForm(true);
-                    }
+                    setActiveShift(time);
+                    setBulkTemperatures({});
+                    setBulkNotes({});
+                    setShowBulkForm(true);
                   }}
                   className="text-left"
                 >
@@ -464,6 +467,7 @@ export default function TemperatureLog({ user }) {
                       setShowBulkForm(false);
                       setBulkTemperatures({});
                       setBulkNotes({});
+                      setActiveShift(null);
                     }}
                   >
                     Cancel
