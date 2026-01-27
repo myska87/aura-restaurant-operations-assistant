@@ -342,14 +342,16 @@ export default function TrainingAcademy() {
           
           const completionStatus = stepCompletionMap[option.step];
           
+          const isAccessible = isUnlocked || completionStatus;
+          
           const CardContent_ = (
             <Card className={`
               transition-all duration-300 border-2 h-full relative
-              ${!isUnlocked && !completionStatus ? 'opacity-50 bg-slate-50 border-slate-300 pointer-events-none' : ''}
-              ${completionStatus ? 'border-emerald-500 bg-emerald-50' : ''}
+              ${!isAccessible ? 'opacity-50 bg-slate-50 border-slate-300 pointer-events-none' : ''}
+              ${completionStatus ? 'border-emerald-500 bg-emerald-50 hover:shadow-md' : ''}
               ${isCurrentStep && !completionStatus ? 'border-blue-400 bg-blue-50 hover:shadow-lg hover:border-blue-500' : ''}
-              ${isUnlocked && !completionStatus && !isCurrentStep ? 'hover:shadow-xl hover:border-slate-400 cursor-pointer' : ''}
-              ${isUnlocked ? 'cursor-pointer pointer-events-auto' : 'cursor-not-allowed pointer-events-none'}
+              ${isAccessible && !completionStatus && !isCurrentStep ? 'hover:shadow-xl hover:border-slate-400' : ''}
+              ${isAccessible ? 'cursor-pointer pointer-events-auto' : 'cursor-not-allowed pointer-events-none'}
             `}>
               <CardContent className="pt-6">
                 <div className="flex items-start justify-between mb-4">
@@ -369,14 +371,14 @@ export default function TrainingAcademy() {
                 <h3 className="text-2xl font-bold mb-3">{option.title}</h3>
                 <p className="text-slate-600 text-lg">{option.description}</p>
 
-                {!isUnlocked && !completionStatus && (
+                {!isAccessible && (
                   <p className="text-sm text-slate-500 mt-3 font-semibold">
                     🔒 Complete the previous module to unlock
                   </p>
                 )}
                 {completionStatus && (
                   <p className="text-sm text-emerald-600 mt-3 font-semibold">
-                    ✓ Completed
+                    ✓ Completed — Click to review
                   </p>
                 )}
                 {isCurrentStep && !completionStatus && (
@@ -392,7 +394,7 @@ export default function TrainingAcademy() {
             <TooltipProvider key={option.page}>
               <Tooltip>
                 <TooltipTrigger asChild>
-                  {isUnlocked ? (
+                  {isAccessible ? (
                     <Link to={createPageUrl(option.page)}>
                       {CardContent_}
                     </Link>
@@ -402,7 +404,7 @@ export default function TrainingAcademy() {
                     </div>
                   )}
                 </TooltipTrigger>
-                {!isUnlocked && !completionStatus && (
+                {!isAccessible && (
                   <TooltipContent>Complete the previous module to unlock</TooltipContent>
                 )}
               </Tooltip>
