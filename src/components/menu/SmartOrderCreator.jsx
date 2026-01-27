@@ -237,12 +237,20 @@ export default function SmartOrderCreator({ ingredientsList, orderType, open, on
           </Button>
           <Button
             onClick={handleCreateOrders}
-            disabled={createOrdersMutation.isPending || supplierOrders.some(o => o.supplier_id === 'no_supplier')}
-            className="bg-emerald-600 hover:bg-emerald-700"
+            disabled={createOrdersMutation.isPending}
+            className={`${
+              supplierOrders.some(o => o.supplier_id === 'no_supplier') 
+                ? "bg-amber-600 hover:bg-amber-700"
+                : "bg-emerald-600 hover:bg-emerald-700"
+            }`}
             size="lg"
           >
             <CheckCircle className="w-5 h-5 mr-2" />
-            {createOrdersMutation.isPending ? 'Creating Orders...' : `Create ${totalSuppliers} Order${totalSuppliers > 1 ? 's' : ''}`}
+            {createOrdersMutation.isPending ? 'Creating Orders...' : 
+              supplierOrders.some(o => o.supplier_id === 'no_supplier')
+                ? 'Create Orders (Includes Unassigned)'
+                : `Create ${totalSuppliers} Order${totalSuppliers > 1 ? 's' : ''}`
+            }
           </Button>
         </DialogFooter>
       </DialogContent>
