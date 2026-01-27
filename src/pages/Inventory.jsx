@@ -52,6 +52,8 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import PageHeader from '@/components/ui/PageHeader';
+import { createPageUrl } from '@/utils';
+import { useNavigate } from 'react-router-dom';
 import EmptyState from '@/components/ui/EmptyState';
 import LoadingSpinner from '@/components/ui/LoadingSpinner';
 import DeliveryReceivingModal from '@/components/inventory/DeliveryReceivingModal';
@@ -87,6 +89,7 @@ export default function Inventory() {
   const [viewingOrder, setViewingOrder] = useState(null);
 
   const queryClient = useQueryClient();
+  const navigate = useNavigate();
 
   React.useEffect(() => {
     const loadUser = async () => {
@@ -384,13 +387,14 @@ export default function Inventory() {
       )}
 
       {/* Main Tabs */}
-      <Tabs value={activeTab} onValueChange={setActiveTab}>
-        <TabsList className="bg-white border">
-          <TabsTrigger value="ingredients">Ingredients</TabsTrigger>
-          <TabsTrigger value="suppliers">Suppliers</TabsTrigger>
-          <TabsTrigger value="orders">Orders</TabsTrigger>
-          <TabsTrigger value="analysis">Cost Analysis</TabsTrigger>
-        </TabsList>
+       <Tabs value={activeTab} onValueChange={setActiveTab}>
+         <TabsList className="bg-white border">
+           <TabsTrigger value="ingredients">Ingredients</TabsTrigger>
+           <TabsTrigger value="suppliers">Suppliers</TabsTrigger>
+           <TabsTrigger value="orders">Orders</TabsTrigger>
+           <TabsTrigger value="ordered">Ordered</TabsTrigger>
+           <TabsTrigger value="analysis">Cost Analysis</TabsTrigger>
+         </TabsList>
 
         {/* Ingredients Tab */}
         <TabsContent value="ingredients" className="space-y-4 mt-4">
@@ -744,6 +748,24 @@ export default function Inventory() {
               </TableBody>
             </Table>
           </div>
+        </TabsContent>
+
+        {/* Ordered Tab */}
+        <TabsContent value="ordered" className="space-y-4 mt-4">
+          <div className="flex justify-end mb-4">
+            <Button
+              onClick={() => navigate(createPageUrl('Ordered'))}
+              className="bg-gradient-to-r from-emerald-600 to-emerald-700"
+            >
+              <Package className="w-4 h-4 mr-2" />
+              View All Placed Orders
+            </Button>
+          </div>
+          <iframe
+            src={createPageUrl('Ordered')}
+            className="w-full h-screen border-0 rounded-2xl"
+            title="Placed Orders"
+          />
         </TabsContent>
 
         {/* Cost Analysis Tab */}
