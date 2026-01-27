@@ -207,6 +207,27 @@ export default function Inventory() {
     }
   });
 
+  const refillOrderMutation = useMutation({
+    mutationFn: async (originalOrder) => {
+      const newOrderNumber = `ORD-${Date.now().toString(36).toUpperCase()}`;
+      return base44.entities.Order.create({
+        order_number: newOrderNumber,
+        supplier_id: originalOrder.supplier_id,
+        supplier_name: originalOrder.supplier_name,
+        items: originalOrder.items,
+        total_amount: originalOrder.total_amount,
+        status: 'pending',
+        order_type: 'stock_replenish',
+        order_date: format(new Date(), 'yyyy-MM-dd'),
+        notes: `Refill order based on ${originalOrder.order_number}`
+      });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries(['orders']);
+      toast.success('Refill order created successfully');
+    }
+  });
+
   const lowStockItems = ingredients.filter(i => i.current_stock <= i.min_stock_level);
   
   const filteredIngredients = ingredients.filter(ing => {
@@ -701,6 +722,19 @@ export default function Inventory() {
                           >
                             <CheckCircle className="w-4 h-4 mr-1" />
                             Receive
+                          </Button>
+                        )}
+
+                        {/* Refill button for received orders */}
+                        {order.status === 'received' && (
+                          <Button
+                            size="sm"
+                            onClick={() => refillOrderMutation.mutate(order)}
+                            disabled={refillOrderMutation.isPending}
+                            className="bg-amber-600 hover:bg-amber-700"
+                          >
+                            <ShoppingCart className="w-4 h-4 mr-1" />
+                            {refillOrderMutation.isPending ? 'Creating...' : 'Refill Order'}
                           </Button>
                         )}
                       </div>
