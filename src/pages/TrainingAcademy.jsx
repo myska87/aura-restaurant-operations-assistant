@@ -512,7 +512,7 @@ export default function TrainingAcademy() {
               </Button>
               <Button
                 onClick={() => {
-                  const email = resetMode === 'self' ? user.email : selectedStaffEmail;
+                  const email = resetMode === 'self' ? user?.email : selectedStaffEmail;
                   if (email) {
                     resetTrainingMutation.mutate(email);
                   }

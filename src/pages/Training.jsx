@@ -165,7 +165,7 @@ export default function Training() {
   };
 
   const manuallyIssueCertificate = async (levelId) => {
-    if (!user) return;
+    if (!user?.email) return;
     
     // Check if already has certificate
     if (certificates.find(cert => cert.level === levelId)) {
@@ -226,6 +226,7 @@ export default function Training() {
   };
 
   const handleReflectionSubmit = async (reflectionData) => {
+    if (!user?.email) return;
     await base44.entities.TrainingReflection.create({
       staff_id: user.id || '',
       staff_email: user.email,
