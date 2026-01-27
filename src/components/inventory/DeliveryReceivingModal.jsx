@@ -54,6 +54,7 @@ export default function DeliveryReceivingModal({ order, open, onClose }) {
   const [notes, setNotes] = useState('');
   const [rejectionReason, setRejectionReason] = useState('');
   const [isRejecting, setIsRejecting] = useState(false);
+  const [manualTempItems, setManualTempItems] = useState({});
 
   // Fetch ingredients for temperature categories
   const { data: ingredients = [] } = useQuery({
@@ -102,6 +103,25 @@ export default function DeliveryReceivingModal({ order, open, onClose }) {
         temp: parseFloat(temp) || 0
       }
     }));
+  };
+
+  const toggleManualTemp = (ingredientId, itemName) => {
+    if (manualTempItems[ingredientId]) {
+      // Remove manual temp tracking
+      const { [ingredientId]: removed, ...rest } = manualTempItems;
+      setManualTempItems(rest);
+      setTemperatures(prev => {
+        const { [ingredientId]: removed, ...rest } = prev;
+        return rest;
+      });
+    } else {
+      // Add manual temp tracking
+      setManualTempItems(prev => ({ ...prev, [ingredientId]: true }));
+      setTemperatures(prev => ({
+        ...prev,
+        [ingredientId]: { category: 'chilled', temp: null }
+      }));
+    }
   };
 
   const uploadPhotosMutation = useMutation({
@@ -382,18 +402,51 @@ export default function DeliveryReceivingModal({ order, open, onClose }) {
                 <div className="space-y-3">
                   {receivedItems.map((item) => {
                     const tempData = temperatures[item.ingredient_id];
-                    if (!tempData || tempData.category === 'ambient') return null;
+                    const isTracked = tempData && tempData.category !== 'ambient';
+                    
+                    if (!isTracked) {
+                      // Show option to manually add temp tracking
+                      return (
+                        <div key={item.ingredient_id} className="grid grid-cols-12 gap-3 items-center p-3 bg-slate-50 rounded-lg">
+                          <div className="col-span-8">
+                            <p className="font-medium text-slate-600">{item.ingredient_name}</p>
+                          </div>
+                          <div className="col-span-4 text-right">
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              onClick={() => toggleManualTemp(item.ingredient_id, item.ingredient_name)}
+                            >
+                              <Thermometer className="w-3 h-3 mr-1" />
+                              Add Temperature
+                            </Button>
+                          </div>
+                        </div>
+                      );
+                    }
                     
                     const status = getTempStatus(tempData.temp, tempData.category);
                     const range = TEMP_RANGES[tempData.category];
+                    const isManual = manualTempItems[item.ingredient_id];
                     
                     return (
-                      <div key={item.ingredient_id} className="grid grid-cols-12 gap-3 items-center p-3 bg-slate-50 rounded-lg">
+                      <div key={item.ingredient_id} className="grid grid-cols-12 gap-3 items-center p-3 bg-blue-50 rounded-lg border border-blue-200">
                         <div className="col-span-4">
                           <p className="font-semibold text-slate-800">{item.ingredient_name}</p>
+                          {isManual && <Badge variant="outline" className="text-xs mt-1">Manual</Badge>}
                         </div>
                         <div className="col-span-2 text-center">
-                          <Badge variant="outline" className="capitalize">{tempData.category}</Badge>
+                          <select
+                            value={tempData.category}
+                            onChange={(e) => setTemperatures(prev => ({
+                              ...prev,
+                              [item.ingredient_id]: { ...prev[item.ingredient_id], category: e.target.value }
+                            }))}
+                            className="text-xs border rounded px-2 py-1"
+                          >
+                            <option value="frozen">Frozen</option>
+                            <option value="chilled">Chilled</option>
+                          </select>
                         </div>
                         <div className="col-span-3">
                           <Input
@@ -409,16 +462,21 @@ export default function DeliveryReceivingModal({ order, open, onClose }) {
                           {range.label}
                         </div>
                         <div className="col-span-1 text-center">
-                          {status === 'compliant' && <CheckCircle className="w-5 h-5 text-emerald-600 mx-auto" />}
-                          {status === 'borderline' && <AlertTriangle className="w-5 h-5 text-amber-600 mx-auto" />}
-                          {status === 'out_of_range' && <XCircle className="w-5 h-5 text-red-600 mx-auto" />}
+                          {isManual && (
+                            <button
+                              onClick={() => toggleManualTemp(item.ingredient_id)}
+                              className="text-red-600 hover:text-red-700"
+                            >
+                              <X className="w-4 h-4" />
+                            </button>
+                          )}
+                          {!isManual && status === 'compliant' && <CheckCircle className="w-5 h-5 text-emerald-600 mx-auto" />}
+                          {!isManual && status === 'borderline' && <AlertTriangle className="w-5 h-5 text-amber-600 mx-auto" />}
+                          {!isManual && status === 'out_of_range' && <XCircle className="w-5 h-5 text-red-600 mx-auto" />}
                         </div>
                       </div>
                     );
                   })}
-                  {receivedItems.every(item => temperatures[item.ingredient_id]?.category === 'ambient') && (
-                    <p className="text-center text-slate-500 py-4">No cold items in this delivery</p>
-                  )}
                 </div>
               </CardContent>
             </Card>
