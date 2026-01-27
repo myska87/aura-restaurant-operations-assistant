@@ -12,7 +12,7 @@ import { Package, AlertCircle, CheckCircle, TruckIcon, Calendar } from 'lucide-r
 import { toast } from 'sonner';
 import { format, addDays } from 'date-fns';
 
-export default function SmartOrderCreator({ ingredientsList, orderType, open, onClose, menuItemName }) {
+export default function SmartOrderCreator({ ingredientsList, orderType, open, onClose, menuItemName, portionsOrdered }) {
   const queryClient = useQueryClient();
   const [expectedDeliveryDate, setExpectedDeliveryDate] = useState(format(addDays(new Date(), 2), 'yyyy-MM-dd'));
   const [orderNotes, setOrderNotes] = useState('');
@@ -106,6 +106,11 @@ export default function SmartOrderCreator({ ingredientsList, orderType, open, on
             <TruckIcon className="w-6 h-6 text-emerald-600" />
             Smart Order Creation - Multi-Supplier Split
           </DialogTitle>
+          {portionsOrdered && menuItemName && (
+            <p className="text-sm text-slate-600 mt-2">
+              Ordering ingredients for <span className="font-bold text-emerald-600">{portionsOrdered} portions</span> of {menuItemName}
+            </p>
+          )}
         </DialogHeader>
 
         <div className="space-y-6">
