@@ -170,7 +170,7 @@ export default function TrainingAcademy() {
 
   // Auto-sync with existing training completions
   useEffect(() => {
-    if (!user || !journeyProgress) return;
+    if (!user?.email || !journeyProgress) return;
 
     const syncProgress = async () => {
       // Check Culture & Values completion
