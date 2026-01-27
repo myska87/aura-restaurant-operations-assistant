@@ -49,7 +49,8 @@ const getTempStatus = (temp, category) => {
 export default function DeliveryReceivingModal({ order, open, onClose }) {
   const queryClient = useQueryClient();
   const [receivedItems, setReceivedItems] = useState([]);
-  const [highestTemp, setHighestTemp] = useState('');
+  const [frozenTemp, setFrozenTemp] = useState('');
+  const [chilledTemp, setChilledTemp] = useState('');
   const [tempNotes, setTempNotes] = useState('');
   const [photos, setPhotos] = useState([]);
   const [notes, setNotes] = useState('');
@@ -71,7 +72,8 @@ export default function DeliveryReceivingModal({ order, open, onClose }) {
         received_quantity: item.quantity,
         status: 'accepted'
       })));
-      setHighestTemp('');
+      setFrozenTemp('');
+      setChilledTemp('');
       setTempNotes('');
     }
   }, [order, open]);
@@ -117,7 +119,8 @@ export default function DeliveryReceivingModal({ order, open, onClose }) {
         actual_delivery: format(new Date(), 'yyyy-MM-dd'),
         delivery_photos: photos,
         delivery_notes: notes,
-        highest_temperature: highestTemp ? parseFloat(highestTemp) : null,
+        frozen_temperature: frozenTemp ? parseFloat(frozenTemp) : null,
+        chilled_temperature: chilledTemp ? parseFloat(chilledTemp) : null,
         temperature_notes: tempNotes,
         received_by: user.email,
         received_date: new Date().toISOString()
@@ -139,6 +142,9 @@ export default function DeliveryReceivingModal({ order, open, onClose }) {
         });
 
         // Create transaction record
+        const tempLog = frozenTemp || chilledTemp ? 
+          `Frozen: ${frozenTemp || 'N/A'}°C, Chilled: ${chilledTemp || 'N/A'}°C` : null;
+        
         await base44.entities.InventoryTransaction.create({
           transaction_type: 'delivery',
           ingredient_id: item.ingredient_id,
@@ -153,10 +159,10 @@ export default function DeliveryReceivingModal({ order, open, onClose }) {
           supplier_id: order.supplier_id,
           supplier_name: order.supplier_name,
           delivery_date: format(new Date(), 'yyyy-MM-dd'),
-          temperature_logged: highestTemp ? parseFloat(highestTemp) : null,
+          temperature_logged: chilledTemp ? parseFloat(chilledTemp) : (frozenTemp ? parseFloat(frozenTemp) : null),
           temperature_status: null,
           photos: photos,
-          notes: `${notes}${tempNotes ? `\n\nTemperature Notes: ${tempNotes}` : ''}`,
+          notes: `${notes}${tempLog ? `\n\nTemperatures: ${tempLog}` : ''}${tempNotes ? `\n\nTemp Notes: ${tempNotes}` : ''}`,
           transaction_date: new Date().toISOString()
         });
       });
@@ -207,7 +213,7 @@ export default function DeliveryReceivingModal({ order, open, onClose }) {
     }
 
     // Strict Validation: If temperature is recorded, notes are mandatory
-    if (highestTemp && !tempNotes.trim()) {
+    if ((frozenTemp || chilledTemp) && !tempNotes.trim()) {
       toast.error('⚠️ BLOCKED: Temperature notes are required when temperature is recorded', { duration: 4000 });
       return;
     }
@@ -326,41 +332,59 @@ export default function DeliveryReceivingModal({ order, open, onClose }) {
               </CardContent>
             </Card>
 
-            {/* Temperature Check */}
+            {/* Temperature Checks */}
             <Card>
               <CardContent className="pt-6">
                 <div className="flex items-center gap-2 mb-4">
                   <Thermometer className="w-5 h-5 text-blue-600" />
-                  <h3 className="font-bold text-lg">Highest Temperature Recorded</h3>
+                  <h3 className="font-bold text-lg">Temperature Checks</h3>
                   <Badge variant="outline" className="ml-2">Optional</Badge>
                 </div>
                 <div className="space-y-4">
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                     <div>
-                      <Label className="mb-2">Temperature (°C)</Label>
+                      <Label className="mb-2 flex items-center gap-2">
+                        <div className="w-3 h-3 bg-blue-300 rounded-full"></div>
+                        Frozen Products (°C)
+                      </Label>
                       <Input
                         type="number"
                         step="0.1"
-                        value={highestTemp}
-                        onChange={(e) => setHighestTemp(e.target.value)}
-                        placeholder="e.g., 5.2"
+                        value={frozenTemp}
+                        onChange={(e) => setFrozenTemp(e.target.value)}
+                        placeholder="e.g., -18.0"
                         className="text-lg text-center"
                       />
-                      <p className="text-xs text-slate-500 mt-1">Record the highest temperature from all cold items</p>
+                      <p className="text-xs text-slate-500 mt-1">Highest temp for frozen items</p>
+                    </div>
+                    <div>
+                      <Label className="mb-2 flex items-center gap-2">
+                        <div className="w-3 h-3 bg-cyan-400 rounded-full"></div>
+                        Chilled Products (°C)
+                      </Label>
+                      <Input
+                        type="number"
+                        step="0.1"
+                        value={chilledTemp}
+                        onChange={(e) => setChilledTemp(e.target.value)}
+                        placeholder="e.g., 4.5"
+                        className="text-lg text-center"
+                      />
+                      <p className="text-xs text-slate-500 mt-1">Highest temp for fridge items</p>
                     </div>
                     <div>
                       <Label className="mb-2">
                         Temperature Notes
-                        {highestTemp && <span className="text-red-600 ml-1">*</span>}
+                        {(frozenTemp || chilledTemp) && <span className="text-red-600 ml-1">*</span>}
                       </Label>
                       <Textarea
                         value={tempNotes}
                         onChange={(e) => setTempNotes(e.target.value)}
                         placeholder="What was checked? Any concerns?"
                         rows={3}
-                        className={highestTemp && !tempNotes ? 'border-red-300' : ''}
+                        className={(frozenTemp || chilledTemp) && !tempNotes ? 'border-red-300' : ''}
                       />
-                      {highestTemp && !tempNotes && (
+                      {(frozenTemp || chilledTemp) && !tempNotes && (
                         <p className="text-xs text-red-600 mt-1">Notes required when temperature is recorded</p>
                       )}
                     </div>
