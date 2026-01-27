@@ -611,7 +611,7 @@ export default function Inventory() {
                               variant="ghost" 
                               size="icon" 
                               className="h-8 w-8"
-                              onClick={() => addToCart(ing)}
+                              onClick={async () => await addToCart(ing)}
                             >
                               <ShoppingCart className="w-4 h-4 text-amber-600" />
                             </Button>
