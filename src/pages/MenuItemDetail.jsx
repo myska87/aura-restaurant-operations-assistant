@@ -18,7 +18,8 @@ import {
   Clock,
   BarChart3,
   Sparkles,
-  ExternalLink
+  ExternalLink,
+  FileEdit
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -27,6 +28,8 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Progress } from '@/components/ui/progress';
 import LoadingSpinner from '@/components/ui/LoadingSpinner';
 import LinkVisualGuideButton from '@/components/menu/LinkVisualGuideButton';
+import RecipeEditor from '@/components/menu/RecipeEditor';
+import RecipeStatusBadge from '@/components/menu/RecipeStatusBadge';
 
 export default function MenuItemDetail() {
   const navigate = useNavigate();
@@ -34,6 +37,7 @@ export default function MenuItemDetail() {
   const [user, setUser] = useState(null);
   const [calculatedCost, setCalculatedCost] = useState(0);
   const [calculatedMargin, setCalculatedMargin] = useState(0);
+  const [showRecipeEditor, setShowRecipeEditor] = useState(false);
   
   const urlParams = new URLSearchParams(window.location.search);
   const itemId = urlParams.get('id');
@@ -185,6 +189,7 @@ export default function MenuItemDetail() {
                  <Badge className={margin >= 40 ? 'bg-emerald-100 text-emerald-700' : 'bg-amber-100 text-amber-700'}>
                    {margin.toFixed(0)}% margin
                  </Badge>
+                 <RecipeStatusBadge menuItem={menuItem} />
                </div>
               </div>
             </div>
@@ -194,19 +199,29 @@ export default function MenuItemDetail() {
                 <p className="text-3xl font-bold text-slate-800">£{(menuItem?.price || 0).toFixed(2)}</p>
               </div>
               {isAdmin && (
-                <Button 
-                  variant="outline" 
-                  className="gap-2"
-                  onClick={() => {
-                    navigate(createPageUrl('MenuManager'));
-                    setTimeout(() => {
-                      window.dispatchEvent(new CustomEvent('openEditModal', { detail: { menuItem } }));
-                    }, 300);
-                  }}
-                >
-                  <Edit className="w-4 h-4" />
-                  Edit Item
-                </Button>
+                <>
+                  <Button 
+                    variant="outline" 
+                    className="gap-2"
+                    onClick={() => setShowRecipeEditor(true)}
+                  >
+                    <FileEdit className="w-4 h-4" />
+                    Edit Recipe
+                  </Button>
+                  <Button 
+                    variant="outline" 
+                    className="gap-2"
+                    onClick={() => {
+                      navigate(createPageUrl('MenuManager'));
+                      setTimeout(() => {
+                        window.dispatchEvent(new CustomEvent('openEditModal', { detail: { menuItem } }));
+                      }, 300);
+                    }}
+                  >
+                    <Edit className="w-4 h-4" />
+                    Edit Item
+                  </Button>
+                </>
               )}
             </div>
           </div>
@@ -591,6 +606,13 @@ export default function MenuItemDetail() {
           </TabsContent>
         </Tabs>
       </div>
+
+      {/* Recipe Editor Dialog */}
+      <RecipeEditor
+        menuItem={menuItem}
+        open={showRecipeEditor}
+        onClose={() => setShowRecipeEditor(false)}
+      />
     </div>
   );
 }
