@@ -212,6 +212,8 @@ export default function Invitation() {
           onQuizPassed={handleQuizPassed}
           moduleName="Invitation"
           passPercentage={80}
+          nextModuleName="Welcome & Vision"
+          nextModulePage="WelcomeVision"
         />
       )}
     </div>

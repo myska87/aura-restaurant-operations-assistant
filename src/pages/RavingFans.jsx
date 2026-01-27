@@ -344,6 +344,8 @@ export default function RavingFans() {
             onQuizPassed={handleQuizPassed}
             moduleName="Raving Fans Philosophy"
             passPercentage={80}
+            nextModuleName="Skills & SOPs"
+            nextModulePage="SOPs"
           />
 
           {quizPassed && (

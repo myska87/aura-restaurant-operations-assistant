@@ -579,6 +579,8 @@ export default function Culture() {
               onQuizPassed={handleQuizPassed}
               moduleName="Culture & Values"
               passPercentage={80}
+              nextModuleName="Raving Fans Philosophy"
+              nextModulePage="RavingFans"
             />
           </CardContent>
         </Card>
