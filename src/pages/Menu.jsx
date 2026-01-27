@@ -60,6 +60,7 @@ import OrderByDishDialog from '@/components/menu/OrderByDishDialog';
 import PortionOrderingDialog from '@/components/menu/PortionOrderingDialog';
 import LinkVisualGuideButton from '@/components/menu/LinkVisualGuideButton';
 import MenuSafetyStatus from '@/components/menu/MenuSafetyStatus';
+import RecipeEditor from '@/components/menu/RecipeEditor';
 import { Link } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
 
@@ -71,9 +72,11 @@ export default function Menu() {
   const [showDetails, setShowDetails] = useState(false);
   const [showOrderDialog, setShowOrderDialog] = useState(false);
   const [showPortionDialog, setShowPortionDialog] = useState(false);
+  const [showRecipeEditor, setShowRecipeEditor] = useState(false);
   const [editingItem, setEditingItem] = useState(null);
   const [viewingItem, setViewingItem] = useState(null);
   const [orderingItem, setOrderingItem] = useState(null);
+  const [recipeEditingItem, setRecipeEditingItem] = useState(null);
   const [searchQuery, setSearchQuery] = useState('');
   const [filterCategory, setFilterCategory] = useState('all');
   const [filterLocation, setFilterLocation] = useState('all');
@@ -103,8 +106,8 @@ export default function Menu() {
     const handleOpenRecipeEditor = (event) => {
       const item = event.detail?.menuItem;
       if (item) {
-        setEditingItem(item);
-        setShowForm(true);
+        setRecipeEditingItem(item);
+        setShowRecipeEditor(true);
       }
     };
 
@@ -849,6 +852,19 @@ export default function Menu() {
           )}
         </DialogContent>
       </Dialog>
+
+      {/* Recipe Editor */}
+      {recipeEditingItem && (
+        <RecipeEditor
+          menuItem={recipeEditingItem}
+          open={showRecipeEditor}
+          onClose={() => { 
+            setShowRecipeEditor(false); 
+            setRecipeEditingItem(null);
+            queryClient.invalidateQueries(['recipes_v2']);
+          }}
+        />
+      )}
     </div>
   );
 }
