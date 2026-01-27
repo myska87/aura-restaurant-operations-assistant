@@ -259,6 +259,14 @@ export default function Inventory() {
       if (data[field]) data[field] = parseFloat(data[field]);
     });
     
+    // Add supplier_name based on supplier_id
+    if (data.supplier_id) {
+      const supplier = suppliers.find(s => s.id === data.supplier_id);
+      if (supplier) {
+        data.supplier_name = supplier.name;
+      }
+    }
+    
     ingredientMutation.mutate({ 
       id: editingIngredient?.id, 
       data 
