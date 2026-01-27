@@ -21,12 +21,14 @@ import {
   X
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
+import SmartOrderCreator from './SmartOrderCreator';
 
 export default function PortionOrderingDialog({ menuItem, onClose }) {
   const [selectedPortions, setSelectedPortions] = useState(50);
   const [customPortions, setCustomPortions] = useState('');
   const [basket, setBasket] = useState({});
   const [activeTab, setActiveTab] = useState('calculator');
+  const [showOrderCreator, setShowOrderCreator] = useState(false);
 
   const { data: recipes = [] } = useQuery({
     queryKey: ['recipes_v2'],
@@ -397,15 +399,36 @@ export default function PortionOrderingDialog({ menuItem, onClose }) {
                     Email
                   </Button>
                 </div>
-                <Button className="w-full bg-emerald-600 hover:bg-emerald-700" size="lg">
+                <Button
+                  className="w-full bg-emerald-600 hover:bg-emerald-700"
+                  size="lg"
+                  onClick={() => setShowOrderCreator(true)}
+                >
                   <CheckCircle className="w-5 h-5 mr-2" />
-                  Prepare Order ({basketItems.length} items)
+                  Create Orders ({Object.keys(basketBySupplier).length} supplier{Object.keys(basketBySupplier).length > 1 ? 's' : ''})
                 </Button>
               </div>
             </>
           )}
         </TabsContent>
       </Tabs>
+
+      {/* Smart Order Creator */}
+      <SmartOrderCreator
+        ingredientsList={basketItems.map(ing => ({
+          ingredient_id: ing.ingredient_id,
+          ingredient_name: ing.ingredient_name,
+          quantity: ing.needed > 0 ? ing.needed : ing.totalQty,
+          unit: ing.unit,
+          cost_per_unit: ing.ingredientData?.cost_per_unit || 0,
+          supplier_id: ing.ingredientData?.supplier_id,
+          supplier_name: ing.supplierData?.supplier_name || ing.ingredientData?.supplier_name
+        }))}
+        orderType="menu_based"
+        menuItemName={menuItem.name}
+        open={showOrderCreator}
+        onClose={() => setShowOrderCreator(false)}
+      />
     </div>
   );
 }
