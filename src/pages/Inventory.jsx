@@ -58,6 +58,7 @@ import EmptyState from '@/components/ui/EmptyState';
 import LoadingSpinner from '@/components/ui/LoadingSpinner';
 import DeliveryReceivingModal from '@/components/inventory/DeliveryReceivingModal';
 import OrderDetailsDialog from '@/components/inventory/OrderDetailsDialog';
+import OrderDraftManager from '@/components/inventory/OrderDraftManager';
 
 const ingredientCategories = [
   { value: 'produce', label: 'Produce', color: 'bg-green-100 text-green-700' },
@@ -87,6 +88,7 @@ export default function Inventory() {
   const [user, setUser] = useState(null);
   const [receivingOrder, setReceivingOrder] = useState(null);
   const [viewingOrder, setViewingOrder] = useState(null);
+  const [editingDraftId, setEditingDraftId] = useState(null);
 
   const queryClient = useQueryClient();
   const navigate = useNavigate();
@@ -116,6 +118,14 @@ export default function Inventory() {
   const { data: orders = [] } = useQuery({
     queryKey: ['orders'],
     queryFn: () => base44.entities.Order.list('-created_date'),
+  });
+
+  const { data: drafts = [] } = useQuery({
+    queryKey: ['drafts'],
+    queryFn: async () => {
+      const allOrders = await base44.entities.Order.list('-created_date');
+      return allOrders.filter(o => o.status === 'draft');
+    }
   });
 
   // Sort orders: uncompleted first (by date), then completed at bottom (by date)
@@ -250,23 +260,65 @@ export default function Inventory() {
     return { color: 'bg-emerald-500', label: 'Good' };
   };
 
-  const addToCart = (ingredient) => {
-    const existing = orderCart.find(i => i.ingredient_id === ingredient.id);
-    if (existing) {
-      setOrderCart(orderCart.map(i => 
-        i.ingredient_id === ingredient.id 
-          ? { ...i, quantity: i.quantity + (ingredient.reorder_quantity || 1) }
-          : i
-      ));
+  const addToCart = async (ingredient) => {
+    // Find or create draft for this supplier
+    let targetDraft = drafts.find(d => d.supplier_id === ingredient.supplier_id);
+
+    if (!targetDraft) {
+      // Create new draft
+      const newDraftNumber = `DRAFT-${Date.now().toString(36).toUpperCase()}`;
+      const supplier = suppliers.find(s => s.id === ingredient.supplier_id);
+      
+      targetDraft = await base44.entities.Order.create({
+        order_number: newDraftNumber,
+        supplier_id: ingredient.supplier_id,
+        supplier_name: supplier?.name || 'Unknown',
+        items: [{
+          ingredient_id: ingredient.id,
+          ingredient_name: ingredient.name,
+          quantity: ingredient.reorder_quantity || 1,
+          unit: ingredient.unit,
+          unit_cost: ingredient.cost_per_unit || 0,
+          total_cost: (ingredient.reorder_quantity || 1) * (ingredient.cost_per_unit || 0)
+        }],
+        total_amount: (ingredient.reorder_quantity || 1) * (ingredient.cost_per_unit || 0),
+        status: 'draft',
+        order_type: 'manual'
+      });
+
+      queryClient.invalidateQueries(['drafts']);
+      toast.success('New draft created');
     } else {
-      setOrderCart([...orderCart, {
-        ingredient_id: ingredient.id,
-        ingredient_name: ingredient.name,
-        quantity: ingredient.reorder_quantity || 1,
-        unit: ingredient.unit,
-        unit_cost: ingredient.cost_per_unit || 0,
-        total_cost: (ingredient.reorder_quantity || 1) * (ingredient.cost_per_unit || 0)
-      }]);
+      // Add to existing draft
+      const existing = targetDraft.items.find(i => i.ingredient_id === ingredient.id);
+      let updatedItems;
+
+      if (existing) {
+        updatedItems = targetDraft.items.map(i =>
+          i.ingredient_id === ingredient.id
+            ? { ...i, quantity: i.quantity + (ingredient.reorder_quantity || 1), total_cost: (i.quantity + (ingredient.reorder_quantity || 1)) * i.unit_cost }
+            : i
+        );
+      } else {
+        updatedItems = [...targetDraft.items, {
+          ingredient_id: ingredient.id,
+          ingredient_name: ingredient.name,
+          quantity: ingredient.reorder_quantity || 1,
+          unit: ingredient.unit,
+          unit_cost: ingredient.cost_per_unit || 0,
+          total_cost: (ingredient.reorder_quantity || 1) * (ingredient.cost_per_unit || 0)
+        }];
+      }
+
+      const newTotal = updatedItems.reduce((sum, i) => sum + i.total_cost, 0);
+      
+      await base44.entities.Order.update(targetDraft.id, {
+        items: updatedItems,
+        total_amount: newTotal
+      });
+
+      queryClient.invalidateQueries(['drafts']);
+      toast.success('Added to draft');
     }
   };
 
@@ -391,6 +443,9 @@ export default function Inventory() {
          <TabsList className="bg-white border">
            <TabsTrigger value="ingredients">Ingredients</TabsTrigger>
            <TabsTrigger value="suppliers">Suppliers</TabsTrigger>
+           <TabsTrigger value="drafts">
+             Drafts {drafts.length > 0 && <Badge className="ml-2 bg-amber-500">{drafts.length}</Badge>}
+           </TabsTrigger>
            <TabsTrigger value="orders">Orders</TabsTrigger>
            <TabsTrigger value="ordered">Ordered</TabsTrigger>
            <TabsTrigger value="analysis">Cost Analysis</TabsTrigger>
@@ -426,15 +481,7 @@ export default function Inventory() {
               <Plus className="w-4 h-4 mr-2" />
               Add Ingredient
             </Button>
-            {orderCart.length > 0 && (
-              <Button 
-                onClick={() => setShowOrderForm(true)}
-                className="bg-gradient-to-r from-amber-500 to-amber-600"
-              >
-                <ShoppingCart className="w-4 h-4 mr-2" />
-                Cart ({orderCart.length})
-              </Button>
-            )}
+
           </div>
 
           {filteredIngredients.length === 0 ? (
@@ -587,6 +634,80 @@ export default function Inventory() {
                   })}
                 </TableBody>
               </Table>
+            </div>
+          )}
+        </TabsContent>
+
+        {/* Drafts Tab */}
+        <TabsContent value="drafts" className="space-y-4 mt-4">
+          {editingDraftId ? (
+            <OrderDraftManager
+              draftId={editingDraftId}
+              suppliers={suppliers}
+              ingredients={ingredients}
+              onClose={() => setEditingDraftId(null)}
+            />
+          ) : (
+            <div className="space-y-4">
+              {drafts.length === 0 ? (
+                <Card className="border-2 border-dashed">
+                  <CardContent className="pt-12 text-center">
+                    <Package className="w-12 h-12 mx-auto text-slate-300 mb-4" />
+                    <p className="text-slate-500 text-lg">No draft orders yet</p>
+                    <p className="text-slate-400 text-sm">Add items from Ingredients tab to create a draft</p>
+                  </CardContent>
+                </Card>
+              ) : (
+                <div className="grid gap-4">
+                  {drafts.map((draft) => {
+                    const supplier = suppliers.find(s => s.id === draft.supplier_id);
+                    const lowStockCount = draft.items?.filter(item => {
+                      const ing = ingredients.find(i => i.id === item.ingredient_id);
+                      return ing && (ing.current_stock || 0) <= (ing.min_stock_level || 0);
+                    }).length || 0;
+
+                    return (
+                      <motion.div
+                        key={draft.id}
+                        initial={{ opacity: 0, y: 10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                      >
+                        <Card className="hover:shadow-lg transition-shadow cursor-pointer">
+                          <CardContent className="pt-6">
+                            <div className="flex items-center justify-between mb-4">
+                              <div>
+                                <h3 className="text-lg font-bold text-slate-900">{draft.order_number}</h3>
+                                <p className="text-slate-600">{supplier?.name || 'Unknown Supplier'}</p>
+                              </div>
+                              <div className="text-right">
+                                <div className="text-3xl font-bold text-emerald-600">
+                                  £{draft.total_amount?.toFixed(2) || '0.00'}
+                                </div>
+                                <p className="text-sm text-slate-500">{draft.items?.length || 0} items</p>
+                              </div>
+                            </div>
+
+                            <div className="flex items-center gap-2 mb-4">
+                              <Badge className="bg-amber-100 text-amber-800">DRAFT</Badge>
+                              {lowStockCount > 0 && (
+                                <Badge className="bg-red-100 text-red-700">{lowStockCount} Low Stock</Badge>
+                              )}
+                            </div>
+
+                            <Button
+                              onClick={() => setEditingDraftId(draft.id)}
+                              className="w-full bg-gradient-to-r from-emerald-600 to-emerald-700"
+                            >
+                              <Package className="w-4 h-4 mr-2" />
+                              Edit & Review Draft
+                            </Button>
+                          </CardContent>
+                        </Card>
+                      </motion.div>
+                    );
+                  })}
+                </div>
+              )}
             </div>
           )}
         </TabsContent>
