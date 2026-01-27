@@ -93,6 +93,7 @@ import WeeklyManagerReportDetail from './pages/WeeklyManagerReportDetail';
 import WeeklyManagerReportForm from './pages/WeeklyManagerReportForm';
 import WeeklyManagerReports from './pages/WeeklyManagerReports';
 import WelcomeVision from './pages/WelcomeVision';
+import DeliveryReport from './pages/DeliveryReport';
 import __Layout from './Layout.jsx';
 
 
@@ -192,6 +193,7 @@ export const PAGES = {
     "WeeklyManagerReportForm": WeeklyManagerReportForm,
     "WeeklyManagerReports": WeeklyManagerReports,
     "WelcomeVision": WelcomeVision,
+    "DeliveryReport": DeliveryReport,
 }
 
 export const pagesConfig = {
