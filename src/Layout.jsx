@@ -77,15 +77,14 @@ const navGroups = [
   {
     title: 'Team Development',
     items: [
-      { name: 'Training Academy', icon: GraduationCap, page: 'TrainingAcademy', roles: ['all'], modes: ['train'] },
+      { name: 'Training Home', icon: GraduationCap, page: 'TrainHome', roles: ['all'], modes: ['train'] },
       { name: 'Leadership Path', icon: Trophy, page: 'LeadershipPathway', roles: ['all'], modes: ['train'] },
-      { name: 'Culture', icon: Heart, page: 'Culture', roles: ['all'], modes: ['train'] },
-      { name: 'People', icon: Users, page: 'People', roles: ['all'], modes: ['train'] },
     ]
   },
   {
     title: 'Management & Control',
     items: [
+      { name: 'People', icon: Users, page: 'People', roles: ['all'], modes: ['manage'] },
       { name: 'Reports', icon: TrendingUp, page: 'Reports', roles: ['manager', 'owner', 'admin'], modes: ['manage'] },
       { name: 'Audit Center', icon: FileText, page: 'AuditCenter', roles: ['all'], modes: ['manage'] },
       { name: 'Inspector Mode', icon: Shield, page: 'InspectorMode', roles: ['manager', 'owner', 'admin'], modes: ['manage'] },

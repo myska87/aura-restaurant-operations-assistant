@@ -64,26 +64,26 @@ export default function TrainHome() {
 
   const trainingPaths = [
     {
-      title: 'My Training',
+      title: 'My Journey',
       icon: GraduationCap,
       color: 'bg-amber-500',
-      link: 'TrainingAcademy',
+      link: 'WelcomeVision',
       stat: `${completedCount}/${totalCourses}`
     },
     {
-      title: 'Video Library',
+      title: 'Hygiene Training',
       icon: Video,
-      color: 'bg-purple-500',
+      color: 'bg-blue-500',
       link: 'Training'
     },
     {
-      title: 'SOP Library',
-      icon: BookOpen,
-      color: 'bg-blue-500',
-      link: 'SOPLibrary'
+      title: 'Leadership Path',
+      icon: Award,
+      color: 'bg-purple-500',
+      link: 'LeadershipPathway'
     },
     {
-      title: 'My Certificates',
+      title: 'My Profile',
       icon: Award,
       color: 'bg-emerald-500',
       link: 'Profile'
@@ -172,16 +172,16 @@ export default function TrainHome() {
                   },
                   {
                     step: 3,
-                    title: 'Skills & SOPs',
-                    description: 'Master the technical skills and standard operating procedures.',
-                    page: 'SOPLibrary',
-                    progressKey: 'sops_completed'
+                    title: 'Raving Fans',
+                    description: 'Creating memorable experiences that turn guests into fans.',
+                    page: 'RavingFans',
+                    progressKey: 'raving_fans_completed'
                   },
                   {
                     step: 4,
                     title: 'Hygiene & Safety',
                     description: 'Critical knowledge for maintaining standards and customer safety.',
-                    page: 'LiveFoodSafety',
+                    page: 'Training',
                     progressKey: 'hygiene_completed'
                   },
                   {
@@ -200,7 +200,8 @@ export default function TrainHome() {
                   }
                 ].map((item, idx) => {
                   const isCompleted = journeyProgress?.[item.progressKey] || false;
-                  const isCurrent = idx === 0 || (idx > 0 && !isCompleted && progress.some(p => p.status !== 'not_started'));
+                  const prevCompleted = idx === 0 || journeyProgress?.[progress[idx - 1]?.progressKey];
+                  const isCurrent = prevCompleted && !isCompleted;
                   
                   return (
                     <div
@@ -279,9 +280,9 @@ export default function TrainHome() {
           transition={{ delay: 0.4 }}
           className="text-center"
         >
-          <Link to={createPageUrl('TrainingAcademy')}>
+          <Link to={createPageUrl('WelcomeVision')}>
             <Button size="lg" className="bg-emerald-600 hover:bg-emerald-700 text-lg px-8 py-6 shadow-lg">
-              Continue Your Training →
+              Start Your Training Journey →
             </Button>
           </Link>
         </motion.div>

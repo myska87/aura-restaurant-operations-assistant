@@ -21,7 +21,7 @@ export const MODE_CONFIG = {
     color: 'bg-amber-500',
     description: 'Learning Mode',
     allowedRoles: ['staff', 'manager', 'owner', 'admin'],
-    homePage: 'WelcomeVision'
+    homePage: 'TrainHome'
   },
   [MODES.MANAGE]: {
     label: 'Manage',
