@@ -74,7 +74,7 @@ export default function Invitation() {
       });
       return existing.length > 0 ? existing[0] : null;
     },
-    enabled: !!user
+    enabled: !!user?.email
   });
 
   const acceptInvitationMutation = useMutation({

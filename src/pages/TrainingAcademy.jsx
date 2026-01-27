@@ -165,7 +165,7 @@ export default function TrainingAcademy() {
       
       return newProgress;
     },
-    enabled: !!user
+    enabled: !!user?.email
   });
 
   // Auto-sync with existing training completions
