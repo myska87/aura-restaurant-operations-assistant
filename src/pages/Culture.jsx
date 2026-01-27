@@ -4,7 +4,7 @@ import { createPageUrl } from '@/utils';
 import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { motion } from 'framer-motion';
-import { Heart, Users, Award, Leaf, Sparkles, Target, TrendingUp, Shield, CheckCircle, Star } from 'lucide-react';
+import { Heart, Users, Award, Leaf, Sparkles, Target, TrendingUp, Shield, CheckCircle, Star, ArrowRight } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
