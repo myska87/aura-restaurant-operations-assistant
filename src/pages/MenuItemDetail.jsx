@@ -30,6 +30,7 @@ import LoadingSpinner from '@/components/ui/LoadingSpinner';
 import LinkVisualGuideButton from '@/components/menu/LinkVisualGuideButton';
 import RecipeEditor from '@/components/menu/RecipeEditor';
 import RecipeStatusBadge from '@/components/menu/RecipeStatusBadge';
+import SmartOrderCreator from '@/components/menu/SmartOrderCreator';
 
 export default function MenuItemDetail() {
   const navigate = useNavigate();
@@ -38,6 +39,7 @@ export default function MenuItemDetail() {
   const [calculatedCost, setCalculatedCost] = useState(0);
   const [calculatedMargin, setCalculatedMargin] = useState(0);
   const [showRecipeEditor, setShowRecipeEditor] = useState(false);
+  const [showOrderCreator, setShowOrderCreator] = useState(false);
   
   const urlParams = new URLSearchParams(window.location.search);
   const itemId = urlParams.get('id');
@@ -446,7 +448,10 @@ export default function MenuItemDetail() {
                         </tfoot>
                       </table>
                     </div>
-                    <Button className="w-full md:w-auto" variant="outline">
+                    <Button 
+                      className="w-full md:w-auto bg-emerald-600 hover:bg-emerald-700 text-white" 
+                      onClick={() => setShowOrderCreator(true)}
+                    >
                       <ShoppingCart className="w-4 h-4 mr-2" />
                       Reorder Ingredients
                     </Button>
@@ -612,6 +617,23 @@ export default function MenuItemDetail() {
         menuItem={menuItem}
         open={showRecipeEditor}
         onClose={() => setShowRecipeEditor(false)}
+      />
+
+      {/* Smart Order Creator */}
+      <SmartOrderCreator
+        ingredientsList={menuItem?.ingredients?.map(ing => ({
+          ingredient_id: ing.ingredient_id,
+          ingredient_name: ing.ingredient_name,
+          quantity: ing.quantity,
+          unit: ing.unit,
+          cost_per_unit: ing.cost_per_unit,
+          supplier_id: ingredients.find(i => i.name?.toLowerCase() === ing.ingredient_name?.toLowerCase())?.supplier_id,
+          supplier_name: ingredients.find(i => i.name?.toLowerCase() === ing.ingredient_name?.toLowerCase())?.supplier_name
+        })) || []}
+        orderType="menu_based"
+        menuItemName={menuItem?.name}
+        open={showOrderCreator}
+        onClose={() => setShowOrderCreator(false)}
       />
     </div>
   );
