@@ -49,12 +49,12 @@ const getTempStatus = (temp, category) => {
 export default function DeliveryReceivingModal({ order, open, onClose }) {
   const queryClient = useQueryClient();
   const [receivedItems, setReceivedItems] = useState([]);
-  const [temperatures, setTemperatures] = useState({});
+  const [highestTemp, setHighestTemp] = useState('');
+  const [tempNotes, setTempNotes] = useState('');
   const [photos, setPhotos] = useState([]);
   const [notes, setNotes] = useState('');
   const [rejectionReason, setRejectionReason] = useState('');
   const [isRejecting, setIsRejecting] = useState(false);
-  const [manualTempItems, setManualTempItems] = useState({});
 
   // Fetch ingredients for temperature categories
   const { data: ingredients = [] } = useQuery({
@@ -69,59 +69,17 @@ export default function DeliveryReceivingModal({ order, open, onClose }) {
       setReceivedItems(order.items.map(item => ({
         ...item,
         received_quantity: item.quantity,
-        status: 'accepted',
-        temperature_category: 'ambient'
+        status: 'accepted'
       })));
-      
-      // Map temperature categories from ingredients
-      const tempMap = {};
-      order.items.forEach(item => {
-        const ing = ingredients.find(i => i.id === item.ingredient_id);
-        if (ing?.storage_location === 'freezer') {
-          tempMap[item.ingredient_id] = { category: 'frozen', temp: -18 };
-        } else if (ing?.storage_location === 'fridge') {
-          tempMap[item.ingredient_id] = { category: 'chilled', temp: 4 };
-        } else {
-          tempMap[item.ingredient_id] = { category: 'ambient', temp: null };
-        }
-      });
-      setTemperatures(tempMap);
+      setHighestTemp('');
+      setTempNotes('');
     }
-  }, [order, ingredients, open]);
+  }, [order, open]);
 
   const updateReceivedQuantity = (index, value) => {
     const updated = [...receivedItems];
     updated[index].received_quantity = parseFloat(value) || 0;
     setReceivedItems(updated);
-  };
-
-  const updateTemperature = (ingredientId, temp) => {
-    setTemperatures(prev => ({
-      ...prev,
-      [ingredientId]: {
-        ...prev[ingredientId],
-        temp: parseFloat(temp) || 0
-      }
-    }));
-  };
-
-  const toggleManualTemp = (ingredientId, itemName) => {
-    if (manualTempItems[ingredientId]) {
-      // Remove manual temp tracking
-      const { [ingredientId]: removed, ...rest } = manualTempItems;
-      setManualTempItems(rest);
-      setTemperatures(prev => {
-        const { [ingredientId]: removed, ...rest } = prev;
-        return rest;
-      });
-    } else {
-      // Add manual temp tracking
-      setManualTempItems(prev => ({ ...prev, [ingredientId]: true }));
-      setTemperatures(prev => ({
-        ...prev,
-        [ingredientId]: { category: 'chilled', temp: null }
-      }));
-    }
   };
 
   const uploadPhotosMutation = useMutation({
@@ -159,6 +117,8 @@ export default function DeliveryReceivingModal({ order, open, onClose }) {
         actual_delivery: format(new Date(), 'yyyy-MM-dd'),
         delivery_photos: photos,
         delivery_notes: notes,
+        highest_temperature: highestTemp ? parseFloat(highestTemp) : null,
+        temperature_notes: tempNotes,
         received_by: user.email,
         received_date: new Date().toISOString()
       });
@@ -179,9 +139,6 @@ export default function DeliveryReceivingModal({ order, open, onClose }) {
         });
 
         // Create transaction record
-        const tempData = temperatures[item.ingredient_id];
-        const tempStatus = getTempStatus(tempData?.temp, tempData?.category);
-
         await base44.entities.InventoryTransaction.create({
           transaction_type: 'delivery',
           ingredient_id: item.ingredient_id,
@@ -196,10 +153,10 @@ export default function DeliveryReceivingModal({ order, open, onClose }) {
           supplier_id: order.supplier_id,
           supplier_name: order.supplier_name,
           delivery_date: format(new Date(), 'yyyy-MM-dd'),
-          temperature_logged: tempData?.temp || null,
-          temperature_status: tempStatus,
+          temperature_logged: highestTemp ? parseFloat(highestTemp) : null,
+          temperature_status: null,
           photos: photos,
-          notes: notes,
+          notes: `${notes}${tempNotes ? `\n\nTemperature Notes: ${tempNotes}` : ''}`,
           transaction_date: new Date().toISOString()
         });
       });
@@ -249,31 +206,9 @@ export default function DeliveryReceivingModal({ order, open, onClose }) {
       return;
     }
 
-    // Strict Validation: Temperature checks for cold items
-    const coldItems = Object.entries(temperatures).filter(([id, data]) => data.category !== 'ambient');
-    const missingTemps = coldItems.filter(([id, data]) => !data.temp && data.temp !== 0);
-    
-    if (missingTemps.length > 0) {
-      const itemNames = missingTemps.map(([id]) => {
-        const item = receivedItems.find(i => i.ingredient_id === id);
-        return item?.ingredient_name;
-      }).join(', ');
-      toast.error(`⚠️ BLOCKED: Temperature required for: ${itemNames}`, { duration: 5000 });
-      return;
-    }
-
-    // Strict Validation: Out of range temps must have explanation
-    const outOfRangeItems = Object.entries(temperatures).filter(([id, data]) => {
-      const status = getTempStatus(data.temp, data.category);
-      return status === 'out_of_range';
-    });
-
-    if (outOfRangeItems.length > 0 && !notes.trim()) {
-      const itemNames = outOfRangeItems.map(([id]) => {
-        const item = receivedItems.find(i => i.ingredient_id === id);
-        return item?.ingredient_name;
-      }).join(', ');
-      toast.error(`⚠️ BLOCKED: Temperature out of safe range for ${itemNames}. You MUST add notes explaining why before proceeding.`, { duration: 6000 });
+    // Strict Validation: If temperature is recorded, notes are mandatory
+    if (highestTemp && !tempNotes.trim()) {
+      toast.error('⚠️ BLOCKED: Temperature notes are required when temperature is recorded', { duration: 4000 });
       return;
     }
 
@@ -391,92 +326,45 @@ export default function DeliveryReceivingModal({ order, open, onClose }) {
               </CardContent>
             </Card>
 
-            {/* Temperature Checks */}
+            {/* Temperature Check */}
             <Card>
               <CardContent className="pt-6">
                 <div className="flex items-center gap-2 mb-4">
                   <Thermometer className="w-5 h-5 text-blue-600" />
-                  <h3 className="font-bold text-lg">Temperature Checks</h3>
-                  <Badge variant="outline" className="ml-2">Required for Cold Items</Badge>
+                  <h3 className="font-bold text-lg">Highest Temperature Recorded</h3>
+                  <Badge variant="outline" className="ml-2">Optional</Badge>
                 </div>
-                <div className="space-y-3">
-                  {receivedItems.map((item) => {
-                    const tempData = temperatures[item.ingredient_id];
-                    const isTracked = tempData && tempData.category !== 'ambient';
-                    
-                    if (!isTracked) {
-                      // Show option to manually add temp tracking
-                      return (
-                        <div key={item.ingredient_id} className="grid grid-cols-12 gap-3 items-center p-3 bg-slate-50 rounded-lg">
-                          <div className="col-span-8">
-                            <p className="font-medium text-slate-600">{item.ingredient_name}</p>
-                          </div>
-                          <div className="col-span-4 text-right">
-                            <Button
-                              size="sm"
-                              variant="outline"
-                              onClick={() => toggleManualTemp(item.ingredient_id, item.ingredient_name)}
-                            >
-                              <Thermometer className="w-3 h-3 mr-1" />
-                              Add Temperature
-                            </Button>
-                          </div>
-                        </div>
-                      );
-                    }
-                    
-                    const status = getTempStatus(tempData.temp, tempData.category);
-                    const range = TEMP_RANGES[tempData.category];
-                    const isManual = manualTempItems[item.ingredient_id];
-                    
-                    return (
-                      <div key={item.ingredient_id} className="grid grid-cols-12 gap-3 items-center p-3 bg-blue-50 rounded-lg border border-blue-200">
-                        <div className="col-span-4">
-                          <p className="font-semibold text-slate-800">{item.ingredient_name}</p>
-                          {isManual && <Badge variant="outline" className="text-xs mt-1">Manual</Badge>}
-                        </div>
-                        <div className="col-span-2 text-center">
-                          <select
-                            value={tempData.category}
-                            onChange={(e) => setTemperatures(prev => ({
-                              ...prev,
-                              [item.ingredient_id]: { ...prev[item.ingredient_id], category: e.target.value }
-                            }))}
-                            className="text-xs border rounded px-2 py-1"
-                          >
-                            <option value="frozen">Frozen</option>
-                            <option value="chilled">Chilled</option>
-                          </select>
-                        </div>
-                        <div className="col-span-3">
-                          <Input
-                            type="number"
-                            step="0.1"
-                            value={tempData.temp || ''}
-                            onChange={(e) => updateTemperature(item.ingredient_id, e.target.value)}
-                            placeholder="Enter temp"
-                            className="text-center"
-                          />
-                        </div>
-                        <div className="col-span-2 text-center text-sm text-slate-600">
-                          {range.label}
-                        </div>
-                        <div className="col-span-1 text-center">
-                          {isManual && (
-                            <button
-                              onClick={() => toggleManualTemp(item.ingredient_id)}
-                              className="text-red-600 hover:text-red-700"
-                            >
-                              <X className="w-4 h-4" />
-                            </button>
-                          )}
-                          {!isManual && status === 'compliant' && <CheckCircle className="w-5 h-5 text-emerald-600 mx-auto" />}
-                          {!isManual && status === 'borderline' && <AlertTriangle className="w-5 h-5 text-amber-600 mx-auto" />}
-                          {!isManual && status === 'out_of_range' && <XCircle className="w-5 h-5 text-red-600 mx-auto" />}
-                        </div>
-                      </div>
-                    );
-                  })}
+                <div className="space-y-4">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <Label className="mb-2">Temperature (°C)</Label>
+                      <Input
+                        type="number"
+                        step="0.1"
+                        value={highestTemp}
+                        onChange={(e) => setHighestTemp(e.target.value)}
+                        placeholder="e.g., 5.2"
+                        className="text-lg text-center"
+                      />
+                      <p className="text-xs text-slate-500 mt-1">Record the highest temperature from all cold items</p>
+                    </div>
+                    <div>
+                      <Label className="mb-2">
+                        Temperature Notes
+                        {highestTemp && <span className="text-red-600 ml-1">*</span>}
+                      </Label>
+                      <Textarea
+                        value={tempNotes}
+                        onChange={(e) => setTempNotes(e.target.value)}
+                        placeholder="What was checked? Any concerns?"
+                        rows={3}
+                        className={highestTemp && !tempNotes ? 'border-red-300' : ''}
+                      />
+                      {highestTemp && !tempNotes && (
+                        <p className="text-xs text-red-600 mt-1">Notes required when temperature is recorded</p>
+                      )}
+                    </div>
+                  </div>
                 </div>
               </CardContent>
             </Card>
