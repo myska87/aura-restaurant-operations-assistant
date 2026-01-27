@@ -83,27 +83,67 @@ export default function TemperatureLog({ user }) {
 
   // Bulk create mutation
   const bulkCreateLogMutation = useMutation({
-    mutationFn: async (logsData) => {
+    mutationFn: async ({ logsData, isDraft }) => {
+      // Save all temperature logs
       await Promise.all(
         logsData.map(log => base44.entities.TemperatureLog.create(log))
       );
-      return logsData;
-    },
-    onSuccess: (logsData) => {
-      queryClient.invalidateQueries(['temperatureLogs']);
+
+      // If not a draft, create Operation Report entry
+      if (!isDraft) {
+        const hasFailures = logsData.some(log => !log.is_in_range);
+        const failedItems = logsData.filter(log => !log.is_in_range).map(log => log.equipment_name);
+        
+        await base44.entities.OperationReport.create({
+          reportType: 'TEMPERATURE',
+          locationId: 'main',
+          staffId: user.id || user.email,
+          staffName: user.full_name || user.email,
+          staffEmail: user.email,
+          reportDate: today,
+          completionPercentage: 100,
+          status: hasFailures ? 'fail' : 'pass',
+          checklistItems: logsData.map(log => ({
+            item_id: log.asset_id,
+            item_name: log.equipment_name,
+            answer: `${log.temperature}°C`,
+            notes: log.notes || ''
+          })),
+          failedItems: failedItems,
+          timestamp: new Date().toISOString()
+        });
+      }
       
-      // Check if any temps are out of range
-      const hasFailures = logsData.some(log => !log.is_in_range);
-      setCompletionStatus(hasFailures ? 'failed' : 'completed');
+      return { logsData, isDraft };
+    },
+    onSuccess: ({ logsData, isDraft }) => {
+      queryClient.invalidateQueries(['temperatureLogs']);
+      queryClient.invalidateQueries(['operationReports']);
+      
+      if (!isDraft) {
+        // Check if any temps are out of range
+        const hasFailures = logsData.some(log => !log.is_in_range);
+        setCompletionStatus(hasFailures ? 'failed' : 'completed');
+        
+        toast.success(hasFailures 
+          ? '⚠️ Temperature log submitted - Some readings require attention' 
+          : '✅ Temperature log submitted successfully'
+        );
+      } else {
+        toast.success('Draft saved');
+      }
       
       setShowBulkForm(false);
       setBulkTemperatures({});
       setBulkNotes({});
       setIsDraft(false);
       
-      setTimeout(() => setCompletionStatus(null), 4000);
+      if (!isDraft) {
+        setTimeout(() => setCompletionStatus(null), 4000);
+      }
     },
     onError: (error) => {
+      console.error('Temperature log error:', error);
       toast.error('Failed to save temperatures. Please try again.');
     }
   });
@@ -131,11 +171,13 @@ export default function TemperatureLog({ user }) {
   });
 
   const handleBulkSubmit = (saveAsDraft = false) => {
-    // Validate all equipment has temperature
-    const missingTemps = equipmentList.filter(e => !bulkTemperatures[e.id]);
-    if (!saveAsDraft && missingTemps.length > 0) {
-      toast.error(`Missing temperatures for: ${missingTemps.map(e => e.name).join(', ')}`);
-      return;
+    // Validate all equipment has temperature AND status
+    if (!saveAsDraft) {
+      const missingTemps = equipmentList.filter(e => !bulkTemperatures[e.id]);
+      if (missingTemps.length > 0) {
+        toast.error(`Please complete all equipment temperature checks.\nMissing: ${missingTemps.map(e => e.name).join(', ')}`);
+        return;
+      }
     }
 
     // Build all log entries
@@ -174,7 +216,7 @@ export default function TemperatureLog({ user }) {
       return;
     }
 
-    bulkCreateLogMutation.mutate(logsData);
+    bulkCreateLogMutation.mutate({ logsData, isDraft: saveAsDraft });
   };
 
   const handleEquipmentSubmit = () => {
