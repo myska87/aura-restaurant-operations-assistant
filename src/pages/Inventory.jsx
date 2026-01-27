@@ -261,6 +261,12 @@ export default function Inventory() {
   };
 
   const addToCart = async (ingredient) => {
+    // Validate supplier
+    if (!ingredient.supplier_id) {
+      toast.error('Ingredient must have a supplier assigned');
+      return;
+    }
+
     // Find or create draft for this supplier
     let targetDraft = drafts.find(d => d.supplier_id === ingredient.supplier_id);
 
