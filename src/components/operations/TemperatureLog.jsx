@@ -171,6 +171,11 @@ export default function TemperatureLog({ user }) {
   });
 
   const handleBulkSubmit = (saveAsDraft = false) => {
+    if (!user?.email) {
+      toast.error('User not authenticated');
+      return;
+    }
+
     // Validate all equipment has temperature AND status
     if (!saveAsDraft) {
       const missingTemps = equipmentList.filter(e => !bulkTemperatures[e.id]);
