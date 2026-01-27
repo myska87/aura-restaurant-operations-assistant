@@ -223,19 +223,37 @@ export default function DeliveryReceivingModal({ order, open, onClose }) {
   });
 
   const handleAccept = async () => {
-    // Validation
+    // Strict Validation: Proof of Delivery
     if (photos.length === 0) {
-      toast.error('Please upload at least 1 photo for evidence');
+      toast.error('⚠️ BLOCKED: At least 1 photo is required as Proof of Delivery', { duration: 4000 });
       return;
     }
 
-    const hasOutOfRangeTemp = Object.entries(temperatures).some(([id, data]) => {
+    // Strict Validation: Temperature checks for cold items
+    const coldItems = Object.entries(temperatures).filter(([id, data]) => data.category !== 'ambient');
+    const missingTemps = coldItems.filter(([id, data]) => !data.temp && data.temp !== 0);
+    
+    if (missingTemps.length > 0) {
+      const itemNames = missingTemps.map(([id]) => {
+        const item = receivedItems.find(i => i.ingredient_id === id);
+        return item?.ingredient_name;
+      }).join(', ');
+      toast.error(`⚠️ BLOCKED: Temperature required for: ${itemNames}`, { duration: 5000 });
+      return;
+    }
+
+    // Strict Validation: Out of range temps must have explanation
+    const outOfRangeItems = Object.entries(temperatures).filter(([id, data]) => {
       const status = getTempStatus(data.temp, data.category);
       return status === 'out_of_range';
     });
 
-    if (hasOutOfRangeTemp && !notes) {
-      toast.error('Temperature out of range - please add notes explaining');
+    if (outOfRangeItems.length > 0 && !notes.trim()) {
+      const itemNames = outOfRangeItems.map(([id]) => {
+        const item = receivedItems.find(i => i.ingredient_id === id);
+        return item?.ingredient_name;
+      }).join(', ');
+      toast.error(`⚠️ BLOCKED: Temperature out of safe range for ${itemNames}. You MUST add notes explaining why before proceeding.`, { duration: 6000 });
       return;
     }
 
