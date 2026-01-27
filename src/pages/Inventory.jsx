@@ -115,6 +115,18 @@ export default function Inventory() {
     queryFn: () => base44.entities.Order.list('-created_date'),
   });
 
+  // Sort orders: uncompleted first (by date), then completed at bottom (by date)
+  const sortedOrders = [...orders].sort((a, b) => {
+    const aCompleted = a.status === 'received' || a.status === 'rejected';
+    const bCompleted = b.status === 'received' || b.status === 'rejected';
+    
+    if (aCompleted && !bCompleted) return 1;
+    if (!aCompleted && bCompleted) return -1;
+    
+    // Within same group, sort by date (newest first)
+    return new Date(b.created_date) - new Date(a.created_date);
+  });
+
   const { data: menuItems = [] } = useQuery({
     queryKey: ['menuItems'],
     queryFn: () => base44.entities.MenuItem.list(),
@@ -617,7 +629,7 @@ export default function Inventory() {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {orders.map((order) => (
+                {sortedOrders.map((order) => (
                   <TableRow key={order.id}>
                     <TableCell className="font-mono">{order.order_number}</TableCell>
                     <TableCell>{order.supplier_name}</TableCell>
