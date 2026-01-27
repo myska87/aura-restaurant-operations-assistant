@@ -134,11 +134,38 @@ export default function PortionOrderingDialog({ menuItem, onClose }) {
 
   if (!recipe) {
     return (
-      <div className="p-8 text-center">
-        <Package className="w-16 h-16 mx-auto text-slate-300 mb-4" />
-        <h3 className="text-xl font-semibold text-slate-700 mb-2">No Recipe Found</h3>
-        <p className="text-slate-500 mb-6">This menu item doesn't have a recipe linked yet.</p>
-        <Button onClick={onClose}>Close</Button>
+      <div className="p-8 text-center max-w-md mx-auto">
+        <div className="w-20 h-20 rounded-full bg-amber-100 flex items-center justify-center mx-auto mb-4">
+          <AlertCircle className="w-10 h-10 text-amber-600" />
+        </div>
+        <h3 className="text-2xl font-bold text-slate-800 mb-2">Recipe Required</h3>
+        <p className="text-slate-600 mb-6">
+          "{menuItem.name}" needs a recipe with ingredient quantities before you can order by portions.
+        </p>
+        <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6 text-left">
+          <p className="text-sm text-blue-900 font-semibold mb-2">What's a recipe?</p>
+          <p className="text-sm text-blue-800">
+            A recipe links your menu item to specific ingredients with exact quantities. This allows automatic calculation when ordering multiple portions.
+          </p>
+        </div>
+        <div className="flex gap-3">
+          <Button variant="outline" onClick={onClose} className="flex-1">
+            Cancel
+          </Button>
+          <Button 
+            onClick={() => {
+              onClose();
+              // Trigger recipe editor via event
+              setTimeout(() => {
+                window.dispatchEvent(new CustomEvent('openRecipeEditor', { detail: { menuItem } }));
+              }, 100);
+            }}
+            className="flex-1 bg-emerald-600 hover:bg-emerald-700"
+          >
+            <Plus className="w-4 h-4 mr-2" />
+            Create Recipe
+          </Button>
+        </div>
       </div>
     );
   }
