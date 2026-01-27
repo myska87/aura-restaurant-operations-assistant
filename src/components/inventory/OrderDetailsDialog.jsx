@@ -4,19 +4,27 @@ import { useQuery } from '@tanstack/react-query';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import { Input } from '@/components/ui/input';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { 
   Printer, 
   Mail, 
   FileText, 
   X, 
   CheckCircle, 
-  Send
+  Send,
+  Edit,
+  Trash2,
+  Save
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { format } from 'date-fns';
 
 export default function OrderDetailsDialog({ order, open, onClose, onEmailSent }) {
   const [sending, setSending] = useState(false);
+  const [editMode, setEditMode] = useState(false);
+  const [editedItems, setEditedItems] = useState([]);
+  const queryClient = useQueryClient();
 
   // Fetch restaurant/company info for letterhead
   const { data: globalInfo } = useQuery({
@@ -28,7 +36,52 @@ export default function OrderDetailsDialog({ order, open, onClose, onEmailSent }
     enabled: open
   });
 
+  // Initialize edited items when order changes
+  React.useEffect(() => {
+    if (order?.items) {
+      setEditedItems(JSON.parse(JSON.stringify(order.items)));
+    }
+  }, [order?.id]);
+
+  const saveChangesMutation = useMutation({
+    mutationFn: async () => {
+      const totalAmount = editedItems.reduce((sum, item) => sum + item.total_cost, 0);
+      return base44.entities.Order.update(order.id, {
+        items: editedItems,
+        total_amount: totalAmount
+      });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries(['orders']);
+      toast.success('Order updated successfully');
+      setEditMode(false);
+    },
+    onError: () => {
+      toast.error('Failed to update order');
+    }
+  });
+
   if (!order) return null;
+
+  const currentItems = editMode ? editedItems : order.items;
+  const currentTotal = currentItems?.reduce((sum, item) => sum + (item.total_cost || 0), 0) || 0;
+
+  const handleQuantityChange = (index, newQuantity) => {
+    const quantity = parseFloat(newQuantity) || 0;
+    const updatedItems = [...editedItems];
+    updatedItems[index].quantity = quantity;
+    updatedItems[index].total_cost = quantity * (updatedItems[index].unit_cost || 0);
+    setEditedItems(updatedItems);
+  };
+
+  const handleRemoveItem = (index) => {
+    setEditedItems(editedItems.filter((_, i) => i !== index));
+  };
+
+  const handleCancelEdit = () => {
+    setEditedItems(JSON.parse(JSON.stringify(order.items)));
+    setEditMode(false);
+  };
 
   // Generate HTML content for printing and emailing
   const generateLetterheadHTML = () => {
@@ -397,29 +450,72 @@ export default function OrderDetailsDialog({ order, open, onClose, onEmailSent }
 
           {/* Order Items Table */}
           <div className="border border-slate-200 rounded-lg overflow-hidden mb-6">
+            <div className="bg-emerald-600 px-4 py-3 flex items-center justify-between">
+              <h3 className="text-white text-xs uppercase font-semibold">Order Items</h3>
+              {!editMode && order.status === 'pending' && (
+                <Button
+                  size="sm"
+                  variant="ghost"
+                  className="text-white hover:bg-emerald-700 h-7"
+                  onClick={() => setEditMode(true)}
+                >
+                  <Edit className="w-3 h-3 mr-1" />
+                  Edit Items
+                </Button>
+              )}
+            </div>
             <table className="w-full">
-              <thead className="bg-emerald-600 text-white">
+              <thead className="bg-emerald-100 border-b border-emerald-200">
                 <tr>
-                  <th className="px-4 py-3 text-left text-xs uppercase font-semibold">Item Description</th>
-                  <th className="px-4 py-3 text-center text-xs uppercase font-semibold">Quantity</th>
-                  <th className="px-4 py-3 text-right text-xs uppercase font-semibold">Unit Price</th>
-                  <th className="px-4 py-3 text-right text-xs uppercase font-semibold">Total</th>
+                  <th className="px-4 py-2 text-left text-xs uppercase font-semibold text-emerald-900">Item Description</th>
+                  <th className="px-4 py-2 text-center text-xs uppercase font-semibold text-emerald-900">Quantity</th>
+                  <th className="px-4 py-2 text-right text-xs uppercase font-semibold text-emerald-900">Unit Price</th>
+                  <th className="px-4 py-2 text-right text-xs uppercase font-semibold text-emerald-900">Total</th>
+                  {editMode && <th className="px-4 py-2 w-12"></th>}
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-200">
-                {order.items?.map((item, i) => (
+                {currentItems?.map((item, i) => (
                   <tr key={i} className="hover:bg-slate-50">
                     <td className="px-4 py-3 font-medium text-slate-800">{item.ingredient_name}</td>
-                    <td className="px-4 py-3 text-center">{item.quantity} {item.unit}</td>
+                    <td className="px-4 py-3 text-center">
+                      {editMode ? (
+                        <div className="flex items-center justify-center gap-2">
+                          <Input
+                            type="number"
+                            step="0.01"
+                            value={item.quantity}
+                            onChange={(e) => handleQuantityChange(i, e.target.value)}
+                            className="w-20 h-8 text-center"
+                          />
+                          <span className="text-slate-600 text-sm">{item.unit}</span>
+                        </div>
+                      ) : (
+                        `${item.quantity} ${item.unit}`
+                      )}
+                    </td>
                     <td className="px-4 py-3 text-right">£{item.unit_cost?.toFixed(2)}</td>
                     <td className="px-4 py-3 text-right font-bold">£{item.total_cost?.toFixed(2)}</td>
+                    {editMode && (
+                      <td className="px-4 py-3">
+                        <Button
+                          size="sm"
+                          variant="ghost"
+                          className="h-7 w-7 p-0 text-red-600 hover:bg-red-50"
+                          onClick={() => handleRemoveItem(i)}
+                        >
+                          <Trash2 className="w-3 h-3" />
+                        </Button>
+                      </td>
+                    )}
                   </tr>
                 ))}
                 <tr className="bg-slate-100 font-bold text-lg">
-                  <td colSpan={3} className="px-4 py-4 text-right border-t-2 border-emerald-600">TOTAL ORDER VALUE</td>
+                  <td colSpan={editMode ? 4 : 3} className="px-4 py-4 text-right border-t-2 border-emerald-600">TOTAL ORDER VALUE</td>
                   <td className="px-4 py-4 text-right text-emerald-600 border-t-2 border-emerald-600">
-                    £{order.total_amount?.toFixed(2)}
+                    £{currentTotal.toFixed(2)}
                   </td>
+                  {editMode && <td></td>}
                 </tr>
               </tbody>
             </table>
@@ -445,23 +541,41 @@ export default function OrderDetailsDialog({ order, open, onClose, onEmailSent }
         </div>
 
         <DialogFooter className="gap-2 mt-4 border-t pt-4">
-          <Button variant="outline" onClick={onClose}>
-            Close
-          </Button>
-          <Button variant="outline" onClick={handlePrint}>
-            <Printer className="w-4 h-4 mr-2" />
-            Print / PDF
-          </Button>
-          <Button onClick={handleEmail} disabled={sending} className="bg-emerald-600 hover:bg-emerald-700">
-            {sending ? (
-              'Sending...'
-            ) : (
-              <>
-                <Send className="w-4 h-4 mr-2" />
-                Email Supplier
-              </>
-            )}
-          </Button>
+          {editMode ? (
+            <>
+              <Button variant="outline" onClick={handleCancelEdit}>
+                Cancel
+              </Button>
+              <Button 
+                onClick={() => saveChangesMutation.mutate()} 
+                disabled={saveChangesMutation.isPending}
+                className="bg-emerald-600 hover:bg-emerald-700"
+              >
+                <Save className="w-4 h-4 mr-2" />
+                {saveChangesMutation.isPending ? 'Saving...' : 'Save Changes'}
+              </Button>
+            </>
+          ) : (
+            <>
+              <Button variant="outline" onClick={onClose}>
+                Close
+              </Button>
+              <Button variant="outline" onClick={handlePrint}>
+                <Printer className="w-4 h-4 mr-2" />
+                Print / PDF
+              </Button>
+              <Button onClick={handleEmail} disabled={sending} className="bg-emerald-600 hover:bg-emerald-700">
+                {sending ? (
+                  'Sending...'
+                ) : (
+                  <>
+                    <Send className="w-4 h-4 mr-2" />
+                    Email Supplier
+                  </>
+                )}
+              </Button>
+            </>
+          )}
         </DialogFooter>
       </DialogContent>
     </Dialog>
