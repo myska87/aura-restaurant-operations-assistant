@@ -200,8 +200,7 @@ export default function TrainHome() {
                   }
                 ].map((item, idx) => {
                   const isCompleted = journeyProgress?.[item.progressKey] || false;
-                  const prevCompleted = idx === 0 || journeyProgress?.[progress[idx - 1]?.progressKey];
-                  const isCurrent = prevCompleted && !isCompleted;
+                  const isCurrent = idx === 0 || (idx > 0 && !isCompleted && progress.some(p => p.status !== 'not_started'));
                   
                   return (
                     <div

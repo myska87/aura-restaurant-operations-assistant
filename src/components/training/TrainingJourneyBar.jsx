@@ -8,7 +8,6 @@ const journeySteps = [
   { id: 'vision', label: 'Vision', key: 'visionWatched' },
   { id: 'values', label: 'Values', key: 'valuesCompleted' },
   { id: 'raving_fans', label: 'Raving Fans', key: 'ravingFansCompleted' },
-  { id: 'skills', label: 'Skills', key: 'skillsCompleted' },
   { id: 'hygiene', label: 'Hygiene', key: 'hygieneCompleted' },
   { id: 'certification', label: 'Certification', key: 'certified' },
   { id: 'growth', label: 'Growth', key: 'onsiteAccessEnabled' }
@@ -68,7 +67,7 @@ export default function TrainingJourneyBar({ progress, compact = false }) {
           </p>
         </div>
         <div className="text-right">
-          <div className="text-3xl font-bold text-emerald-700">{completedCount}/8</div>
+          <div className="text-3xl font-bold text-emerald-700">{completedCount}/{journeySteps.length}</div>
           <p className="text-xs text-slate-500">Steps Completed</p>
         </div>
       </div>
@@ -84,7 +83,7 @@ export default function TrainingJourneyBar({ progress, compact = false }) {
       </div>
 
       {/* Journey Steps */}
-      <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-8 gap-3">
+      <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-3">
         {journeySteps.map((step, index) => {
           const status = getStepStatus(step, index);
           
