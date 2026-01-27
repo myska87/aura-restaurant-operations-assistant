@@ -53,6 +53,7 @@ import PageHeader from '@/components/ui/PageHeader';
 import EmptyState from '@/components/ui/EmptyState';
 import LoadingSpinner from '@/components/ui/LoadingSpinner';
 import DeliveryReceivingModal from '@/components/inventory/DeliveryReceivingModal';
+import OrderDetailsDialog from '@/components/inventory/OrderDetailsDialog';
 
 const ingredientCategories = [
   { value: 'produce', label: 'Produce', color: 'bg-green-100 text-green-700' },
@@ -81,6 +82,7 @@ export default function Inventory() {
   const [tempStockValue, setTempStockValue] = useState('');
   const [user, setUser] = useState(null);
   const [receivingOrder, setReceivingOrder] = useState(null);
+  const [viewingOrder, setViewingOrder] = useState(null);
 
   const queryClient = useQueryClient();
 
@@ -624,26 +626,39 @@ export default function Inventory() {
                       </Badge>
                     </TableCell>
                     <TableCell>
-                      {order.status === 'delivered' && (
+                      <div className="flex gap-2">
+                        {/* Always show View/Manage button for ANY order */}
                         <Button
                           size="sm"
-                          onClick={() => setReceivingOrder(order)}
-                          className="bg-emerald-600 hover:bg-emerald-700"
+                          variant={order.status === 'pending' ? "default" : "outline"}
+                          className={order.status === 'pending' ? "bg-emerald-600" : ""}
+                          onClick={() => setViewingOrder(order)}
                         >
-                          <CheckCircle className="w-4 h-4 mr-1" />
-                          Receive
+                          {order.status === 'pending' ? (
+                            <>
+                              <Mail className="w-3 h-3 mr-1" />
+                              Manage
+                            </>
+                          ) : (
+                            <>
+                              <Eye className="w-3 h-3 mr-1" />
+                              View
+                            </>
+                          )}
                         </Button>
-                      )}
-                      {(order.status === 'received' || order.status === 'rejected') && (
-                        <Button
-                          size="sm"
-                          variant="outline"
-                          onClick={() => setReceivingOrder(order)}
-                        >
-                          <Eye className="w-4 h-4 mr-1" />
-                          View
-                        </Button>
-                      )}
+
+                        {/* Only show "Receive" if it's actually marked as delivered */}
+                        {order.status === 'delivered' && (
+                          <Button
+                            size="sm"
+                            onClick={() => setReceivingOrder(order)}
+                            className="bg-emerald-600 hover:bg-emerald-700"
+                          >
+                            <CheckCircle className="w-4 h-4 mr-1" />
+                            Receive
+                          </Button>
+                        )}
+                      </div>
                     </TableCell>
                   </TableRow>
                 ))}
@@ -923,6 +938,13 @@ export default function Inventory() {
         order={receivingOrder}
         open={!!receivingOrder}
         onClose={() => setReceivingOrder(null)}
+      />
+
+      {/* Order Details, Print & Email Modal */}
+      <OrderDetailsDialog 
+        order={viewingOrder}
+        open={!!viewingOrder}
+        onClose={() => setViewingOrder(null)}
       />
     </div>
   );

@@ -24,6 +24,7 @@ import DailyOperationsHub from './pages/DailyOperationsHub';
 import Dashboard from './pages/Dashboard';
 import DataManagement from './pages/DataManagement';
 import DeepCleaningSchedule from './pages/DeepCleaningSchedule';
+import DeliveryReport from './pages/DeliveryReport';
 import Diagnostics from './pages/Diagnostics';
 import DocumentCreator from './pages/DocumentCreator';
 import Documents from './pages/Documents';
@@ -93,7 +94,6 @@ import WeeklyManagerReportDetail from './pages/WeeklyManagerReportDetail';
 import WeeklyManagerReportForm from './pages/WeeklyManagerReportForm';
 import WeeklyManagerReports from './pages/WeeklyManagerReports';
 import WelcomeVision from './pages/WelcomeVision';
-import DeliveryReport from './pages/DeliveryReport';
 import __Layout from './Layout.jsx';
 
 
@@ -124,6 +124,7 @@ export const PAGES = {
     "Dashboard": Dashboard,
     "DataManagement": DataManagement,
     "DeepCleaningSchedule": DeepCleaningSchedule,
+    "DeliveryReport": DeliveryReport,
     "Diagnostics": Diagnostics,
     "DocumentCreator": DocumentCreator,
     "Documents": Documents,
@@ -193,7 +194,6 @@ export const PAGES = {
     "WeeklyManagerReportForm": WeeklyManagerReportForm,
     "WeeklyManagerReports": WeeklyManagerReports,
     "WelcomeVision": WelcomeVision,
-    "DeliveryReport": DeliveryReport,
 }
 
 export const pagesConfig = {
