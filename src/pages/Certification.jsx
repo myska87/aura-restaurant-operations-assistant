@@ -47,7 +47,7 @@ export default function Certification() {
       });
       return existing.length > 0 ? existing[0] : null;
     },
-    enabled: !!user
+    enabled: !!user?.email
   });
 
   const issueCertificateMutation = useMutation({
