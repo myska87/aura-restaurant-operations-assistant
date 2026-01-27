@@ -586,6 +586,36 @@ export default function Culture() {
         </Card>
       )}
 
+      {/* Continue to Next Module Button - Shows After Quiz Pass */}
+      {!alreadyCompleted && quizPassed && !showAssessment && (
+        <Card className="border-2 border-emerald-300 bg-gradient-to-br from-emerald-50 to-teal-50">
+          <CardContent className="pt-6">
+            <div className="text-center space-y-4">
+              <div className="w-16 h-16 mx-auto rounded-full bg-emerald-600 flex items-center justify-center mb-4">
+                <CheckCircle className="w-10 h-10 text-white" />
+              </div>
+              <h3 className="text-2xl font-bold text-slate-900">Quiz Passed! 🎉</h3>
+              <p className="text-slate-600 text-lg">
+                Great job! You can now continue to the next module or complete the assessment below.
+              </p>
+              <div className="flex gap-3 pt-4 max-w-md mx-auto">
+                <Button
+                  onClick={() => navigate(createPageUrl('RavingFans'))}
+                  size="lg"
+                  className="flex-1 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-lg h-14"
+                >
+                  <ArrowRight className="w-5 h-5 mr-2" />
+                  Continue to Raving Fans
+                </Button>
+              </div>
+              <p className="text-sm text-slate-500 pt-2">
+                Complete the assessment below to unlock full access to SOPs and shifts
+              </p>
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
       {/* Assessment Section - Show After Quiz Passes */}
       {!alreadyCompleted && quizPassed && (
         <Card className="border-2 border-amber-300 bg-amber-50">
