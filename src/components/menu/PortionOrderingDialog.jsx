@@ -263,11 +263,21 @@ export default function PortionOrderingDialog({ menuItem, onClose }) {
                       >
                         <div className="flex items-start justify-between mb-3">
                           <div className="flex-1">
-                            <h4 className="font-semibold text-slate-800 mb-1">{ing.ingredient_name}</h4>
-                            <div className="flex flex-wrap gap-2 mb-2">
-                              <Badge className="bg-emerald-600 text-white">
-                                Need: {ing.totalQty.toFixed(2)} {ing.unit}
-                              </Badge>
+                            <h4 className="font-semibold text-slate-800 mb-2">{ing.ingredient_name}</h4>
+                            
+                            {/* Calculation Formula - More Prominent */}
+                            <div className="bg-white rounded-lg p-3 mb-2 border border-slate-300">
+                              <div className="flex items-center gap-2 text-sm">
+                                <span className="text-slate-600">Per portion:</span>
+                                <span className="font-bold text-emerald-600">{ing.quantity.toFixed(2)} {ing.unit}</span>
+                                <span className="text-slate-400">×</span>
+                                <span className="font-bold text-blue-600">{portions} portions</span>
+                                <span className="text-slate-400">=</span>
+                                <span className="font-bold text-slate-900 text-lg">{ing.totalQty.toFixed(2)} {ing.unit}</span>
+                              </div>
+                            </div>
+
+                            <div className="flex flex-wrap gap-2">
                               <Badge variant="outline">
                                 Stock: {ing.currentStock.toFixed(2)} {ing.unit}
                               </Badge>
@@ -282,9 +292,6 @@ export default function PortionOrderingDialog({ menuItem, onClose }) {
                                   Order {ing.needed.toFixed(2)} {ing.unit}
                                 </Badge>
                               )}
-                            </div>
-                            <div className="text-xs text-slate-500">
-                              {ing.quantity.toFixed(2)} {ing.unit} × {portions} portions = {ing.totalQty.toFixed(2)} {ing.unit}
                             </div>
                           </div>
                           <div className="ml-4">
@@ -453,6 +460,7 @@ export default function PortionOrderingDialog({ menuItem, onClose }) {
         }))}
         orderType="menu_based"
         menuItemName={menuItem.name}
+        portionsOrdered={portions}
         open={showOrderCreator}
         onClose={() => setShowOrderCreator(false)}
       />
