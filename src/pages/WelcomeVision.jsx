@@ -337,6 +337,8 @@ export default function WelcomeVision() {
           onQuizPassed={handleQuizPassed}
           moduleName="Welcome & Vision"
           passPercentage={80}
+          nextModuleName="Culture & Values"
+          nextModulePage="Culture"
         />
       )}
     </div>
