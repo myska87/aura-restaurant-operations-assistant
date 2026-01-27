@@ -123,7 +123,7 @@ export default function Training() {
       queryClient.invalidateQueries(['certificates']);
       
       // Check if all hygiene levels are certified
-      const allCerts = await base44.entities.Certificate.filter({ staff_email: user.email });
+      const allCerts = await base44.entities.Certificate.filter({ staff_email: user?.email || '' });
       const hasL1 = allCerts.some(c => c.level === 'L1');
       const hasL2 = allCerts.some(c => c.level === 'L2');
       const hasL3 = allCerts.some(c => c.level === 'L3');
