@@ -29,6 +29,8 @@ import EditableShiftsTable from '@/components/dashboard/EditableShiftsTable';
 import EditableMenuItemsTable from '@/components/dashboard/EditableMenuItemsTable';
 import EditableSalesTable from '@/components/dashboard/EditableSalesTable';
 import DataFeedManager from '@/components/dashboard/DataFeedManager';
+import InventoryStatusWidget from '@/components/inventory/InventoryStatusWidget';
+import SupplierPerformanceWidget from '@/components/inventory/SupplierPerformanceWidget';
 
 export default function CommandCenter() {
   const [user, setUser] = useState(null);
@@ -238,7 +240,13 @@ AURA Intelligence System
 
         {/* Operations Tab */}
         <TabsContent value="operations">
-          <OperationalMetrics shifts={shifts} dateRange={dateRange} />
+          <div className="space-y-6">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              <InventoryStatusWidget />
+              <SupplierPerformanceWidget />
+            </div>
+            <OperationalMetrics shifts={shifts} dateRange={dateRange} />
+          </div>
         </TabsContent>
 
         {/* Menu Tab */}
