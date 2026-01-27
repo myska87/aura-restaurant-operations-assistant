@@ -82,7 +82,7 @@ export default function WelcomeVision() {
       });
       return existing.length > 0 ? existing[0] : null;
     },
-    enabled: !!user
+    enabled: !!user?.email
   });
 
   const { data: globalInfo } = useQuery({
