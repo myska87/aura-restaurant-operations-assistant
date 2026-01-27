@@ -17,7 +17,9 @@ import {
   TrendingDown,
   TrendingUp,
   DollarSign,
-  BarChart3
+  BarChart3,
+  CheckCircle,
+  Eye
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -50,6 +52,7 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import PageHeader from '@/components/ui/PageHeader';
 import EmptyState from '@/components/ui/EmptyState';
 import LoadingSpinner from '@/components/ui/LoadingSpinner';
+import DeliveryReceivingModal from '@/components/inventory/DeliveryReceivingModal';
 
 const ingredientCategories = [
   { value: 'produce', label: 'Produce', color: 'bg-green-100 text-green-700' },
@@ -77,6 +80,7 @@ export default function Inventory() {
   const [editingStockId, setEditingStockId] = useState(null);
   const [tempStockValue, setTempStockValue] = useState('');
   const [user, setUser] = useState(null);
+  const [receivingOrder, setReceivingOrder] = useState(null);
 
   const queryClient = useQueryClient();
 
@@ -589,6 +593,7 @@ export default function Inventory() {
                   <TableHead>Items</TableHead>
                   <TableHead>Total</TableHead>
                   <TableHead>Status</TableHead>
+                  <TableHead>Actions</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -601,12 +606,36 @@ export default function Inventory() {
                     <TableCell>£{order.total_amount?.toFixed(2)}</TableCell>
                     <TableCell>
                       <Badge className={
-                        order.status === 'delivered' ? 'bg-emerald-100 text-emerald-700' :
+                        order.status === 'received' ? 'bg-emerald-100 text-emerald-700' :
+                        order.status === 'delivered' ? 'bg-blue-100 text-blue-700' :
+                        order.status === 'rejected' ? 'bg-red-100 text-red-700' :
                         order.status === 'pending' ? 'bg-amber-100 text-amber-700' :
-                        'bg-blue-100 text-blue-700'
+                        'bg-slate-100 text-slate-700'
                       }>
                         {order.status}
                       </Badge>
+                    </TableCell>
+                    <TableCell>
+                      {order.status === 'delivered' && (
+                        <Button
+                          size="sm"
+                          onClick={() => setReceivingOrder(order)}
+                          className="bg-emerald-600 hover:bg-emerald-700"
+                        >
+                          <CheckCircle className="w-4 h-4 mr-1" />
+                          Receive
+                        </Button>
+                      )}
+                      {(order.status === 'received' || order.status === 'rejected') && (
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          onClick={() => setReceivingOrder(order)}
+                        >
+                          <Eye className="w-4 h-4 mr-1" />
+                          View
+                        </Button>
+                      )}
                     </TableCell>
                   </TableRow>
                 ))}
@@ -880,6 +909,13 @@ export default function Inventory() {
           </div>
         </DialogContent>
       </Dialog>
+
+      {/* Delivery Receiving Modal */}
+      <DeliveryReceivingModal
+        order={receivingOrder}
+        open={!!receivingOrder}
+        onClose={() => setReceivingOrder(null)}
+      />
     </div>
   );
 }
