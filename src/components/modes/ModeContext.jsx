@@ -13,19 +13,22 @@ export const MODE_CONFIG = {
     label: 'Operate',
     color: 'bg-blue-600',
     description: 'Service Mode',
-    allowedRoles: ['staff', 'manager', 'owner', 'admin']
+    allowedRoles: ['staff', 'manager', 'owner', 'admin'],
+    homePage: 'OperateHome'
   },
   [MODES.TRAIN]: {
     label: 'Train',
     color: 'bg-amber-500',
     description: 'Learning Mode',
-    allowedRoles: ['staff', 'manager', 'owner', 'admin']
+    allowedRoles: ['staff', 'manager', 'owner', 'admin'],
+    homePage: 'WelcomeVision'
   },
   [MODES.MANAGE]: {
     label: 'Manage',
     color: 'bg-red-600',
     description: 'Control Mode',
-    allowedRoles: ['manager', 'owner', 'admin']
+    allowedRoles: ['manager', 'owner', 'admin'],
+    homePage: 'ManageHome'
   }
 };
 
