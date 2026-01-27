@@ -56,23 +56,33 @@ const trainingOptions = [
     roles: ['all'],
     step: 'raving_fans'
   },
+
   {
-    title: 'Skills & SOPs',
-    description: 'Kitchen skills, FOH training & SOP library',
-    icon: ChefHat,
-    page: 'SOPs',
-    color: 'from-amber-500 to-orange-600',
-    roles: ['all'],
-    step: 'skills'
-  },
-  {
-    title: 'Hygiene & Safety',
-    description: 'Level 1, 2 & 3 hygiene training + certificates',
+    title: 'Hygiene Level 1',
+    description: 'Basic food hygiene - Entry level training',
     icon: Shield,
     page: 'Training',
     color: 'from-blue-500 to-blue-600',
     roles: ['all'],
-    step: 'hygiene'
+    step: 'hygiene_l1'
+  },
+  {
+    title: 'Hygiene Level 2',
+    description: 'Intermediate food hygiene - Kitchen staff',
+    icon: Shield,
+    page: 'Training',
+    color: 'from-emerald-500 to-emerald-600',
+    roles: ['all'],
+    step: 'hygiene_l2'
+  },
+  {
+    title: 'Hygiene Level 3',
+    description: 'Advanced food safety - Management level',
+    icon: Shield,
+    page: 'Training',
+    color: 'from-amber-500 to-amber-600',
+    roles: ['all'],
+    step: 'hygiene_l3'
   },
   {
     title: 'Certification — You Are Ready',
@@ -334,8 +344,9 @@ export default function TrainingAcademy() {
             'vision': journeyProgress?.visionWatched,
             'values': journeyProgress?.valuesCompleted,
             'raving_fans': journeyProgress?.ravingFansCompleted,
-            'skills': journeyProgress?.skillsCompleted,
-            'hygiene': journeyProgress?.hygieneCompleted,
+            'hygiene_l1': journeyProgress?.hygieneL1Completed,
+            'hygiene_l2': journeyProgress?.hygieneL2Completed,
+            'hygiene_l3': journeyProgress?.hygieneL3Completed || journeyProgress?.hygieneCompleted,
             'certification': journeyProgress?.certified,
             'growth': journeyProgress?.onsiteAccessEnabled
           };

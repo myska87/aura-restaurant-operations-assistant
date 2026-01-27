@@ -26,6 +26,11 @@ export default function ModeSelector({ user }) {
   const confirmSwitch = () => {
     if (setCurrentMode) {
       setCurrentMode(targetMode);
+      // Navigate to mode's home page
+      const homePage = MODE_CONFIG[targetMode]?.homePage;
+      if (homePage) {
+        window.location.href = window.location.pathname.split('/').slice(0, -1).join('/') + '/' + homePage;
+      }
     }
     setShowConfirm(false);
     setTargetMode(null);

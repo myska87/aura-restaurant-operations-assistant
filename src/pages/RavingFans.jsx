@@ -118,7 +118,7 @@ export default function RavingFans() {
       }
       await base44.entities.TrainingJourneyProgress.update(journeyProgress.id, {
         ravingFansCompleted: true,
-        currentStep: 'skills',
+        currentStep: 'hygiene_l1',
         lastUpdated: new Date().toISOString()
       });
     },
@@ -139,7 +139,7 @@ export default function RavingFans() {
   const handleNextModule = async () => {
     await markCompletedMutation.mutate();
     setTimeout(() => {
-      navigate(createPageUrl('SOPs'));
+      navigate(createPageUrl('Training'));
     }, 500);
   };
 
@@ -344,8 +344,8 @@ export default function RavingFans() {
             onQuizPassed={handleQuizPassed}
             moduleName="Raving Fans Philosophy"
             passPercentage={80}
-            nextModuleName="Skills & SOPs"
-            nextModulePage="SOPs"
+            nextModuleName="Hygiene Level 1"
+            nextModulePage="Training"
           />
 
           {quizPassed && (
