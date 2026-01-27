@@ -94,6 +94,7 @@ import WeeklyManagerReportDetail from './pages/WeeklyManagerReportDetail';
 import WeeklyManagerReportForm from './pages/WeeklyManagerReportForm';
 import WeeklyManagerReports from './pages/WeeklyManagerReports';
 import WelcomeVision from './pages/WelcomeVision';
+import Ordered from './pages/Ordered';
 import __Layout from './Layout.jsx';
 
 
@@ -194,6 +195,7 @@ export const PAGES = {
     "WeeklyManagerReportForm": WeeklyManagerReportForm,
     "WeeklyManagerReports": WeeklyManagerReports,
     "WelcomeVision": WelcomeVision,
+    "Ordered": Ordered,
 }
 
 export const pagesConfig = {
