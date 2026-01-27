@@ -19,8 +19,10 @@ import {
   DollarSign,
   BarChart3,
   CheckCircle,
-  Eye
+  Eye,
+  ChevronDown
 } from 'lucide-react';
+import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
@@ -183,6 +185,14 @@ export default function Inventory() {
   const deleteIngredientMutation = useMutation({
     mutationFn: (id) => base44.entities.Ingredient.delete(id),
     onSuccess: () => queryClient.invalidateQueries(['ingredients'])
+  });
+
+  const updateOrderStatusMutation = useMutation({
+    mutationFn: ({ orderId, newStatus }) => base44.entities.Order.update(orderId, { status: newStatus }),
+    onSuccess: () => {
+      queryClient.invalidateQueries(['orders']);
+      toast.success('Order status updated');
+    }
   });
 
   const lowStockItems = ingredients.filter(i => i.current_stock <= i.min_stock_level);
@@ -616,38 +626,61 @@ export default function Inventory() {
                     <TableCell>£{order.total_amount?.toFixed(2)}</TableCell>
                     <TableCell>
                       <Badge className={
-                        order.status === 'received' ? 'bg-emerald-100 text-emerald-700' :
-                        order.status === 'delivered' ? 'bg-blue-100 text-blue-700' :
-                        order.status === 'rejected' ? 'bg-red-100 text-red-700' :
-                        order.status === 'pending' ? 'bg-amber-100 text-amber-700' :
-                        'bg-slate-100 text-slate-700'
+                        order.status === 'received' ? 'bg-emerald-500 text-white' :
+                        order.status === 'delivered' ? 'bg-purple-500 text-white' :
+                        order.status === 'confirmed' ? 'bg-blue-500 text-white' :
+                        order.status === 'rejected' ? 'bg-red-500 text-white' :
+                        order.status === 'pending' ? 'bg-amber-500 text-white' :
+                        'bg-slate-400 text-white'
                       }>
-                        {order.status}
+                        {order.status === 'pending' ? 'Order Placed' :
+                         order.status === 'confirmed' ? 'Confirmed' :
+                         order.status === 'delivered' ? 'Arrived' :
+                         order.status === 'received' ? 'Received' :
+                         order.status === 'rejected' ? 'Rejected' :
+                         order.status}
                       </Badge>
                     </TableCell>
                     <TableCell>
                       <div className="flex gap-2">
-                        {/* Always show View/Manage button for ANY order */}
+                        {/* View/Manage button for all orders */}
                         <Button
                           size="sm"
-                          variant={order.status === 'pending' ? "default" : "outline"}
-                          className={order.status === 'pending' ? "bg-emerald-600" : ""}
+                          variant="outline"
                           onClick={() => setViewingOrder(order)}
                         >
-                          {order.status === 'pending' ? (
-                            <>
-                              <Mail className="w-3 h-3 mr-1" />
-                              Manage
-                            </>
-                          ) : (
-                            <>
-                              <Eye className="w-3 h-3 mr-1" />
-                              View
-                            </>
-                          )}
+                          <Eye className="w-3 h-3 mr-1" />
+                          View
                         </Button>
 
-                        {/* Only show "Receive" if it's actually marked as delivered */}
+                        {/* Status Management Dropdown for pending/confirmed orders */}
+                        {(order.status === 'pending' || order.status === 'confirmed') && (
+                          <DropdownMenu>
+                            <DropdownMenuTrigger asChild>
+                              <Button size="sm" className="bg-blue-600 hover:bg-blue-700">
+                                Manage <ChevronDown className="w-3 h-3 ml-1" />
+                              </Button>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent align="end">
+                              {order.status === 'pending' && (
+                                <DropdownMenuItem 
+                                  onClick={() => updateOrderStatusMutation.mutate({ orderId: order.id, newStatus: 'confirmed' })}
+                                >
+                                  <CheckCircle className="w-4 h-4 mr-2 text-blue-600" />
+                                  Confirm Order
+                                </DropdownMenuItem>
+                              )}
+                              <DropdownMenuItem 
+                                onClick={() => updateOrderStatusMutation.mutate({ orderId: order.id, newStatus: 'delivered' })}
+                              >
+                                <Truck className="w-4 h-4 mr-2 text-purple-600" />
+                                Mark as Arrived
+                              </DropdownMenuItem>
+                            </DropdownMenuContent>
+                          </DropdownMenu>
+                        )}
+
+                        {/* Receive button for delivered orders */}
                         {order.status === 'delivered' && (
                           <Button
                             size="sm"
