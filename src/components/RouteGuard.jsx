@@ -82,28 +82,6 @@ export default function RouteGuard({ children, currentPageName }) {
     checkAuth();
   }, [currentPageName]);
 
-  if (loading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="text-center">
-          <div className="w-8 h-8 border-4 border-emerald-600 border-t-transparent rounded-full animate-spin mx-auto mb-3"></div>
-          <p className="text-slate-600">Loading...</p>
-        </div>
-      </div>
-    );
-  }
-
-  // Allow Invitation and OnboardingFlow pages without restrictions
-  if (currentPageName === 'Invitation' || currentPageName === 'OnboardingFlow') {
-    return children;
-  }
-
-  // Check onboarding completion
-  if (user && !user.onboarding_completed) {
-    navigate(createPageUrl('OnboardingFlow'));
-    return null;
-  }
-
   // Auto-create training profile for new users (if TrainingJourneyProgress entity exists)
   useEffect(() => {
     const initializeTraining = async () => {
@@ -132,6 +110,28 @@ export default function RouteGuard({ children, currentPageName }) {
     };
     initializeTraining();
   }, [user?.id]);
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <div className="w-8 h-8 border-4 border-emerald-600 border-t-transparent rounded-full animate-spin mx-auto mb-3"></div>
+          <p className="text-slate-600">Loading...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Allow Invitation and OnboardingFlow pages without restrictions
+  if (currentPageName === 'Invitation' || currentPageName === 'OnboardingFlow') {
+    return children;
+  }
+
+  // Check onboarding completion
+  if (user && !user.onboarding_completed) {
+    navigate(createPageUrl('OnboardingFlow'));
+    return null;
+  }
 
   // Find page requirements in navGroups
   let pageConfig = null;
