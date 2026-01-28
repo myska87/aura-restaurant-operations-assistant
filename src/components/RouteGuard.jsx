@@ -62,6 +62,8 @@ const navGroups = [
 export default function RouteGuard({ children, currentPageName }) {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
+  
+  // CRITICAL: Call all hooks at the top level before any conditional returns
   const navigate = useNavigate();
   const { currentMode, setCurrentMode } = useMode();
 
@@ -111,6 +113,7 @@ export default function RouteGuard({ children, currentPageName }) {
     initializeTraining();
   }, [user?.id]);
 
+  // Now safe to do conditional returns
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
