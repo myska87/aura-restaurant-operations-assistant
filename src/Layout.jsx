@@ -34,7 +34,8 @@ import {
         Thermometer,
         History,
         BarChart3,
-        Droplet
+        Droplet,
+        BookOpen
       } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -78,7 +79,11 @@ const navGroups = [
     title: 'Team Development',
     items: [
       { name: 'Training Home', icon: GraduationCap, page: 'TrainHome', roles: ['all'], modes: ['train'] },
+      { name: 'Training Academy', icon: BookOpen, page: 'TrainingAcademy', roles: ['all'], modes: ['train'] },
       { name: 'Leadership Path', icon: Trophy, page: 'LeadershipPathway', roles: ['all'], modes: ['train'] },
+      { name: 'Culture', icon: Heart, page: 'Culture', roles: ['all'], modes: ['train'] },
+      { name: 'Welcome & Vision', icon: TrendingUp, page: 'WelcomeVision', roles: ['all'], modes: ['train'] },
+      { name: 'Raving Fans', icon: Trophy, page: 'RavingFans', roles: ['all'], modes: ['train'] },
     ]
   },
   {

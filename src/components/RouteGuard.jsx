@@ -104,6 +104,35 @@ export default function RouteGuard({ children, currentPageName }) {
     return null;
   }
 
+  // Auto-create training profile for new users (if TrainingJourneyProgress entity exists)
+  useEffect(() => {
+    const initializeTraining = async () => {
+      if (user?.id && user?.email) {
+        try {
+          // Check if journey progress exists
+          const existing = await base44.entities.TrainingJourneyProgress.filter({ staff_id: user.id });
+          if (existing.length === 0) {
+            // Create initial training journey record
+            await base44.entities.TrainingJourneyProgress.create({
+              staff_id: user.id,
+              staff_email: user.email,
+              welcome_vision_completed: false,
+              culture_completed: false,
+              raving_fans_completed: false,
+              hygiene_completed: false,
+              certification_completed: false,
+              growth_completed: false
+            });
+          }
+        } catch (error) {
+          // Entity might not exist, silently fail
+          console.log('Training profile not auto-created:', error.message);
+        }
+      }
+    };
+    initializeTraining();
+  }, [user?.id]);
+
   // Find page requirements in navGroups
   let pageConfig = null;
   for (const group of navGroups) {
