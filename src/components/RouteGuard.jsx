@@ -31,10 +31,12 @@ const navGroups = [
   {
     title: 'Team Development',
     items: [
-      { name: 'Training Academy', page: 'TrainingAcademy', roles: ['all'], modes: ['train'] },
-      { name: 'Leadership Path', page: 'LeadershipPathway', roles: ['all'], modes: ['train'] },
-      { name: 'Culture', page: 'Culture', roles: ['all'], modes: ['train'] },
-      { name: 'People', page: 'People', roles: ['all'], modes: ['train'] },
+      { name: 'Training Home', page: 'TrainHome', roles: ['all'], modes: ['all'] },
+      { name: 'Training Academy', page: 'TrainingAcademy', roles: ['all'], modes: ['all'] },
+      { name: 'Hygiene & Safety', page: 'Training', roles: ['all'], modes: ['all'] },
+      { name: 'Leadership Path', page: 'LeadershipPathway', roles: ['all'], modes: ['all'] },
+      { name: 'Culture', page: 'Culture', roles: ['all'], modes: ['all'] },
+      { name: 'People', page: 'People', roles: ['all'], modes: ['all'] },
     ]
   },
   {
@@ -186,7 +188,7 @@ export default function RouteGuard({ children, currentPageName }) {
   }
 
   // Check mode access
-  const hasModeAccess = pageConfig.modes?.includes(currentMode);
+  const hasModeAccess = !pageConfig.modes || pageConfig.modes.includes('all') || pageConfig.modes.includes(currentMode);
 
   if (!hasModeAccess) {
     const requiredMode = pageConfig.modes?.[0];
