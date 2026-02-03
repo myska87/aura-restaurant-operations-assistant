@@ -144,6 +144,7 @@ import WeeklyManagerReportDetail from './pages/WeeklyManagerReportDetail';
 import WeeklyManagerReportForm from './pages/WeeklyManagerReportForm';
 import WeeklyManagerReports from './pages/WeeklyManagerReports';
 import WelcomeVision from './pages/WelcomeVision';
+import AboutAURA from './pages/AboutAURA';
 import __Layout from './Layout.jsx';
 
 
@@ -245,6 +246,7 @@ export const PAGES = {
     "WeeklyManagerReportForm": WeeklyManagerReportForm,
     "WeeklyManagerReports": WeeklyManagerReports,
     "WelcomeVision": WelcomeVision,
+    "AboutAURA": AboutAURA,
 }
 
 export const pagesConfig = {
