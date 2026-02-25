@@ -219,6 +219,17 @@ export default function TrainingAcademy() {
         updates.certificateIssuedAt = new Date().toISOString();
       }
 
+      // Sync all hygiene level flags when general hygiene training is complete
+      if (hygieneCompleted) {
+        if (!journeyProgress.hygieneL1Completed) updates.hygieneL1Completed = true;
+        if (!journeyProgress.hygieneL2Completed) updates.hygieneL2Completed = true;
+        if (!journeyProgress.hygieneL3Completed) updates.hygieneL3Completed = true;
+        // Advance currentStep past hygiene stages
+        if (['hygiene_l1', 'hygiene_l2', 'hygiene_l3'].includes(journeyProgress.currentStep)) {
+          updates.currentStep = 'certification';
+        }
+      }
+
       if (Object.keys(updates).length > 0) {
         await base44.entities.TrainingJourneyProgress.update(journeyProgress.id, {
           ...updates,

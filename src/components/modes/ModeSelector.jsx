@@ -1,4 +1,6 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { createPageUrl } from '@/utils';
 import { useMode, MODES, MODE_CONFIG } from './ModeContext';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
@@ -6,6 +8,7 @@ import { AlertCircle } from 'lucide-react';
 
 export default function ModeSelector({ user }) {
   const context = useMode();
+  const navigate = useNavigate();
   const [showConfirm, setShowConfirm] = useState(false);
   const [targetMode, setTargetMode] = useState(null);
 
@@ -26,10 +29,9 @@ export default function ModeSelector({ user }) {
   const confirmSwitch = () => {
     if (setCurrentMode) {
       setCurrentMode(targetMode);
-      // Navigate to mode's home page
       const homePage = MODE_CONFIG[targetMode]?.homePage;
       if (homePage) {
-        window.location.href = window.location.pathname.split('/').slice(0, -1).join('/') + '/' + homePage;
+        navigate(createPageUrl(homePage));
       }
     }
     setShowConfirm(false);

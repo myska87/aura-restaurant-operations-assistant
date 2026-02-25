@@ -118,8 +118,10 @@ export default function Dashboard() {
     ...audits.slice(0, 2).map(a => ({
       id: `audit-${a.id}`,
       type: 'audit',
-      title: a.title,
-      description: `Score: ${a.overall_score}/${a.max_score}`,
+      title: a.title || 'Quality Audit',
+      description: a.overall_score != null
+        ? `Score: ${a.overall_score}/${a.max_score || 100}`
+        : 'Audit completed',
       time: a.created_date
     }))
   ].slice(0, 8);
