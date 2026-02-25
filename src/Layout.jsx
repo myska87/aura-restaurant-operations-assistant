@@ -158,27 +158,8 @@ function LayoutContent({ children, currentPageName }) {
 
           <div className="flex items-center gap-2">
             <DropdownMenu>
-              <Button variant="ghost" size="icon" className="relative" asChild>
-                <DropdownMenu>
-                  <DropdownMenuContent align="end" className="w-80">
-                    <ScrollArea className="h-64">
-                      {notifications.length === 0 ? (
-                        <div className="p-4 text-center text-slate-500">No new notifications</div>
-                      ) : notifications.map((notif) => (
-                        <DropdownMenuItem key={notif.id} className="p-3 cursor-pointer">
-                          <div>
-                            <p className="font-medium text-sm">{notif.title}</p>
-                            <p className="text-xs text-slate-500">{notif.message}</p>
-                          </div>
-                        </DropdownMenuItem>
-                      ))}
-                    </ScrollArea>
-                  </DropdownMenuContent>
-                </DropdownMenu>
-              </Button>
-            </DropdownMenu>
-            <DropdownMenu>
               <DropdownMenuContent align="end" className="w-80">
+                <div className="p-3 border-b"><h3 className="font-semibold">Notifications</h3></div>
                 <ScrollArea className="h-64">
                   {notifications.length === 0 ? (
                     <div className="p-4 text-center text-slate-500">No new notifications</div>
@@ -193,14 +174,6 @@ function LayoutContent({ children, currentPageName }) {
                 </ScrollArea>
               </DropdownMenuContent>
             </DropdownMenu>
-            <Button variant="ghost" size="icon" className="relative" onClick={() => {}}>
-              <Bell className="w-5 h-5 text-slate-600" />
-              {notifications.length > 0 && (
-                <span className="absolute -top-1 -right-1 w-5 h-5 bg-red-500 text-white text-xs rounded-full flex items-center justify-center">
-                  {notifications.length}
-                </span>
-              )}
-            </Button>
           </div>
         </div>
         <div className="px-4 pb-3">
@@ -249,18 +222,6 @@ function LayoutContent({ children, currentPageName }) {
               </ScrollArea>
             </DropdownMenuContent>
           </DropdownMenu>
-          <Button variant="ghost" size="icon" className="relative">
-            <Bell className="w-5 h-5 text-slate-600" />
-            {notifications.length > 0 && (
-              <motion.span
-                initial={{ scale: 0 }}
-                animate={{ scale: 1 }}
-                className="absolute -top-1 -right-1 w-5 h-5 bg-red-500 text-white text-xs rounded-full flex items-center justify-center"
-              >
-                {notifications.length}
-              </motion.span>
-            )}
-          </Button>
         </div>
       </header>
 
