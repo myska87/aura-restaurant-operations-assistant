@@ -47,6 +47,7 @@
  *
  * The mainPage value must match a key in the PAGES object exactly.
  */
+import AboutAURA from './pages/AboutAURA';
 import AllergenDashboard from './pages/AllergenDashboard';
 import AllergenReport from './pages/AllergenReport';
 import Announcements from './pages/Announcements';
@@ -144,11 +145,12 @@ import WeeklyManagerReportDetail from './pages/WeeklyManagerReportDetail';
 import WeeklyManagerReportForm from './pages/WeeklyManagerReportForm';
 import WeeklyManagerReports from './pages/WeeklyManagerReports';
 import WelcomeVision from './pages/WelcomeVision';
-import AboutAURA from './pages/AboutAURA';
+import AppHealthReport from './pages/AppHealthReport';
 import __Layout from './Layout.jsx';
 
 
 export const PAGES = {
+    "AboutAURA": AboutAURA,
     "AllergenDashboard": AllergenDashboard,
     "AllergenReport": AllergenReport,
     "Announcements": Announcements,
@@ -246,7 +248,7 @@ export const PAGES = {
     "WeeklyManagerReportForm": WeeklyManagerReportForm,
     "WeeklyManagerReports": WeeklyManagerReports,
     "WelcomeVision": WelcomeVision,
-    "AboutAURA": AboutAURA,
+    "AppHealthReport": AppHealthReport,
 }
 
 export const pagesConfig = {
