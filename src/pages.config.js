@@ -51,6 +51,7 @@ import AboutAURA from './pages/AboutAURA';
 import AllergenDashboard from './pages/AllergenDashboard';
 import AllergenReport from './pages/AllergenReport';
 import Announcements from './pages/Announcements';
+import AppHealthReport from './pages/AppHealthReport';
 import AssetDetail from './pages/AssetDetail';
 import AssetRegister from './pages/AssetRegister';
 import Assets from './pages/Assets';
@@ -145,7 +146,6 @@ import WeeklyManagerReportDetail from './pages/WeeklyManagerReportDetail';
 import WeeklyManagerReportForm from './pages/WeeklyManagerReportForm';
 import WeeklyManagerReports from './pages/WeeklyManagerReports';
 import WelcomeVision from './pages/WelcomeVision';
-import AppHealthReport from './pages/AppHealthReport';
 import __Layout from './Layout.jsx';
 
 
@@ -154,6 +154,7 @@ export const PAGES = {
     "AllergenDashboard": AllergenDashboard,
     "AllergenReport": AllergenReport,
     "Announcements": Announcements,
+    "AppHealthReport": AppHealthReport,
     "AssetDetail": AssetDetail,
     "AssetRegister": AssetRegister,
     "Assets": Assets,
@@ -248,7 +249,6 @@ export const PAGES = {
     "WeeklyManagerReportForm": WeeklyManagerReportForm,
     "WeeklyManagerReports": WeeklyManagerReports,
     "WelcomeVision": WelcomeVision,
-    "AppHealthReport": AppHealthReport,
 }
 
 export const pagesConfig = {
