@@ -159,11 +159,31 @@ function LayoutContent({ children, currentPageName }) {
 
           <div className="flex items-center gap-2">
             <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="ghost" size="icon" className="relative">
+                  <Bell className="w-5 h-5 text-slate-600" />
+                  {notifications.length > 0 && (
+                    <span className="absolute -top-1 -right-1 w-4 h-4 bg-red-500 text-white text-[10px] rounded-full flex items-center justify-center font-bold">
+                      {notifications.length}
+                    </span>
+                  )}
+                </Button>
+              </DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="w-80">
-                <div className="p-3 border-b"><h3 className="font-semibold">Notifications</h3></div>
+                <div className="p-3 border-b flex items-center justify-between">
+                  <h3 className="font-semibold">Notifications</h3>
+                  {notifications.length > 0 && (
+                    <Badge variant="secondary" className="bg-amber-100 text-amber-700">
+                      {notifications.length} new
+                    </Badge>
+                  )}
+                </div>
                 <ScrollArea className="h-64">
                   {notifications.length === 0 ? (
-                    <div className="p-4 text-center text-slate-500">No new notifications</div>
+                    <div className="p-6 text-center text-slate-500">
+                      <Bell className="w-8 h-8 mx-auto mb-2 opacity-30" />
+                      <p>All caught up!</p>
+                    </div>
                   ) : notifications.map((notif) => (
                     <DropdownMenuItem key={notif.id} className="p-3 cursor-pointer">
                       <div>
