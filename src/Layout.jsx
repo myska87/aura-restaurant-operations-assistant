@@ -217,6 +217,16 @@ function LayoutContent({ children, currentPageName }) {
         <div className="flex items-center gap-4">
           <ModeSelector user={user} />
           <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="ghost" size="icon" className="relative">
+                <Bell className="w-5 h-5 text-slate-600" />
+                {notifications.length > 0 && (
+                  <span className="absolute -top-1 -right-1 w-4 h-4 bg-red-500 text-white text-[10px] rounded-full flex items-center justify-center font-bold">
+                    {notifications.length}
+                  </span>
+                )}
+              </Button>
+            </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="w-80">
               <div className="p-3 border-b flex items-center justify-between">
                 <h3 className="font-semibold">Notifications</h3>
