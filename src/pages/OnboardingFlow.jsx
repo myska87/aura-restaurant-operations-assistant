@@ -144,6 +144,23 @@ export default function OnboardingFlow() {
 
   if (isLoading || !user) return <LoadingSpinner message="Loading onboarding..." />;
 
+  if (!isLoading && allTasks.length === 0) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-emerald-50 via-white to-blue-50 p-6 flex items-center justify-center">
+        <Card className="max-w-md w-full border-2 border-emerald-200 text-center">
+          <CardContent className="pt-8 pb-8">
+            <CheckCircle2 className="w-16 h-16 text-emerald-600 mx-auto mb-4" />
+            <h2 className="text-xl font-bold text-slate-800 mb-2">You're all set!</h2>
+            <p className="text-slate-500 mb-6">No onboarding tasks are assigned to your role.</p>
+            <Button onClick={() => finishOnboardingMutation.mutate()} className="bg-emerald-600 hover:bg-emerald-700">
+              Enter Dashboard
+            </Button>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
+
   const currentTask = allTasks[currentTaskIndex];
   const completedCount = completions.filter(c => c.completed).length;
   const progressPercent = (completedCount / allTasks.length) * 100;
