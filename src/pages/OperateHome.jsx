@@ -471,6 +471,8 @@ export default function OperateHome() {
           <OperationCard icon={Wrench} color="bg-orange-500" title="Equipment Status" summary={`${equipmentFaults.length} faults`} status={equipmentFaults.length === 0 ? 'complete' : 'pending'} actionButtons={[{ label: '→ Check', onClick: () => navigate(createPageUrl('EquipmentHealth')) }]} />
           {/* Cleaning & Hygiene Hub */}
           <OperationCard icon={Sparkles} color="bg-purple-500" title="Cleaning & Hygiene" summary="Daily, deep clean, hygiene" status="pending" actionButtons={[{ label: '→ Hub', onClick: () => navigate(createPageUrl('CleaningHygieneHub')) }]} />
+          {/* Kitchen Runsheet */}
+          <OperationCard icon={ClipboardCheck} color="bg-amber-600" title="Kitchen Runsheet" summary="Open-to-close control system" status="pending" actionButtons={[{ label: '→ Open', onClick: () => navigate(createPageUrl('KitchenRunsheet')) }]} />
           {/* Prep Workflow */}
           <OperationCard icon={ChefHat} color="bg-amber-500" title="Prep Workflow" summary="Stock, components, prep" status="pending" actionButtons={[{ label: '→ Manage', onClick: () => navigate(createPageUrl('PrepWorkflow')) }]} />
           {/* Visual Dish Guides */}
