@@ -1,0 +1,167 @@
+{
+  "name": "StaffSafetyScore",
+  "type": "object",
+  "properties": {
+    "staff_id": {
+      "type": "string",
+      "description": "Reference to Staff member"
+    },
+    "staff_name": {
+      "type": "string",
+      "description": "Staff member name"
+    },
+    "staff_email": {
+      "type": "string",
+      "description": "Staff email"
+    },
+    "calculation_date": {
+      "type": "string",
+      "format": "date",
+      "description": "Date score was calculated"
+    },
+    "period_start": {
+      "type": "string",
+      "format": "date",
+      "description": "Start of measurement period"
+    },
+    "period_end": {
+      "type": "string",
+      "format": "date",
+      "description": "End of measurement period"
+    },
+    "training_completion_score": {
+      "type": "number",
+      "description": "Training completion percentage (0-100)",
+      "default": 0
+    },
+    "training_courses_completed": {
+      "type": "number",
+      "description": "Number of training courses completed in period"
+    },
+    "training_courses_required": {
+      "type": "number",
+      "description": "Number of training courses required"
+    },
+    "ccp_accuracy_score": {
+      "type": "number",
+      "description": "CCP check accuracy percentage (0-100)",
+      "default": 0
+    },
+    "ccp_checks_performed": {
+      "type": "number",
+      "description": "Total CCP checks performed"
+    },
+    "ccp_checks_passed": {
+      "type": "number",
+      "description": "CCP checks that passed"
+    },
+    "ccp_checks_failed": {
+      "type": "number",
+      "description": "CCP checks that failed"
+    },
+    "ccp_accuracy_percentage": {
+      "type": "number",
+      "description": "Percentage of checks that passed"
+    },
+    "missed_checks_score": {
+      "type": "number",
+      "description": "Missed checks score (0-100, higher is better)",
+      "default": 100
+    },
+    "scheduled_checks": {
+      "type": "number",
+      "description": "Total scheduled checks in period"
+    },
+    "missed_checks": {
+      "type": "number",
+      "description": "Number of missed/incomplete checks"
+    },
+    "missed_checks_percentage": {
+      "type": "number",
+      "description": "Percentage of checks missed"
+    },
+    "incident_involvement_score": {
+      "type": "number",
+      "description": "Incident involvement score (0-100, lower incidents = higher score)",
+      "default": 100
+    },
+    "total_incidents": {
+      "type": "number",
+      "description": "Number of incidents staff was involved in"
+    },
+    "critical_incidents": {
+      "type": "number",
+      "description": "Number of critical severity incidents"
+    },
+    "major_incidents": {
+      "type": "number",
+      "description": "Number of major severity incidents"
+    },
+    "minor_incidents": {
+      "type": "number",
+      "description": "Number of minor severity incidents"
+    },
+    "overall_safety_score": {
+      "type": "number",
+      "description": "Overall weighted safety score (0-100)",
+      "default": 0
+    },
+    "safety_grade": {
+      "type": "string",
+      "enum": [
+        "A",
+        "B",
+        "C",
+        "D",
+        "F"
+      ],
+      "description": "Safety grade (A=90+, B=80-89, C=70-79, D=60-69, F=<60)"
+    },
+    "performance_tier": {
+      "type": "string",
+      "enum": [
+        "exemplary",
+        "proficient",
+        "developing",
+        "concerning"
+      ],
+      "description": "Performance tier for promotion/leadership decisions"
+    },
+    "promotion_ready": {
+      "type": "boolean",
+      "default": false,
+      "description": "Is staff member ready for promotion (score >= 85)"
+    },
+    "shift_leader_eligible": {
+      "type": "boolean",
+      "default": false,
+      "description": "Eligible for shift leader role (score >= 80)"
+    },
+    "extra_training_required": {
+      "type": "boolean",
+      "default": false,
+      "description": "Extra training triggered (score < 70)"
+    },
+    "training_recommendations": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Recommended training areas"
+    },
+    "notes": {
+      "type": "string",
+      "description": "Manager notes on performance"
+    },
+    "calculation_method": {
+      "type": "string",
+      "description": "Description of calculation (for transparency)"
+    }
+  },
+  "required": [
+    "staff_id",
+    "staff_email",
+    "calculation_date",
+    "overall_safety_score"
+  ]
+}

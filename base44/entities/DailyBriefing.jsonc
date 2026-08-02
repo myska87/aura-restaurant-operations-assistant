@@ -1,0 +1,65 @@
+{
+  "name": "DailyBriefing",
+  "type": "object",
+  "properties": {
+    "date": {
+      "type": "string",
+      "format": "date",
+      "description": "Briefing date"
+    },
+    "shift": {
+      "type": "string",
+      "enum": [
+        "Morning",
+        "Mid",
+        "Closing"
+      ],
+      "description": "Shift type"
+    },
+    "manager_name": {
+      "type": "string",
+      "description": "Manager conducting briefing"
+    },
+    "manager_email": {
+      "type": "string",
+      "description": "Manager email"
+    },
+    "staff_present": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Staff members present"
+    },
+    "key_points_discussed": {
+      "type": "string",
+      "description": "Main topics and goals"
+    },
+    "safety_message": {
+      "type": "string",
+      "description": "Safety message of the day"
+    },
+    "sales_goals": {
+      "type": "string",
+      "description": "Sales targets or goals"
+    },
+    "issues_raised": {
+      "type": "string",
+      "description": "Issues or concerns raised"
+    },
+    "signature_url": {
+      "type": "string",
+      "description": "Manager signature"
+    },
+    "completed": {
+      "type": "boolean",
+      "default": true,
+      "description": "Briefing completed"
+    }
+  },
+  "required": [
+    "date",
+    "shift",
+    "manager_email"
+  ]
+}

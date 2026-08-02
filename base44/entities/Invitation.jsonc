@@ -1,0 +1,61 @@
+{
+  "name": "Invitation",
+  "type": "object",
+  "properties": {
+    "email": {
+      "type": "string",
+      "description": "Invitee email address"
+    },
+    "invited_by": {
+      "type": "string"
+    },
+    "invited_by_name": {
+      "type": "string"
+    },
+    "role": {
+      "type": "string",
+      "enum": [
+        "user",
+        "admin"
+      ],
+      "default": "user"
+    },
+    "invitation_code": {
+      "type": "string",
+      "description": "Unique invitation code"
+    },
+    "invitation_link": {
+      "type": "string",
+      "description": "Full invitation URL"
+    },
+    "qr_code_data": {
+      "type": "string",
+      "description": "QR code data URL"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "pending",
+        "accepted",
+        "expired"
+      ],
+      "default": "pending"
+    },
+    "expires_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "accepted_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "message": {
+      "type": "string",
+      "description": "Personal message from inviter"
+    }
+  },
+  "required": [
+    "email",
+    "invitation_code"
+  ]
+}

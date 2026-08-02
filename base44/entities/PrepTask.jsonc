@@ -1,0 +1,85 @@
+{
+  "name": "PrepTask",
+  "type": "object",
+  "properties": {
+    "date": {
+      "type": "string",
+      "format": "date",
+      "description": "Prep date"
+    },
+    "menu_item_id": {
+      "type": "string"
+    },
+    "menu_item_name": {
+      "type": "string"
+    },
+    "recipe_id": {
+      "type": "string"
+    },
+    "station": {
+      "type": "string",
+      "enum": [
+        "hot_line",
+        "fryer",
+        "chai_station",
+        "cold_prep",
+        "grill",
+        "bakery"
+      ]
+    },
+    "quantity_needed": {
+      "type": "number",
+      "description": "Expected servings needed"
+    },
+    "quantity_prepped": {
+      "type": "number",
+      "default": 0
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "pending",
+        "in_progress",
+        "completed",
+        "verified"
+      ],
+      "default": "pending"
+    },
+    "assigned_to": {
+      "type": "string",
+      "description": "Staff email"
+    },
+    "assigned_name": {
+      "type": "string"
+    },
+    "completed_by": {
+      "type": "string"
+    },
+    "completed_name": {
+      "type": "string"
+    },
+    "completed_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "verified_by": {
+      "type": "string"
+    },
+    "verified_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "notes": {
+      "type": "string"
+    },
+    "prep_time_actual": {
+      "type": "number",
+      "description": "Actual time taken in minutes"
+    }
+  },
+  "required": [
+    "date",
+    "menu_item_name",
+    "station"
+  ]
+}

@@ -1,0 +1,108 @@
+{
+  "name": "Staff",
+  "type": "object",
+  "properties": {
+    "full_name": {
+      "type": "string",
+      "description": "Staff member's full name"
+    },
+    "email": {
+      "type": "string",
+      "description": "Staff email address"
+    },
+    "phone": {
+      "type": "string",
+      "description": "Contact phone number"
+    },
+    "role": {
+      "type": "string",
+      "enum": [
+        "staff",
+        "manager",
+        "owner"
+      ],
+      "default": "staff",
+      "description": "Access level in the system"
+    },
+    "position": {
+      "type": "string",
+      "description": "Job title (e.g., Chef, Barista, FOH)"
+    },
+    "department": {
+      "type": "string",
+      "enum": [
+        "kitchen",
+        "front_of_house",
+        "management",
+        "bar"
+      ],
+      "description": "Department assignment"
+    },
+    "hire_date": {
+      "type": "string",
+      "format": "date"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "active",
+        "on_leave",
+        "terminated"
+      ],
+      "default": "active"
+    },
+    "hourly_rate": {
+      "type": "number",
+      "default": 12.5,
+      "description": "Hourly wage rate in \u00a3"
+    },
+    "avatar_url": {
+      "type": "string"
+    },
+    "training_level": {
+      "type": "string",
+      "enum": [
+        "culture",
+        "L1",
+        "L2",
+        "L3"
+      ],
+      "default": "culture"
+    },
+    "emergency_contact": {
+      "type": "string"
+    },
+    "notes": {
+      "type": "string"
+    },
+    "is_illness_flagged": {
+      "type": "boolean",
+      "default": false,
+      "description": "Staff member has active illness flag"
+    },
+    "illness_flag_reason": {
+      "type": "string",
+      "description": "Reason for illness flag"
+    },
+    "illness_flag_date": {
+      "type": "string",
+      "format": "date",
+      "description": "Date illness flag was raised"
+    },
+    "illness_flag_cleared": {
+      "type": "boolean",
+      "default": false,
+      "description": "Manager has cleared illness flag"
+    },
+    "food_handling_restricted": {
+      "type": "boolean",
+      "default": false,
+      "description": "Staff restricted from food handling duties"
+    }
+  },
+  "required": [
+    "full_name",
+    "email",
+    "position"
+  ]
+}

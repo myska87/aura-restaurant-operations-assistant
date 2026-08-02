@@ -1,0 +1,87 @@
+{
+  "name": "TrainingReflection",
+  "type": "object",
+  "properties": {
+    "staff_id": {
+      "type": "string"
+    },
+    "staff_email": {
+      "type": "string"
+    },
+    "staff_name": {
+      "type": "string"
+    },
+    "course_id": {
+      "type": "string"
+    },
+    "course_title": {
+      "type": "string"
+    },
+    "course_level": {
+      "type": "string"
+    },
+    "what_learned": {
+      "type": "string",
+      "description": "What did you learn from this training?"
+    },
+    "connected_value": {
+      "type": "string",
+      "enum": [
+        "people_first",
+        "excellence",
+        "emotional_hospitality",
+        "ownership",
+        "respect"
+      ],
+      "description": "Which value resonates most"
+    },
+    "connected_value_why": {
+      "type": "string",
+      "description": "Why this value resonates"
+    },
+    "proud_moment": {
+      "type": "string",
+      "description": "What made you feel proud or happy"
+    },
+    "concerns": {
+      "type": "string",
+      "description": "What you did not like or disagree with"
+    },
+    "suggestions": {
+      "type": "string",
+      "description": "What would you improve or change"
+    },
+    "feedback_visibility": {
+      "type": "string",
+      "enum": [
+        "public",
+        "private"
+      ],
+      "default": "public",
+      "description": "Public to manager or private to HR"
+    },
+    "manager_reviewed": {
+      "type": "boolean",
+      "default": false
+    },
+    "manager_response": {
+      "type": "string"
+    },
+    "manager_notes": {
+      "type": "string"
+    },
+    "sentiment_score": {
+      "type": "number",
+      "description": "Auto-calculated positive sentiment 1-10"
+    },
+    "reflection_date": {
+      "type": "string",
+      "format": "date-time"
+    }
+  },
+  "required": [
+    "staff_email",
+    "course_id",
+    "what_learned"
+  ]
+}

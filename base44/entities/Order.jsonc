@@ -1,0 +1,110 @@
+{
+  "name": "Order",
+  "type": "object",
+  "properties": {
+    "order_number": {
+      "type": "string",
+      "description": "Unique order number"
+    },
+    "supplier_id": {
+      "type": "string",
+      "description": "Supplier ID"
+    },
+    "supplier_name": {
+      "type": "string",
+      "description": "Supplier name for reference"
+    },
+    "items": {
+      "type": "array",
+      "description": "Order items",
+      "items": {
+        "type": "object",
+        "properties": {
+          "ingredient_id": {
+            "type": "string"
+          },
+          "ingredient_name": {
+            "type": "string"
+          },
+          "quantity": {
+            "type": "number"
+          },
+          "unit": {
+            "type": "string"
+          },
+          "unit_cost": {
+            "type": "number"
+          },
+          "total_cost": {
+            "type": "number"
+          }
+        }
+      }
+    },
+    "total_amount": {
+      "type": "number",
+      "description": "Total order amount"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "pending",
+        "sent",
+        "in_transit",
+        "delivered",
+        "received",
+        "completed",
+        "rejected",
+        "cancelled"
+      ],
+      "default": "pending",
+      "description": "Order status"
+    },
+    "order_type": {
+      "type": "string",
+      "enum": [
+        "menu_based",
+        "prep_based",
+        "manual",
+        "stock_replenish"
+      ],
+      "description": "Type of order"
+    },
+    "order_date": {
+      "type": "string",
+      "format": "date",
+      "description": "Order creation date"
+    },
+    "expected_delivery": {
+      "type": "string",
+      "format": "date",
+      "description": "Expected delivery date"
+    },
+    "actual_delivery": {
+      "type": "string",
+      "format": "date",
+      "description": "Actual delivery date"
+    },
+    "created_by": {
+      "type": "string",
+      "description": "User email who created order"
+    },
+    "created_by_name": {
+      "type": "string",
+      "description": "User name"
+    },
+    "notes": {
+      "type": "string",
+      "description": "Order notes"
+    },
+    "rejection_reason": {
+      "type": "string",
+      "description": "Reason if order rejected"
+    }
+  },
+  "required": [
+    "supplier_id",
+    "items",
+    "order_type"
+  ]
+}

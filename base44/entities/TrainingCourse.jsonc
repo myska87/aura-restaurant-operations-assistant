@@ -1,0 +1,83 @@
+{
+  "name": "TrainingCourse",
+  "type": "object",
+  "properties": {
+    "title": {
+      "type": "string"
+    },
+    "description": {
+      "type": "string"
+    },
+    "level": {
+      "type": "string",
+      "enum": [
+        "Foundation",
+        "L1",
+        "L2",
+        "L3"
+      ],
+      "description": "Foundation=Culture, L1=Basic, L2=Intermediate, L3=Advanced"
+    },
+    "order": {
+      "type": "number",
+      "description": "Display order within level"
+    },
+    "duration_minutes": {
+      "type": "number"
+    },
+    "content_type": {
+      "type": "string",
+      "enum": [
+        "reading",
+        "quiz",
+        "practical"
+      ]
+    },
+    "content": {
+      "type": "string",
+      "description": "Rich text content"
+    },
+    "image_url": {
+      "type": "string",
+      "description": "Course illustration"
+    },
+    "quiz_questions": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "question": {
+            "type": "string"
+          },
+          "options": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "correct_answer": {
+            "type": "number"
+          }
+        }
+      }
+    },
+    "pass_mark_percent": {
+      "type": "number",
+      "default": 80,
+      "description": "Pass threshold percentage"
+    },
+    "is_published": {
+      "type": "boolean",
+      "default": true
+    },
+    "is_mandatory": {
+      "type": "boolean",
+      "default": false,
+      "description": "Required before live work"
+    }
+  },
+  "required": [
+    "title",
+    "level"
+  ]
+}

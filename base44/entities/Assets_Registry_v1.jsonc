@@ -1,0 +1,164 @@
+{
+  "name": "Assets_Registry_v1",
+  "type": "object",
+  "properties": {
+    "asset_name": {
+      "type": "string",
+      "description": "Asset name (e.g., Upright Fridge 1)"
+    },
+    "asset_category": {
+      "type": "string",
+      "enum": [
+        "fridge",
+        "freezer",
+        "oven",
+        "fryer",
+        "coffee_machine",
+        "small_equipment",
+        "grill",
+        "dishwasher",
+        "other"
+      ],
+      "description": "Asset category"
+    },
+    "asset_type": {
+      "type": "string",
+      "enum": [
+        "cold",
+        "hot",
+        "electrical",
+        "mechanical"
+      ],
+      "description": "Asset type classification"
+    },
+    "location": {
+      "type": "string",
+      "enum": [
+        "kitchen",
+        "store_room",
+        "front_counter",
+        "chai_station",
+        "prep_area",
+        "wash_area"
+      ],
+      "description": "Physical location"
+    },
+    "station": {
+      "type": "string",
+      "enum": [
+        "hot_line",
+        "grill",
+        "chai",
+        "fryer",
+        "bakery",
+        "cold_prep",
+        "general"
+      ],
+      "description": "Work station"
+    },
+    "assigned_responsibility": {
+      "type": "string",
+      "description": "Role or person responsible"
+    },
+    "manufacturer": {
+      "type": "string",
+      "description": "Manufacturer name"
+    },
+    "model": {
+      "type": "string",
+      "description": "Model number"
+    },
+    "serial_number": {
+      "type": "string",
+      "description": "Serial number"
+    },
+    "purchase_date": {
+      "type": "string",
+      "format": "date",
+      "description": "Date of purchase"
+    },
+    "warranty_expiry": {
+      "type": "string",
+      "format": "date",
+      "description": "Warranty expiry date"
+    },
+    "expected_lifespan_years": {
+      "type": "number",
+      "description": "Expected lifespan in years"
+    },
+    "is_critical_asset": {
+      "type": "boolean",
+      "default": false,
+      "description": "Is this a critical asset?"
+    },
+    "is_temperature_controlled": {
+      "type": "boolean",
+      "default": false,
+      "description": "Does this asset control temperature?"
+    },
+    "min_temp": {
+      "type": "number",
+      "description": "Minimum temperature (if applicable)"
+    },
+    "max_temp": {
+      "type": "number",
+      "description": "Maximum temperature (if applicable)"
+    },
+    "power_type": {
+      "type": "string",
+      "enum": [
+        "gas",
+        "electric",
+        "three_phase",
+        "manual",
+        "none"
+      ],
+      "description": "Power source"
+    },
+    "last_service_date": {
+      "type": "string",
+      "format": "date",
+      "description": "Last service date"
+    },
+    "service_interval_days": {
+      "type": "number",
+      "description": "Service interval in days"
+    },
+    "service_provider": {
+      "type": "string",
+      "description": "Service provider name"
+    },
+    "total_repair_cost": {
+      "type": "number",
+      "default": 0,
+      "description": "Total repair cost (auto-aggregated)"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "operational",
+        "warning",
+        "fault",
+        "out_of_service",
+        "deactivated"
+      ],
+      "default": "operational",
+      "description": "Current asset status"
+    },
+    "notes": {
+      "type": "string",
+      "description": "Additional notes"
+    },
+    "is_locked": {
+      "type": "boolean",
+      "default": true,
+      "description": "READ-ONLY after setup"
+    }
+  },
+  "required": [
+    "asset_name",
+    "asset_category",
+    "asset_type",
+    "location"
+  ]
+}

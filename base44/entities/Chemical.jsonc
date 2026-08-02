@@ -1,0 +1,195 @@
+{
+  "name": "Chemical",
+  "type": "object",
+  "properties": {
+    "product_name": {
+      "type": "string",
+      "description": "Chemical product name"
+    },
+    "supplier": {
+      "type": "string",
+      "description": "Supplier name"
+    },
+    "category": {
+      "type": "string",
+      "enum": [
+        "dishwashing",
+        "surface_sanitiser",
+        "floor_cleaner",
+        "degreaser",
+        "glass_cleaner",
+        "descaler",
+        "other"
+      ],
+      "description": "Chemical category"
+    },
+    "colour_zone": {
+      "type": "string",
+      "enum": [
+        "red",
+        "blue",
+        "green",
+        "yellow"
+      ],
+      "description": "RED=Toilets, BLUE=General, GREEN=Food contact, YELLOW=Dishwashing"
+    },
+    "area_used": {
+      "type": "string",
+      "enum": [
+        "kitchen",
+        "bathroom",
+        "cleaning",
+        "general",
+        "food_prep",
+        "dining",
+        "storage"
+      ],
+      "description": "Primary area where chemical is used"
+    },
+    "current_quantity": {
+      "type": "number",
+      "default": 0,
+      "description": "Current stock quantity"
+    },
+    "unit": {
+      "type": "string",
+      "enum": [
+        "L",
+        "ml",
+        "kg",
+        "g",
+        "pcs"
+      ],
+      "description": "Unit of measure"
+    },
+    "minimum_stock": {
+      "type": "number",
+      "default": 1,
+      "description": "Minimum stock threshold for alerts"
+    },
+    "purchase_date": {
+      "type": "string",
+      "format": "date",
+      "description": "Date chemical was purchased"
+    },
+    "expiry_date": {
+      "type": "string",
+      "format": "date",
+      "description": "Expiry date of the chemical"
+    },
+    "manufacturer": {
+      "type": "string",
+      "description": "Manufacturer name"
+    },
+    "concentration_type": {
+      "type": "string",
+      "enum": [
+        "ready_use",
+        "concentrate"
+      ],
+      "description": "Ready to use or requires dilution"
+    },
+    "dilution_ratio": {
+      "type": "string",
+      "description": "e.g., 50ml per 1L"
+    },
+    "application_method": {
+      "type": "string",
+      "enum": [
+        "spray",
+        "soak",
+        "machine",
+        "wipe"
+      ],
+      "description": "How to apply"
+    },
+    "contact_time_seconds": {
+      "type": "number",
+      "description": "How long to leave before rinsing"
+    },
+    "rinse_required": {
+      "type": "boolean",
+      "default": true,
+      "description": "Rinse required after use"
+    },
+    "ppe_required": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Required PPE: gloves, apron, eye_protection, mask, boots"
+    },
+    "storage_location": {
+      "type": "string",
+      "description": "Where to store the chemical"
+    },
+    "approved_areas": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Where this chemical can be used"
+    },
+    "hazard_symbols": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "enum": [
+          "flammable",
+          "corrosive",
+          "irritant",
+          "toxic",
+          "harmful",
+          "oxidising",
+          "compressed_gas",
+          "health_hazard"
+        ]
+      },
+      "description": "COSHH hazard symbols"
+    },
+    "first_aid": {
+      "type": "string",
+      "description": "First aid measures if exposed"
+    },
+    "disposal_instructions": {
+      "type": "string",
+      "description": "How to safely dispose of the chemical"
+    },
+    "sds_file_url": {
+      "type": "string",
+      "description": "URL to Safety Data Sheet (SDS) PDF"
+    },
+    "coshh_sheet_url": {
+      "type": "string",
+      "description": "URL to COSHH form"
+    },
+    "instructions": {
+      "type": "string",
+      "description": "Visual step-by-step instructions"
+    },
+    "last_checked": {
+      "type": "string",
+      "format": "date-time",
+      "description": "When chemical was last inspected"
+    },
+    "last_checked_by": {
+      "type": "string",
+      "description": "Name of person who last checked"
+    },
+    "is_approved": {
+      "type": "boolean",
+      "default": false,
+      "description": "HQ approved for use"
+    },
+    "is_active": {
+      "type": "boolean",
+      "default": true,
+      "description": "Is this chemical in active use"
+    }
+  },
+  "required": [
+    "product_name",
+    "category",
+    "colour_zone"
+  ]
+}

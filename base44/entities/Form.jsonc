@@ -1,0 +1,65 @@
+{
+  "name": "Form",
+  "type": "object",
+  "properties": {
+    "title": {
+      "type": "string",
+      "description": "Form title"
+    },
+    "category": {
+      "type": "string",
+      "enum": [
+        "incident",
+        "feedback",
+        "request",
+        "checklist",
+        "other"
+      ],
+      "default": "other"
+    },
+    "fields": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "label": {
+            "type": "string"
+          },
+          "type": {
+            "type": "string",
+            "enum": [
+              "text",
+              "textarea",
+              "select",
+              "checkbox",
+              "date",
+              "number"
+            ]
+          },
+          "required": {
+            "type": "boolean"
+          },
+          "options": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        }
+      }
+    },
+    "is_active": {
+      "type": "boolean",
+      "default": true
+    },
+    "created_by": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "title"
+  ]
+}

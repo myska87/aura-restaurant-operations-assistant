@@ -1,0 +1,116 @@
+{
+  "name": "CriticalControlPointCheck",
+  "type": "object",
+  "properties": {
+    "ccp_id": {
+      "type": "string",
+      "description": "Reference to CriticalControlPoint"
+    },
+    "ccp_name": {
+      "type": "string",
+      "description": "CCP name (e.g., 'Final Temperature Check')"
+    },
+    "check_date": {
+      "type": "string",
+      "format": "date",
+      "description": "Date of check"
+    },
+    "check_time": {
+      "type": "string",
+      "description": "Time of check (HH:MM)"
+    },
+    "recorded_value": {
+      "type": "string",
+      "description": "Input value (e.g., '75\u00b0C', '30 minutes')"
+    },
+    "unit": {
+      "type": "string",
+      "enum": [
+        "celsius",
+        "fahrenheit",
+        "time_minutes",
+        "time_hours",
+        "visual",
+        "pH",
+        "aw"
+      ],
+      "description": "Unit of measurement"
+    },
+    "critical_limit": {
+      "type": "string",
+      "description": "The critical limit value (e.g., '75\u00b0C')"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "pass",
+        "fail"
+      ],
+      "description": "Check result: PASS if value >= criticalLimit, FAIL otherwise"
+    },
+    "staff_id": {
+      "type": "string",
+      "description": "ID of staff member performing check"
+    },
+    "staff_name": {
+      "type": "string",
+      "description": "Name of staff member"
+    },
+    "staff_email": {
+      "type": "string",
+      "description": "Email of staff member"
+    },
+    "corrective_actions_triggered": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "action": {
+            "type": "string"
+          },
+          "responsible_person": {
+            "type": "string"
+          },
+          "time_limit": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "pending",
+              "in_progress",
+              "completed"
+            ]
+          }
+        }
+      },
+      "description": "Corrective actions triggered if FAIL"
+    },
+    "blocked_menu_items": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Menu item IDs blocked from serving if FAIL"
+    },
+    "notes": {
+      "type": "string",
+      "description": "Additional notes"
+    },
+    "timestamp": {
+      "type": "string",
+      "format": "date-time",
+      "description": "System timestamp"
+    }
+  },
+  "required": [
+    "ccp_id",
+    "check_date",
+    "recorded_value",
+    "unit",
+    "critical_limit",
+    "status",
+    "staff_id",
+    "staff_email"
+  ]
+}

@@ -1,0 +1,114 @@
+{
+  "name": "CorrectiveAction",
+  "type": "object",
+  "properties": {
+    "ccp_check_id": {
+      "type": "string",
+      "description": "Reference to failed CCP check"
+    },
+    "ccp_id": {
+      "type": "string",
+      "description": "Reference to CCP"
+    },
+    "ccp_name": {
+      "type": "string",
+      "description": "CCP name"
+    },
+    "action_type": {
+      "type": "string",
+      "enum": [
+        "re_cook_recheck",
+        "discard_batch",
+        "stop_service"
+      ],
+      "description": "Type of corrective action"
+    },
+    "action_description": {
+      "type": "string",
+      "enum": [
+        "Re-cook & Re-check",
+        "Discard batch",
+        "Stop service & inform manager"
+      ],
+      "description": "Human-readable action description"
+    },
+    "initiated_by_id": {
+      "type": "string",
+      "description": "Staff member who initiated action"
+    },
+    "initiated_by_name": {
+      "type": "string",
+      "description": "Staff name"
+    },
+    "initiated_by_email": {
+      "type": "string",
+      "description": "Staff email"
+    },
+    "initiated_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "When action was initiated"
+    },
+    "photo_url": {
+      "type": "string",
+      "description": "Optional evidence photo URL"
+    },
+    "notes": {
+      "type": "string",
+      "description": "Additional notes about action"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "pending",
+        "in_progress",
+        "completed",
+        "failed"
+      ],
+      "default": "pending",
+      "description": "Action status"
+    },
+    "manager_notified": {
+      "type": "boolean",
+      "default": false,
+      "description": "Was manager notified"
+    },
+    "manager_notified_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "When manager was notified"
+    },
+    "requires_recheck": {
+      "type": "boolean",
+      "default": true,
+      "description": "Requires CCP recheck after action"
+    },
+    "recheck_ccp_check_id": {
+      "type": "string",
+      "description": "ID of follow-up CCP check if completed"
+    },
+    "recheck_result": {
+      "type": "string",
+      "enum": [
+        "pass",
+        "fail",
+        "pending"
+      ],
+      "default": "pending",
+      "description": "Result of recheck"
+    },
+    "completed_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "When action was completed"
+    }
+  },
+  "required": [
+    "ccp_check_id",
+    "ccp_id",
+    "action_type",
+    "initiated_by_id",
+    "initiated_by_email",
+    "initiated_at"
+  ]
+}

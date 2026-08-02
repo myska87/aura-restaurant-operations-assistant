@@ -1,0 +1,85 @@
+{
+  "name": "PerformanceAppointment",
+  "type": "object",
+  "properties": {
+    "staff_id": {
+      "type": "string",
+      "description": "Staff member ID"
+    },
+    "staff_name": {
+      "type": "string",
+      "description": "Staff member name"
+    },
+    "appointment_type": {
+      "type": "string",
+      "enum": [
+        "review",
+        "warning",
+        "development",
+        "promotion_discussion",
+        "check_in",
+        "other"
+      ],
+      "description": "Type of appointment"
+    },
+    "appointment_date": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Scheduled date and time"
+    },
+    "duration_minutes": {
+      "type": "number",
+      "default": 30,
+      "description": "Expected duration"
+    },
+    "scheduled_by_id": {
+      "type": "string",
+      "description": "Manager/Admin who scheduled"
+    },
+    "scheduled_by_name": {
+      "type": "string",
+      "description": "Name of scheduler"
+    },
+    "attendees": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Additional attendees (IDs)"
+    },
+    "agenda": {
+      "type": "string",
+      "description": "Meeting agenda/topics"
+    },
+    "private_notes": {
+      "type": "string",
+      "description": "Private notes (manager/admin only)"
+    },
+    "outcome_notes": {
+      "type": "string",
+      "description": "Notes after meeting"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "planned",
+        "completed",
+        "follow_up_needed",
+        "cancelled"
+      ],
+      "default": "planned",
+      "description": "Appointment status"
+    },
+    "completed_date": {
+      "type": "string",
+      "format": "date-time",
+      "description": "When appointment was completed"
+    }
+  },
+  "required": [
+    "staff_id",
+    "appointment_type",
+    "appointment_date",
+    "scheduled_by_id"
+  ]
+}

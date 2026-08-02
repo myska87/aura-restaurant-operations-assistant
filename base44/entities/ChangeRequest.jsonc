@@ -1,0 +1,114 @@
+{
+  "name": "ChangeRequest",
+  "type": "object",
+  "properties": {
+    "request_code": {
+      "type": "string",
+      "description": "Auto-generated request code (e.g., CHG-001)"
+    },
+    "module_affected": {
+      "type": "string",
+      "enum": [
+        "Menu_v1",
+        "Recipe_Engine_v1",
+        "Ingredient_Master_v1",
+        "Inventory_Engine_v1",
+        "SOP_Library_v1"
+      ],
+      "description": "Which locked module needs changes"
+    },
+    "change_type": {
+      "type": "string",
+      "enum": [
+        "create",
+        "update",
+        "delete",
+        "bulk_update"
+      ],
+      "description": "Type of change requested"
+    },
+    "reason": {
+      "type": "string",
+      "description": "Detailed explanation for the change"
+    },
+    "change_details": {
+      "type": "object",
+      "description": "Detailed information about the proposed change"
+    },
+    "requested_by": {
+      "type": "string",
+      "description": "Email of person requesting change"
+    },
+    "requested_by_name": {
+      "type": "string",
+      "description": "Name of person requesting change"
+    },
+    "requested_date": {
+      "type": "string",
+      "format": "date-time",
+      "description": "When the change was requested"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "pending",
+        "approved",
+        "rejected",
+        "implemented"
+      ],
+      "default": "pending",
+      "description": "Current status of change request"
+    },
+    "approved_by": {
+      "type": "string",
+      "description": "Email of admin who approved/rejected"
+    },
+    "approved_by_name": {
+      "type": "string",
+      "description": "Name of admin who approved/rejected"
+    },
+    "approval_date": {
+      "type": "string",
+      "format": "date-time",
+      "description": "When the change was approved/rejected"
+    },
+    "rejection_reason": {
+      "type": "string",
+      "description": "Reason if rejected"
+    },
+    "implemented_by": {
+      "type": "string",
+      "description": "Email of person who implemented the change"
+    },
+    "implemented_date": {
+      "type": "string",
+      "format": "date-time",
+      "description": "When the change was implemented"
+    },
+    "implementation_notes": {
+      "type": "string",
+      "description": "Notes from implementation"
+    },
+    "priority": {
+      "type": "string",
+      "enum": [
+        "low",
+        "medium",
+        "high",
+        "urgent"
+      ],
+      "default": "medium",
+      "description": "Priority level of change"
+    },
+    "impact_assessment": {
+      "type": "string",
+      "description": "Expected impact on operations"
+    }
+  },
+  "required": [
+    "module_affected",
+    "change_type",
+    "reason",
+    "requested_by"
+  ]
+}

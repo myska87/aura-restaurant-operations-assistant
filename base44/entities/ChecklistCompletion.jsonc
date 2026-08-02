@@ -1,0 +1,113 @@
+{
+  "name": "ChecklistCompletion",
+  "type": "object",
+  "properties": {
+    "checklist_id": {
+      "type": "string",
+      "description": "Reference to ChecklistMaster"
+    },
+    "checklist_name": {
+      "type": "string",
+      "description": "Checklist name"
+    },
+    "checklist_category": {
+      "type": "string",
+      "description": "Category for filtering"
+    },
+    "date": {
+      "type": "string",
+      "format": "date",
+      "description": "Completion date"
+    },
+    "shift": {
+      "type": "string",
+      "enum": [
+        "Morning",
+        "Mid",
+        "Closing"
+      ],
+      "description": "Shift type"
+    },
+    "user_id": {
+      "type": "string",
+      "description": "User who completed checklist"
+    },
+    "user_name": {
+      "type": "string",
+      "description": "User name"
+    },
+    "user_email": {
+      "type": "string",
+      "description": "User email"
+    },
+    "answers": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "item_id": {
+            "type": "string"
+          },
+          "question_text": {
+            "type": "string"
+          },
+          "question_type": {
+            "type": "string"
+          },
+          "answer": {
+            "type": "string"
+          },
+          "photo_url": {
+            "type": "string"
+          },
+          "signature_url": {
+            "type": "string"
+          },
+          "file_url": {
+            "type": "string"
+          },
+          "notes": {
+            "type": "string"
+          },
+          "timestamp": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "description": "All answers provided"
+    },
+    "completion_percentage": {
+      "type": "number",
+      "description": "Percentage complete"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "in_progress",
+        "completed",
+        "pending_review",
+        "failed"
+      ],
+      "default": "in_progress",
+      "description": "Completion status"
+    },
+    "failed_items": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Items that failed (auto_fail triggered)"
+    },
+    "completed_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "When fully completed"
+    }
+  },
+  "required": [
+    "checklist_id",
+    "date",
+    "user_email"
+  ]
+}

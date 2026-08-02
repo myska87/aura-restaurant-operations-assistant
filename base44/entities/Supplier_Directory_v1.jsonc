@@ -1,0 +1,75 @@
+{
+  "name": "Supplier_Directory_v1",
+  "type": "object",
+  "properties": {
+    "supplier_name": {
+      "type": "string",
+      "description": "Supplier name"
+    },
+    "contact_person": {
+      "type": "string",
+      "description": "Contact person name"
+    },
+    "phone": {
+      "type": "string",
+      "description": "Contact phone number"
+    },
+    "email": {
+      "type": "string",
+      "description": "Contact email"
+    },
+    "ordering_method": {
+      "type": "string",
+      "enum": [
+        "email",
+        "portal",
+        "phone",
+        "app"
+      ],
+      "description": "How to place orders"
+    },
+    "delivery_days": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "enum": [
+          "Monday",
+          "Tuesday",
+          "Wednesday",
+          "Thursday",
+          "Friday",
+          "Saturday",
+          "Sunday"
+        ]
+      },
+      "description": "Available delivery days"
+    },
+    "minimum_order_value": {
+      "type": "number",
+      "description": "Minimum order value in \u00a3"
+    },
+    "payment_terms": {
+      "type": "string",
+      "description": "Payment terms (e.g., Net 30)"
+    },
+    "notes": {
+      "type": "string",
+      "description": "Additional notes"
+    },
+    "is_active": {
+      "type": "boolean",
+      "default": true,
+      "description": "Active supplier status"
+    },
+    "is_locked": {
+      "type": "boolean",
+      "default": true,
+      "description": "READ-ONLY after setup"
+    }
+  },
+  "required": [
+    "supplier_name",
+    "contact_person",
+    "phone"
+  ]
+}

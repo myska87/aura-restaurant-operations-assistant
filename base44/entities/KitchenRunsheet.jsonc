@@ -1,0 +1,128 @@
+{
+  "name": "KitchenRunsheet",
+  "type": "object",
+  "properties": {
+    "date": {
+      "type": "string",
+      "format": "date",
+      "description": "Runsheet date"
+    },
+    "phase": {
+      "type": "string",
+      "enum": [
+        "opening",
+        "breakfast",
+        "transition",
+        "full_service",
+        "afternoon",
+        "wind_down",
+        "closing"
+      ],
+      "description": "Which operational phase"
+    },
+    "section": {
+      "type": "string",
+      "description": "Section within the phase (e.g. safety_check, temp_log, prep_bases)"
+    },
+    "items": {
+      "type": "array",
+      "description": "Checklist / input items for this section",
+      "items": {
+        "type": "object",
+        "properties": {
+          "item_id": {
+            "type": "string"
+          },
+          "label": {
+            "type": "string"
+          },
+          "type": {
+            "type": "string",
+            "enum": [
+              "checkbox",
+              "number",
+              "text",
+              "temp"
+            ]
+          },
+          "value": {},
+          "checked": {
+            "type": "boolean"
+          },
+          "notes": {
+            "type": "string"
+          },
+          "timestamp": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "signed_by": {
+      "type": "string"
+    },
+    "signed_by_name": {
+      "type": "string"
+    },
+    "signed_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "sign_type": {
+      "type": "string",
+      "enum": [
+        "opening",
+        "midday",
+        "closing"
+      ]
+    },
+    "waste_log": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "item": {
+            "type": "string"
+          },
+          "qty": {
+            "type": "string"
+          },
+          "reason": {
+            "type": "string"
+          },
+          "chef_initial": {
+            "type": "string"
+          },
+          "manager_check": {
+            "type": "boolean"
+          }
+        }
+      }
+    },
+    "prep_quantities": {
+      "type": "object",
+      "description": "Key-value of prep item name to actual quantity done"
+    },
+    "temperature_readings": {
+      "type": "object",
+      "description": "equipment_id -> {morning, midday, evening}"
+    },
+    "kpi_waste_percent": {
+      "type": "number"
+    },
+    "notes": {
+      "type": "string"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "in_progress",
+        "completed"
+      ],
+      "default": "in_progress"
+    }
+  },
+  "required": [
+    "date"
+  ]
+}

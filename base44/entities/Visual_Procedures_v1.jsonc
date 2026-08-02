@@ -1,0 +1,245 @@
+{
+  "name": "Visual_Procedures_v1",
+  "type": "object",
+  "properties": {
+    "title": {
+      "type": "string",
+      "description": "Procedure title"
+    },
+    "category": {
+      "type": "string",
+      "enum": [
+        "food_prep",
+        "hygiene",
+        "equipment",
+        "safety",
+        "waste",
+        "opening",
+        "closing"
+      ],
+      "description": "Procedure category"
+    },
+    "estimated_time_minutes": {
+      "type": "number",
+      "description": "Estimated completion time in minutes"
+    },
+    "applicable_roles": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "enum": [
+          "chef",
+          "prep",
+          "manager",
+          "all_staff"
+        ]
+      },
+      "description": "Which roles should follow this procedure"
+    },
+    "station": {
+      "type": "string",
+      "enum": [
+        "hot_line",
+        "grill",
+        "chai_station",
+        "fryer",
+        "bakery",
+        "cold_prep",
+        "wash_area",
+        "store_room",
+        "general"
+      ],
+      "description": "Work station where this procedure applies"
+    },
+    "intro_description": {
+      "type": "string",
+      "description": "What is this process and why it matters"
+    },
+    "cover_image_url": {
+      "type": "string",
+      "description": "Optional cover image for the procedure"
+    },
+    "ingredients_tools": {
+      "type": "array",
+      "description": "Required ingredients or tools",
+      "items": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "type": {
+            "type": "string",
+            "enum": [
+              "ingredient",
+              "tool",
+              "equipment"
+            ]
+          },
+          "icon_url": {
+            "type": "string"
+          },
+          "quantity": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "steps": {
+      "type": "array",
+      "description": "Step-by-step visual instructions",
+      "items": {
+        "type": "object",
+        "properties": {
+          "step_number": {
+            "type": "number"
+          },
+          "step_title": {
+            "type": "string"
+          },
+          "instruction_text": {
+            "type": "string",
+            "description": "Short instruction (1-2 lines max)"
+          },
+          "photo_url": {
+            "type": "string",
+            "description": "Photo for this step"
+          },
+          "video_url": {
+            "type": "string",
+            "description": "Optional video (YouTube, Vimeo, or uploaded)"
+          },
+          "video_embed_code": {
+            "type": "string",
+            "description": "Embedded video HTML if needed"
+          },
+          "duration_seconds": {
+            "type": "number",
+            "description": "Time for this step"
+          }
+        },
+        "required": [
+          "step_number",
+          "step_title",
+          "instruction_text"
+        ]
+      }
+    },
+    "tips_warnings": {
+      "type": "array",
+      "description": "Important tips, hygiene warnings, safety notes",
+      "items": {
+        "type": "object",
+        "properties": {
+          "type": {
+            "type": "string",
+            "enum": [
+              "hygiene",
+              "safety",
+              "quality",
+              "common_mistake"
+            ]
+          },
+          "text": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "version": {
+      "type": "string",
+      "default": "1.0",
+      "description": "Version number"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "draft",
+        "published",
+        "archived"
+      ],
+      "default": "draft",
+      "description": "Publication status"
+    },
+    "last_updated_by_id": {
+      "type": "string",
+      "description": "User ID who last updated"
+    },
+    "last_updated_by_name": {
+      "type": "string",
+      "description": "User name who last updated"
+    },
+    "previous_versions": {
+      "type": "array",
+      "description": "Archived previous versions",
+      "items": {
+        "type": "object",
+        "properties": {
+          "version": {
+            "type": "string"
+          },
+          "updated_date": {
+            "type": "string"
+          },
+          "updated_by": {
+            "type": "string"
+          },
+          "changes_summary": {
+            "type": "string"
+          },
+          "data_snapshot": {
+            "type": "object"
+          }
+        }
+      }
+    },
+    "is_published": {
+      "type": "boolean",
+      "default": false,
+      "description": "Is this procedure published and visible to staff"
+    },
+    "published_date": {
+      "type": "string",
+      "format": "date-time",
+      "description": "When was this published"
+    },
+    "auto_saved_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Last auto-save timestamp"
+    },
+    "is_locked": {
+      "type": "boolean",
+      "default": false,
+      "description": "Lock for editing (owner/admin only)"
+    },
+    "linked_checklist_ids": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Checklists that reference this procedure"
+    },
+    "linked_training_ids": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Training modules that reference this procedure"
+    },
+    "linked_menu_item_ids": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Menu items that reference this procedure"
+    }
+  },
+  "required": [
+    "title",
+    "category",
+    "applicable_roles",
+    "intro_description",
+    "steps"
+  ]
+}

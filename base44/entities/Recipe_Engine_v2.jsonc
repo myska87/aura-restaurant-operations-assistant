@@ -1,0 +1,83 @@
+{
+  "name": "Recipe_Engine_v2",
+  "type": "object",
+  "properties": {
+    "menu_item_id": {
+      "type": "string",
+      "description": "Linked Menu Item ID (1:1 relationship)"
+    },
+    "menu_item_name": {
+      "type": "string",
+      "description": "Menu item name for reference"
+    },
+    "ingredients_per_serving": {
+      "type": "array",
+      "description": "Exact ingredients per serving (linked to Ingredient_Master_v1)",
+      "items": {
+        "type": "object",
+        "properties": {
+          "ingredient_id": {
+            "type": "string",
+            "description": "Ingredient ID from Ingredient_Master_v1"
+          },
+          "ingredient_name": {
+            "type": "string",
+            "description": "Ingredient name (for display)"
+          },
+          "quantity": {
+            "type": "number"
+          },
+          "unit": {
+            "type": "string",
+            "enum": [
+              "g",
+              "ml",
+              "pcs"
+            ]
+          },
+          "cost_per_unit": {
+            "type": "number",
+            "description": "Cost per unit (auto from Ingredient Master)"
+          }
+        },
+        "required": [
+          "ingredient_id",
+          "ingredient_name",
+          "quantity",
+          "unit"
+        ]
+      }
+    },
+    "preparation_method": {
+      "type": "array",
+      "description": "Step-by-step preparation instructions",
+      "items": {
+        "type": "string"
+      }
+    },
+    "portion_size": {
+      "type": "number",
+      "default": 1,
+      "description": "Number of servings (default 1)"
+    },
+    "total_cost_per_serving": {
+      "type": "number",
+      "description": "Auto-calculated total cost per serving"
+    },
+    "notes": {
+      "type": "string",
+      "description": "Allergens, hygiene notes, special instructions"
+    },
+    "is_locked": {
+      "type": "boolean",
+      "default": true,
+      "description": "READ-ONLY after setup"
+    }
+  },
+  "required": [
+    "menu_item_id",
+    "menu_item_name",
+    "ingredients_per_serving",
+    "preparation_method"
+  ]
+}

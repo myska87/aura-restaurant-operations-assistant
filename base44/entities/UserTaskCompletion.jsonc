@@ -1,0 +1,66 @@
+{
+  "name": "UserTaskCompletion",
+  "type": "object",
+  "properties": {
+    "user_id": {
+      "type": "string",
+      "description": "User ID"
+    },
+    "user_name": {
+      "type": "string",
+      "description": "User name"
+    },
+    "user_email": {
+      "type": "string",
+      "description": "User email"
+    },
+    "task_id": {
+      "type": "string",
+      "description": "OnboardingTask ID"
+    },
+    "task_title": {
+      "type": "string",
+      "description": "Task title for reference"
+    },
+    "completed": {
+      "type": "boolean",
+      "default": false,
+      "description": "Task completed"
+    },
+    "completed_date": {
+      "type": "string",
+      "format": "date-time",
+      "description": "When completed"
+    },
+    "time_spent_seconds": {
+      "type": "number",
+      "description": "Time spent on task"
+    },
+    "signature_given": {
+      "type": "boolean",
+      "default": false,
+      "description": "Digital signature provided"
+    },
+    "signature_date": {
+      "type": "string",
+      "format": "date-time",
+      "description": "When signed"
+    },
+    "device_info": {
+      "type": "string",
+      "description": "Device used for completion"
+    },
+    "ip_address": {
+      "type": "string",
+      "description": "IP address"
+    },
+    "notes": {
+      "type": "string",
+      "description": "User notes (optional)"
+    }
+  },
+  "required": [
+    "user_id",
+    "task_id"
+  ]
+}

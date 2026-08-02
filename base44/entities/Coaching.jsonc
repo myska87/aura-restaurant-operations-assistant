@@ -1,0 +1,83 @@
+{
+  "name": "Coaching",
+  "type": "object",
+  "properties": {
+    "staff_id": {
+      "type": "string"
+    },
+    "staff_name": {
+      "type": "string"
+    },
+    "staff_email": {
+      "type": "string"
+    },
+    "manager_id": {
+      "type": "string"
+    },
+    "manager_name": {
+      "type": "string"
+    },
+    "manager_email": {
+      "type": "string"
+    },
+    "session_date": {
+      "type": "string",
+      "format": "date"
+    },
+    "coaching_type": {
+      "type": "string",
+      "enum": [
+        "performance",
+        "development",
+        "corrective",
+        "goal_setting",
+        "feedback"
+      ]
+    },
+    "staff_self_reflection": {
+      "type": "string"
+    },
+    "manager_feedback": {
+      "type": "string"
+    },
+    "goals_set": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "follow_up_actions": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "next_review_date": {
+      "type": "string",
+      "format": "date"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "scheduled",
+        "completed",
+        "pending_feedback"
+      ],
+      "default": "scheduled"
+    },
+    "visibility": {
+      "type": "string",
+      "enum": [
+        "staff_manager",
+        "managers_only"
+      ],
+      "default": "staff_manager"
+    }
+  },
+  "required": [
+    "staff_id",
+    "manager_id",
+    "session_date",
+    "coaching_type"
+  ]
+}

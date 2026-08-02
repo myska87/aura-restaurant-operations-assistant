@@ -1,0 +1,105 @@
+{
+  "name": "DeepCleaningSchedule",
+  "type": "object",
+  "properties": {
+    "area_equipment": {
+      "type": "string",
+      "description": "Equipment or area for deep cleaning (custom text allowed)"
+    },
+    "area_equipment_name": {
+      "type": "string",
+      "description": "Display name of equipment"
+    },
+    "frequency": {
+      "type": "string",
+      "enum": [
+        "weekly",
+        "monthly",
+        "quarterly"
+      ],
+      "description": "How often deep cleaning is required"
+    },
+    "last_completed_date": {
+      "type": "string",
+      "format": "date",
+      "description": "Last completion date"
+    },
+    "next_due_date": {
+      "type": "string",
+      "format": "date",
+      "description": "Auto-calculated next due date"
+    },
+    "is_overdue": {
+      "type": "boolean",
+      "default": false,
+      "description": "Auto-flagged if past due date"
+    },
+    "assigned_role": {
+      "type": "string",
+      "description": "Role responsible (e.g., Kitchen Manager, Chef)"
+    },
+    "completed_by_id": {
+      "type": "string",
+      "description": "Staff ID who completed"
+    },
+    "completed_by_name": {
+      "type": "string",
+      "description": "Staff name"
+    },
+    "completed_by_email": {
+      "type": "string",
+      "description": "Staff email"
+    },
+    "completion_date": {
+      "type": "string",
+      "format": "date-time",
+      "description": "When task was completed"
+    },
+    "supervisor_approval": {
+      "type": "boolean",
+      "default": false,
+      "description": "Supervisor has approved"
+    },
+    "supervisor_id": {
+      "type": "string",
+      "description": "Supervisor who approved"
+    },
+    "supervisor_name": {
+      "type": "string",
+      "description": "Supervisor name"
+    },
+    "approval_time": {
+      "type": "string",
+      "format": "date-time",
+      "description": "When supervisor approved"
+    },
+    "before_photo_url": {
+      "type": "string",
+      "description": "Before photo URL"
+    },
+    "after_photo_url": {
+      "type": "string",
+      "description": "After photo URL"
+    },
+    "notes": {
+      "type": "string",
+      "description": "Additional notes"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "pending",
+        "in_progress",
+        "completed",
+        "approved"
+      ],
+      "default": "pending",
+      "description": "Schedule status"
+    }
+  },
+  "required": [
+    "area_equipment",
+    "frequency",
+    "assigned_role"
+  ]
+}

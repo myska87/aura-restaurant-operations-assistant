@@ -1,0 +1,69 @@
+{
+  "name": "AuditLog",
+  "type": "object",
+  "properties": {
+    "action_type": {
+      "type": "string",
+      "enum": [
+        "recipe_change",
+        "sop_change",
+        "stock_adjustment",
+        "waste_entry",
+        "training_approval",
+        "menu_update",
+        "price_change",
+        "staff_action",
+        "system_change"
+      ],
+      "description": "Type of action"
+    },
+    "entity_type": {
+      "type": "string",
+      "description": "What was changed (MenuItem, Recipe, SOP, etc)"
+    },
+    "entity_id": {
+      "type": "string",
+      "description": "ID of changed entity"
+    },
+    "entity_name": {
+      "type": "string"
+    },
+    "user_email": {
+      "type": "string"
+    },
+    "user_name": {
+      "type": "string"
+    },
+    "user_role": {
+      "type": "string"
+    },
+    "before_value": {
+      "type": "string",
+      "description": "JSON string of previous state"
+    },
+    "after_value": {
+      "type": "string",
+      "description": "JSON string of new state"
+    },
+    "changes_summary": {
+      "type": "string",
+      "description": "Human-readable summary"
+    },
+    "reason": {
+      "type": "string",
+      "description": "Why this change was made"
+    },
+    "ip_address": {
+      "type": "string"
+    },
+    "timestamp": {
+      "type": "string",
+      "format": "date-time"
+    }
+  },
+  "required": [
+    "action_type",
+    "entity_type",
+    "user_email"
+  ]
+}

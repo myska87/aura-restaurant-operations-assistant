@@ -1,0 +1,137 @@
+{
+  "name": "WeeklyAudit",
+  "type": "object",
+  "properties": {
+    "audit_week": {
+      "type": "string",
+      "description": "Week identifier (YYYY-W##)"
+    },
+    "submitted_by_name": {
+      "type": "string",
+      "description": "Manager who submitted"
+    },
+    "submitted_by_email": {
+      "type": "string",
+      "description": "Manager email"
+    },
+    "submission_date": {
+      "type": "string",
+      "format": "date",
+      "description": "When submitted"
+    },
+    "sales_summary": {
+      "type": "object",
+      "properties": {
+        "total_sales": {
+          "type": "number",
+          "description": "Total sales \u00a3"
+        },
+        "average_order_value": {
+          "type": "number",
+          "description": "AOV \u00a3"
+        },
+        "cost_of_goods_percent": {
+          "type": "number",
+          "description": "COGS %"
+        },
+        "wastage_percent": {
+          "type": "number",
+          "description": "Waste %"
+        },
+        "transactions": {
+          "type": "number",
+          "description": "Total transactions"
+        }
+      }
+    },
+    "staff_performance": {
+      "type": "object",
+      "properties": {
+        "attendance_compliance_percent": {
+          "type": "number"
+        },
+        "training_completion_percent": {
+          "type": "number"
+        },
+        "staff_cost_percent": {
+          "type": "number"
+        },
+        "incidents_logged": {
+          "type": "number"
+        },
+        "staff_count": {
+          "type": "number"
+        }
+      }
+    },
+    "customer_experience": {
+      "type": "object",
+      "properties": {
+        "reviews_collected": {
+          "type": "number"
+        },
+        "average_rating": {
+          "type": "number"
+        },
+        "repeat_customer_percent": {
+          "type": "number"
+        },
+        "complaints_logged": {
+          "type": "number"
+        }
+      }
+    },
+    "operational_compliance": {
+      "type": "object",
+      "properties": {
+        "hygiene_checklist_percent": {
+          "type": "number"
+        },
+        "equipment_issues_open": {
+          "type": "number"
+        },
+        "equipment_issues_closed": {
+          "type": "number"
+        },
+        "temperature_log_completion_percent": {
+          "type": "number"
+        },
+        "label_print_accuracy_percent": {
+          "type": "number"
+        }
+      }
+    },
+    "comments": {
+      "type": "string",
+      "description": "Manager notes"
+    },
+    "photos": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Photo URLs"
+    },
+    "manager_signature": {
+      "type": "string",
+      "description": "Signature data"
+    },
+    "audit_score": {
+      "type": "number",
+      "description": "Overall weighted score (0-100)"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "draft",
+        "submitted",
+        "reviewed"
+      ],
+      "default": "submitted"
+    }
+  },
+  "required": [
+    "audit_week",
+    "submitted_by_email"
+  ]
+}

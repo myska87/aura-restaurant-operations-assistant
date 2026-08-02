@@ -1,0 +1,245 @@
+{
+  "name": "FoodSafetyChecklist",
+  "type": "object",
+  "properties": {
+    "inspection_date": {
+      "type": "string",
+      "format": "date"
+    },
+    "frequency": {
+      "type": "string",
+      "enum": [
+        "weekly",
+        "fortnightly",
+        "monthly"
+      ],
+      "description": "Inspection frequency"
+    },
+    "inspector_email": {
+      "type": "string"
+    },
+    "inspector_name": {
+      "type": "string"
+    },
+    "inspector_position": {
+      "type": "string"
+    },
+    "hygiene_equipment": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "question": {
+            "type": "string"
+          },
+          "answer": {
+            "type": "string",
+            "enum": [
+              "yes",
+              "no"
+            ]
+          },
+          "action_taken": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "food_storage": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "question": {
+            "type": "string"
+          },
+          "answer": {
+            "type": "string",
+            "enum": [
+              "yes",
+              "no"
+            ]
+          },
+          "action_taken": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "food_handling": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "question": {
+            "type": "string"
+          },
+          "answer": {
+            "type": "string",
+            "enum": [
+              "yes",
+              "no"
+            ]
+          },
+          "action_taken": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "personal_hygiene": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "question": {
+            "type": "string"
+          },
+          "answer": {
+            "type": "string",
+            "enum": [
+              "yes",
+              "no"
+            ]
+          },
+          "action_taken": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "pest_control": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "question": {
+            "type": "string"
+          },
+          "answer": {
+            "type": "string",
+            "enum": [
+              "yes",
+              "no"
+            ]
+          },
+          "action_taken": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "waste_control": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "question": {
+            "type": "string"
+          },
+          "answer": {
+            "type": "string",
+            "enum": [
+              "yes",
+              "no"
+            ]
+          },
+          "action_taken": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "checks_records": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "question": {
+            "type": "string"
+          },
+          "answer": {
+            "type": "string",
+            "enum": [
+              "yes",
+              "no"
+            ]
+          },
+          "action_taken": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "review_4week": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "question": {
+            "type": "string"
+          },
+          "answer": {
+            "type": "string",
+            "enum": [
+              "yes",
+              "no"
+            ]
+          },
+          "action_taken": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "digital_signature": {
+      "type": "string",
+      "description": "Digital signature data"
+    },
+    "critical_issues_count": {
+      "type": "number",
+      "default": 0,
+      "description": "Number of 'No' answers"
+    },
+    "completion_percentage": {
+      "type": "number",
+      "default": 0
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "in_progress",
+        "submitted",
+        "reviewed"
+      ],
+      "default": "in_progress"
+    },
+    "manager_reviewed": {
+      "type": "boolean",
+      "default": false
+    },
+    "manager_reviewed_by": {
+      "type": "string"
+    },
+    "manager_review_date": {
+      "type": "string",
+      "format": "date"
+    },
+    "incidents_created": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Incident IDs created from this checklist"
+    },
+    "training_triggered": {
+      "type": "boolean",
+      "default": false
+    }
+  },
+  "required": [
+    "inspection_date",
+    "frequency",
+    "inspector_email"
+  ]
+}

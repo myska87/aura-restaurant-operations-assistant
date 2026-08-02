@@ -1,0 +1,162 @@
+{
+  "name": "FoodSafetyChecklistSubmission",
+  "type": "object",
+  "properties": {
+    "submission_date": {
+      "type": "string",
+      "format": "date",
+      "description": "Date of submission"
+    },
+    "submission_month": {
+      "type": "string",
+      "description": "Month and year (YYYY-MM)"
+    },
+    "submitted_by_name": {
+      "type": "string",
+      "description": "Manager who submitted"
+    },
+    "submitted_by_email": {
+      "type": "string",
+      "description": "Manager email"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "in_progress",
+        "submitted",
+        "reviewed",
+        "approved",
+        "failed"
+      ],
+      "default": "in_progress",
+      "description": "Submission status"
+    },
+    "compliance_score": {
+      "type": "number",
+      "description": "Overall compliance percentage (0-100)"
+    },
+    "sections": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "section_id": {
+            "type": "string"
+          },
+          "section_title": {
+            "type": "string"
+          },
+          "items": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "item_id": {
+                  "type": "string"
+                },
+                "question": {
+                  "type": "string"
+                },
+                "answer": {
+                  "type": "string",
+                  "enum": [
+                    "yes",
+                    "no",
+                    "na"
+                  ]
+                },
+                "comment": {
+                  "type": "string"
+                },
+                "photo_url": {
+                  "type": "string"
+                },
+                "timestamp": {
+                  "type": "string",
+                  "format": "date-time"
+                }
+              }
+            }
+          },
+          "section_compliance": {
+            "type": "number",
+            "description": "Section compliance percentage"
+          }
+        }
+      },
+      "description": "All checklist sections with answers"
+    },
+    "total_questions": {
+      "type": "number",
+      "description": "Total questions in checklist"
+    },
+    "questions_with_no": {
+      "type": "number",
+      "description": "Count of 'No' answers"
+    },
+    "questions_with_yes": {
+      "type": "number",
+      "description": "Count of 'Yes' answers"
+    },
+    "questions_with_na": {
+      "type": "number",
+      "description": "Count of 'N/A' answers"
+    },
+    "non_compliance_items": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "item_id": {
+            "type": "string"
+          },
+          "question": {
+            "type": "string"
+          },
+          "comment": {
+            "type": "string"
+          },
+          "photo_url": {
+            "type": "string"
+          },
+          "assigned_to": {
+            "type": "string"
+          },
+          "corrective_action": {
+            "type": "string"
+          },
+          "target_completion_date": {
+            "type": "string",
+            "format": "date"
+          }
+        }
+      },
+      "description": "Items that require corrective action"
+    },
+    "manager_signature": {
+      "type": "string",
+      "description": "Manager signature data"
+    },
+    "owner_verification": {
+      "type": "boolean",
+      "default": false,
+      "description": "Owner has verified the checklist"
+    },
+    "owner_verification_date": {
+      "type": "string",
+      "format": "date-time",
+      "description": "When owner verified"
+    },
+    "alerts_sent": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Recipient emails for alerts sent"
+    }
+  },
+  "required": [
+    "submission_month",
+    "submitted_by_email"
+  ]
+}

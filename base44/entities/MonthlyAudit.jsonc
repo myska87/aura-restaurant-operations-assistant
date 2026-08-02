@@ -1,0 +1,142 @@
+{
+  "name": "MonthlyAudit",
+  "type": "object",
+  "properties": {
+    "audit_month": {
+      "type": "string",
+      "description": "Month identifier (YYYY-MM)"
+    },
+    "submitted_by_name": {
+      "type": "string",
+      "description": "Auditor name"
+    },
+    "submitted_by_email": {
+      "type": "string",
+      "description": "Auditor email"
+    },
+    "submission_date": {
+      "type": "string",
+      "format": "date",
+      "description": "When submitted"
+    },
+    "financial_summary": {
+      "type": "object",
+      "properties": {
+        "total_sales": {
+          "type": "number"
+        },
+        "net_margin_percent": {
+          "type": "number"
+        },
+        "wastage_value": {
+          "type": "number"
+        },
+        "food_cost_ratio": {
+          "type": "number"
+        }
+      }
+    },
+    "compliance_hygiene": {
+      "type": "object",
+      "properties": {
+        "fsa_hygiene_score": {
+          "type": "number"
+        },
+        "equipment_health_score": {
+          "type": "number"
+        },
+        "temperature_accuracy_percent": {
+          "type": "number"
+        },
+        "critical_hygiene_incidents": {
+          "type": "number"
+        }
+      }
+    },
+    "team_metrics": {
+      "type": "object",
+      "properties": {
+        "staff_retention_percent": {
+          "type": "number"
+        },
+        "attendance_rate": {
+          "type": "number"
+        },
+        "training_compliance_percent": {
+          "type": "number"
+        },
+        "health_safety_training_percent": {
+          "type": "number"
+        }
+      }
+    },
+    "customer_metrics": {
+      "type": "object",
+      "properties": {
+        "google_review_average": {
+          "type": "number"
+        },
+        "customer_return_percent": {
+          "type": "number"
+        },
+        "nps_score": {
+          "type": "number"
+        },
+        "top_complaints": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "incidents_safety": {
+      "type": "object",
+      "properties": {
+        "total_incidents": {
+          "type": "number"
+        },
+        "resolved_percent": {
+          "type": "number"
+        },
+        "pending_percent": {
+          "type": "number"
+        },
+        "corrective_actions": {
+          "type": "number"
+        }
+      }
+    },
+    "ai_summary": {
+      "type": "string",
+      "description": "AI-generated insight summary"
+    },
+    "overall_score": {
+      "type": "number",
+      "description": "Overall audit score (0-100)"
+    },
+    "manager_signature": {
+      "type": "string"
+    },
+    "owner_verification": {
+      "type": "boolean",
+      "default": false
+    },
+    "owner_signature": {
+      "type": "string"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "draft",
+        "submitted",
+        "approved"
+      ],
+      "default": "submitted"
+    }
+  },
+  "required": [
+    "audit_month",
+    "submitted_by_email"
+  ]
+}

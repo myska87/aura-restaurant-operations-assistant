@@ -1,0 +1,135 @@
+{
+  "name": "WeeklyManagerReport",
+  "type": "object",
+  "properties": {
+    "week_start_date": {
+      "type": "string",
+      "format": "date",
+      "description": "Start date of the week (Monday)"
+    },
+    "week_end_date": {
+      "type": "string",
+      "format": "date",
+      "description": "End date of the week (Sunday)"
+    },
+    "manager_id": {
+      "type": "string",
+      "description": "Manager who submitted the report"
+    },
+    "manager_name": {
+      "type": "string",
+      "description": "Manager name"
+    },
+    "top_performers": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "staff_name": {
+            "type": "string"
+          },
+          "reason": {
+            "type": "string"
+          }
+        }
+      },
+      "description": "Staff who performed exceptionally well"
+    },
+    "underperformers": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "staff_name": {
+            "type": "string"
+          },
+          "issue": {
+            "type": "string"
+          }
+        }
+      },
+      "description": "Staff who need improvement"
+    },
+    "attendance_issues": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "staff_name": {
+            "type": "string"
+          },
+          "issue": {
+            "type": "string"
+          },
+          "date": {
+            "type": "string"
+          }
+        }
+      },
+      "description": "Late check-ins, early departures, no-shows"
+    },
+    "what_went_well": {
+      "type": "string",
+      "description": "Positive highlights from the week (MANDATORY)"
+    },
+    "what_went_wrong": {
+      "type": "string",
+      "description": "Challenges and issues (MANDATORY)"
+    },
+    "actions_taken": {
+      "type": "string",
+      "description": "Actions taken during the week"
+    },
+    "actions_needed": {
+      "type": "string",
+      "description": "Actions needed going forward"
+    },
+    "approved_labor_hours": {
+      "type": "number",
+      "description": "Total approved hours for the week"
+    },
+    "approved_labor_cost": {
+      "type": "number",
+      "description": "Total approved labor cost for the week"
+    },
+    "scheduled_labor_hours": {
+      "type": "number",
+      "description": "Total scheduled hours for comparison"
+    },
+    "variance_hours": {
+      "type": "number",
+      "description": "Variance between scheduled and approved hours"
+    },
+    "variance_notes": {
+      "type": "string",
+      "description": "Explanation for any significant variance"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "draft",
+        "submitted",
+        "locked"
+      ],
+      "default": "draft",
+      "description": "Report status"
+    },
+    "submitted_date": {
+      "type": "string",
+      "format": "date-time",
+      "description": "When the report was submitted"
+    },
+    "is_locked": {
+      "type": "boolean",
+      "default": false,
+      "description": "Locked reports can only be edited by admin"
+    }
+  },
+  "required": [
+    "week_start_date",
+    "week_end_date",
+    "manager_id",
+    "what_went_well",
+    "what_went_wrong"
+  ]
+}

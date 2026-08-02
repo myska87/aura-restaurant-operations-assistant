@@ -1,0 +1,78 @@
+{
+  "name": "HACCPPlan",
+  "type": "object",
+  "properties": {
+    "location_id": {
+      "type": "string",
+      "description": "Reference to location/restaurant"
+    },
+    "location_name": {
+      "type": "string",
+      "description": "Location name for reference"
+    },
+    "version": {
+      "type": "string",
+      "default": "1.0",
+      "description": "HACCP plan version number"
+    },
+    "last_updated": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Last update timestamp"
+    },
+    "verified_by": {
+      "type": "string",
+      "description": "Email of person who verified the plan"
+    },
+    "verified_date": {
+      "type": "string",
+      "format": "date",
+      "description": "Date plan was verified"
+    },
+    "is_active": {
+      "type": "boolean",
+      "default": true,
+      "description": "Is this plan currently in use"
+    },
+    "scope": {
+      "type": "string",
+      "description": "Scope of HACCP plan (all menu items or specific categories)"
+    },
+    "hazard_analysis_complete": {
+      "type": "boolean",
+      "default": false,
+      "description": "Has hazard analysis been completed"
+    },
+    "ccps_identified": {
+      "type": "number",
+      "default": 0,
+      "description": "Number of CCPs identified"
+    },
+    "linked_menu_items": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Menu item IDs covered by this plan"
+    },
+    "compliance_status": {
+      "type": "string",
+      "enum": [
+        "draft",
+        "in_review",
+        "approved",
+        "implemented"
+      ],
+      "default": "draft",
+      "description": "HACCP plan compliance status"
+    },
+    "notes": {
+      "type": "string",
+      "description": "Additional notes about the plan"
+    }
+  },
+  "required": [
+    "location_id",
+    "location_name"
+  ]
+}

@@ -1,0 +1,68 @@
+{
+  "name": "EquipmentCheck",
+  "type": "object",
+  "properties": {
+    "check_date": {
+      "type": "string",
+      "format": "date"
+    },
+    "check_time": {
+      "type": "string",
+      "enum": [
+        "opening",
+        "mid_shift",
+        "closing"
+      ],
+      "description": "When check was performed"
+    },
+    "equipment_id": {
+      "type": "string",
+      "description": "Linked to Asset entity"
+    },
+    "equipment_name": {
+      "type": "string"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "ok",
+        "warning",
+        "fault"
+      ],
+      "description": "Equipment health status"
+    },
+    "comment": {
+      "type": "string",
+      "description": "Optional notes or observations"
+    },
+    "photo_url": {
+      "type": "string",
+      "description": "Photo of issue if any"
+    },
+    "checked_by": {
+      "type": "string"
+    },
+    "checked_by_name": {
+      "type": "string"
+    },
+    "manager_notified": {
+      "type": "boolean",
+      "default": false
+    },
+    "follow_up_required": {
+      "type": "boolean",
+      "default": false
+    },
+    "follow_up_action": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "check_date",
+    "check_time",
+    "equipment_id",
+    "equipment_name",
+    "status",
+    "checked_by"
+  ]
+}

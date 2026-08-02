@@ -1,0 +1,50 @@
+{
+  "name": "TrainingProgress",
+  "type": "object",
+  "properties": {
+    "staff_id": {
+      "type": "string"
+    },
+    "staff_email": {
+      "type": "string"
+    },
+    "course_id": {
+      "type": "string"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "not_started",
+        "in_progress",
+        "completed"
+      ],
+      "default": "not_started"
+    },
+    "progress_percent": {
+      "type": "number",
+      "default": 0
+    },
+    "quiz_score": {
+      "type": "number"
+    },
+    "quiz_attempts": {
+      "type": "number",
+      "default": 0
+    },
+    "reflection_response": {
+      "type": "string"
+    },
+    "completed_date": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "time_spent_minutes": {
+      "type": "number",
+      "default": 0
+    }
+  },
+  "required": [
+    "staff_id",
+    "course_id"
+  ]
+}

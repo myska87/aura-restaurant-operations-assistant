@@ -1,0 +1,99 @@
+{
+  "name": "OnboardingTask",
+  "type": "object",
+  "properties": {
+    "task_title": {
+      "type": "string",
+      "description": "Task title"
+    },
+    "task_type": {
+      "type": "string",
+      "enum": [
+        "app_intro",
+        "values",
+        "hygiene_training",
+        "document_reading",
+        "sop_acknowledgement",
+        "custom"
+      ],
+      "description": "Type of onboarding task"
+    },
+    "description": {
+      "type": "string",
+      "description": "Task description"
+    },
+    "order_index": {
+      "type": "number",
+      "description": "Display order (lower = earlier)"
+    },
+    "is_mandatory": {
+      "type": "boolean",
+      "default": true,
+      "description": "Must be completed before app access"
+    },
+    "requires_signature": {
+      "type": "boolean",
+      "default": false,
+      "description": "Requires digital signature"
+    },
+    "linked_document_id": {
+      "type": "string",
+      "description": "Linked document ID if applicable"
+    },
+    "linked_document_name": {
+      "type": "string",
+      "description": "Document name for reference"
+    },
+    "external_url": {
+      "type": "string",
+      "description": "External training link (optional)"
+    },
+    "target_roles": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "enum": [
+          "all",
+          "staff",
+          "chef",
+          "foh",
+          "manager",
+          "owner",
+          "admin"
+        ]
+      },
+      "description": "Which roles see this task"
+    },
+    "content": {
+      "type": "string",
+      "description": "Rich text content (for app_intro, values)"
+    },
+    "video_url": {
+      "type": "string",
+      "description": "Training video URL (optional)"
+    },
+    "estimated_duration_minutes": {
+      "type": "number",
+      "description": "Estimated time to complete"
+    },
+    "is_active": {
+      "type": "boolean",
+      "default": true,
+      "description": "Active task"
+    },
+    "created_by_id": {
+      "type": "string",
+      "description": "Admin who created"
+    },
+    "created_by_name": {
+      "type": "string",
+      "description": "Creator name"
+    }
+  },
+  "required": [
+    "task_title",
+    "task_type",
+    "order_index",
+    "target_roles"
+  ]
+}

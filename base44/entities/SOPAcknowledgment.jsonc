@@ -1,0 +1,37 @@
+{
+  "name": "SOPAcknowledgment",
+  "type": "object",
+  "properties": {
+    "sop_id": {
+      "type": "string"
+    },
+    "sop_title": {
+      "type": "string"
+    },
+    "staff_id": {
+      "type": "string"
+    },
+    "staff_name": {
+      "type": "string"
+    },
+    "staff_email": {
+      "type": "string"
+    },
+    "acknowledged_date": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "signature_data": {
+      "type": "string",
+      "description": "Base64 signature image or typed name"
+    },
+    "version_acknowledged": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "sop_id",
+    "staff_id",
+    "acknowledged_date"
+  ]
+}

@@ -1,0 +1,93 @@
+{
+  "name": "AllergenOrder",
+  "type": "object",
+  "properties": {
+    "order_number": {
+      "type": "string",
+      "description": "Linked order reference"
+    },
+    "order_date": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "customer_allergens": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "enum": [
+          "milk",
+          "eggs",
+          "gluten",
+          "peanuts",
+          "nuts",
+          "soy",
+          "sesame",
+          "mustard",
+          "celery",
+          "fish",
+          "crustaceans",
+          "molluscs",
+          "lupin",
+          "sulphites"
+        ]
+      },
+      "description": "UK FSA 14 Major Allergens"
+    },
+    "affected_items": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "item_name": {
+            "type": "string"
+          },
+          "contains_allergen": {
+            "type": "boolean"
+          },
+          "allergens_present": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        }
+      }
+    },
+    "staff_email": {
+      "type": "string"
+    },
+    "staff_name": {
+      "type": "string"
+    },
+    "staff_certified": {
+      "type": "boolean",
+      "description": "Has Hygiene L1 certification"
+    },
+    "sop_acknowledged": {
+      "type": "boolean",
+      "default": false,
+      "description": "Staff confirmed allergen SOP"
+    },
+    "confirmation_statement": {
+      "type": "string",
+      "description": "Confirmation text signed by staff"
+    },
+    "special_instructions": {
+      "type": "string",
+      "description": "Additional notes for kitchen"
+    },
+    "incident_reported": {
+      "type": "boolean",
+      "default": false
+    },
+    "incident_id": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "order_number",
+    "customer_allergens",
+    "staff_email",
+    "sop_acknowledged"
+  ]
+}

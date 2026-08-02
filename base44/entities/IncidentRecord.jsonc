@@ -1,0 +1,171 @@
+{
+  "name": "IncidentRecord",
+  "type": "object",
+  "properties": {
+    "ccp_check_id": {
+      "type": "string",
+      "description": "Reference to failed CriticalControlPointCheck"
+    },
+    "ccp_id": {
+      "type": "string",
+      "description": "Reference to CriticalControlPoint"
+    },
+    "ccp_name": {
+      "type": "string",
+      "description": "CCP name (e.g., 'Final Temperature Check')"
+    },
+    "failure_value": {
+      "type": "string",
+      "description": "Recorded value that failed (e.g., '65\u00b0C when 75\u00b0C required')"
+    },
+    "critical_limit": {
+      "type": "string",
+      "description": "The critical limit that was not met"
+    },
+    "unit": {
+      "type": "string",
+      "enum": [
+        "celsius",
+        "fahrenheit",
+        "time_minutes",
+        "time_hours",
+        "visual",
+        "pH",
+        "aw"
+      ],
+      "description": "Unit of measurement"
+    },
+    "incident_time": {
+      "type": "string",
+      "format": "date-time",
+      "description": "When incident occurred"
+    },
+    "detected_by_id": {
+      "type": "string",
+      "description": "Staff member who detected failure"
+    },
+    "detected_by_name": {
+      "type": "string",
+      "description": "Name of staff member who detected"
+    },
+    "detected_by_email": {
+      "type": "string",
+      "description": "Email of staff member who detected"
+    },
+    "corrective_action_type": {
+      "type": "string",
+      "enum": [
+        "re_cook_recheck",
+        "discard_batch",
+        "stop_service",
+        "other"
+      ],
+      "description": "Type of corrective action taken"
+    },
+    "corrective_action_description": {
+      "type": "string",
+      "description": "Detailed description of corrective action"
+    },
+    "action_taken_by_id": {
+      "type": "string",
+      "description": "Staff member who took corrective action"
+    },
+    "action_taken_by_name": {
+      "type": "string",
+      "description": "Name of staff member who took action"
+    },
+    "action_taken_by_email": {
+      "type": "string",
+      "description": "Email of staff member who took action"
+    },
+    "action_time": {
+      "type": "string",
+      "format": "date-time",
+      "description": "When corrective action was taken"
+    },
+    "resolution_result": {
+      "type": "string",
+      "enum": [
+        "resolved",
+        "escalated",
+        "pending",
+        "unresolved"
+      ],
+      "default": "pending",
+      "description": "Resolution status"
+    },
+    "recheck_value": {
+      "type": "string",
+      "description": "Value after corrective action / recheck"
+    },
+    "recheck_passed": {
+      "type": "boolean",
+      "description": "Did recheck pass after corrective action"
+    },
+    "recheck_ccp_check_id": {
+      "type": "string",
+      "description": "ID of follow-up CCP check"
+    },
+    "blocked_menu_items": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Menu items blocked from serving due to incident"
+    },
+    "manager_notes": {
+      "type": "string",
+      "description": "Manager notes only (added post-incident)"
+    },
+    "manager_notes_by_id": {
+      "type": "string",
+      "description": "Manager who added notes"
+    },
+    "manager_notes_by_email": {
+      "type": "string",
+      "description": "Manager email who added notes"
+    },
+    "manager_notes_time": {
+      "type": "string",
+      "format": "date-time",
+      "description": "When manager notes were added"
+    },
+    "photo_url": {
+      "type": "string",
+      "description": "Evidence photo from incident"
+    },
+    "is_legal_hold": {
+      "type": "boolean",
+      "default": true,
+      "description": "PERMANENT RECORD - Cannot be deleted"
+    },
+    "incident_severity": {
+      "type": "string",
+      "enum": [
+        "critical",
+        "major",
+        "minor"
+      ],
+      "default": "major",
+      "description": "Severity classification"
+    },
+    "root_cause": {
+      "type": "string",
+      "description": "Root cause analysis (manager added)"
+    },
+    "preventive_measures": {
+      "type": "string",
+      "description": "Preventive measures to avoid recurrence (manager added)"
+    }
+  },
+  "required": [
+    "ccp_check_id",
+    "ccp_id",
+    "ccp_name",
+    "failure_value",
+    "critical_limit",
+    "incident_time",
+    "detected_by_id",
+    "detected_by_email"
+  ]
+}

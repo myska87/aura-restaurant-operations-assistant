@@ -1,0 +1,97 @@
+{
+  "name": "CleaningSignOffLog",
+  "type": "object",
+  "properties": {
+    "log_date": {
+      "type": "string",
+      "format": "date",
+      "description": "Date of cleaning task"
+    },
+    "task_type": {
+      "type": "string",
+      "enum": [
+        "daily_cleaning",
+        "deep_cleaning"
+      ],
+      "description": "Type of cleaning task"
+    },
+    "task_name": {
+      "type": "string",
+      "description": "Name of cleaning task"
+    },
+    "area_equipment": {
+      "type": "string",
+      "description": "Area or equipment cleaned"
+    },
+    "completed_by_id": {
+      "type": "string",
+      "description": "Staff member who completed"
+    },
+    "completed_by_name": {
+      "type": "string",
+      "description": "Staff member name"
+    },
+    "completed_by_email": {
+      "type": "string",
+      "description": "Staff email"
+    },
+    "completion_time": {
+      "type": "string",
+      "format": "date-time",
+      "description": "When task was completed"
+    },
+    "supervisor_id": {
+      "type": "string",
+      "description": "Supervisor who approved"
+    },
+    "supervisor_name": {
+      "type": "string",
+      "description": "Supervisor name"
+    },
+    "supervisor_email": {
+      "type": "string",
+      "description": "Supervisor email"
+    },
+    "approval_time": {
+      "type": "string",
+      "format": "date-time",
+      "description": "When supervisor approved"
+    },
+    "source_record_id": {
+      "type": "string",
+      "description": "ID of source cleaning record (Daily or Deep)"
+    },
+    "photo_urls": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Evidence photos"
+    },
+    "notes": {
+      "type": "string",
+      "description": "Additional notes"
+    },
+    "is_locked": {
+      "type": "boolean",
+      "default": true,
+      "description": "Read-only once approved (cannot be deleted)"
+    },
+    "legal_hold": {
+      "type": "boolean",
+      "default": true,
+      "description": "Permanent record - cannot be deleted"
+    }
+  },
+  "required": [
+    "log_date",
+    "task_type",
+    "task_name",
+    "completed_by_id",
+    "completed_by_email",
+    "completion_time",
+    "supervisor_id",
+    "supervisor_email",
+    "approval_time"
+  ]
+}

@@ -1,0 +1,120 @@
+{
+  "name": "Shift",
+  "type": "object",
+  "properties": {
+    "staff_id": {
+      "type": "string",
+      "description": "Reference to staff member"
+    },
+    "staff_name": {
+      "type": "string",
+      "description": "Staff member name"
+    },
+    "date": {
+      "type": "string",
+      "format": "date",
+      "description": "Shift date"
+    },
+    "scheduled_start": {
+      "type": "string",
+      "description": "Scheduled start time (HH:MM)"
+    },
+    "scheduled_end": {
+      "type": "string",
+      "description": "Scheduled end time (HH:MM)"
+    },
+    "actual_clock_in": {
+      "type": "string",
+      "description": "Actual clock in timestamp"
+    },
+    "actual_clock_out": {
+      "type": "string",
+      "description": "Actual clock out timestamp"
+    },
+    "duration": {
+      "type": "number",
+      "description": "Shift duration in hours (auto-calculated)"
+    },
+    "hourly_rate": {
+      "type": "number",
+      "description": "Hourly rate for this shift in \u00a3"
+    },
+    "total_cost": {
+      "type": "number",
+      "description": "Total cost = duration \u00d7 hourly_rate"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "scheduled",
+        "clocked_in",
+        "pending_approval",
+        "approved",
+        "rejected",
+        "missed",
+        "cancelled"
+      ],
+      "default": "scheduled",
+      "description": "Shift status"
+    },
+    "position": {
+      "type": "string",
+      "description": "Role/station (Chef, Barista, Server, etc.)"
+    },
+    "break_duration": {
+      "type": "number",
+      "description": "Break time in minutes",
+      "default": 30
+    },
+    "overtime_hours": {
+      "type": "number",
+      "default": 0,
+      "description": "Overtime hours if any"
+    },
+    "notes": {
+      "type": "string",
+      "description": "Additional notes"
+    },
+    "needs_approval": {
+      "type": "boolean",
+      "default": false,
+      "description": "Does this shift need manager approval"
+    },
+    "approved_by": {
+      "type": "string",
+      "description": "Email of manager who approved"
+    },
+    "approved_date": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Date and time of approval"
+    },
+    "manager_notes": {
+      "type": "string",
+      "description": "Manager notes - MANDATORY if issues exist"
+    },
+    "has_issues": {
+      "type": "boolean",
+      "default": false,
+      "description": "Does this shift have issues (incorrect hours, performance, etc.)"
+    },
+    "issue_type": {
+      "type": "string",
+      "enum": [
+        "incorrect_hours",
+        "late_arrival",
+        "early_departure",
+        "performance",
+        "attendance",
+        "other"
+      ],
+      "description": "Type of issue if any"
+    }
+  },
+  "required": [
+    "staff_id",
+    "date",
+    "scheduled_start",
+    "scheduled_end"
+  ]
+}

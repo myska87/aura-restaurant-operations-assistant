@@ -1,0 +1,52 @@
+{
+  "name": "DocumentVersion",
+  "type": "object",
+  "properties": {
+    "document_id": {
+      "type": "string",
+      "description": "ID of the parent document"
+    },
+    "document_title": {
+      "type": "string",
+      "description": "Title for reference"
+    },
+    "version_number": {
+      "type": "string",
+      "description": "Version number (e.g., 1.0, 1.1, 2.0)"
+    },
+    "content_snapshot": {
+      "type": "string",
+      "description": "Full HTML content at this version"
+    },
+    "change_summary": {
+      "type": "string",
+      "description": "Summary of changes made"
+    },
+    "created_by_id": {
+      "type": "string",
+      "description": "ID of user who created version"
+    },
+    "created_by_name": {
+      "type": "string",
+      "description": "Name of user who created version"
+    },
+    "change_type": {
+      "type": "string",
+      "enum": [
+        "initial_creation",
+        "content_update",
+        "formatting_update",
+        "metadata_update",
+        "attachment_added",
+        "restored"
+      ],
+      "description": "Type of change"
+    }
+  },
+  "required": [
+    "document_id",
+    "document_title",
+    "version_number",
+    "created_by_id"
+  ]
+}

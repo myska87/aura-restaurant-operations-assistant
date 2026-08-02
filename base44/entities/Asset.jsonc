@@ -1,0 +1,153 @@
+{
+  "name": "Asset",
+  "type": "object",
+  "properties": {
+    "name": {
+      "type": "string",
+      "description": "Asset name"
+    },
+    "category": {
+      "type": "string",
+      "enum": [
+        "kitchen_equipment",
+        "furniture",
+        "electronics",
+        "vehicles",
+        "tools",
+        "refrigeration",
+        "cooking",
+        "other"
+      ],
+      "description": "Asset category"
+    },
+    "location": {
+      "type": "string",
+      "description": "Physical location"
+    },
+    "serial_number": {
+      "type": "string",
+      "description": "Serial number"
+    },
+    "purchase_date": {
+      "type": "string",
+      "format": "date",
+      "description": "Purchase date"
+    },
+    "purchase_cost": {
+      "type": "number",
+      "description": "Purchase cost"
+    },
+    "warranty_expiry": {
+      "type": "string",
+      "format": "date",
+      "description": "Warranty expiry date"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "active",
+        "maintenance",
+        "repair",
+        "replaced",
+        "disposed"
+      ],
+      "default": "active",
+      "description": "Asset status"
+    },
+    "condition": {
+      "type": "string",
+      "enum": [
+        "excellent",
+        "good",
+        "fair",
+        "poor"
+      ],
+      "default": "good",
+      "description": "Asset condition"
+    },
+    "image_url": {
+      "type": "string",
+      "description": "Asset image URL"
+    },
+    "receipt_url": {
+      "type": "string",
+      "description": "Receipt/invoice URL"
+    },
+    "maintenance_schedule": {
+      "type": "string",
+      "enum": [
+        "weekly",
+        "monthly",
+        "quarterly",
+        "annually",
+        "as_needed"
+      ],
+      "description": "Maintenance frequency"
+    },
+    "last_maintenance": {
+      "type": "string",
+      "format": "date",
+      "description": "Last maintenance date"
+    },
+    "next_maintenance": {
+      "type": "string",
+      "format": "date",
+      "description": "Next maintenance due"
+    },
+    "service_log": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "date": {
+            "type": "string"
+          },
+          "type": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "cost": {
+            "type": "number"
+          },
+          "technician": {
+            "type": "string"
+          }
+        }
+      },
+      "description": "Service history log"
+    },
+    "notes": {
+      "type": "string",
+      "description": "Additional notes"
+    },
+    "temperature_tracking": {
+      "type": "boolean",
+      "default": false,
+      "description": "Does this asset require temperature monitoring"
+    },
+    "min_temp": {
+      "type": "number",
+      "description": "Minimum safe temperature (\u00b0C)"
+    },
+    "max_temp": {
+      "type": "number",
+      "description": "Maximum safe temperature (\u00b0C)"
+    },
+    "temp_check_frequency": {
+      "type": "string",
+      "enum": [
+        "opening",
+        "mid_shift",
+        "closing",
+        "all_shifts"
+      ],
+      "description": "How often temperature should be checked"
+    }
+  },
+  "required": [
+    "name",
+    "category"
+  ]
+}

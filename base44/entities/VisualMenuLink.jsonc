@@ -1,0 +1,34 @@
+{
+  "name": "VisualMenuLink",
+  "type": "object",
+  "properties": {
+    "menu_item_id": {
+      "type": "string",
+      "description": "Linked Menu Item ID"
+    },
+    "visual_guide_id": {
+      "type": "string",
+      "description": "Linked Visual Dish Guide ID"
+    },
+    "menu_item_name": {
+      "type": "string",
+      "description": "Menu item name for reference"
+    },
+    "visual_guide_name": {
+      "type": "string",
+      "description": "Visual guide name for reference"
+    },
+    "linked_by_id": {
+      "type": "string",
+      "description": "User ID who created the link"
+    },
+    "linked_by_name": {
+      "type": "string",
+      "description": "User name who created the link"
+    }
+  },
+  "required": [
+    "menu_item_id",
+    "visual_guide_id"
+  ]
+}

@@ -1,0 +1,133 @@
+{
+  "name": "Ingredient",
+  "type": "object",
+  "properties": {
+    "name": {
+      "type": "string",
+      "description": "Ingredient name"
+    },
+    "category": {
+      "type": "string",
+      "enum": [
+        "dairy",
+        "spice",
+        "veg",
+        "meat",
+        "seafood",
+        "dry_goods",
+        "beverages",
+        "frozen",
+        "bread",
+        "sauce",
+        "oil",
+        "grain",
+        "garnish",
+        "other"
+      ],
+      "description": "Ingredient category"
+    },
+    "unit": {
+      "type": "string",
+      "enum": [
+        "kg",
+        "g",
+        "L",
+        "ml",
+        "pcs",
+        "units",
+        "boxes",
+        "bags"
+      ],
+      "description": "Unit of measure"
+    },
+    "cost_per_unit": {
+      "type": "number",
+      "description": "Cost per unit in \u00a3"
+    },
+    "current_stock": {
+      "type": "number",
+      "default": 0,
+      "description": "Current stock quantity"
+    },
+    "min_stock_level": {
+      "type": "number",
+      "description": "Reorder minimum stock level"
+    },
+    "max_stock_level": {
+      "type": "number",
+      "description": "Maximum stock level"
+    },
+    "reorder_quantity": {
+      "type": "number",
+      "description": "Quantity to reorder"
+    },
+    "supplier_id": {
+      "type": "string",
+      "description": "Linked supplier ID"
+    },
+    "supplier_name": {
+      "type": "string",
+      "description": "Supplier name"
+    },
+    "supplier_contact_details": {
+      "type": "string",
+      "description": "Supplier phone/email/contact"
+    },
+    "storage_location": {
+      "type": "string",
+      "enum": [
+        "dry_store",
+        "fridge",
+        "freezer",
+        "ambient",
+        "prep_area"
+      ],
+      "description": "Storage location"
+    },
+    "is_allergen": {
+      "type": "boolean",
+      "default": false,
+      "description": "Is this an allergen"
+    },
+    "allergen_type": {
+      "type": "string",
+      "enum": [
+        "milk",
+        "eggs",
+        "gluten",
+        "peanuts",
+        "nuts",
+        "soy",
+        "sesame",
+        "mustard",
+        "celery",
+        "fish",
+        "crustaceans",
+        "molluscs",
+        "lupin",
+        "sulphites"
+      ],
+      "description": "UK FSA 14 Major Allergens"
+    },
+    "last_ordered": {
+      "type": "string",
+      "format": "date",
+      "description": "Last order date"
+    },
+    "expiry_date": {
+      "type": "string",
+      "format": "date",
+      "description": "Expiry date for current stock"
+    },
+    "is_active": {
+      "type": "boolean",
+      "default": true,
+      "description": "Active/Inactive status"
+    }
+  },
+  "required": [
+    "name",
+    "category",
+    "unit"
+  ]
+}

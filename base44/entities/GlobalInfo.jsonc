@@ -1,0 +1,151 @@
+{
+  "name": "GlobalInfo",
+  "type": "object",
+  "properties": {
+    "restaurant_name": {
+      "type": "string",
+      "description": "Restaurant name"
+    },
+    "logo_url": {
+      "type": "string",
+      "description": "Restaurant logo URL"
+    },
+    "tagline": {
+      "type": "string",
+      "description": "Brand tagline"
+    },
+    "theme_color": {
+      "type": "string",
+      "default": "#2E7D32",
+      "description": "Main theme color"
+    },
+    "address": {
+      "type": "string",
+      "description": "Full address"
+    },
+    "city": {
+      "type": "string",
+      "description": "City"
+    },
+    "postcode": {
+      "type": "string",
+      "description": "Postcode"
+    },
+    "phone": {
+      "type": "string",
+      "description": "Contact phone"
+    },
+    "email": {
+      "type": "string",
+      "description": "Contact email"
+    },
+    "website": {
+      "type": "string",
+      "description": "Website URL"
+    },
+    "manager_name": {
+      "type": "string",
+      "description": "Manager in charge"
+    },
+    "manager_email": {
+      "type": "string",
+      "description": "Manager email"
+    },
+    "manager_phone": {
+      "type": "string",
+      "description": "Manager phone"
+    },
+    "supervisor_name": {
+      "type": "string",
+      "description": "Supervisor name"
+    },
+    "supervisor_email": {
+      "type": "string",
+      "description": "Supervisor email"
+    },
+    "supervisor_phone": {
+      "type": "string",
+      "description": "Supervisor phone"
+    },
+    "assistant_manager_name": {
+      "type": "string",
+      "description": "Assistant/Duty manager name"
+    },
+    "assistant_manager_phone": {
+      "type": "string",
+      "description": "Assistant manager phone"
+    },
+    "opening_hours": {
+      "type": "string",
+      "description": "Opening hours e.g. 8:00-22:00"
+    },
+    "wifi_code": {
+      "type": "string",
+      "description": "Wi-Fi password for staff"
+    },
+    "store_code": {
+      "type": "string",
+      "description": "Internal store code"
+    },
+    "company_name": {
+      "type": "string",
+      "description": "Legal company name"
+    },
+    "vat_number": {
+      "type": "string",
+      "description": "VAT registration number"
+    },
+    "hygiene_rating": {
+      "type": "integer",
+      "description": "FSA Hygiene Rating (1-5)"
+    },
+    "license_expiry_alcohol": {
+      "type": "string",
+      "format": "date",
+      "description": "Alcohol license expiry"
+    },
+    "license_expiry_music": {
+      "type": "string",
+      "format": "date",
+      "description": "Music license expiry"
+    },
+    "license_expiry_food": {
+      "type": "string",
+      "format": "date",
+      "description": "Food handling license expiry"
+    },
+    "insurance_policy_number": {
+      "type": "string",
+      "description": "Insurance policy number"
+    },
+    "insurance_expiry": {
+      "type": "string",
+      "format": "date",
+      "description": "Insurance expiry date"
+    },
+    "founderWelcomeVideoUrl": {
+      "type": "string",
+      "description": "URL to founder welcome video (YouTube/Instagram)"
+    },
+    "ravingFansVideoUrl": {
+      "type": "string",
+      "description": "URL to raving fans philosophy video (YouTube/Instagram)"
+    },
+    "training_spotlight_video": {
+      "type": "string",
+      "description": "YouTube URL for Training Spotlight section (e.g. https://www.youtube.com/watch?v=...)"
+    },
+    "training_spotlight_text_variant": {
+      "type": "string",
+      "enum": [
+        "default",
+        "short"
+      ],
+      "default": "default",
+      "description": "Training spotlight text variant - default (long) or short (punchy)"
+    }
+  },
+  "required": [
+    "restaurant_name"
+  ]
+}

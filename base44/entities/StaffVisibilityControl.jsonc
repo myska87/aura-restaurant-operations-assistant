@@ -1,0 +1,59 @@
+{
+  "name": "StaffVisibilityControl",
+  "type": "object",
+  "properties": {
+    "staff_id": {
+      "type": "string",
+      "description": "Staff member ID (unique per staff)"
+    },
+    "staff_name": {
+      "type": "string",
+      "description": "Staff member name"
+    },
+    "can_view_reports": {
+      "type": "boolean",
+      "default": false,
+      "description": "Can view business reports"
+    },
+    "can_view_labour_costs": {
+      "type": "boolean",
+      "default": false,
+      "description": "Can view labour cost data"
+    },
+    "can_view_performance_data": {
+      "type": "boolean",
+      "default": false,
+      "description": "Can view team performance metrics"
+    },
+    "can_view_operations_logs": {
+      "type": "boolean",
+      "default": true,
+      "description": "Can view operations history"
+    },
+    "can_view_sensitive_metrics": {
+      "type": "boolean",
+      "default": false,
+      "description": "Can view profit margins, costs, etc"
+    },
+    "can_view_staff_details": {
+      "type": "boolean",
+      "default": false,
+      "description": "Can view other staff member details"
+    },
+    "updated_by_id": {
+      "type": "string",
+      "description": "Admin who last updated"
+    },
+    "updated_by_name": {
+      "type": "string",
+      "description": "Name of updater"
+    },
+    "notes": {
+      "type": "string",
+      "description": "Reason for visibility changes"
+    }
+  },
+  "required": [
+    "staff_id"
+  ]
+}

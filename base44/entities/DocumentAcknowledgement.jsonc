@@ -1,0 +1,86 @@
+{
+  "name": "DocumentAcknowledgement",
+  "type": "object",
+  "properties": {
+    "user_id": {
+      "type": "string",
+      "description": "User ID"
+    },
+    "user_name": {
+      "type": "string",
+      "description": "User name"
+    },
+    "user_email": {
+      "type": "string",
+      "description": "User email"
+    },
+    "document_id": {
+      "type": "string",
+      "description": "Document ID"
+    },
+    "document_title": {
+      "type": "string",
+      "description": "Document title"
+    },
+    "document_version": {
+      "type": "string",
+      "description": "Version acknowledged"
+    },
+    "viewed": {
+      "type": "boolean",
+      "default": false,
+      "description": "Document viewed"
+    },
+    "viewed_date": {
+      "type": "string",
+      "format": "date-time",
+      "description": "When viewed"
+    },
+    "scrolled_to_bottom": {
+      "type": "boolean",
+      "default": false,
+      "description": "User scrolled to end"
+    },
+    "acknowledged": {
+      "type": "boolean",
+      "default": false,
+      "description": "User acknowledged reading"
+    },
+    "acknowledged_date": {
+      "type": "string",
+      "format": "date-time",
+      "description": "When acknowledged"
+    },
+    "signed": {
+      "type": "boolean",
+      "default": false,
+      "description": "Digital signature provided"
+    },
+    "signed_date": {
+      "type": "string",
+      "format": "date-time",
+      "description": "When signed"
+    },
+    "signature_text": {
+      "type": "string",
+      "description": "I confirm I have read and understood..."
+    },
+    "device_info": {
+      "type": "string",
+      "description": "Device used"
+    },
+    "ip_address": {
+      "type": "string",
+      "description": "IP address"
+    },
+    "requires_reacknowledgement": {
+      "type": "boolean",
+      "default": false,
+      "description": "Document updated - needs re-ack"
+    }
+  },
+  "required": [
+    "user_id",
+    "document_id"
+  ]
+}

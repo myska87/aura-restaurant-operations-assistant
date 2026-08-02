@@ -1,0 +1,44 @@
+{
+  "name": "StaffRoleAssignment",
+  "type": "object",
+  "properties": {
+    "staff_id": {
+      "type": "string",
+      "description": "Staff member ID"
+    },
+    "staff_name": {
+      "type": "string",
+      "description": "Staff member name"
+    },
+    "role_id": {
+      "type": "string",
+      "description": "Assigned role ID"
+    },
+    "role_name": {
+      "type": "string",
+      "description": "Role name for reference"
+    },
+    "assigned_date": {
+      "type": "string",
+      "format": "date",
+      "description": "When role was assigned"
+    },
+    "assigned_by_id": {
+      "type": "string",
+      "description": "Admin/Manager who assigned"
+    },
+    "assigned_by_name": {
+      "type": "string",
+      "description": "Name of person who assigned"
+    },
+    "is_primary": {
+      "type": "boolean",
+      "default": false,
+      "description": "Is this the primary role"
+    }
+  },
+  "required": [
+    "staff_id",
+    "role_id"
+  ]
+}

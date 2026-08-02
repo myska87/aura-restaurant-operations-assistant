@@ -1,0 +1,62 @@
+{
+  "name": "AuditKPISummary",
+  "type": "object",
+  "properties": {
+    "period_type": {
+      "type": "string",
+      "enum": [
+        "weekly",
+        "monthly"
+      ],
+      "description": "Week or Month"
+    },
+    "period_identifier": {
+      "type": "string",
+      "description": "YYYY-W## or YYYY-MM"
+    },
+    "total_sales": {
+      "type": "number",
+      "default": 0
+    },
+    "avg_order_value": {
+      "type": "number",
+      "default": 0
+    },
+    "total_incidents": {
+      "type": "number",
+      "default": 0
+    },
+    "audit_score_avg": {
+      "type": "number",
+      "default": 0
+    },
+    "equipment_health_score": {
+      "type": "number",
+      "default": 0
+    },
+    "hygiene_percent": {
+      "type": "number",
+      "default": 0
+    },
+    "waste_value": {
+      "type": "number",
+      "default": 0
+    },
+    "waste_percent": {
+      "type": "number",
+      "default": 0
+    },
+    "staff_score": {
+      "type": "number",
+      "default": 0
+    },
+    "customer_rating": {
+      "type": "number",
+      "default": 0
+    }
+  },
+  "required": [
+    "period_type",
+    "period_identifier"
+  ]
+}

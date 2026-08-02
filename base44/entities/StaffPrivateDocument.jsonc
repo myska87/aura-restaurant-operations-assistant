@@ -1,0 +1,73 @@
+{
+  "name": "StaffPrivateDocument",
+  "type": "object",
+  "properties": {
+    "staff_id": {
+      "type": "string",
+      "description": "Staff member ID"
+    },
+    "staff_name": {
+      "type": "string",
+      "description": "Staff member name"
+    },
+    "document_type": {
+      "type": "string",
+      "enum": [
+        "contract",
+        "id_document",
+        "right_to_work",
+        "certification",
+        "warning",
+        "performance_note",
+        "other"
+      ],
+      "description": "Type of document"
+    },
+    "document_name": {
+      "type": "string",
+      "description": "Document title/name"
+    },
+    "file_url": {
+      "type": "string",
+      "description": "URL to the document"
+    },
+    "uploaded_date": {
+      "type": "string",
+      "format": "date-time",
+      "description": "When document was uploaded"
+    },
+    "uploaded_by_id": {
+      "type": "string",
+      "description": "Admin who uploaded"
+    },
+    "uploaded_by_name": {
+      "type": "string",
+      "description": "Name of uploader"
+    },
+    "expiry_date": {
+      "type": "string",
+      "format": "date",
+      "description": "Document expiry date (if applicable)"
+    },
+    "notes": {
+      "type": "string",
+      "description": "Private notes about document"
+    },
+    "visible_to_manager": {
+      "type": "boolean",
+      "default": false,
+      "description": "Can managers view this document"
+    },
+    "visible_to_staff": {
+      "type": "boolean",
+      "default": false,
+      "description": "Can staff member view their own document"
+    }
+  },
+  "required": [
+    "staff_id",
+    "document_type",
+    "document_name",
+    "file_url"
+  ]
+}

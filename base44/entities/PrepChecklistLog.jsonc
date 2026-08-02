@@ -1,0 +1,93 @@
+{
+  "name": "PrepChecklistLog",
+  "type": "object",
+  "properties": {
+    "date": {
+      "type": "string",
+      "format": "date",
+      "description": "Date of prep checklist"
+    },
+    "shift": {
+      "type": "string",
+      "enum": [
+        "Morning",
+        "Mid",
+        "Closing"
+      ],
+      "description": "Shift type"
+    },
+    "user_id": {
+      "type": "string",
+      "description": "User who completed prep"
+    },
+    "user_name": {
+      "type": "string",
+      "description": "User name"
+    },
+    "user_email": {
+      "type": "string",
+      "description": "User email"
+    },
+    "tasks": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "task_id": {
+            "type": "string"
+          },
+          "category": {
+            "type": "string"
+          },
+          "task_name": {
+            "type": "string"
+          },
+          "completed": {
+            "type": "boolean"
+          },
+          "completed_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "notes": {
+            "type": "string"
+          }
+        }
+      },
+      "description": "All prep tasks with completion status"
+    },
+    "completion_percentage": {
+      "type": "number",
+      "description": "Percentage of tasks completed"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "in_progress",
+        "completed",
+        "incomplete_alert"
+      ],
+      "default": "in_progress",
+      "description": "Prep checklist status"
+    },
+    "completed_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "When fully completed"
+    },
+    "manager_notified": {
+      "type": "boolean",
+      "default": false,
+      "description": "Manager notified of completion"
+    },
+    "alert_sent": {
+      "type": "boolean",
+      "default": false,
+      "description": "Alert sent for incomplete prep"
+    }
+  },
+  "required": [
+    "date",
+    "user_email"
+  ]
+}

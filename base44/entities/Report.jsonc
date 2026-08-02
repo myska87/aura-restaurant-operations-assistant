@@ -1,0 +1,153 @@
+{
+  "name": "Report",
+  "type": "object",
+  "properties": {
+    "report_id": {
+      "type": "string",
+      "description": "Unique report identifier"
+    },
+    "report_type": {
+      "type": "string",
+      "enum": [
+        "summary",
+        "full_operations"
+      ],
+      "description": "Type of report"
+    },
+    "title": {
+      "type": "string",
+      "description": "Report title"
+    },
+    "description": {
+      "type": "string",
+      "description": "Report description"
+    },
+    "date_range_start": {
+      "type": "string",
+      "format": "date",
+      "description": "Report start date"
+    },
+    "date_range_end": {
+      "type": "string",
+      "format": "date",
+      "description": "Report end date"
+    },
+    "generated_by_id": {
+      "type": "string",
+      "description": "User who generated report"
+    },
+    "generated_by_name": {
+      "type": "string",
+      "description": "Generator name"
+    },
+    "generated_by_email": {
+      "type": "string",
+      "description": "Generator email"
+    },
+    "generated_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "When report was generated"
+    },
+    "business_name": {
+      "type": "string",
+      "description": "Business/location name"
+    },
+    "location": {
+      "type": "string",
+      "description": "Location details"
+    },
+    "compliance_status": {
+      "type": "string",
+      "enum": [
+        "green",
+        "amber",
+        "red"
+      ],
+      "description": "Overall compliance status"
+    },
+    "summary_data": {
+      "type": "object",
+      "properties": {
+        "total_staff_checked_in": {
+          "type": "number"
+        },
+        "total_checklists_completed": {
+          "type": "number"
+        },
+        "hygiene_status": {
+          "type": "string"
+        },
+        "temps_logged": {
+          "type": "number"
+        },
+        "ccps_passed": {
+          "type": "number"
+        },
+        "ccps_failed": {
+          "type": "number"
+        },
+        "labels_printed": {
+          "type": "number"
+        },
+        "open_issues": {
+          "type": "number"
+        }
+      },
+      "description": "Executive summary data"
+    },
+    "sections_included": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Sections included in full report"
+    },
+    "pdf_url": {
+      "type": "string",
+      "description": "Generated PDF file URL"
+    },
+    "csv_url": {
+      "type": "string",
+      "description": "Optional CSV export URL"
+    },
+    "filters_applied": {
+      "type": "object",
+      "properties": {
+        "date_range": {
+          "type": "string"
+        },
+        "staff_filter": {
+          "type": "string"
+        },
+        "status_filter": {
+          "type": "string"
+        }
+      },
+      "description": "Filters used for report generation"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "generated",
+        "downloaded",
+        "archived"
+      ],
+      "default": "generated",
+      "description": "Report status"
+    },
+    "notes": {
+      "type": "string",
+      "description": "Any notes about the report"
+    }
+  },
+  "required": [
+    "report_id",
+    "report_type",
+    "title",
+    "generated_by_id",
+    "generated_by_email",
+    "generated_at",
+    "business_name"
+  ]
+}

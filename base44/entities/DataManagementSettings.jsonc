@@ -1,0 +1,61 @@
+{
+  "name": "DataManagementSettings",
+  "type": "object",
+  "properties": {
+    "auto_backup_enabled": {
+      "type": "boolean",
+      "default": false,
+      "description": "Enable automatic backups"
+    },
+    "backup_frequency": {
+      "type": "string",
+      "enum": [
+        "daily",
+        "weekly"
+      ],
+      "default": "weekly",
+      "description": "Backup frequency"
+    },
+    "backup_time": {
+      "type": "string",
+      "description": "Time to run backup (HH:MM format)"
+    },
+    "backup_day": {
+      "type": "string",
+      "enum": [
+        "Monday",
+        "Tuesday",
+        "Wednesday",
+        "Thursday",
+        "Friday",
+        "Saturday",
+        "Sunday"
+      ],
+      "description": "Day of week for weekly backup"
+    },
+    "retention_days": {
+      "type": "number",
+      "default": 30,
+      "description": "Days to keep backups"
+    },
+    "modules_to_backup": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Modules to include in automatic backup"
+    },
+    "last_backup_date": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Last successful backup"
+    },
+    "updated_by_id": {
+      "type": "string",
+      "description": "Admin who last updated settings"
+    }
+  },
+  "required": [
+    "auto_backup_enabled"
+  ]
+}

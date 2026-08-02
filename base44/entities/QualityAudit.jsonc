@@ -1,0 +1,95 @@
+{
+  "name": "QualityAudit",
+  "type": "object",
+  "properties": {
+    "title": {
+      "type": "string"
+    },
+    "audit_type": {
+      "type": "string",
+      "enum": [
+        "hygiene",
+        "cleanliness",
+        "staff",
+        "equipment",
+        "food_safety",
+        "service"
+      ]
+    },
+    "auditor_name": {
+      "type": "string"
+    },
+    "auditor_email": {
+      "type": "string"
+    },
+    "audit_date": {
+      "type": "string",
+      "format": "date"
+    },
+    "overall_score": {
+      "type": "number"
+    },
+    "max_score": {
+      "type": "number"
+    },
+    "checklist_items": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "item": {
+            "type": "string"
+          },
+          "score": {
+            "type": "number"
+          },
+          "max_score": {
+            "type": "number"
+          },
+          "notes": {
+            "type": "string"
+          },
+          "image_url": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "findings": {
+      "type": "string"
+    },
+    "corrective_actions": {
+      "type": "string"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "in_progress",
+        "completed",
+        "requires_action"
+      ],
+      "default": "in_progress"
+    },
+    "linked_sop_ids": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "images": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "follow_up_date": {
+      "type": "string",
+      "format": "date"
+    }
+  },
+  "required": [
+    "title",
+    "audit_type",
+    "audit_date"
+  ]
+}

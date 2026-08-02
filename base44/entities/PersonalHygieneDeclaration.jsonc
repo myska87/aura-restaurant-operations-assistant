@@ -1,0 +1,126 @@
+{
+  "name": "PersonalHygieneDeclaration",
+  "type": "object",
+  "properties": {
+    "staff_id": {
+      "type": "string",
+      "description": "Reference to staff member"
+    },
+    "staff_name": {
+      "type": "string",
+      "description": "Staff member name"
+    },
+    "staff_email": {
+      "type": "string",
+      "description": "Staff email"
+    },
+    "declaration_date": {
+      "type": "string",
+      "format": "date",
+      "description": "Date of declaration"
+    },
+    "shift_date": {
+      "type": "string",
+      "format": "date",
+      "description": "Date of shift"
+    },
+    "declaration_time": {
+      "type": "string",
+      "format": "date-time",
+      "description": "When declaration was made"
+    },
+    "free_from_sickness": {
+      "type": "boolean",
+      "description": "Free from sickness or diarrhoea"
+    },
+    "no_open_wounds": {
+      "type": "boolean",
+      "description": "No open wounds not properly covered"
+    },
+    "hands_washed": {
+      "type": "boolean",
+      "description": "Hands washed correctly"
+    },
+    "clean_uniform": {
+      "type": "boolean",
+      "description": "Wearing clean uniform"
+    },
+    "fit_to_handle_food": {
+      "type": "boolean",
+      "description": "Fit to handle food today"
+    },
+    "all_clear": {
+      "type": "boolean",
+      "description": "All questions answered YES"
+    },
+    "requires_manager_approval": {
+      "type": "boolean",
+      "default": false,
+      "description": "Any answer was NO - needs manager approval"
+    },
+    "manager_approved": {
+      "type": "boolean",
+      "default": false,
+      "description": "Manager has approved despite NO answer"
+    },
+    "manager_id": {
+      "type": "string",
+      "description": "Manager who approved"
+    },
+    "manager_name": {
+      "type": "string",
+      "description": "Manager name"
+    },
+    "approval_time": {
+      "type": "string",
+      "format": "date-time",
+      "description": "When manager approved"
+    },
+    "approval_notes": {
+      "type": "string",
+      "description": "Manager approval notes"
+    },
+    "digital_signature": {
+      "type": "string",
+      "description": "Staff acknowledgement (typed name or signature)"
+    },
+    "clock_in_blocked": {
+      "type": "boolean",
+      "default": false,
+      "description": "Clock-in prevented due to NO answer"
+    },
+    "illness_report_triggered": {
+      "type": "boolean",
+      "default": false,
+      "description": "Illness reporting form triggered"
+    },
+    "illness_report_id": {
+      "type": "string",
+      "description": "Reference to illness report if applicable"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "pending_manager",
+        "approved",
+        "rejected",
+        "clock_in_allowed"
+      ],
+      "default": "pending_manager",
+      "description": "Declaration status"
+    }
+  },
+  "required": [
+    "staff_id",
+    "staff_email",
+    "declaration_date",
+    "shift_date",
+    "declaration_time",
+    "free_from_sickness",
+    "no_open_wounds",
+    "hands_washed",
+    "clean_uniform",
+    "fit_to_handle_food",
+    "digital_signature"
+  ]
+}

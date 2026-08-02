@@ -1,0 +1,112 @@
+{
+  "name": "ServiceRecovery",
+  "type": "object",
+  "properties": {
+    "issue_date": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "issue_type": {
+      "type": "string",
+      "enum": [
+        "wrong_item",
+        "food_quality",
+        "long_wait",
+        "missing_item",
+        "temperature",
+        "allergen_concern",
+        "service_attitude",
+        "cleanliness",
+        "other"
+      ],
+      "description": "Type of customer issue"
+    },
+    "description": {
+      "type": "string",
+      "description": "Issue details"
+    },
+    "menu_item_id": {
+      "type": "string"
+    },
+    "menu_item_name": {
+      "type": "string"
+    },
+    "recovery_action": {
+      "type": "string",
+      "enum": [
+        "remade",
+        "replaced",
+        "refunded",
+        "free_chai",
+        "free_dessert",
+        "voucher",
+        "discount",
+        "apology_only"
+      ],
+      "description": "Action taken to resolve"
+    },
+    "recovery_value": {
+      "type": "number",
+      "description": "Cost of recovery action"
+    },
+    "guest_outcome": {
+      "type": "string",
+      "enum": [
+        "satisfied",
+        "neutral",
+        "unhappy"
+      ],
+      "description": "Guest satisfaction after recovery"
+    },
+    "staff_email": {
+      "type": "string"
+    },
+    "staff_name": {
+      "type": "string"
+    },
+    "staff_role": {
+      "type": "string",
+      "enum": [
+        "staff",
+        "manager",
+        "owner"
+      ]
+    },
+    "manager_approved": {
+      "type": "boolean",
+      "default": false,
+      "description": "Required for refunds/vouchers"
+    },
+    "approved_by": {
+      "type": "string"
+    },
+    "notes": {
+      "type": "string"
+    },
+    "incident_created": {
+      "type": "boolean",
+      "default": false
+    },
+    "incident_id": {
+      "type": "string"
+    },
+    "shift_type": {
+      "type": "string",
+      "enum": [
+        "opening",
+        "mid",
+        "closing"
+      ]
+    },
+    "resolution_time_minutes": {
+      "type": "number",
+      "description": "Time to resolve issue"
+    }
+  },
+  "required": [
+    "issue_type",
+    "recovery_action",
+    "guest_outcome",
+    "staff_email"
+  ]
+}

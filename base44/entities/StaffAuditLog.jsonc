@@ -1,0 +1,64 @@
+{
+  "name": "StaffAuditLog",
+  "type": "object",
+  "properties": {
+    "staff_id": {
+      "type": "string",
+      "description": "Staff member affected"
+    },
+    "staff_name": {
+      "type": "string",
+      "description": "Staff member name"
+    },
+    "action_type": {
+      "type": "string",
+      "enum": [
+        "role_assigned",
+        "role_removed",
+        "document_uploaded",
+        "document_accessed",
+        "document_deleted",
+        "visibility_changed",
+        "appointment_scheduled",
+        "appointment_completed",
+        "profile_updated"
+      ],
+      "description": "Type of action"
+    },
+    "action_description": {
+      "type": "string",
+      "description": "Detailed description of action"
+    },
+    "performed_by_id": {
+      "type": "string",
+      "description": "User who performed action"
+    },
+    "performed_by_name": {
+      "type": "string",
+      "description": "Name of user"
+    },
+    "performed_by_role": {
+      "type": "string",
+      "description": "Role of user at time of action"
+    },
+    "action_date": {
+      "type": "string",
+      "format": "date-time",
+      "description": "When action occurred"
+    },
+    "metadata": {
+      "type": "object",
+      "description": "Additional action data"
+    },
+    "ip_address": {
+      "type": "string",
+      "description": "IP address of action"
+    }
+  },
+  "required": [
+    "staff_id",
+    "action_type",
+    "action_description",
+    "performed_by_id"
+  ]
+}

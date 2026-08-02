@@ -1,0 +1,101 @@
+{
+  "name": "LabelRegister",
+  "type": "object",
+  "properties": {
+    "label_id": {
+      "type": "string",
+      "description": "Unique label identifier"
+    },
+    "label_type": {
+      "type": "string",
+      "enum": [
+        "prep",
+        "allergen",
+        "expiry",
+        "batch"
+      ],
+      "description": "Type of label"
+    },
+    "item_name": {
+      "type": "string",
+      "description": "Menu item name"
+    },
+    "batch_id": {
+      "type": "string",
+      "description": "Batch ID if applicable"
+    },
+    "prep_date_time": {
+      "type": "string",
+      "format": "date-time",
+      "description": "When item was prepared"
+    },
+    "expiry_date_time": {
+      "type": "string",
+      "format": "date-time",
+      "description": "When item expires"
+    },
+    "shelf_life_hours": {
+      "type": "number",
+      "description": "Shelf life in hours"
+    },
+    "allergens": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "List of allergens"
+    },
+    "storage_type": {
+      "type": "string",
+      "enum": [
+        "fridge",
+        "freezer",
+        "ambient"
+      ],
+      "description": "Storage location type"
+    },
+    "printed_by_id": {
+      "type": "string",
+      "description": "Staff ID who printed label"
+    },
+    "printed_by_name": {
+      "type": "string",
+      "description": "Staff name who printed label"
+    },
+    "printed_by_email": {
+      "type": "string",
+      "description": "Staff email who printed label"
+    },
+    "location_id": {
+      "type": "string",
+      "description": "Restaurant/location ID"
+    },
+    "printed_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Timestamp when label was printed"
+    },
+    "printer_id": {
+      "type": "string",
+      "description": "Printer device ID if available"
+    },
+    "label_data": {
+      "type": "object",
+      "description": "Complete label data snapshot"
+    },
+    "is_backed_filled": {
+      "type": "boolean",
+      "default": false,
+      "description": "Was this record backfilled from existing data"
+    }
+  },
+  "required": [
+    "label_id",
+    "label_type",
+    "item_name",
+    "prep_date_time",
+    "printed_by_id",
+    "printed_by_email",
+    "printed_at"
+  ]
+}

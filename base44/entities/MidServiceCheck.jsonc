@@ -1,0 +1,69 @@
+{
+  "name": "MidServiceCheck",
+  "type": "object",
+  "properties": {
+    "check_type": {
+      "type": "string",
+      "enum": [
+        "temperature",
+        "hygiene",
+        "cleaning",
+        "allergen"
+      ],
+      "description": "Type of mid-service check"
+    },
+    "check_date": {
+      "type": "string",
+      "format": "date",
+      "description": "Date of check"
+    },
+    "check_time": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Exact timestamp of check"
+    },
+    "staff_id": {
+      "type": "string",
+      "description": "Staff member who performed check"
+    },
+    "staff_name": {
+      "type": "string",
+      "description": "Staff member name"
+    },
+    "staff_email": {
+      "type": "string",
+      "description": "Staff email"
+    },
+    "confirmed": {
+      "type": "boolean",
+      "description": "Confirmation checkbox - standards are being met"
+    },
+    "comments": {
+      "type": "string",
+      "description": "Optional additional comments"
+    },
+    "shift_date": {
+      "type": "string",
+      "format": "date",
+      "description": "Shift date for grouping"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "confirmed",
+        "flagged"
+      ],
+      "default": "confirmed",
+      "description": "Check status"
+    }
+  },
+  "required": [
+    "check_type",
+    "check_date",
+    "check_time",
+    "staff_id",
+    "staff_email",
+    "confirmed",
+    "shift_date"
+  ]
+}

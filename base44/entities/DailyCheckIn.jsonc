@@ -1,0 +1,117 @@
+{
+  "name": "DailyCheckIn",
+  "type": "object",
+  "properties": {
+    "staff_id": {
+      "type": "string"
+    },
+    "staff_email": {
+      "type": "string"
+    },
+    "staff_name": {
+      "type": "string"
+    },
+    "shift_date": {
+      "type": "string",
+      "format": "date"
+    },
+    "shift_type": {
+      "type": "string",
+      "enum": [
+        "opening",
+        "mid",
+        "closing"
+      ],
+      "description": "Shift time"
+    },
+    "staff_role": {
+      "type": "string",
+      "enum": [
+        "kitchen",
+        "foh",
+        "manager"
+      ],
+      "description": "Staff position"
+    },
+    "check_in_time": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "check_out_time": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "opening_checklist": {
+      "type": "object",
+      "properties": {
+        "completed": {
+          "type": "boolean"
+        },
+        "items": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "item": {
+                "type": "string"
+              },
+              "checked": {
+                "type": "boolean"
+              },
+              "timestamp": {
+                "type": "string"
+              }
+            }
+          }
+        }
+      }
+    },
+    "position_checklist": {
+      "type": "object",
+      "properties": {
+        "completed": {
+          "type": "boolean"
+        },
+        "items": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "item": {
+                "type": "string"
+              },
+              "checked": {
+                "type": "boolean"
+              },
+              "timestamp": {
+                "type": "string"
+              }
+            }
+          }
+        }
+      }
+    },
+    "handover_completed": {
+      "type": "boolean",
+      "default": false
+    },
+    "handover_notes": {
+      "type": "string"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "checked_in",
+        "in_progress",
+        "checked_out"
+      ],
+      "default": "checked_in"
+    }
+  },
+  "required": [
+    "staff_email",
+    "shift_date",
+    "shift_type",
+    "staff_role"
+  ]
+}

@@ -1,0 +1,59 @@
+{
+  "name": "AddOn",
+  "type": "object",
+  "properties": {
+    "name": {
+      "type": "string",
+      "description": "Add-on name (e.g., Extra Cheese)"
+    },
+    "category": {
+      "type": "string",
+      "enum": [
+        "dairy",
+        "protein",
+        "bread",
+        "vegetable",
+        "sauce",
+        "other"
+      ],
+      "description": "Add-on category"
+    },
+    "price": {
+      "type": "number",
+      "description": "Additional charge for add-on"
+    },
+    "ingredients": {
+      "type": "array",
+      "description": "Ingredients used in add-on",
+      "items": {
+        "type": "object",
+        "properties": {
+          "ingredient_id": {
+            "type": "string"
+          },
+          "ingredient_name": {
+            "type": "string"
+          },
+          "quantity": {
+            "type": "number"
+          },
+          "unit": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "cost": {
+      "type": "number",
+      "description": "Total cost of ingredients in add-on"
+    },
+    "is_active": {
+      "type": "boolean",
+      "default": true
+    }
+  },
+  "required": [
+    "name",
+    "price"
+  ]
+}

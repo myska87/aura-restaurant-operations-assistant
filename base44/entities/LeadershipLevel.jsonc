@@ -1,0 +1,112 @@
+{
+  "name": "LeadershipLevel",
+  "type": "object",
+  "properties": {
+    "staff_id": {
+      "type": "string"
+    },
+    "staff_email": {
+      "type": "string"
+    },
+    "staff_name": {
+      "type": "string"
+    },
+    "current_level": {
+      "type": "number",
+      "enum": [
+        0,
+        1,
+        2,
+        3,
+        4
+      ],
+      "default": 0,
+      "description": "0=Trainee, 1=Team Member, 2=Senior, 3=Shift Leader, 4=Manager"
+    },
+    "level_name": {
+      "type": "string",
+      "enum": [
+        "Trainee",
+        "Team Member",
+        "Senior Team Member",
+        "Shift Leader",
+        "Floor Manager"
+      ],
+      "default": "Trainee"
+    },
+    "promotion_date": {
+      "type": "string",
+      "format": "date"
+    },
+    "promoted_by": {
+      "type": "string"
+    },
+    "promoted_by_name": {
+      "type": "string"
+    },
+    "hq_approved": {
+      "type": "boolean",
+      "default": false
+    },
+    "hq_approved_by": {
+      "type": "string"
+    },
+    "hq_approval_date": {
+      "type": "string",
+      "format": "date"
+    },
+    "requirements_met": {
+      "type": "object",
+      "properties": {
+        "training_complete": {
+          "type": "boolean"
+        },
+        "hygiene_certified": {
+          "type": "boolean"
+        },
+        "sop_compliance": {
+          "type": "number"
+        },
+        "service_recovery_score": {
+          "type": "number"
+        },
+        "zero_critical_incidents": {
+          "type": "boolean"
+        },
+        "waste_performance": {
+          "type": "number"
+        },
+        "time_in_role_months": {
+          "type": "number"
+        }
+      }
+    },
+    "nomination_reason": {
+      "type": "string"
+    },
+    "hq_review_notes": {
+      "type": "string"
+    },
+    "under_review": {
+      "type": "boolean",
+      "default": false,
+      "description": "Performance review for demotion"
+    },
+    "review_reason": {
+      "type": "string"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "active",
+        "pending_approval",
+        "under_review"
+      ],
+      "default": "active"
+    }
+  },
+  "required": [
+    "staff_email",
+    "current_level"
+  ]
+}

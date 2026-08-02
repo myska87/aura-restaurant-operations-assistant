@@ -1,0 +1,91 @@
+{
+  "name": "TrainingJourneyProgress",
+  "type": "object",
+  "properties": {
+    "staff_id": {
+      "type": "string",
+      "description": "Reference to staff member"
+    },
+    "staff_email": {
+      "type": "string",
+      "description": "Staff email"
+    },
+    "staff_name": {
+      "type": "string",
+      "description": "Staff name"
+    },
+    "invitationAccepted": {
+      "type": "boolean",
+      "default": false,
+      "description": "Has accepted invitation to start training"
+    },
+    "visionWatched": {
+      "type": "boolean",
+      "default": false,
+      "description": "Has watched vision/intro video"
+    },
+    "valuesCompleted": {
+      "type": "boolean",
+      "default": false,
+      "description": "Completed Culture & Values module"
+    },
+    "ravingFansCompleted": {
+      "type": "boolean",
+      "default": false,
+      "description": "Completed Raving Fans training"
+    },
+    "skillsCompleted": {
+      "type": "boolean",
+      "default": false,
+      "description": "Completed all required Skills & SOPs"
+    },
+    "skillsSections": {
+      "type": "object",
+      "description": "Track completion of individual skill sections",
+      "additionalProperties": true
+    },
+    "hygieneCompleted": {
+      "type": "boolean",
+      "default": false,
+      "description": "Completed Hygiene & Safety module"
+    },
+    "certified": {
+      "type": "boolean",
+      "default": false,
+      "description": "Fully certified - all gates passed"
+    },
+    "certificateIssuedAt": {
+      "type": "string",
+      "format": "date-time",
+      "description": "When certificate was issued"
+    },
+    "onsiteAccessEnabled": {
+      "type": "boolean",
+      "default": false,
+      "description": "Authorized for onsite operations"
+    },
+    "currentStep": {
+      "type": "string",
+      "enum": [
+        "invitation",
+        "vision",
+        "values",
+        "raving_fans",
+        "skills",
+        "hygiene",
+        "certification",
+        "growth"
+      ],
+      "default": "invitation",
+      "description": "Current active step in journey"
+    },
+    "lastUpdated": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Last progress update"
+    }
+  },
+  "required": [
+    "staff_email"
+  ]
+}

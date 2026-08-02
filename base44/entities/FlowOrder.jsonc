@@ -1,0 +1,166 @@
+{
+  "name": "FlowOrder",
+  "type": "object",
+  "properties": {
+    "flow_id": {
+      "type": "string",
+      "description": "Unique flow identifier"
+    },
+    "order_type": {
+      "type": "string",
+      "enum": [
+        "dine_in",
+        "takeaway",
+        "delivery"
+      ],
+      "description": "Order type"
+    },
+    "menu_item_id": {
+      "type": "string",
+      "description": "Menu item ID"
+    },
+    "menu_item_name": {
+      "type": "string",
+      "description": "Menu item name"
+    },
+    "quantity": {
+      "type": "number",
+      "default": 1,
+      "description": "Quantity ordered"
+    },
+    "current_stage": {
+      "type": "string",
+      "enum": [
+        "ordered",
+        "prep",
+        "assembly",
+        "pack",
+        "quality",
+        "served",
+        "failed"
+      ],
+      "default": "ordered",
+      "description": "Current stage in flow"
+    },
+    "assigned_station": {
+      "type": "string",
+      "description": "Station assigned (bread, hot fill, cold fill, etc.)"
+    },
+    "assigned_staff_id": {
+      "type": "string",
+      "description": "Staff member assigned"
+    },
+    "assigned_staff_name": {
+      "type": "string",
+      "description": "Staff member name"
+    },
+    "prep_tasks_needed": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "component_name": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "needed",
+              "in_progress",
+              "completed"
+            ]
+          },
+          "prep_task_id": {
+            "type": "string"
+          }
+        }
+      },
+      "description": "Prep components needed"
+    },
+    "stage_times": {
+      "type": "object",
+      "properties": {
+        "ordered_at": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "prep_started_at": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "assembly_started_at": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "pack_started_at": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "quality_checked_at": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "served_at": {
+          "type": "string",
+          "format": "date-time"
+        }
+      },
+      "description": "Timestamp for each stage"
+    },
+    "total_time_seconds": {
+      "type": "number",
+      "description": "Total time from order to serve"
+    },
+    "quality_status": {
+      "type": "string",
+      "enum": [
+        "pending",
+        "pass",
+        "fail"
+      ],
+      "default": "pending",
+      "description": "Quality check result"
+    },
+    "quality_fail_reason": {
+      "type": "string",
+      "description": "Reason if quality failed"
+    },
+    "is_delayed": {
+      "type": "boolean",
+      "default": false,
+      "description": "Order taking too long"
+    },
+    "delay_reason": {
+      "type": "string",
+      "description": "Why order is delayed"
+    },
+    "waste_logged": {
+      "type": "boolean",
+      "default": false,
+      "description": "Was item wasted"
+    },
+    "notes": {
+      "type": "string",
+      "description": "Order notes"
+    },
+    "customer_name": {
+      "type": "string",
+      "description": "Customer name if provided"
+    },
+    "priority": {
+      "type": "string",
+      "enum": [
+        "normal",
+        "urgent"
+      ],
+      "default": "normal",
+      "description": "Order priority"
+    }
+  },
+  "required": [
+    "flow_id",
+    "menu_item_id",
+    "menu_item_name",
+    "current_stage"
+  ]
+}

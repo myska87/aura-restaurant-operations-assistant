@@ -1,0 +1,128 @@
+{
+  "name": "Prep_Components_v1",
+  "type": "object",
+  "properties": {
+    "prep_name": {
+      "type": "string",
+      "description": "Name of prep component (e.g., Butter Chicken Sauce)"
+    },
+    "category": {
+      "type": "string",
+      "enum": [
+        "sauce",
+        "protein",
+        "bread",
+        "chutney",
+        "beverage_base",
+        "garnish",
+        "base_prep"
+      ],
+      "description": "Prep component category"
+    },
+    "station": {
+      "type": "string",
+      "enum": [
+        "hot_line",
+        "grill",
+        "cold_prep",
+        "chai_station",
+        "bakery",
+        "fryer"
+      ],
+      "description": "Preparation station"
+    },
+    "batch_size": {
+      "type": "number",
+      "description": "Batch size quantity (e.g., 5)"
+    },
+    "batch_unit": {
+      "type": "string",
+      "enum": [
+        "L",
+        "kg",
+        "pcs",
+        "portions"
+      ],
+      "description": "Unit for batch size"
+    },
+    "yield_portions": {
+      "type": "number",
+      "description": "How many portions this batch supports"
+    },
+    "shelf_life_hours": {
+      "type": "number",
+      "description": "Shelf life in hours"
+    },
+    "storage_location": {
+      "type": "string",
+      "enum": [
+        "fridge",
+        "freezer",
+        "hot_hold",
+        "ambient",
+        "bain_marie"
+      ],
+      "description": "Where to store after prep"
+    },
+    "preparation_method": {
+      "type": "array",
+      "description": "Step-by-step preparation instructions",
+      "items": {
+        "type": "string"
+      }
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "not_prepared",
+        "in_progress",
+        "prepared",
+        "low_stock"
+      ],
+      "default": "not_prepared",
+      "description": "Current preparation status"
+    },
+    "prepared_date": {
+      "type": "string",
+      "format": "date-time",
+      "description": "When this batch was prepared"
+    },
+    "prepared_by_id": {
+      "type": "string",
+      "description": "User ID who prepared this"
+    },
+    "prepared_by_name": {
+      "type": "string",
+      "description": "User name who prepared this"
+    },
+    "expiry_date": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Calculated expiry based on shelf life"
+    },
+    "notes": {
+      "type": "string",
+      "description": "Additional prep notes or instructions"
+    },
+    "linked_menu_items": {
+      "type": "array",
+      "description": "Menu items that use this prep component",
+      "items": {
+        "type": "string"
+      }
+    },
+    "is_locked": {
+      "type": "boolean",
+      "default": true,
+      "description": "READ-ONLY after setup"
+    }
+  },
+  "required": [
+    "prep_name",
+    "category",
+    "station",
+    "batch_size",
+    "batch_unit",
+    "storage_location"
+  ]
+}

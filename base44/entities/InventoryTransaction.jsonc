@@ -1,0 +1,107 @@
+{
+  "name": "InventoryTransaction",
+  "type": "object",
+  "properties": {
+    "transaction_type": {
+      "type": "string",
+      "enum": [
+        "delivery",
+        "adjustment",
+        "wastage",
+        "sale",
+        "transfer",
+        "return"
+      ],
+      "description": "Type of transaction"
+    },
+    "ingredient_id": {
+      "type": "string",
+      "description": "Ingredient ID from Ingredient_Master_v1"
+    },
+    "ingredient_name": {
+      "type": "string",
+      "description": "Ingredient name for reference"
+    },
+    "quantity_change": {
+      "type": "number",
+      "description": "Quantity change (+ for in, - for out)"
+    },
+    "unit": {
+      "type": "string",
+      "description": "Unit of measure"
+    },
+    "stock_before": {
+      "type": "number",
+      "description": "Stock level before transaction"
+    },
+    "stock_after": {
+      "type": "number",
+      "description": "Stock level after transaction"
+    },
+    "executed_by": {
+      "type": "string",
+      "description": "User email who executed transaction"
+    },
+    "executed_by_name": {
+      "type": "string",
+      "description": "User name"
+    },
+    "order_id": {
+      "type": "string",
+      "description": "Order ID if delivery"
+    },
+    "supplier_id": {
+      "type": "string",
+      "description": "Supplier ID"
+    },
+    "supplier_name": {
+      "type": "string",
+      "description": "Supplier name"
+    },
+    "delivery_date": {
+      "type": "string",
+      "format": "date",
+      "description": "Delivery date"
+    },
+    "temperature_logged": {
+      "type": "number",
+      "description": "Temperature at delivery (\u00b0C)"
+    },
+    "temperature_status": {
+      "type": "string",
+      "enum": [
+        "compliant",
+        "borderline",
+        "out_of_range",
+        "not_applicable"
+      ],
+      "description": "Temperature compliance status"
+    },
+    "photos": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Photo URLs"
+    },
+    "notes": {
+      "type": "string",
+      "description": "Transaction notes"
+    },
+    "rejection_reason": {
+      "type": "string",
+      "description": "Reason if rejected"
+    },
+    "transaction_date": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Transaction timestamp"
+    }
+  },
+  "required": [
+    "transaction_type",
+    "ingredient_id",
+    "quantity_change",
+    "executed_by"
+  ]
+}

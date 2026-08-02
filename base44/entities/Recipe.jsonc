@@ -1,0 +1,123 @@
+{
+  "name": "Recipe",
+  "type": "object",
+  "properties": {
+    "recipe_name": {
+      "type": "string",
+      "description": "Recipe name (matches menu item)"
+    },
+    "menu_item_id": {
+      "type": "string",
+      "description": "Linked menu item ID"
+    },
+    "menu_item_name": {
+      "type": "string",
+      "description": "Menu item name"
+    },
+    "portion_yield": {
+      "type": "number",
+      "default": 1,
+      "description": "Number of servings this recipe makes"
+    },
+    "portion_type": {
+      "type": "string",
+      "enum": [
+        "plate",
+        "bowl",
+        "wrap",
+        "cup",
+        "glass",
+        "piece",
+        "box"
+      ],
+      "description": "Type of portion"
+    },
+    "prep_area": {
+      "type": "string",
+      "enum": [
+        "hot_line",
+        "fryer",
+        "chai_station",
+        "cold_prep",
+        "grill",
+        "bakery"
+      ],
+      "description": "Where this is prepared"
+    },
+    "dietary_tag": {
+      "type": "string",
+      "enum": [
+        "V",
+        "E",
+        "NV"
+      ],
+      "description": "Dietary classification"
+    },
+    "ingredients": {
+      "type": "array",
+      "description": "Full ingredient list",
+      "items": {
+        "type": "object",
+        "properties": {
+          "ingredient_name": {
+            "type": "string"
+          },
+          "quantity": {
+            "type": "number"
+          },
+          "unit": {
+            "type": "string",
+            "enum": [
+              "g",
+              "ml",
+              "pcs",
+              "kg",
+              "L"
+            ]
+          },
+          "ingredient_category": {
+            "type": "string",
+            "enum": [
+              "protein",
+              "dairy",
+              "veg",
+              "spice",
+              "sauce",
+              "bread",
+              "oil",
+              "beverage",
+              "grain",
+              "garnish"
+            ]
+          },
+          "storage_location": {
+            "type": "string",
+            "enum": [
+              "dry_store",
+              "fridge",
+              "freezer"
+            ]
+          }
+        }
+      }
+    },
+    "total_cost": {
+      "type": "number",
+      "description": "Total recipe cost"
+    },
+    "prep_time_minutes": {
+      "type": "number",
+      "description": "Preparation time"
+    },
+    "is_active": {
+      "type": "boolean",
+      "default": true
+    }
+  },
+  "required": [
+    "recipe_name",
+    "portion_yield",
+    "portion_type",
+    "prep_area"
+  ]
+}

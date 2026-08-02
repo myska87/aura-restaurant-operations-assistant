@@ -1,0 +1,49 @@
+{
+  "name": "Menu_v2",
+  "type": "object",
+  "properties": {
+    "name": {
+      "type": "string",
+      "description": "Menu item name"
+    },
+    "category": {
+      "type": "string",
+      "enum": [
+        "parotta_rolls",
+        "parotta_kebabs",
+        "desi_breakfast",
+        "chai"
+      ],
+      "description": "Menu category"
+    },
+    "photo_url": {
+      "type": "string",
+      "description": "Menu item photo (mandatory)"
+    },
+    "description": {
+      "type": "string",
+      "description": "Short description"
+    },
+    "price": {
+      "type": "number",
+      "description": "Selling price in \u00a3"
+    },
+    "is_active": {
+      "type": "boolean",
+      "default": true,
+      "description": "Active/Inactive status"
+    },
+    "recipe_id": {
+      "type": "string",
+      "description": "Linked Recipe ID (required)"
+    }
+  },
+  "required": [
+    "name",
+    "category",
+    "photo_url",
+    "description",
+    "price",
+    "recipe_id"
+  ]
+}

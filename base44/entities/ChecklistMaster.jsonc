@@ -1,0 +1,121 @@
+{
+  "name": "ChecklistMaster",
+  "type": "object",
+  "properties": {
+    "checklist_name": {
+      "type": "string",
+      "description": "Name of the checklist"
+    },
+    "checklist_category": {
+      "type": "string",
+      "enum": [
+        "opening",
+        "closing",
+        "audit",
+        "hygiene",
+        "safety",
+        "compliance",
+        "custom"
+      ],
+      "description": "Category of checklist"
+    },
+    "version": {
+      "type": "string",
+      "default": "1.0",
+      "description": "Version number"
+    },
+    "assigned_station": {
+      "type": "string",
+      "enum": [
+        "kitchen",
+        "front",
+        "manager",
+        "all"
+      ],
+      "default": "all",
+      "description": "Which station uses this checklist"
+    },
+    "frequency": {
+      "type": "string",
+      "enum": [
+        "daily",
+        "weekly",
+        "monthly",
+        "one_time"
+      ],
+      "default": "daily",
+      "description": "How often checklist should be completed"
+    },
+    "items": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "item_id": {
+            "type": "string"
+          },
+          "question_type": {
+            "type": "string",
+            "enum": [
+              "yes_no_na",
+              "text",
+              "photo",
+              "signature",
+              "numeric",
+              "date",
+              "dropdown",
+              "file",
+              "section_header"
+            ]
+          },
+          "question_text": {
+            "type": "string"
+          },
+          "required": {
+            "type": "boolean"
+          },
+          "auto_fail": {
+            "type": "boolean",
+            "description": "If No selected, flag for review"
+          },
+          "dropdown_options": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "section_header": {
+            "type": "string"
+          },
+          "order": {
+            "type": "number"
+          }
+        }
+      },
+      "description": "Array of checklist questions"
+    },
+    "is_active": {
+      "type": "boolean",
+      "default": true,
+      "description": "Is this checklist currently in use"
+    },
+    "is_published": {
+      "type": "boolean",
+      "default": false,
+      "description": "Is this checklist published and ready to use"
+    },
+    "created_by_name": {
+      "type": "string",
+      "description": "Who created this checklist"
+    },
+    "created_by_email": {
+      "type": "string",
+      "description": "Creator email"
+    }
+  },
+  "required": [
+    "checklist_name",
+    "checklist_category",
+    "items"
+  ]
+}

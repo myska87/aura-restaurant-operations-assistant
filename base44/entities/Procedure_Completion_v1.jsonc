@@ -1,0 +1,45 @@
+{
+  "name": "Procedure_Completion_v1",
+  "type": "object",
+  "properties": {
+    "procedure_id": {
+      "type": "string",
+      "description": "Linked Visual Procedure ID"
+    },
+    "procedure_title": {
+      "type": "string",
+      "description": "Procedure title for reference"
+    },
+    "completed_by_id": {
+      "type": "string",
+      "description": "User ID who completed"
+    },
+    "completed_by_name": {
+      "type": "string",
+      "description": "User name who completed"
+    },
+    "completed_by_role": {
+      "type": "string",
+      "description": "User role at time of completion"
+    },
+    "completion_date": {
+      "type": "string",
+      "format": "date-time",
+      "description": "When the procedure was completed"
+    },
+    "comment": {
+      "type": "string",
+      "description": "Optional comment from user"
+    },
+    "procedure_version": {
+      "type": "string",
+      "description": "Version of procedure completed"
+    }
+  },
+  "required": [
+    "procedure_id",
+    "procedure_title",
+    "completed_by_id",
+    "completed_by_name"
+  ]
+}

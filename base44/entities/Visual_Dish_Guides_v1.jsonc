@@ -1,0 +1,160 @@
+{
+  "name": "Visual_Dish_Guides_v1",
+  "type": "object",
+  "properties": {
+    "dish_name": {
+      "type": "string",
+      "description": "Dish name (linked to menu item)"
+    },
+    "menu_item_id": {
+      "type": "string",
+      "description": "Linked Menu Item ID"
+    },
+    "recipe_id": {
+      "type": "string",
+      "description": "Linked Recipe ID (reference only)"
+    },
+    "category": {
+      "type": "string",
+      "description": "Dish category (wrap, curry, drink, bakery, chai, dessert, appetizer, main, sauces, or custom)"
+    },
+    "difficulty": {
+      "type": "string",
+      "enum": [
+        "easy",
+        "medium",
+        "advanced"
+      ],
+      "default": "easy",
+      "description": "Cooking difficulty level"
+    },
+    "estimated_cook_time_minutes": {
+      "type": "number",
+      "description": "Estimated cooking time in minutes"
+    },
+    "portion_size": {
+      "type": "number",
+      "default": 1,
+      "description": "Number of portions this guide makes"
+    },
+    "hero_image_url": {
+      "type": "string",
+      "description": "Main dish photo at top"
+    },
+    "ingredients_summary": {
+      "type": "array",
+      "description": "Compact ingredient list for quick reference",
+      "items": {
+        "type": "object",
+        "properties": {
+          "ingredient_name": {
+            "type": "string"
+          },
+          "quantity": {
+            "type": "string"
+          },
+          "icon_url": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "cooking_steps": {
+      "type": "array",
+      "description": "Step-by-step cooking instructions with photos/videos",
+      "items": {
+        "type": "object",
+        "properties": {
+          "step_number": {
+            "type": "number"
+          },
+          "step_title": {
+            "type": "string"
+          },
+          "instruction_text": {
+            "type": "string",
+            "description": "1-2 line instruction"
+          },
+          "photo_url": {
+            "type": "string",
+            "description": "Photo for this step"
+          },
+          "video_url": {
+            "type": "string",
+            "description": "Optional video (YouTube/Instagram/MP4)"
+          },
+          "duration_seconds": {
+            "type": "number",
+            "description": "Time for this step"
+          }
+        },
+        "required": [
+          "step_number",
+          "step_title",
+          "instruction_text"
+        ]
+      }
+    },
+    "quality_tips": {
+      "type": "array",
+      "description": "Key quality points and common mistakes",
+      "items": {
+        "type": "object",
+        "properties": {
+          "type": {
+            "type": "string",
+            "enum": [
+              "quality_check",
+              "common_mistake",
+              "temperature",
+              "timing"
+            ]
+          },
+          "text": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "plating_photo_url": {
+      "type": "string",
+      "description": "Final plated dish photo"
+    },
+    "version": {
+      "type": "string",
+      "default": "1.0",
+      "description": "Version number"
+    },
+    "last_updated_by_id": {
+      "type": "string",
+      "description": "User ID who last updated"
+    },
+    "last_updated_by_name": {
+      "type": "string",
+      "description": "User name who last updated"
+    },
+    "previous_versions": {
+      "type": "array",
+      "description": "Archived previous versions",
+      "items": {
+        "type": "object"
+      }
+    },
+    "is_published": {
+      "type": "boolean",
+      "default": false,
+      "description": "Is this guide published and visible to staff"
+    },
+    "is_locked": {
+      "type": "boolean",
+      "default": true,
+      "description": "READ-ONLY after setup"
+    }
+  },
+  "required": [
+    "dish_name",
+    "category",
+    "difficulty",
+    "cooking_steps"
+  ]
+}

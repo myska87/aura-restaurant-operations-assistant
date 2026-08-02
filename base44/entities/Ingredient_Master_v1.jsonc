@@ -1,0 +1,120 @@
+{
+  "name": "Ingredient_Master_v1",
+  "type": "object",
+  "properties": {
+    "name": {
+      "type": "string",
+      "description": "Ingredient name (unique)"
+    },
+    "category": {
+      "type": "string",
+      "enum": [
+        "meat",
+        "dairy",
+        "veg",
+        "spice",
+        "dry_goods",
+        "sauce",
+        "oil",
+        "beverage",
+        "bread",
+        "frozen",
+        "garnish"
+      ],
+      "description": "Ingredient category"
+    },
+    "unit": {
+      "type": "string",
+      "enum": [
+        "g",
+        "ml",
+        "pcs",
+        "kg",
+        "L"
+      ],
+      "description": "Unit of measure"
+    },
+    "cost_per_unit": {
+      "type": "number",
+      "description": "Cost per unit in \u00a3"
+    },
+    "supplier_id": {
+      "type": "string",
+      "description": "Primary supplier ID (linked)"
+    },
+    "supplier_name": {
+      "type": "string",
+      "description": "Supplier name for reference"
+    },
+    "secondary_supplier_id": {
+      "type": "string",
+      "description": "Optional secondary supplier"
+    },
+    "current_stock": {
+      "type": "number",
+      "default": 0,
+      "description": "Current stock quantity"
+    },
+    "min_stock_level": {
+      "type": "number",
+      "description": "Minimum stock level (triggers alert)"
+    },
+    "storage_location": {
+      "type": "string",
+      "enum": [
+        "fridge",
+        "freezer",
+        "dry_store",
+        "ambient"
+      ],
+      "description": "Storage location"
+    },
+    "allergen_flags": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "enum": [
+          "milk",
+          "eggs",
+          "gluten",
+          "peanuts",
+          "nuts",
+          "soy",
+          "sesame",
+          "mustard",
+          "celery",
+          "fish",
+          "crustaceans",
+          "molluscs",
+          "lupin",
+          "sulphites"
+        ]
+      },
+      "description": "UK FSA 14 Major Allergens"
+    },
+    "shelf_life_days": {
+      "type": "number",
+      "description": "Shelf life in days"
+    },
+    "is_active": {
+      "type": "boolean",
+      "default": true,
+      "description": "Active/Inactive status"
+    },
+    "last_ordered": {
+      "type": "string",
+      "format": "date",
+      "description": "Last order date"
+    },
+    "is_locked": {
+      "type": "boolean",
+      "default": true,
+      "description": "READ-ONLY after initial setup"
+    }
+  },
+  "required": [
+    "name",
+    "category",
+    "unit"
+  ]
+}

@@ -1,0 +1,134 @@
+{
+  "name": "EquipmentFault",
+  "type": "object",
+  "properties": {
+    "equipment_id": {
+      "type": "string",
+      "description": "Linked to Asset entity"
+    },
+    "equipment_name": {
+      "type": "string"
+    },
+    "fault_date": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "fault_type": {
+      "type": "string",
+      "enum": [
+        "mechanical",
+        "electrical",
+        "temperature",
+        "performance",
+        "other"
+      ],
+      "description": "Type of fault"
+    },
+    "description": {
+      "type": "string",
+      "description": "Detailed fault description"
+    },
+    "severity": {
+      "type": "string",
+      "enum": [
+        "low",
+        "medium",
+        "critical"
+      ],
+      "description": "How serious is the fault"
+    },
+    "impact": {
+      "type": "string",
+      "enum": [
+        "food_safety",
+        "service",
+        "both",
+        "none"
+      ],
+      "description": "Impact on operations"
+    },
+    "photo_urls": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Photos of the fault"
+    },
+    "reported_by": {
+      "type": "string"
+    },
+    "reported_by_name": {
+      "type": "string"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "reported",
+        "temporary_fix",
+        "engineer_called",
+        "in_progress",
+        "resolved",
+        "replaced"
+      ],
+      "default": "reported"
+    },
+    "temporary_fix": {
+      "type": "string",
+      "description": "Temporary solution applied"
+    },
+    "engineer_called": {
+      "type": "boolean",
+      "default": false
+    },
+    "engineer_name": {
+      "type": "string"
+    },
+    "engineer_company": {
+      "type": "string"
+    },
+    "engineer_visit_date": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "parts_replaced": {
+      "type": "string"
+    },
+    "repair_cost": {
+      "type": "number"
+    },
+    "downtime_hours": {
+      "type": "number",
+      "description": "Hours equipment was out of service"
+    },
+    "resolved_date": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "resolved_by": {
+      "type": "string"
+    },
+    "resolution_notes": {
+      "type": "string"
+    },
+    "incident_created": {
+      "type": "boolean",
+      "default": false
+    },
+    "incident_id": {
+      "type": "string"
+    },
+    "hq_notified": {
+      "type": "boolean",
+      "default": false
+    }
+  },
+  "required": [
+    "equipment_id",
+    "equipment_name",
+    "fault_type",
+    "description",
+    "severity",
+    "impact",
+    "reported_by"
+  ]
+}

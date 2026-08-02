@@ -1,0 +1,94 @@
+{
+  "name": "DailyCleaningLog",
+  "type": "object",
+  "properties": {
+    "date": {
+      "type": "string",
+      "format": "date",
+      "description": "Date of cleaning"
+    },
+    "area": {
+      "type": "string",
+      "description": "Cleaning area (custom text allowed)"
+    },
+    "area_name": {
+      "type": "string",
+      "description": "Area display name"
+    },
+    "cleaning_task": {
+      "type": "string",
+      "description": "Specific cleaning task for the area"
+    },
+    "cleaning_method": {
+      "type": "string",
+      "description": "Method used (display only)"
+    },
+    "chemical_used": {
+      "type": "string",
+      "description": "Chemical product used"
+    },
+    "completed_by_id": {
+      "type": "string",
+      "description": "Staff member ID who completed"
+    },
+    "completed_by_name": {
+      "type": "string",
+      "description": "Staff member name"
+    },
+    "completed_by_email": {
+      "type": "string",
+      "description": "Staff email"
+    },
+    "time_completed": {
+      "type": "string",
+      "format": "date-time",
+      "description": "When task was completed"
+    },
+    "supervisor_sign_off": {
+      "type": "boolean",
+      "default": false,
+      "description": "Supervisor approval required"
+    },
+    "supervisor_id": {
+      "type": "string",
+      "description": "Supervisor who approved"
+    },
+    "supervisor_name": {
+      "type": "string",
+      "description": "Supervisor name"
+    },
+    "supervisor_time": {
+      "type": "string",
+      "format": "date-time",
+      "description": "When supervisor signed off"
+    },
+    "photo_url": {
+      "type": "string",
+      "description": "Photo evidence URL"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "pending",
+        "in_progress",
+        "completed",
+        "approved"
+      ],
+      "default": "pending",
+      "description": "Log status"
+    },
+    "notes": {
+      "type": "string",
+      "description": "Additional notes"
+    }
+  },
+  "required": [
+    "date",
+    "area",
+    "cleaning_task",
+    "completed_by_id",
+    "completed_by_email",
+    "time_completed",
+    "supervisor_sign_off"
+  ]
+}

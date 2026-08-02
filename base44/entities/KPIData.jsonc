@@ -1,0 +1,78 @@
+{
+  "name": "KPIData",
+  "type": "object",
+  "properties": {
+    "week_start_date": {
+      "type": "string",
+      "format": "date",
+      "description": "Start date of the week"
+    },
+    "week_end_date": {
+      "type": "string",
+      "format": "date",
+      "description": "End date of the week"
+    },
+    "revenue": {
+      "type": "number",
+      "description": "Total revenue (\u00a3)"
+    },
+    "avg_order_value": {
+      "type": "number",
+      "description": "Average order value (\u00a3)"
+    },
+    "total_customers": {
+      "type": "integer",
+      "description": "Total customers this week"
+    },
+    "returning_customers_pct": {
+      "type": "number",
+      "description": "Returning customers percentage"
+    },
+    "staff_cost": {
+      "type": "number",
+      "description": "Total staff cost (\u00a3)"
+    },
+    "ingredient_cost": {
+      "type": "number",
+      "description": "Total ingredient cost (\u00a3)"
+    },
+    "marketing_reach": {
+      "type": "integer",
+      "description": "Social media reach"
+    },
+    "engagement_pct": {
+      "type": "number",
+      "description": "Engagement rate percentage"
+    },
+    "training_completion_pct": {
+      "type": "number",
+      "description": "Training completion percentage"
+    },
+    "profit": {
+      "type": "number",
+      "description": "Total profit (\u00a3)"
+    },
+    "profit_margin_pct": {
+      "type": "number",
+      "description": "Profit margin percentage"
+    },
+    "notes": {
+      "type": "string",
+      "description": "Additional notes or observations"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "draft",
+        "submitted",
+        "verified"
+      ],
+      "default": "draft",
+      "description": "Data entry status"
+    }
+  },
+  "required": [
+    "week_start_date",
+    "week_end_date"
+  ]
+}

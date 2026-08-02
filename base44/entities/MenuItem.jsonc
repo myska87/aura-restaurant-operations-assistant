@@ -1,0 +1,165 @@
+{
+  "name": "MenuItem",
+  "type": "object",
+  "properties": {
+    "name": {
+      "type": "string",
+      "description": "Menu item name"
+    },
+    "category": {
+      "type": "string",
+      "enum": [
+        "desi_breakfast",
+        "desi_crepes",
+        "parotta_rolls",
+        "parotta_kebabs",
+        "patta_bakes",
+        "fryer_heroes",
+        "chaat",
+        "chaipatta_bowls",
+        "chai_street_presses",
+        "vegetarian_street_food",
+        "little_pattas",
+        "signature_karak_chai",
+        "iced_karak",
+        "coffee",
+        "speciality_drinks",
+        "coolers_lassi",
+        "sweets_desserts",
+        "kids_drinks"
+      ],
+      "description": "Menu category"
+    },
+    "photo_url": {
+      "type": "string",
+      "description": "Menu item photo (mandatory)"
+    },
+    "image_url": {
+      "type": "string",
+      "description": "Alternative photo URL"
+    },
+    "description": {
+      "type": "string",
+      "description": "Short description"
+    },
+    "price": {
+      "type": "number",
+      "description": "Selling price in \u00a3"
+    },
+    "cost": {
+      "type": "number",
+      "description": "Total cost per serving"
+    },
+    "profit_margin": {
+      "type": "number",
+      "description": "Profit margin percentage"
+    },
+    "ingredients": {
+      "type": "array",
+      "description": "Ingredients and quantities per serving",
+      "items": {
+        "type": "object",
+        "properties": {
+          "ingredient_id": {
+            "type": "string"
+          },
+          "ingredient_name": {
+            "type": "string"
+          },
+          "quantity": {
+            "type": "number"
+          },
+          "unit": {
+            "type": "string"
+          },
+          "cost_per_unit": {
+            "type": "number"
+          },
+          "total_cost": {
+            "type": "number"
+          }
+        }
+      }
+    },
+    "allergens": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Allergen list"
+    },
+    "dietary_tag": {
+      "type": "string",
+      "enum": [
+        "vegetarian",
+        "vegan",
+        "halal",
+        "gluten_free"
+      ],
+      "description": "Dietary classification"
+    },
+    "preparation_location": {
+      "type": "string",
+      "enum": [
+        "hot_line",
+        "grill",
+        "chai_station",
+        "fryer",
+        "bakery",
+        "cold_prep"
+      ],
+      "description": "Where this item is prepared"
+    },
+    "prep_time_minutes": {
+      "type": "number",
+      "description": "Preparation time"
+    },
+    "servings_per_batch": {
+      "type": "number",
+      "default": 1,
+      "description": "Servings per batch"
+    },
+    "wastage_percent": {
+      "type": "number",
+      "default": 5,
+      "description": "Expected wastage percentage"
+    },
+    "calories": {
+      "type": "number",
+      "description": "Calories per serving"
+    },
+    "sop_id": {
+      "type": "string",
+      "description": "Linked SOP ID"
+    },
+    "recipe_id": {
+      "type": "string",
+      "description": "Linked Recipe ID (single recipe only)"
+    },
+    "last_costed": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Last time costs were calculated"
+    },
+    "is_active": {
+      "type": "boolean",
+      "default": true,
+      "description": "Active/Inactive status"
+    },
+    "is_featured": {
+      "type": "boolean",
+      "default": false,
+      "description": "Featured menu item"
+    },
+    "baseRecipeServings": {
+      "type": "number",
+      "description": "Base recipe servings (for Smart Recipe Mode scaling)"
+    }
+  },
+  "required": [
+    "name",
+    "category",
+    "photo_url",
+    "price"
+  ]
+}

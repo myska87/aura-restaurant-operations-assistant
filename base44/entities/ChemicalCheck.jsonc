@@ -1,0 +1,74 @@
+{
+  "name": "ChemicalCheck",
+  "type": "object",
+  "properties": {
+    "check_date": {
+      "type": "string",
+      "format": "date"
+    },
+    "shift_type": {
+      "type": "string",
+      "enum": [
+        "opening",
+        "mid",
+        "closing"
+      ]
+    },
+    "checked_by": {
+      "type": "string"
+    },
+    "checked_by_name": {
+      "type": "string"
+    },
+    "chemicals_present": {
+      "type": "boolean",
+      "default": false,
+      "description": "All required chemicals available"
+    },
+    "labels_legible": {
+      "type": "boolean",
+      "default": false,
+      "description": "All bottle labels readable"
+    },
+    "dilution_correct": {
+      "type": "boolean",
+      "default": false,
+      "description": "Dilution bottles correctly prepared"
+    },
+    "ppe_available": {
+      "type": "boolean",
+      "default": false,
+      "description": "Gloves, aprons available"
+    },
+    "colour_coding_correct": {
+      "type": "boolean",
+      "default": false,
+      "description": "Bottles in correct colour zones"
+    },
+    "coshh_sheets_accessible": {
+      "type": "boolean",
+      "default": false,
+      "description": "Safety sheets accessible"
+    },
+    "issues_found": {
+      "type": "string",
+      "description": "Any problems identified"
+    },
+    "corrective_action": {
+      "type": "string"
+    },
+    "manager_notified": {
+      "type": "boolean",
+      "default": false
+    },
+    "all_checks_passed": {
+      "type": "boolean",
+      "default": false
+    }
+  },
+  "required": [
+    "check_date",
+    "shift_type",
+    "checked_by"
+  ]
+}

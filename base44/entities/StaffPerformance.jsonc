@@ -1,0 +1,90 @@
+{
+  "name": "StaffPerformance",
+  "type": "object",
+  "properties": {
+    "staff_id": {
+      "type": "string"
+    },
+    "staff_email": {
+      "type": "string"
+    },
+    "staff_name": {
+      "type": "string"
+    },
+    "date": {
+      "type": "string",
+      "format": "date"
+    },
+    "shift_type": {
+      "type": "string",
+      "enum": [
+        "morning",
+        "afternoon",
+        "evening",
+        "night"
+      ]
+    },
+    "orders_completed": {
+      "type": "number",
+      "default": 0
+    },
+    "prep_tasks_completed": {
+      "type": "number",
+      "default": 0
+    },
+    "quality_checks_passed": {
+      "type": "number",
+      "default": 0
+    },
+    "quality_checks_failed": {
+      "type": "number",
+      "default": 0
+    },
+    "mistakes": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "type": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "timestamp": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "training_completed": {
+      "type": "number",
+      "default": 0
+    },
+    "punctuality_score": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 10
+    },
+    "teamwork_score": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 10
+    },
+    "customer_feedback_positive": {
+      "type": "number",
+      "default": 0
+    },
+    "customer_feedback_negative": {
+      "type": "number",
+      "default": 0
+    },
+    "notes": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "staff_email",
+    "date"
+  ]
+}

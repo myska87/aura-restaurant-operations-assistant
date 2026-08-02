@@ -1,0 +1,176 @@
+{
+  "name": "Document",
+  "type": "object",
+  "properties": {
+    "title": {
+      "type": "string",
+      "description": "Document title"
+    },
+    "content": {
+      "type": "string",
+      "description": "Rich text HTML content"
+    },
+    "category": {
+      "type": "string",
+      "enum": [
+        "policies",
+        "hr",
+        "manuals",
+        "quality",
+        "safety",
+        "operations",
+        "training",
+        "compliance",
+        "other"
+      ],
+      "description": "Document category"
+    },
+    "author_id": {
+      "type": "string",
+      "description": "ID of document creator"
+    },
+    "author_name": {
+      "type": "string",
+      "description": "Name of document creator"
+    },
+    "version": {
+      "type": "string",
+      "default": "1.0",
+      "description": "Version number"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "draft",
+        "under_review",
+        "approved",
+        "archived"
+      ],
+      "default": "draft",
+      "description": "Document status"
+    },
+    "visibility": {
+      "type": "string",
+      "enum": [
+        "public",
+        "staff_only",
+        "managers_only",
+        "owners_only"
+      ],
+      "default": "staff_only",
+      "description": "Who can view this document"
+    },
+    "tags": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Document tags for organization"
+    },
+    "linked_sop_id": {
+      "type": "string",
+      "description": "ID of linked SOP"
+    },
+    "linked_visual_guide_id": {
+      "type": "string",
+      "description": "ID of linked Visual Guide"
+    },
+    "linked_menu_item_id": {
+      "type": "string",
+      "description": "ID of linked Menu Item"
+    },
+    "linked_asset_id": {
+      "type": "string",
+      "description": "ID of linked Asset"
+    },
+    "linked_task_id": {
+      "type": "string",
+      "description": "ID of linked Task"
+    },
+    "linked_prep_component_id": {
+      "type": "string",
+      "description": "ID of linked Prep Component"
+    },
+    "linked_training_course_id": {
+      "type": "string",
+      "description": "ID of linked Training Course"
+    },
+    "attachments": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "file_url": {
+            "type": "string"
+          },
+          "file_name": {
+            "type": "string"
+          },
+          "file_type": {
+            "type": "string"
+          },
+          "file_size": {
+            "type": "number"
+          },
+          "uploaded_at": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "description": "Attached files"
+    },
+    "view_count": {
+      "type": "integer",
+      "default": 0,
+      "description": "Total number of views"
+    },
+    "download_count": {
+      "type": "integer",
+      "default": 0,
+      "description": "Total number of downloads"
+    },
+    "print_count": {
+      "type": "integer",
+      "default": 0,
+      "description": "Total number of prints"
+    },
+    "requires_signature": {
+      "type": "boolean",
+      "default": false,
+      "description": "Document requires staff signature"
+    },
+    "requires_reacknowledgement": {
+      "type": "boolean",
+      "default": false,
+      "description": "Requires re-read when document is updated"
+    },
+    "next_review_date": {
+      "type": "string",
+      "format": "date",
+      "description": "Date when document should be reviewed"
+    },
+    "allow_comments": {
+      "type": "boolean",
+      "default": true,
+      "description": "Allow comments on document"
+    },
+    "is_template": {
+      "type": "boolean",
+      "default": false,
+      "description": "Is this a template document"
+    },
+    "file_url": {
+      "type": "string",
+      "description": "Legacy file URL field for backward compatibility"
+    },
+    "file_type": {
+      "type": "string",
+      "description": "Legacy file type field"
+    }
+  },
+  "required": [
+    "title",
+    "category"
+  ]
+}

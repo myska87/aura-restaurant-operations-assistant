@@ -1,0 +1,101 @@
+{
+  "name": "Hazard",
+  "type": "object",
+  "properties": {
+    "haccp_plan_id": {
+      "type": "string",
+      "description": "Reference to parent HACCP plan"
+    },
+    "type": {
+      "type": "string",
+      "enum": [
+        "biological",
+        "chemical",
+        "physical"
+      ],
+      "description": "Type of hazard"
+    },
+    "description": {
+      "type": "string",
+      "description": "Detailed hazard description"
+    },
+    "severity": {
+      "type": "string",
+      "enum": [
+        "low",
+        "medium",
+        "high",
+        "critical"
+      ],
+      "default": "medium",
+      "description": "Severity level of the hazard"
+    },
+    "likelihood": {
+      "type": "string",
+      "enum": [
+        "unlikely",
+        "possible",
+        "likely",
+        "very_likely"
+      ],
+      "default": "possible",
+      "description": "Likelihood of hazard occurring"
+    },
+    "linked_stages": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "enum": [
+          "delivery",
+          "storage",
+          "prep",
+          "cooking",
+          "holding",
+          "serving",
+          "cleaning"
+        ]
+      },
+      "description": "Food handling stages where hazard can occur"
+    },
+    "risk_score": {
+      "type": "number",
+      "description": "Calculated risk score (severity \u00d7 likelihood)"
+    },
+    "is_ccp_hazard": {
+      "type": "boolean",
+      "default": false,
+      "description": "Is this hazard controlled by a CCP"
+    },
+    "linked_ccp_id": {
+      "type": "string",
+      "description": "Reference to CCP that controls this hazard (if applicable)"
+    },
+    "control_measures": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Control measures to prevent/reduce hazard"
+    },
+    "residual_risk": {
+      "type": "string",
+      "enum": [
+        "acceptable",
+        "requires_monitoring",
+        "unacceptable"
+      ],
+      "default": "acceptable",
+      "description": "Risk level after control measures"
+    },
+    "notes": {
+      "type": "string",
+      "description": "Additional notes"
+    }
+  },
+  "required": [
+    "haccp_plan_id",
+    "type",
+    "description",
+    "linked_stages"
+  ]
+}

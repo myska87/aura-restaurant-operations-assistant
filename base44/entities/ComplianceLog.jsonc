@@ -1,0 +1,72 @@
+{
+  "name": "ComplianceLog",
+  "type": "object",
+  "properties": {
+    "user_id": {
+      "type": "string",
+      "description": "User who performed action"
+    },
+    "user_name": {
+      "type": "string",
+      "description": "User name"
+    },
+    "user_email": {
+      "type": "string",
+      "description": "User email"
+    },
+    "user_role": {
+      "type": "string",
+      "description": "User role at time of action"
+    },
+    "action_type": {
+      "type": "string",
+      "enum": [
+        "task_started",
+        "task_completed",
+        "document_viewed",
+        "document_acknowledged",
+        "document_signed",
+        "training_started",
+        "training_completed",
+        "onboarding_started",
+        "onboarding_completed"
+      ],
+      "description": "Type of compliance action"
+    },
+    "action_description": {
+      "type": "string",
+      "description": "Detailed description"
+    },
+    "reference_id": {
+      "type": "string",
+      "description": "ID of task/document referenced"
+    },
+    "reference_name": {
+      "type": "string",
+      "description": "Name of task/document"
+    },
+    "action_timestamp": {
+      "type": "string",
+      "format": "date-time",
+      "description": "When action occurred"
+    },
+    "device_info": {
+      "type": "string",
+      "description": "Device information"
+    },
+    "ip_address": {
+      "type": "string",
+      "description": "IP address"
+    },
+    "metadata": {
+      "type": "object",
+      "description": "Additional context data"
+    }
+  },
+  "required": [
+    "user_id",
+    "action_type",
+    "action_description",
+    "action_timestamp"
+  ]
+}

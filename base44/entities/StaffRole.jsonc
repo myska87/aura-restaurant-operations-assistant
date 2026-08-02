@@ -1,0 +1,42 @@
+{
+  "name": "StaffRole",
+  "type": "object",
+  "properties": {
+    "role_name": {
+      "type": "string",
+      "description": "Role name (e.g., Chef, FOH Lead, Supervisor)"
+    },
+    "role_category": {
+      "type": "string",
+      "enum": [
+        "kitchen",
+        "front_of_house",
+        "management",
+        "operations",
+        "admin"
+      ],
+      "description": "Role category"
+    },
+    "description": {
+      "type": "string",
+      "description": "Role description and responsibilities"
+    },
+    "is_active": {
+      "type": "boolean",
+      "default": true,
+      "description": "Is this role currently in use"
+    },
+    "created_by_id": {
+      "type": "string",
+      "description": "Admin who created role"
+    },
+    "created_by_name": {
+      "type": "string",
+      "description": "Admin name"
+    }
+  },
+  "required": [
+    "role_name",
+    "role_category"
+  ]
+}

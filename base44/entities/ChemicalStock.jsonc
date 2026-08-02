@@ -1,0 +1,66 @@
+{
+  "name": "ChemicalStock",
+  "type": "object",
+  "properties": {
+    "chemical_id": {
+      "type": "string"
+    },
+    "chemical_name": {
+      "type": "string"
+    },
+    "current_stock": {
+      "type": "number",
+      "description": "Number of units"
+    },
+    "unit_type": {
+      "type": "string",
+      "enum": [
+        "bottles",
+        "litres",
+        "kg"
+      ],
+      "default": "bottles"
+    },
+    "reorder_level": {
+      "type": "number",
+      "description": "Alert when stock reaches this level"
+    },
+    "expiry_date": {
+      "type": "string",
+      "format": "date"
+    },
+    "batch_number": {
+      "type": "string"
+    },
+    "last_stock_check": {
+      "type": "string",
+      "format": "date"
+    },
+    "checked_by": {
+      "type": "string"
+    },
+    "usage_rate_weekly": {
+      "type": "number",
+      "description": "Estimated weekly usage"
+    },
+    "is_expired": {
+      "type": "boolean",
+      "default": false
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "in_stock",
+        "low",
+        "out_of_stock",
+        "expired"
+      ],
+      "default": "in_stock"
+    }
+  },
+  "required": [
+    "chemical_id",
+    "chemical_name",
+    "current_stock"
+  ]
+}

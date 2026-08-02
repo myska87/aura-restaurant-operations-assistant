@@ -1,0 +1,35 @@
+{
+  "name": "AppErrorLog",
+  "type": "object",
+  "properties": {
+    "user_email": {
+      "type": "string",
+      "description": "User email if authenticated"
+    },
+    "page_name": {
+      "type": "string",
+      "description": "Page where error occurred"
+    },
+    "error_message": {
+      "type": "string",
+      "description": "Error message"
+    },
+    "error_stack": {
+      "type": "string",
+      "description": "Error stack trace"
+    },
+    "timestamp": {
+      "type": "string",
+      "format": "date-time",
+      "description": "When error occurred"
+    },
+    "user_agent": {
+      "type": "string",
+      "description": "Browser user agent"
+    }
+  },
+  "required": [
+    "error_message",
+    "timestamp"
+  ]
+}

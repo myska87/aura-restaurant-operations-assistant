@@ -1,0 +1,68 @@
+{
+  "name": "StockAlert",
+  "type": "object",
+  "properties": {
+    "alert_type": {
+      "type": "string",
+      "enum": [
+        "low_stock",
+        "out_of_stock",
+        "expiring_soon",
+        "expired",
+        "high_food_cost",
+        "low_margin"
+      ],
+      "description": "Type of alert"
+    },
+    "ingredient_id": {
+      "type": "string"
+    },
+    "ingredient_name": {
+      "type": "string"
+    },
+    "menu_item_id": {
+      "type": "string"
+    },
+    "menu_item_name": {
+      "type": "string"
+    },
+    "current_stock": {
+      "type": "number"
+    },
+    "minimum_stock": {
+      "type": "number"
+    },
+    "expiry_date": {
+      "type": "string",
+      "format": "date"
+    },
+    "severity": {
+      "type": "string",
+      "enum": [
+        "low",
+        "medium",
+        "high",
+        "critical"
+      ],
+      "default": "medium"
+    },
+    "message": {
+      "type": "string"
+    },
+    "resolved": {
+      "type": "boolean",
+      "default": false
+    },
+    "resolved_date": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "action_required": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "alert_type",
+    "message"
+  ]
+}

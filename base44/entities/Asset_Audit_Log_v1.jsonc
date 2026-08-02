@@ -1,0 +1,52 @@
+{
+  "name": "Asset_Audit_Log_v1",
+  "type": "object",
+  "properties": {
+    "asset_id": {
+      "type": "string",
+      "description": "Linked Asset ID"
+    },
+    "asset_name": {
+      "type": "string",
+      "description": "Asset name for reference"
+    },
+    "field_changed": {
+      "type": "string",
+      "description": "Field that was changed"
+    },
+    "old_value": {
+      "type": "string",
+      "description": "Previous value"
+    },
+    "new_value": {
+      "type": "string",
+      "description": "New value"
+    },
+    "changed_by_id": {
+      "type": "string",
+      "description": "User ID who made the change"
+    },
+    "changed_by_name": {
+      "type": "string",
+      "description": "User name who made the change"
+    },
+    "changed_by_role": {
+      "type": "string",
+      "description": "User role at time of change"
+    },
+    "change_reason": {
+      "type": "string",
+      "description": "Reason for change"
+    },
+    "is_locked": {
+      "type": "boolean",
+      "default": true,
+      "description": "Audit logs are READ-ONLY"
+    }
+  },
+  "required": [
+    "asset_id",
+    "field_changed",
+    "changed_by_id"
+  ]
+}

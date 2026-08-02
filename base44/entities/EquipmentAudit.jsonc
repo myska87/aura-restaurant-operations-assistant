@@ -1,0 +1,133 @@
+{
+  "name": "EquipmentAudit",
+  "type": "object",
+  "properties": {
+    "asset_id": {
+      "type": "string",
+      "description": "Reference to Asset"
+    },
+    "asset_name": {
+      "type": "string",
+      "description": "Asset name for reference"
+    },
+    "audit_date": {
+      "type": "string",
+      "format": "date",
+      "description": "When audit was conducted"
+    },
+    "audit_type": {
+      "type": "string",
+      "enum": [
+        "monthly",
+        "quarterly",
+        "annual",
+        "pre_service",
+        "post_service"
+      ],
+      "description": "Type of audit"
+    },
+    "audited_by_id": {
+      "type": "string",
+      "description": "Staff member conducting audit"
+    },
+    "audited_by_name": {
+      "type": "string",
+      "description": "Auditor name"
+    },
+    "audited_by_email": {
+      "type": "string",
+      "description": "Auditor email"
+    },
+    "visual_condition": {
+      "type": "string",
+      "enum": [
+        "excellent",
+        "good",
+        "fair",
+        "poor"
+      ],
+      "description": "Visual condition assessment"
+    },
+    "performance_check": {
+      "type": "string",
+      "enum": [
+        "pass",
+        "warning",
+        "fail"
+      ],
+      "description": "Performance assessment"
+    },
+    "cleanliness_check": {
+      "type": "string",
+      "enum": [
+        "pass",
+        "fail"
+      ],
+      "description": "Cleanliness check result"
+    },
+    "safety_check": {
+      "type": "string",
+      "enum": [
+        "pass",
+        "fail"
+      ],
+      "description": "Safety compliance check"
+    },
+    "issues_found": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "issue_name": {
+            "type": "string"
+          },
+          "severity": {
+            "type": "string",
+            "enum": [
+              "low",
+              "medium",
+              "critical"
+            ]
+          },
+          "action_required": {
+            "type": "string"
+          }
+        }
+      },
+      "description": "Issues found during audit"
+    },
+    "recommended_actions": {
+      "type": "string",
+      "description": "Recommended maintenance actions"
+    },
+    "photos": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Photo URLs from audit"
+    },
+    "overall_rating": {
+      "type": "number",
+      "description": "Overall audit rating (1-10)"
+    },
+    "next_audit_due": {
+      "type": "string",
+      "format": "date",
+      "description": "When next audit is due"
+    },
+    "notes": {
+      "type": "string",
+      "description": "Detailed audit notes"
+    }
+  },
+  "required": [
+    "asset_id",
+    "asset_name",
+    "audit_date",
+    "audit_type",
+    "audited_by_id",
+    "audited_by_name",
+    "audited_by_email"
+  ]
+}

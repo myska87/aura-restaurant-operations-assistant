@@ -1,0 +1,40 @@
+{
+  "name": "FormSubmission",
+  "type": "object",
+  "properties": {
+    "form_id": {
+      "type": "string"
+    },
+    "form_title": {
+      "type": "string"
+    },
+    "submitted_by": {
+      "type": "string"
+    },
+    "submitted_by_name": {
+      "type": "string"
+    },
+    "submission_date": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "responses": {
+      "type": "object",
+      "description": "Field name to value mapping"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "pending",
+        "reviewed",
+        "completed"
+      ],
+      "default": "pending"
+    }
+  },
+  "required": [
+    "form_id",
+    "submitted_by",
+    "responses"
+  ]
+}

@@ -1,0 +1,61 @@
+{
+  "name": "Supplier",
+  "type": "object",
+  "properties": {
+    "name": {
+      "type": "string"
+    },
+    "contact_person": {
+      "type": "string"
+    },
+    "email": {
+      "type": "string"
+    },
+    "phone": {
+      "type": "string"
+    },
+    "address": {
+      "type": "string"
+    },
+    "category": {
+      "type": "string",
+      "enum": [
+        "produce",
+        "dairy",
+        "meat",
+        "seafood",
+        "dry_goods",
+        "beverages",
+        "equipment",
+        "packaging",
+        "other"
+      ]
+    },
+    "payment_terms": {
+      "type": "string"
+    },
+    "delivery_days": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "minimum_order": {
+      "type": "number"
+    },
+    "rating": {
+      "type": "number"
+    },
+    "notes": {
+      "type": "string"
+    },
+    "is_active": {
+      "type": "boolean",
+      "default": true
+    }
+  },
+  "required": [
+    "name",
+    "email"
+  ]
+}

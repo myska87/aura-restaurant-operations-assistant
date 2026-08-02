@@ -1,0 +1,52 @@
+{
+  "name": "CultureAcknowledgment",
+  "type": "object",
+  "properties": {
+    "staff_id": {
+      "type": "string"
+    },
+    "staff_email": {
+      "type": "string"
+    },
+    "staff_name": {
+      "type": "string"
+    },
+    "raving_fans_answer": {
+      "type": "string",
+      "description": "What Raving Fans means to them"
+    },
+    "connected_value": {
+      "type": "string",
+      "enum": [
+        "respect",
+        "hygiene",
+        "excellence",
+        "teamwork",
+        "raving_fans",
+        "improvement"
+      ]
+    },
+    "connected_value_why": {
+      "type": "string",
+      "description": "Why this value resonates"
+    },
+    "improvement_action": {
+      "type": "string",
+      "description": "One action to improve guest experience"
+    },
+    "acknowledged_date": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "completed": {
+      "type": "boolean",
+      "default": true
+    }
+  },
+  "required": [
+    "staff_email",
+    "raving_fans_answer",
+    "connected_value",
+    "improvement_action"
+  ]
+}

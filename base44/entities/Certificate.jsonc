@@ -1,0 +1,63 @@
+{
+  "name": "Certificate",
+  "type": "object",
+  "properties": {
+    "staff_id": {
+      "type": "string"
+    },
+    "staff_name": {
+      "type": "string"
+    },
+    "staff_email": {
+      "type": "string"
+    },
+    "level": {
+      "type": "string",
+      "enum": [
+        "Foundation",
+        "L1",
+        "L2",
+        "L3"
+      ]
+    },
+    "level_name": {
+      "type": "string",
+      "description": "Culture/Basic/Intermediate/Advanced"
+    },
+    "issued_date": {
+      "type": "string",
+      "format": "date"
+    },
+    "expiry_date": {
+      "type": "string",
+      "format": "date",
+      "description": "12 months from issue"
+    },
+    "certificate_number": {
+      "type": "string",
+      "description": "Unique ID"
+    },
+    "pdf_url": {
+      "type": "string",
+      "description": "Generated PDF link"
+    },
+    "qr_code_data": {
+      "type": "string"
+    },
+    "verified": {
+      "type": "boolean",
+      "default": true
+    },
+    "quiz_score": {
+      "type": "number",
+      "description": "Final quiz score percentage"
+    }
+  },
+  "required": [
+    "staff_id",
+    "staff_name",
+    "staff_email",
+    "level",
+    "certificate_number"
+  ]
+}

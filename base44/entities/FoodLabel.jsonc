@@ -1,0 +1,79 @@
+{
+  "name": "FoodLabel",
+  "type": "object",
+  "properties": {
+    "item_name": {
+      "type": "string",
+      "description": "Food item name"
+    },
+    "prep_type": {
+      "type": "string",
+      "enum": [
+        "fresh",
+        "cooked",
+        "batch",
+        "sauce",
+        "dessert"
+      ],
+      "description": "Preparation type"
+    },
+    "storage_type": {
+      "type": "string",
+      "enum": [
+        "fridge",
+        "freezer",
+        "ambient"
+      ],
+      "description": "Storage location"
+    },
+    "prep_date": {
+      "type": "string",
+      "format": "date",
+      "description": "Date prepared"
+    },
+    "use_by_date": {
+      "type": "string",
+      "format": "date",
+      "description": "Auto-calculated use by"
+    },
+    "shelf_life_days": {
+      "type": "number",
+      "description": "Days until expiry"
+    },
+    "prepared_by": {
+      "type": "string"
+    },
+    "prepared_by_name": {
+      "type": "string"
+    },
+    "allergens": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "batch_size": {
+      "type": "string",
+      "description": "Batch size or quantity"
+    },
+    "label_printed": {
+      "type": "boolean",
+      "default": false
+    },
+    "print_count": {
+      "type": "number",
+      "default": 0
+    },
+    "qr_code": {
+      "type": "string",
+      "description": "Generated QR code data"
+    }
+  },
+  "required": [
+    "item_name",
+    "prep_type",
+    "storage_type",
+    "prep_date",
+    "prepared_by"
+  ]
+}

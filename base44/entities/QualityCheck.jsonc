@@ -1,0 +1,95 @@
+{
+  "name": "QualityCheck",
+  "type": "object",
+  "properties": {
+    "check_date": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "menu_item_id": {
+      "type": "string"
+    },
+    "menu_item_name": {
+      "type": "string"
+    },
+    "checker_email": {
+      "type": "string"
+    },
+    "checker_name": {
+      "type": "string"
+    },
+    "prepared_by": {
+      "type": "string"
+    },
+    "prepared_by_name": {
+      "type": "string"
+    },
+    "photo_url": {
+      "type": "string",
+      "description": "Photo of the dish"
+    },
+    "taste_score": {
+      "type": "number",
+      "minimum": 1,
+      "maximum": 5
+    },
+    "presentation_score": {
+      "type": "number",
+      "minimum": 1,
+      "maximum": 5
+    },
+    "temperature_score": {
+      "type": "number",
+      "minimum": 1,
+      "maximum": 5
+    },
+    "portion_score": {
+      "type": "number",
+      "minimum": 1,
+      "maximum": 5
+    },
+    "overall_score": {
+      "type": "number",
+      "minimum": 1,
+      "maximum": 5
+    },
+    "issues": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "enum": [
+          "taste",
+          "temperature",
+          "presentation",
+          "portion",
+          "freshness",
+          "other"
+        ]
+      }
+    },
+    "feedback": {
+      "type": "string"
+    },
+    "corrective_action": {
+      "type": "string"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "passed",
+        "needs_improvement",
+        "failed"
+      ],
+      "default": "passed"
+    },
+    "retraining_required": {
+      "type": "boolean",
+      "default": false
+    }
+  },
+  "required": [
+    "check_date",
+    "menu_item_name",
+    "checker_email"
+  ]
+}

@@ -1,0 +1,92 @@
+{
+  "name": "DailyStockSnapshot",
+  "type": "object",
+  "properties": {
+    "snapshot_date": {
+      "type": "string",
+      "format": "date",
+      "description": "Date of snapshot"
+    },
+    "snapshot_data": {
+      "type": "array",
+      "description": "Stock levels for all ingredients",
+      "items": {
+        "type": "object",
+        "properties": {
+          "ingredient_id": {
+            "type": "string"
+          },
+          "ingredient_name": {
+            "type": "string"
+          },
+          "stock_level": {
+            "type": "number"
+          },
+          "unit": {
+            "type": "string"
+          },
+          "min_stock_level": {
+            "type": "number"
+          },
+          "is_low": {
+            "type": "boolean"
+          },
+          "is_out": {
+            "type": "boolean"
+          }
+        }
+      }
+    },
+    "total_ingredients": {
+      "type": "number",
+      "description": "Total ingredients tracked"
+    },
+    "low_stock_count": {
+      "type": "number",
+      "description": "Number of ingredients below minimum"
+    },
+    "out_of_stock_count": {
+      "type": "number",
+      "description": "Number of ingredients at zero stock"
+    },
+    "reorder_suggestions": {
+      "type": "array",
+      "description": "Suggested reorders for the day",
+      "items": {
+        "type": "object",
+        "properties": {
+          "ingredient_id": {
+            "type": "string"
+          },
+          "ingredient_name": {
+            "type": "string"
+          },
+          "current_stock": {
+            "type": "number"
+          },
+          "reorder_quantity": {
+            "type": "number"
+          },
+          "supplier_name": {
+            "type": "string"
+          },
+          "supplier_contact": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "snapshot_time": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Exact time snapshot was taken"
+    },
+    "generated_by": {
+      "type": "string",
+      "description": "System or user who triggered snapshot"
+    }
+  },
+  "required": [
+    "snapshot_date"
+  ]
+}

@@ -1,0 +1,68 @@
+{
+  "name": "LeadershipJournal",
+  "type": "object",
+  "properties": {
+    "staff_id": {
+      "type": "string"
+    },
+    "staff_email": {
+      "type": "string"
+    },
+    "staff_name": {
+      "type": "string"
+    },
+    "entry_date": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "entry_type": {
+      "type": "string",
+      "enum": [
+        "reflection",
+        "challenge",
+        "win",
+        "learning",
+        "goal"
+      ],
+      "description": "Type of journal entry"
+    },
+    "title": {
+      "type": "string"
+    },
+    "content": {
+      "type": "string",
+      "description": "The journal entry content"
+    },
+    "linked_value": {
+      "type": "string",
+      "enum": [
+        "respect",
+        "hygiene",
+        "excellence",
+        "teamwork",
+        "raving_fans",
+        "improvement"
+      ]
+    },
+    "manager_viewed": {
+      "type": "boolean",
+      "default": false
+    },
+    "manager_feedback": {
+      "type": "string"
+    },
+    "manager_name": {
+      "type": "string"
+    },
+    "is_milestone": {
+      "type": "boolean",
+      "default": false
+    }
+  },
+  "required": [
+    "staff_email",
+    "entry_type",
+    "title",
+    "content"
+  ]
+}

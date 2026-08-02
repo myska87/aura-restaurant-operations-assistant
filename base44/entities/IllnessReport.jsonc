@@ -1,0 +1,112 @@
+{
+  "name": "IllnessReport",
+  "type": "object",
+  "properties": {
+    "staff_id": {
+      "type": "string",
+      "description": "Reference to staff member"
+    },
+    "staff_name": {
+      "type": "string",
+      "description": "Staff member name"
+    },
+    "staff_email": {
+      "type": "string",
+      "description": "Staff email"
+    },
+    "report_date": {
+      "type": "string",
+      "format": "date",
+      "description": "Date of report"
+    },
+    "report_time": {
+      "type": "string",
+      "format": "date-time",
+      "description": "When report was submitted"
+    },
+    "failed_questions": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Questions answered NO"
+    },
+    "symptoms": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "List of symptoms reported (diarrhoea, vomiting, fever, skin_infection, other)"
+    },
+    "date_symptoms_started": {
+      "type": "string",
+      "format": "date",
+      "description": "Date symptoms first appeared"
+    },
+    "last_shift_worked": {
+      "type": "string",
+      "format": "date",
+      "description": "Last shift worked before illness"
+    },
+    "doctor_advised": {
+      "type": "boolean",
+      "default": false,
+      "description": "Doctor advised to stay away from work"
+    },
+    "manager_notified": {
+      "type": "boolean",
+      "default": false,
+      "description": "Manager has been notified immediately"
+    },
+    "manager_id": {
+      "type": "string",
+      "description": "Manager who reviewed the report"
+    },
+    "manager_name": {
+      "type": "string",
+      "description": "Manager name"
+    },
+    "manager_email": {
+      "type": "string",
+      "description": "Manager email"
+    },
+    "manager_response": {
+      "type": "string",
+      "enum": [
+        "approved_work",
+        "approved_alternative",
+        "go_home",
+        "pending"
+      ],
+      "default": "pending",
+      "description": "Manager clearance decision"
+    },
+    "manager_notes": {
+      "type": "string",
+      "description": "Manager notes on clearance decision"
+    },
+    "clearance_date": {
+      "type": "string",
+      "format": "date",
+      "description": "Date manager provided clearance to return"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "pending",
+        "reviewed",
+        "resolved",
+        "cleared"
+      ],
+      "default": "pending",
+      "description": "Report status"
+    }
+  },
+  "required": [
+    "staff_id",
+    "staff_email",
+    "report_date",
+    "report_time",
+    "symptoms"
+  ]
+}

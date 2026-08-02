@@ -1,0 +1,100 @@
+{
+  "name": "TemperatureLog",
+  "type": "object",
+  "properties": {
+    "asset_id": {
+      "type": "string",
+      "description": "Reference to Asset ID from Assets database"
+    },
+    "equipment_name": {
+      "type": "string",
+      "description": "Equipment name (from Assets DB)"
+    },
+    "location": {
+      "type": "string",
+      "description": "Equipment location"
+    },
+    "temperature": {
+      "type": "number",
+      "description": "Recorded temperature in Celsius"
+    },
+    "min_temp": {
+      "type": "number",
+      "description": "Minimum acceptable temperature"
+    },
+    "max_temp": {
+      "type": "number",
+      "description": "Maximum acceptable temperature"
+    },
+    "is_in_range": {
+      "type": "boolean",
+      "description": "Temperature within safe range"
+    },
+    "check_time": {
+      "type": "string",
+      "enum": [
+        "opening",
+        "mid_shift",
+        "closing"
+      ],
+      "description": "Shift when check was performed"
+    },
+    "logged_by": {
+      "type": "string",
+      "description": "User email who logged the temperature"
+    },
+    "logged_by_name": {
+      "type": "string",
+      "description": "User name who logged the temperature"
+    },
+    "log_date": {
+      "type": "string",
+      "format": "date",
+      "description": "Date of temperature check"
+    },
+    "notes": {
+      "type": "string",
+      "description": "Additional notes or observations"
+    },
+    "corrective_action": {
+      "type": "string",
+      "description": "Action taken if temperature out of range"
+    },
+    "manager_notified": {
+      "type": "boolean",
+      "default": false,
+      "description": "Manager notified if out of range"
+    },
+    "batch_id": {
+      "type": "string",
+      "description": "Batch ID for grouped logs (all assets logged together)"
+    },
+    "auto_saved": {
+      "type": "boolean",
+      "default": false,
+      "description": "Was this entry auto-saved as draft"
+    },
+    "is_draft": {
+      "type": "boolean",
+      "default": false,
+      "description": "Is this a draft entry"
+    },
+    "last_edited_by": {
+      "type": "string",
+      "description": "Last person who edited this entry"
+    },
+    "last_edited_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Last edit timestamp"
+    }
+  },
+  "required": [
+    "asset_id",
+    "equipment_name",
+    "temperature",
+    "check_time",
+    "logged_by",
+    "log_date"
+  ]
+}

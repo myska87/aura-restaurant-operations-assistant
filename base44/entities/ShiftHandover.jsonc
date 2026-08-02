@@ -1,0 +1,95 @@
+{
+  "name": "ShiftHandover",
+  "type": "object",
+  "properties": {
+    "shift_date": {
+      "type": "string",
+      "format": "date"
+    },
+    "shift_type": {
+      "type": "string",
+      "enum": [
+        "opening",
+        "mid",
+        "closing"
+      ],
+      "description": "Which shift"
+    },
+    "handover_from": {
+      "type": "string",
+      "description": "Previous shift manager email"
+    },
+    "handover_from_name": {
+      "type": "string"
+    },
+    "handover_to": {
+      "type": "string",
+      "description": "Next shift manager email"
+    },
+    "handover_to_name": {
+      "type": "string"
+    },
+    "stock_issues": {
+      "type": "string",
+      "description": "Any stock problems or shortages"
+    },
+    "equipment_issues": {
+      "type": "string",
+      "description": "Equipment problems or maintenance needed"
+    },
+    "prep_status": {
+      "type": "string",
+      "description": "Prep left or missing"
+    },
+    "cleaning_status": {
+      "type": "string",
+      "description": "Cleaning completion status"
+    },
+    "pending_tasks": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "task": {
+            "type": "string"
+          },
+          "priority": {
+            "type": "string",
+            "enum": [
+              "low",
+              "medium",
+              "high",
+              "urgent"
+            ]
+          },
+          "assigned_to": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "sales_notes": {
+      "type": "string",
+      "description": "Sales performance or customer feedback"
+    },
+    "staff_notes": {
+      "type": "string",
+      "description": "Staff performance or issues"
+    },
+    "general_notes": {
+      "type": "string"
+    },
+    "acknowledged_by": {
+      "type": "string",
+      "description": "Next shift manager who read this"
+    },
+    "acknowledged_at": {
+      "type": "string",
+      "format": "date-time"
+    }
+  },
+  "required": [
+    "shift_date",
+    "shift_type"
+  ]
+}

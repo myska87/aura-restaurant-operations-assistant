@@ -1,0 +1,48 @@
+{
+  "name": "ResetLog",
+  "type": "object",
+  "properties": {
+    "reset_by_name": {
+      "type": "string",
+      "description": "Admin who performed reset"
+    },
+    "reset_by_email": {
+      "type": "string",
+      "description": "Admin email"
+    },
+    "reset_time": {
+      "type": "string",
+      "format": "date-time",
+      "description": "When reset occurred"
+    },
+    "reset_scope": {
+      "type": "string",
+      "enum": [
+        "today",
+        "weekly",
+        "all_active"
+      ],
+      "default": "today",
+      "description": "Scope of reset"
+    },
+    "affected_forms": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "List of forms reset"
+    },
+    "note": {
+      "type": "string",
+      "description": "Optional reset reason"
+    },
+    "records_cleared": {
+      "type": "number",
+      "description": "Number of in-progress records cleared"
+    }
+  },
+  "required": [
+    "reset_by_name",
+    "reset_by_email"
+  ]
+}

@@ -1,0 +1,84 @@
+{
+  "name": "Inventory_Audit_Log_v1",
+  "type": "object",
+  "properties": {
+    "ingredient_id": {
+      "type": "string",
+      "description": "Linked Ingredient Master ID"
+    },
+    "ingredient_name": {
+      "type": "string",
+      "description": "Ingredient name for reference"
+    },
+    "previous_stock": {
+      "type": "number",
+      "description": "Stock level before update"
+    },
+    "new_stock": {
+      "type": "number",
+      "description": "Stock level after update"
+    },
+    "stock_change": {
+      "type": "number",
+      "description": "Difference (new - old)"
+    },
+    "unit": {
+      "type": "string",
+      "enum": [
+        "g",
+        "ml",
+        "pcs",
+        "kg",
+        "L"
+      ],
+      "description": "Unit of measure"
+    },
+    "change_reason": {
+      "type": "string",
+      "enum": [
+        "stock_count",
+        "delivery_received",
+        "correction",
+        "waste_spoilage",
+        "opening_stock",
+        "other"
+      ],
+      "description": "Reason for stock adjustment"
+    },
+    "reason_notes": {
+      "type": "string",
+      "description": "Additional notes or details"
+    },
+    "updated_by_id": {
+      "type": "string",
+      "description": "User ID who made the change"
+    },
+    "updated_by_name": {
+      "type": "string",
+      "description": "User name who made the change"
+    },
+    "updated_by_role": {
+      "type": "string",
+      "description": "User role at time of update"
+    },
+    "source": {
+      "type": "string",
+      "default": "manual_update",
+      "description": "Source of change (manual_update, recipe_execution, etc)"
+    },
+    "is_locked": {
+      "type": "boolean",
+      "default": true,
+      "description": "Audit logs are READ-ONLY"
+    }
+  },
+  "required": [
+    "ingredient_id",
+    "ingredient_name",
+    "previous_stock",
+    "new_stock",
+    "unit",
+    "change_reason",
+    "updated_by_id"
+  ]
+}

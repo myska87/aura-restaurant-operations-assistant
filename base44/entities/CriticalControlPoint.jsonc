@@ -1,0 +1,163 @@
+{
+  "name": "CriticalControlPoint",
+  "type": "object",
+  "properties": {
+    "haccp_plan_id": {
+      "type": "string",
+      "description": "Reference to parent HACCP plan"
+    },
+    "name": {
+      "type": "string",
+      "description": "CCP name/identifier (e.g., 'Final Temperature Check')"
+    },
+    "stage": {
+      "type": "string",
+      "enum": [
+        "delivery",
+        "storage",
+        "prep",
+        "cooking",
+        "holding",
+        "serving",
+        "cleaning"
+      ],
+      "description": "Food handling stage where CCP occurs"
+    },
+    "linked_menu_items": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Menu item IDs controlled by this CCP"
+    },
+    "critical_limit": {
+      "type": "string",
+      "description": "The critical limit value (e.g., '75\u00b0C', '30 minutes')"
+    },
+    "unit": {
+      "type": "string",
+      "enum": [
+        "celsius",
+        "fahrenheit",
+        "time_minutes",
+        "time_hours",
+        "visual",
+        "pH",
+        "aw"
+      ],
+      "description": "Unit of measurement for critical limit"
+    },
+    "monitoring_parameter": {
+      "type": "string",
+      "description": "What is being monitored (e.g., 'core temperature', 'holding time', 'color')"
+    },
+    "check_frequency": {
+      "type": "string",
+      "enum": [
+        "per_batch",
+        "hourly",
+        "every_shift",
+        "daily",
+        "weekly"
+      ],
+      "default": "per_batch",
+      "description": "How often the CCP must be checked"
+    },
+    "monitoring_method": {
+      "type": "string",
+      "description": "How to monitor/measure (e.g., 'thermometer', 'timer', 'visual inspection')"
+    },
+    "responsible_role": {
+      "type": "string",
+      "description": "Job role responsible for monitoring (e.g., 'Chef', 'Kitchen Manager')"
+    },
+    "corrective_actions": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "action": {
+            "type": "string"
+          },
+          "responsible_person": {
+            "type": "string"
+          },
+          "time_limit": {
+            "type": "string"
+          }
+        }
+      },
+      "description": "Actions to take if CCP is not met"
+    },
+    "verification_frequency": {
+      "type": "string",
+      "enum": [
+        "daily",
+        "weekly",
+        "monthly",
+        "quarterly"
+      ],
+      "default": "monthly",
+      "description": "How often CCP system is verified"
+    },
+    "linked_sop_id": {
+      "type": "string",
+      "description": "Reference to detailed SOP for this CCP"
+    },
+    "linked_procedure_ids": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Visual procedures that support this CCP"
+    },
+    "documentation_required": {
+      "type": "boolean",
+      "default": true,
+      "description": "Must results be documented"
+    },
+    "record_template": {
+      "type": "string",
+      "description": "Name of temperature/monitoring log to use"
+    },
+    "deviation_history": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "date": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "recorded_value": {
+            "type": "string"
+          },
+          "action_taken": {
+            "type": "string"
+          },
+          "recorded_by": {
+            "type": "string"
+          }
+        }
+      },
+      "description": "Historical deviation records"
+    },
+    "is_active": {
+      "type": "boolean",
+      "default": true,
+      "description": "Is this CCP currently in use"
+    },
+    "notes": {
+      "type": "string",
+      "description": "Additional CCP details"
+    }
+  },
+  "required": [
+    "haccp_plan_id",
+    "name",
+    "stage",
+    "critical_limit",
+    "unit",
+    "check_frequency"
+  ]
+}

@@ -1,0 +1,95 @@
+{
+  "name": "ChemicalIncident",
+  "type": "object",
+  "properties": {
+    "chemical_id": {
+      "type": "string",
+      "description": "ID of the chemical involved"
+    },
+    "chemical_name": {
+      "type": "string",
+      "description": "Name of the chemical for reference"
+    },
+    "incident_date": {
+      "type": "string",
+      "format": "date-time",
+      "description": "When the incident occurred"
+    },
+    "incident_type": {
+      "type": "string",
+      "enum": [
+        "spill",
+        "exposure",
+        "storage_error",
+        "disposal_error",
+        "labeling_issue",
+        "other"
+      ],
+      "description": "Type of incident"
+    },
+    "severity": {
+      "type": "string",
+      "enum": [
+        "low",
+        "medium",
+        "high",
+        "critical"
+      ],
+      "default": "low",
+      "description": "Severity level"
+    },
+    "description": {
+      "type": "string",
+      "description": "Detailed description of the incident"
+    },
+    "staff_involved": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Names of staff members involved"
+    },
+    "action_taken": {
+      "type": "string",
+      "description": "What action was taken to resolve the incident"
+    },
+    "reported_by_id": {
+      "type": "string",
+      "description": "ID of staff member who reported"
+    },
+    "reported_by_name": {
+      "type": "string",
+      "description": "Name of staff member who reported"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "active",
+        "investigating",
+        "resolved"
+      ],
+      "default": "active",
+      "description": "Current incident status"
+    },
+    "investigation_notes": {
+      "type": "string",
+      "description": "Notes from investigation"
+    },
+    "resolved_date": {
+      "type": "string",
+      "format": "date-time",
+      "description": "When incident was resolved"
+    },
+    "resolved_by": {
+      "type": "string",
+      "description": "Name of person who resolved"
+    }
+  },
+  "required": [
+    "chemical_id",
+    "chemical_name",
+    "incident_date",
+    "incident_type",
+    "reported_by_id"
+  ]
+}

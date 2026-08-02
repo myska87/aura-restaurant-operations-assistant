@@ -1,0 +1,144 @@
+{
+  "name": "OperationReport",
+  "type": "object",
+  "properties": {
+    "reportId": {
+      "type": "string",
+      "description": "Unique report ID"
+    },
+    "reportType": {
+      "type": "string",
+      "enum": [
+        "HYGIENE",
+        "TEMPERATURE",
+        "LABEL",
+        "HANDOVER",
+        "CHECKLIST",
+        "CCP",
+        "PREP_PLAN"
+      ],
+      "description": "Type of report"
+    },
+    "locationId": {
+      "type": "string",
+      "description": "Restaurant/location ID"
+    },
+    "staffId": {
+      "type": "string",
+      "description": "Staff member ID"
+    },
+    "staffName": {
+      "type": "string",
+      "description": "Staff member name"
+    },
+    "staffEmail": {
+      "type": "string",
+      "description": "Staff email"
+    },
+    "reportDate": {
+      "type": "string",
+      "format": "date",
+      "description": "Date of report"
+    },
+    "completionPercentage": {
+      "type": "number",
+      "description": "Completion percentage (0-100)"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "pass",
+        "fail",
+        "pending_review",
+        "completed"
+      ],
+      "description": "Report status"
+    },
+    "checklistItems": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "item_id": {
+            "type": "string"
+          },
+          "item_name": {
+            "type": "string"
+          },
+          "answer": {
+            "type": "string"
+          },
+          "notes": {
+            "type": "string"
+          }
+        }
+      },
+      "description": "Checklist items completed"
+    },
+    "failedItems": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "IDs of failed items"
+    },
+    "sourceEntityId": {
+      "type": "string",
+      "description": "Reference to source entity (ChecklistCompletion, TemperatureLog, etc.)"
+    },
+    "sourceEntityType": {
+      "type": "string",
+      "description": "Type of source entity"
+    },
+    "timestamp": {
+      "type": "string",
+      "format": "date-time",
+      "description": "System timestamp"
+    },
+    "prepMode": {
+      "type": "string",
+      "enum": [
+        "manual",
+        "smart"
+      ],
+      "description": "Prep planning mode used"
+    },
+    "menuItemId": {
+      "type": "string",
+      "description": "Menu item ID for prep plans"
+    },
+    "menuItemName": {
+      "type": "string",
+      "description": "Menu item name"
+    },
+    "targetServings": {
+      "type": "number",
+      "description": "Target servings for smart prep"
+    },
+    "calculatedIngredients": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "ingredientName": {
+            "type": "string"
+          },
+          "requiredQuantity": {
+            "type": "number"
+          },
+          "unit": {
+            "type": "string"
+          }
+        }
+      },
+      "description": "Auto-calculated ingredient quantities"
+    }
+  },
+  "required": [
+    "reportType",
+    "locationId",
+    "staffId",
+    "reportDate",
+    "status"
+  ]
+}

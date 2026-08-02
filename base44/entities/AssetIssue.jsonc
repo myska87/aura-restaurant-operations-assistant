@@ -1,0 +1,152 @@
+{
+  "name": "AssetIssue",
+  "type": "object",
+  "properties": {
+    "asset_id": {
+      "type": "string",
+      "description": "Reference to Asset"
+    },
+    "asset_name": {
+      "type": "string",
+      "description": "Asset name for reference"
+    },
+    "issue_type": {
+      "type": "string",
+      "enum": [
+        "temperature",
+        "mechanical",
+        "electrical",
+        "hygiene",
+        "maintenance",
+        "other"
+      ],
+      "description": "Type of issue"
+    },
+    "severity": {
+      "type": "string",
+      "enum": [
+        "low",
+        "medium",
+        "critical"
+      ],
+      "default": "medium",
+      "description": "Issue severity"
+    },
+    "source": {
+      "type": "string",
+      "enum": [
+        "manual_report",
+        "temperature_breach",
+        "daily_check",
+        "audit_failure",
+        "service_record"
+      ],
+      "description": "How issue was detected"
+    },
+    "description": {
+      "type": "string",
+      "description": "Issue description"
+    },
+    "reported_by_id": {
+      "type": "string",
+      "description": "Staff member who reported"
+    },
+    "reported_by_name": {
+      "type": "string",
+      "description": "Reporter name"
+    },
+    "reported_by_email": {
+      "type": "string",
+      "description": "Reporter email"
+    },
+    "reported_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "When issue was reported"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "open",
+        "in_progress",
+        "resolved",
+        "closed"
+      ],
+      "default": "open",
+      "description": "Issue status"
+    },
+    "assigned_to_id": {
+      "type": "string",
+      "description": "Staff member assigned to fix"
+    },
+    "assigned_to_name": {
+      "type": "string",
+      "description": "Assignee name"
+    },
+    "resolution_notes": {
+      "type": "string",
+      "description": "How issue was resolved"
+    },
+    "resolved_by_id": {
+      "type": "string",
+      "description": "Staff member who resolved"
+    },
+    "resolved_by_name": {
+      "type": "string",
+      "description": "Resolver name"
+    },
+    "resolved_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "When issue was resolved"
+    },
+    "estimated_cost": {
+      "type": "number",
+      "description": "Estimated repair cost"
+    },
+    "actual_cost": {
+      "type": "number",
+      "description": "Actual repair cost"
+    },
+    "linked_check_id": {
+      "type": "string",
+      "description": "Reference to related equipment check"
+    },
+    "linked_temp_log_id": {
+      "type": "string",
+      "description": "Reference to related temperature log"
+    },
+    "linked_audit_id": {
+      "type": "string",
+      "description": "Reference to related audit"
+    },
+    "photo_url": {
+      "type": "string",
+      "description": "Photo of issue"
+    },
+    "downtime_hours": {
+      "type": "number",
+      "description": "Hours asset was out of service"
+    },
+    "impact": {
+      "type": "string",
+      "enum": [
+        "no_impact",
+        "service_reduced",
+        "service_stopped",
+        "food_safety_risk"
+      ],
+      "description": "Impact on operations"
+    }
+  },
+  "required": [
+    "asset_id",
+    "asset_name",
+    "issue_type",
+    "severity",
+    "description",
+    "reported_by_id",
+    "reported_by_email",
+    "reported_at"
+  ]
+}

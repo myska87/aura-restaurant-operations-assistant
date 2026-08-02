@@ -1,0 +1,83 @@
+{
+  "name": "DataBackup",
+  "type": "object",
+  "properties": {
+    "backup_name": {
+      "type": "string",
+      "description": "Auto-generated backup name with timestamp"
+    },
+    "backup_type": {
+      "type": "string",
+      "enum": [
+        "manual",
+        "automatic"
+      ],
+      "description": "Manual or automatic backup"
+    },
+    "backup_format": {
+      "type": "string",
+      "enum": [
+        "json",
+        "csv"
+      ],
+      "default": "json",
+      "description": "Backup file format"
+    },
+    "modules_included": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "List of modules included in backup"
+    },
+    "backup_file_url": {
+      "type": "string",
+      "description": "URL to the backup file"
+    },
+    "backup_size_kb": {
+      "type": "number",
+      "description": "Backup file size in KB"
+    },
+    "backup_date": {
+      "type": "string",
+      "format": "date-time",
+      "description": "When backup was created"
+    },
+    "created_by_id": {
+      "type": "string",
+      "description": "User ID who created backup"
+    },
+    "created_by_name": {
+      "type": "string",
+      "description": "User name who created backup"
+    },
+    "created_by_role": {
+      "type": "string",
+      "description": "User role at time of backup"
+    },
+    "record_count": {
+      "type": "object",
+      "description": "Count of records per module"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "completed",
+        "in_progress",
+        "failed"
+      ],
+      "default": "completed",
+      "description": "Backup status"
+    },
+    "notes": {
+      "type": "string",
+      "description": "Optional backup notes"
+    }
+  },
+  "required": [
+    "backup_name",
+    "backup_type",
+    "backup_date",
+    "created_by_id"
+  ]
+}
